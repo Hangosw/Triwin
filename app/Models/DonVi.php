@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUnitScoping;
 
 class DonVi extends Model
 {
+    use HasUnitScoping;
     protected $table = 'don_vis';
-    
+
     protected $fillable = [
         'Ma', // Sample: DV000
         'Ten',

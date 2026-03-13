@@ -17,7 +17,7 @@ class TangCaController extends Controller
     {
         $phongBanId = $request->phong_ban_id;
         $trangThai = $request->trang_thai;
-        $query = TangCa::with(['nhanVien.ttCongViec.phongBan']);
+        $query = TangCa::with(['nhanVien.ttCongViec.phongBan'])->byUnit();
 
         if ($phongBanId) {
             $query->whereHas('nhanVien.ttCongViec', function ($q) use ($phongBanId) {
@@ -33,14 +33,14 @@ class TangCaController extends Controller
 
         // Stats
         $now = Carbon::now();
-        $totalHoursThisMonth = TangCa::whereYear('Ngay', $now->year)
+        $totalHoursThisMonth = TangCa::byUnit()->whereYear('Ngay', $now->year)
             ->whereMonth('Ngay', $now->month)
             ->where('TrangThai', 'da_duyet')
             ->sum('Tong');
 
-        $pendingCount = TangCa::where('TrangThai', 'dang_cho')->count();
-        $approvedCount = TangCa::where('TrangThai', 'da_duyet')->count();
-        $rejectedCount = TangCa::where('TrangThai', 'tu_choi')->count();
+        $pendingCount = TangCa::byUnit()->where('TrangThai', 'dang_cho')->count();
+        $approvedCount = TangCa::byUnit()->where('TrangThai', 'da_duyet')->count();
+        $rejectedCount = TangCa::byUnit()->where('TrangThai', 'tu_choi')->count();
 
         $phongBans = \App\Models\DmPhongBan::with('ttNhanVienCongViec.nhanVien')->get();
 
@@ -220,7 +220,7 @@ class TangCaController extends Controller
             return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập.']);
         }
 
-        $overtime = TangCa::findOrFail($id);
+        $overtime = TangCa::byUnit()->findOrFail($id);
 
         // Chỉ chủ đơn mới được yêu cầu lại
         $nhanVien = $user->nhanVien;
@@ -270,7 +270,7 @@ class TangCaController extends Controller
         $nhanVien = auth()->user()?->nhanVien;
         $nguoiDuyetId = $nhanVien?->id;
 
-        $overtime = TangCa::findOrFail($id);
+        $overtime = TangCa::byUnit()->findOrFail($id);
         $overtime->update([
             'TrangThai' => 'da_duyet',
             'NguoiDuyetId' => $nguoiDuyetId,
@@ -289,7 +289,7 @@ class TangCaController extends Controller
         $nguoiDuyetId = $nhanVien?->id;
         $lyDoMoi = trim($request->GhiChuLanhDao ?? '');
 
-        $overtime = TangCa::findOrFail($id);
+        $overtime = TangCa::byUnit()->findOrFail($id);
         $ghiChuCu = $overtime->GhiChuLanhDao ?? '';
         $soLan = $overtime->Dem ?? 1;
 
@@ -322,7 +322,7 @@ class TangCaController extends Controller
             return response()->json(['success' => false, 'message' => 'Vui lòng chọn ít nhất một phiếu.']);
         }
 
-        TangCa::whereIn('id', $ids)->where('TrangThai', 'dang_cho')->update([
+        TangCa::byUnit()->whereIn('id', $ids)->where('TrangThai', 'dang_cho')->update([
             'TrangThai' => 'da_duyet',
             'NguoiDuyetId' => $nguoiDuyetId,
             'GhiChuLanhDao' => $request->GhiChuLanhDao ?? 'Phê duyệt hàng loạt',
@@ -346,7 +346,7 @@ class TangCaController extends Controller
         }
 
         // Xử lý từng record để cộng dồn GhiChuLanhDao đúng
-        $overtimes = TangCa::whereIn('id', $ids)->where('TrangThai', 'dang_cho')->get();
+        $overtimes = TangCa::byUnit()->whereIn('id', $ids)->where('TrangThai', 'dang_cho')->get();
         foreach ($overtimes as $ot) {
             $ghiChuCu = $ot->GhiChuLanhDao ?? '';
             $soLan = $ot->Dem ?? 1;

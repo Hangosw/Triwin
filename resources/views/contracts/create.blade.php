@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tạo hợp đồng mới - Vietnam Rubber Group')
+@section('title', (isset($isRenew) ? 'Tái ký hợp đồng' : 'Tạo hợp đồng mới') . ' - Vietnam Rubber Group')
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -155,6 +155,22 @@
             font-size: 16px;
             flex-shrink: 0;
         }
+
+        .select2-container--default .select2-selection--single {
+            height: 42px;
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px;
+            color: #1f2937;
+        }
     </style>
 @endpush
 
@@ -162,8 +178,12 @@
     <!-- Header -->
     <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
         <div>
-            <h1 style="font-size: 30px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">Tạo hợp đồng mới</h1>
-            <p style="color: #6b7280;">Nhập thông tin để tạo hợp đồng lao động cho nhân viên</p>
+            <h1 style="font-size: 30px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">
+                {{ isset($isRenew) ? 'Tái ký hợp đồng' : 'Tạo hợp đồng mới' }}
+            </h1>
+            <p style="color: #6b7280;">
+                {{ isset($isRenew) ? 'Gia hạn hợp đồng mới cho nhân viên dựa trên thông tin cũ' : 'Nhập thông tin để tạo hợp đồng lao động cho nhân viên' }}
+            </p>
         </div>
         <a href="{{ route('contracts.index') }}" class="btn btn-secondary">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
@@ -186,11 +206,13 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Nhân viên <span class="required">*</span></label>
-                    <select name="nhan_vien_id" id="nhanVienSelect" class="form-control" required>
+                    <label class="form-label">Nhân viên <span class="required">*</span></label>
+                    <select name="nhan_vien_id" id="nhanVienSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
                         <option value="">-- Chọn nhân viên --</option>
                         @foreach ($nhanvien as $nv)
-                            <option value="{{ $nv->id }}" data-ma="{{ $nv->Ma }}" data-ten="{{ $nv->Ten }}"
+                            <option value="{{ $nv->id }}" 
+                                @if(isset($isRenew) && $oldContract->NhanVienId == $nv->id) selected @endif
+                                data-ma="{{ $nv->Ma }}" data-ten="{{ $nv->Ten }}"
                                 data-phongban="{{ $nv->phongBan?->Ten }}" data-chucvu="{{ $nv->chucVu?->Ten }}"
                                 data-donvi="{{ $nv->donVi?->Ten }}" data-donvi-id="{{ $nv->ttCongViec?->DonViId }}"
                                 data-phongban-id="{{ $nv->ttCongViec?->PhongBanId }}"
@@ -199,13 +221,19 @@
                             </option>
                         @endforeach
                     </select>
+                    @if(isset($isRenew))
+                        <input type="hidden" name="nhan_vien_id" value="{{ $oldContract->NhanVienId }}">
+                    @endif
                     <div class="help-text">Chọn nhân viên để tạo hợp đồng</div>
                 </div>
 
                 <div class="form-group">
-                    <label>Người ký hợp đồng <span class="required">*</span></label>
-                    <select name="NguoiKyId" id="nguoiKySelect" class="form-control" required disabled>
+                    <label class="form-label">Người ký hợp đồng <span class="required">*</span></label>
+                    <select name="NguoiKyId" id="nguoiKySelect" class="form-control select2" required disabled>
                         <option value="">-- Vui lòng chọn nhân viên trước --</option>
+                        @foreach($nhanvien as $nv)
+                            <option value="{{ $nv->id }}">{{ $nv->Ma }} - {{ $nv->Ten }}</option>
+                        @endforeach
                     </select>
                     <div class="help-text">Người đại diện công ty ký hợp đồng</div>
                 </div>
@@ -243,36 +271,45 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Đơn vị <span class="required">*</span></label>
-                    <select name="don_vi_id" id="donViSelect" class="form-control" required>
+                    <label class="form-label">Đơn vị <span class="required">*</span></label>
+                    <select name="don_vi_id" id="donViSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
                         <option value="">-- Chọn đơn vị --</option>
                         @foreach ($donvi as $dv)
-                            <option value="{{ $dv->id }}">{{ $dv->Ten }}</option>
+                            <option value="{{ $dv->id }}" @if(isset($isRenew) && $oldContract->DonViId == $dv->id) selected @endif data-ma="{{ $dv->Ma }}">{{ $dv->Ten }}</option>
                         @endforeach
                     </select>
+                    @if(isset($isRenew))
+                        <input type="hidden" name="don_vi_id" value="{{ $oldContract->DonViId }}">
+                    @endif
                 </div>
 
                 <div class="form-group">
-                    <label>Phòng ban <span class="required">*</span></label>
-                    <select name="phong_ban_id" id="phongBanSelect" class="form-control" required>
+                    <label class="form-label">Phòng ban <span class="required">*</span></label>
+                    <select name="phong_ban_id" id="phongBanSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
                         <option value="">-- Chọn phòng ban --</option>
                         @foreach ($phongban as $pb)
-                            <option value="{{ $pb->id }}">{{ $pb->Ten }}</option>
+                            <option value="{{ $pb->id }}" @if(isset($isRenew) && $oldContract->PhongBanId == $pb->id) selected @endif>{{ $pb->Ten }}</option>
                         @endforeach
                     </select>
+                    @if(isset($isRenew))
+                        <input type="hidden" name="phong_ban_id" value="{{ $oldContract->PhongBanId }}">
+                    @endif
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Chức vụ <span class="required">*</span></label>
-                <select name="chuc_vu_id" id="chucVuSelect" class="form-control" required>
+                <label class="form-label">Chức vụ <span class="required">*</span></label>
+                <select name="chuc_vu_id" id="chucVuSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
                     <option value="">-- Chọn chức vụ --</option>
                     @foreach ($chucvu as $cv)
-                        <option value="{{ $cv->id }}" data-phucap="{{ $cv->PhuCapChucVu }}" data-loai="{{ $cv->Loai }}">
+                        <option value="{{ $cv->id }}" @if(isset($isRenew) && $oldContract->ChucVuId == $cv->id) selected @endif data-phucap="{{ $cv->PhuCapChucVu }}" data-loai="{{ $cv->Loai }}">
                             {{ $cv->Ten }}
                         </option>
                     @endforeach
                 </select>
+                @if(isset($isRenew))
+                    <input type="hidden" name="chuc_vu_id" value="{{ $oldContract->ChucVuId }}">
+                @endif
 
                 <!-- Thông báo lỗi validation -->
                 <div id="chuc-vu-error" class="validation-error" style="display: none;">
@@ -291,7 +328,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Số hợp đồng <span class="required">*</span></label>
+                    <label class="form-label">Số hợp đồng <span class="required">*</span></label>
                     <input type="text" name="so_hop_dong" id="soHopDong" class="form-control" placeholder="Tự động tạo"
                         readonly style="background: #f9fafb;">
                     <div class="help-text">Format: [STT]/[Năm]/[Mã Loại]-[Mã Đơn Vị]</div>
@@ -303,17 +340,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Loại hợp đồng <span class="required">*</span></label>
-                    <select name="loai_hop_dong_id" id="loaiHopDongSelect" class="form-control" required>
+                    <label class="form-label">Loại hợp đồng <span class="required">*</span></label>
+                    <select name="loai_hop_dong_id" id="loaiHopDongSelect" class="form-control select2" required>
                         <option value="">-- Chọn loại hợp đồng --</option>
-                        <option value="1" data-ma="HDTV" data-loai="thu_viec">Hợp đồng thử việc</option>
-                        <option value="2" data-ma="HDLD" data-loai="chinh_thuc_xac_dinh_thoi_han">Hợp đồng lao động xác định
+                        <option value="1" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 1) selected @endif data-ma="HDTV" data-loai="thu_viec">Hợp đồng thử việc</option>
+                        <option value="2" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 2) selected @endif data-ma="HDLD" data-loai="chinh_thuc_xac_dinh_thoi_han">Hợp đồng lao động xác định
                             thời hạn</option>
-                        <option value="3" data-ma="HDLD" data-loai="chinh_thuc_khong_xac_dinh_thoi_han">Hợp đồng lao động
+                        <option value="3" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 3) selected @endif data-ma="HDLD" data-loai="chinh_thuc_khong_xac_dinh_thoi_han">Hợp đồng lao động
                             không xác định thời hạn
                         </option>
-                        <option value="4" data-ma="HDKV" data-loai="khoan_viec">Hợp đồng khoán việc</option>
-                        <option value="5" data-ma="HDTL" data-loai="thoi_vu">Hợp đồng thời vụ</option>
+                        <option value="4" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 4) selected @endif data-ma="HDKV" data-loai="khoan_viec">Hợp đồng khoán việc</option>
+                        <option value="5" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 5) selected @endif data-ma="HDTV" data-loai="thoi_vu">Hợp đồng thời vụ</option>
                     </select>
                 </div>
             </div>
@@ -347,8 +384,8 @@
             </div>
 
             <div class="form-group">
-                <label>Trạng thái <span class="required">*</span></label>
-                <select name="trang_thai" class="form-control" required>
+                <label class="form-label">Trạng thái <span class="required">*</span></label>
+                <select name="trang_thai" class="form-control select2" required>
                     <option value="1" selected>Còn hiệu lực</option>
                     <option value="0">Hết hạn</option>
                     <option value="2">Bị hủy/Thanh lý</option>
@@ -375,10 +412,10 @@
                         Ngạch lương
                         <span style="font-size: 12px; color: #6b7280; font-weight: 400;">(tuỳ chọn)</span>
                     </label>
-                    <select name="ngach_luong_id" id="ngachLuongSelect" class="form-control">
+                    <select name="ngach_luong_id" id="ngachLuongSelect" class="form-control select2">
                         <option value="">-- Chọn ngạch lương --</option>
                         @foreach($ngachLuongs as $nl)
-                            <option value="{{ $nl->id }}" data-ma="{{ $nl->Ma }}" data-ten="{{ $nl->Ten }}"
+                            <option value="{{ $nl->id }}" @if(isset($isRenew) && $oldDienBien && $oldDienBien->NgachLuongId == $nl->id) selected @endif data-ma="{{ $nl->Ma }}" data-ten="{{ $nl->Ten }}"
                                 data-nhom="{{ $nl->Nhom }}">
                                 {{ $nl->Ma }} – {{ $nl->Ten }}
                                 @if($nl->Nhom) (Nhóm {{ $nl->Nhom }}) @endif
@@ -408,8 +445,8 @@
                         }
                     @endphp
                     <script id="ngachBacData" type="application/json">
-                            {!! json_encode($ngachBacJson) !!}
-                        </script>
+                                    {!! json_encode($ngachBacJson) !!}
+                                </script>
                 </div>
 
                 <div class="form-group">
@@ -417,7 +454,7 @@
                         Bậc lương
                         <span style="font-size: 12px; color: #6b7280; font-weight: 400;">(chọn ngạch trước)</span>
                     </label>
-                    <select name="bac_luong_id" id="bacLuongSelect" class="form-control" disabled>
+                    <select name="bac_luong_id" id="bacLuongSelect" class="form-control select2" disabled>
                         <option value="">-- Chọn bậc lương --</option>
                     </select>
                     <div class="help-text" id="bacLuongHint">
@@ -427,8 +464,8 @@
 
                     {{-- Badge hiển thị hệ số sau khi chọn --}}
                     <div id="heSoBadge" style="display:none; margin-top: 8px; padding: 8px 12px;
-                                     background: #f0fdf4; border: 1px solid #0F5132; border-radius: 6px;
-                                     font-size: 13px; color: #0F5132;">
+                                             background: #f0fdf4; border: 1px solid #0F5132; border-radius: 6px;
+                                             font-size: 13px; color: #0F5132;">
                         <strong id="heSoValue">–</strong>
                         <span style="color: #6b7280;"> × {{ number_format($mucLuongCoSo, 0, ',', '.') }} đ
                             = </span>
@@ -442,7 +479,7 @@
                 <label>Lương cơ bản (VNĐ) <span class="required">*</span></label>
 
                 <input type="text" name="luong_co_ban" id="luongCoBan" class="form-control salary-input formatted-number"
-                    placeholder="15.000.000" min="5310000" required>
+                    placeholder="15.000.000" min="5310000" required value="{{ isset($isRenew) ? number_format($oldContract->LuongCoBan, 0, ',', '.') : '' }}" @if(isset($isRenew)) readonly @endif>
                 <div class="help-text">Lương cơ bản (tính BHXH) - Tối thiểu 5.310.000 VNĐ (Vùng I năm 2026)</div>
             </div>
 
@@ -464,7 +501,7 @@
                 <div class="form-group">
                     <label>Phụ cấp trách nhiệm (VNĐ)</label>
                     <input type="text" name="phu_cap_trach_nhiem" id="phuCapTrachNhiem"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapTrachNhiem, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
                 </div>
             </div>
 
@@ -472,20 +509,20 @@
                 <div class="form-group">
                     <label>Phụ cấp độc hại, nguy hiểm (VNĐ)</label>
                     <input type="text" name="phu_cap_doc_hai" id="phuCapDocHai"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapDocHai, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
                 </div>
 
                 <div class="form-group">
                     <label>Phụ cấp thâm niên (VNĐ)</label>
                     <input type="text" name="phu_cap_tham_nien" id="phuCapThamNien"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapThamNien, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Phụ cấp khu vực, thu hút (VNĐ)</label>
                 <input type="text" name="phu_cap_khu_vuc" id="phuCapKhuVuc"
-                    class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                    class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapKhuVuc, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
             </div>
 
             <!-- Phụ cấp KHÔNG tính BHXH -->
@@ -498,13 +535,13 @@
                 <div class="form-group">
                     <label>Phụ cấp ăn trưa (VNĐ)</label>
                     <input type="text" name="phu_cap_an_trua" id="phuCapAnTrua"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapAnTrua, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
                 </div>
 
                 <div class="form-group">
                     <label>Hỗ trợ xăng xe (VNĐ)</label>
                     <input type="text" name="phu_cap_xang_xe" id="phuCapXangXe"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapXangXe, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
                 </div>
             </div>
 
@@ -512,20 +549,20 @@
                 <div class="form-group">
                     <label>Hỗ trợ điện thoại (VNĐ)</label>
                     <input type="text" name="phu_cap_dien_thoai" id="phuCapDienThoai"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapDienThoai, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
                 </div>
 
                 <div class="form-group">
                     <label>Tiền nhà ở (VNĐ)</label>
                     <input type="text" name="phu_cap_nha_o" id="phuCapNhaO"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format(($oldContract->PhuCapKhac - 0), 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Phụ cấp khác (VNĐ)</label>
                 <input type="text" name="phu_cap_khac" id="phuCapKhac" class="form-control salary-input formatted-number"
-                    placeholder="0" min="0" value="0">
+                    placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapKhac, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
             </div>
 
             <!-- Hidden input for Total Income (saved to TongLuong) -->
@@ -626,7 +663,7 @@
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    Tạo hợp đồng
+                    {{ isset($isRenew) ? 'Ký hợp đồng mới' : 'Tạo hợp đồng' }}
                 </button>
             </div>
         </div>
@@ -664,27 +701,28 @@
             startDatePicker.setDate(new Date(), true);
 
             // Show employee info when selected
-            document.getElementById('nhanVienSelect').addEventListener('change', function () {
-                const option = this.options[this.selectedIndex];
+            // document.getElementById('nhanVienSelect').addEventListener('change', function () { // Original
+            $('#nhanVienSelect').on('change', function () { // Select2 change event
+                const option = $(this).find('option:selected'); // Get selected option with jQuery
                 const card = document.getElementById('employeeInfoCard');
-                const nguoiKySelect = document.getElementById('nguoiKySelect');
-                const selectedEmployeeId = this.value;
+                const nguoiKySelect = $('#nguoiKySelect'); // Use jQuery for Select2
+                const selectedEmployeeId = $(this).val(); // Get value with jQuery
 
-                if (this.value) {
+                if (selectedEmployeeId) {
                     // Show employee info
-                    document.getElementById('empMa').textContent = option.dataset.ma || '-';
-                    document.getElementById('empTen').textContent = option.dataset.ten || '-';
-                    document.getElementById('empPhongBan').textContent = option.dataset.phongban || '-';
-                    document.getElementById('empChucVu').textContent = option.dataset.chucvu || '-';
+                    document.getElementById('empMa').textContent = option.data('ma') || '-';
+                    document.getElementById('empTen').textContent = option.data('ten') || '-';
+                    document.getElementById('empPhongBan').textContent = option.data('phongban') || '-';
+                    document.getElementById('empChucVu').textContent = option.data('chucvu') || '-';
                     card.classList.add('show');
 
                     // Auto-fill position info
-                    document.getElementById('donViSelect').value = option.dataset.donviId || '';
-                    document.getElementById('phongBanSelect').value = option.dataset.phongbanId || '';
-                    document.getElementById('chucVuSelect').value = option.dataset.chucvuId || '';
+                    $('#donViSelect').val(option.data('donvi-id')).trigger('change');
+                    $('#phongBanSelect').val(option.data('phongban-id')).trigger('change');
+                    $('#chucVuSelect').val(option.data('chucvu-id')).trigger('change');
 
                     // Reset and populate Người ký hợp đồng dropdown
-                    nguoiKySelect.innerHTML = '<option value="">-- Chọn người ký --</option>';
+                    nguoiKySelect.html('<option value="">-- Chọn người ký --</option>');
 
                     // Add all employees except the selected one
                     allEmployees.forEach(emp => {
@@ -694,12 +732,13 @@
                             // Access chuc_vu through tt_cong_viec relationship
                             const chucVu = emp.tt_cong_viec?.chuc_vu?.Ten || 'Chưa xác định';
                             opt.textContent = `${emp.Ma} - ${emp.Ten} - ${chucVu}`;
-                            nguoiKySelect.appendChild(opt);
+                            nguoiKySelect.append(opt); // Use append for jQuery object
                         }
                     });
 
-                    // Enable the dropdown
-                    nguoiKySelect.disabled = false;
+                    // Enable the dropdown and refresh Select2
+                    nguoiKySelect.prop('disabled', false).trigger('change');
+                    nguoiKySelect.select2('open'); // Open Select2 dropdown after populating
 
                     // Generate contract number
                     generateContractNumber();
@@ -707,23 +746,23 @@
                     card.classList.remove('show');
 
                     // Reset and disable Người ký hợp đồng dropdown
-                    nguoiKySelect.innerHTML = '<option value="">-- Vui lòng chọn nhân viên trước --</option>';
-                    nguoiKySelect.disabled = true;
+                    nguoiKySelect.html('<option value="">-- Vui lòng chọn nhân viên trước --</option>');
+                    nguoiKySelect.prop('disabled', true).trigger('change');
                 }
             });
 
             // Generate contract number
             function generateContractNumber() {
-                const loaiSelect = document.getElementById('loaiHopDongSelect');
-                const donViSelect = document.getElementById('donViSelect');
+                const loaiSelect = $('#loaiHopDongSelect'); // Use jQuery
+                const donViSelect = $('#donViSelect'); // Use jQuery
                 const currentYear = new Date().getFullYear();
 
-                if (loaiSelect.value && donViSelect.value) {
-                    const loaiOption = loaiSelect.options[loaiSelect.selectedIndex];
-                    const donViOption = donViSelect.options[donViSelect.selectedIndex];
+                if (loaiSelect.val() && donViSelect.val()) { // Use .val() for jQuery
+                    const loaiOption = loaiSelect.find('option:selected'); // Get selected option
+                    const donViOption = donViSelect.find('option:selected'); // Get selected option
 
-                    const maLoai = loaiOption.dataset.ma || 'HD';
-                    const maDonVi = donViOption.dataset.ma || 'DV001';
+                    const maLoai = loaiOption.data('ma') || 'HD';
+                    const maDonVi = donViOption.data('ma') || 'DV001';
 
                     // Format: [STT]/[Năm]/[Mã Loại]-[Mã Đơn Vị]
                     const soHopDong = `${String(contractCounter).padStart(3, '0')}/${currentYear}/${maLoai}-${maDonVi}`;
@@ -731,20 +770,25 @@
                     document.getElementById('soHopDong').value = soHopDong;
                     document.getElementById('contractNumberDisplay').textContent = soHopDong;
                     document.getElementById('contractPreview').style.display = 'block';
+                } else {
+                    document.getElementById('soHopDong').value = 'Tự động tạo';
+                    document.getElementById('contractPreview').style.display = 'none';
                 }
             }
 
             // Update contract type
-            document.getElementById('loaiHopDongSelect').addEventListener('change', function () {
-                const option = this.options[this.selectedIndex];
-                const loai = option.dataset.loai || '';
+            // document.getElementById('loaiHopDongSelect').addEventListener('change', function () { // Original
+            $('#loaiHopDongSelect').on('change', function () { // Select2 change event
+                const option = $(this).find('option:selected'); // Get selected option
+                const loai = option.data('loai') || '';
                 document.getElementById('loaiInput').value = loai;
 
                 generateContractNumber();
             });
 
             // Update contract number when don vi changes
-            document.getElementById('donViSelect').addEventListener('change', generateContractNumber);
+            // document.getElementById('donViSelect').addEventListener('change', generateContractNumber); // Original
+            $('#donViSelect').on('change', generateContractNumber); // Select2 change event
 
             // Calculate contract duration
             function calculateDuration() {
@@ -805,17 +849,31 @@
             }
 
             // Form validation
-            document.querySelector('form').addEventListener('submit', function (e) {
-                const requiredFields = document.querySelectorAll('[required]');
+            // document.querySelector('form').addEventListener('submit', function (e) { // Original
+            $('#contractForm').on('submit', function (e) { // jQuery for form submission
+                const requiredFields = this.querySelectorAll('[required]');
                 let isValid = true;
 
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         isValid = false;
-                        field.style.borderColor = '#dc2626';
+                        if ($(field).hasClass('select2')) { // Check if it's a Select2 dropdown
+                            $(field).next('.select2-container').find('.select2-selection--single').css('border-color', '#dc2626');
+                        } else {
+                            field.style.borderColor = '#dc2626';
+                        }
                     } else {
-                        field.style.borderColor = '#d1d5db';
+                        if ($(field).hasClass('select2')) {
+                            $(field).next('.select2-container').find('.select2-selection--single').css('border-color', '#d1d5db');
+                        } else {
+                            field.style.borderColor = '#d1d5db';
+                        }
                     }
+                });
+
+                // Reset select2 border on change
+                $('.select2').on('change', function () {
+                    $(this).next('.select2-container').find('.select2-selection--single').css('border-color', '#d1d5db');
                 });
 
                 // Validate date range
@@ -852,14 +910,20 @@
 
                     const firstInvalid = document.querySelector('[required]:invalid, [required][value=""]');
                     if (firstInvalid) {
-                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        firstInvalid.focus();
+                        // If it's a Select2, scroll to its container
+                        if ($(firstInvalid).hasClass('select2')) {
+                            $(firstInvalid).next('.select2-container').get(0).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            $(firstInvalid).next('.select2-container').find('.select2-selection--single').focus();
+                        } else {
+                            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstInvalid.focus();
+                        }
                     }
                 }
             });
 
             // Remove error border on input
-            document.querySelectorAll('input, select, textarea').forEach(field => {
+            document.querySelectorAll('input:not(.select2), textarea').forEach(field => { // Exclude Select2
                 field.addEventListener('input', function () {
                     this.style.borderColor = '#d1d5db';
                 });
@@ -938,11 +1002,11 @@
             const mucLuongCoSo = {{ $mucLuongCoSo }};
 
             // Auto-fill position allowance when position is selected
-            const chucVuSelect = document.getElementById('chucVuSelect');
+            const chucVuSelect = $('#chucVuSelect'); // Use jQuery
             if (chucVuSelect) {
-                chucVuSelect.addEventListener('change', function () {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const heSoPhuCap = parseFloat(selectedOption.getAttribute('data-phucap')) || 0;
+                chucVuSelect.on('change', function () { // Select2 change event
+                    const selectedOption = $(this).find('option:selected'); // Get selected option
+                    const heSoPhuCap = parseFloat(selectedOption.data('phucap')) || 0;
 
                     // Calculate allowance amount = coefficient × base salary
                     const phuCapAmount = heSoPhuCap * mucLuongCoSo;
@@ -995,22 +1059,17 @@
 
             // Check if manager position is already filled in department
             function checkPositionAvailability() {
-                const phongBanSelect = document.getElementById('phongBanSelect');
-                const chucVuSelect = document.getElementById('chucVuSelect');
+                const phongBanSelect = $('#phongBanSelect'); // Use jQuery
+                const chucVuSelect = $('#chucVuSelect'); // Use jQuery
 
-                if (!phongBanSelect || !chucVuSelect) return;
-
-                const phongBanId = phongBanSelect.value;
-                const chucVuId = chucVuSelect.value;
-
-                if (!phongBanId || !chucVuId) {
+                if (!phongBanSelect.val() || !chucVuSelect.val()) { // Use .val()
                     hideChucVuError();
                     return;
                 }
 
                 // Get selected position type (Loai)
-                const selectedOption = chucVuSelect.options[chucVuSelect.selectedIndex];
-                const loai = selectedOption.getAttribute('data-loai');
+                const selectedOption = chucVuSelect.find('option:selected'); // Get selected option
+                const loai = selectedOption.data('loai');
 
                 // Only check for Loai 1 (manager positions)
                 if (loai != '1') {
@@ -1026,8 +1085,8 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        phong_ban_id: phongBanId,
-                        chuc_vu_id: chucVuId,
+                        phong_ban_id: phongBanSelect.val(), // Use .val()
+                        chuc_vu_id: chucVuSelect.val(), // Use .val()
                         nhan_vien_id: null // Always null for contract creation
                     })
                 })
@@ -1073,7 +1132,8 @@
             // Handle form submission with AJAX and SweetAlert2
             const contractForm = document.getElementById('contractForm');
             if (contractForm) {
-                contractForm.addEventListener('submit', function (e) {
+                // contractForm.addEventListener('submit', function (e) { // Original
+                $('#contractForm').on('submit', function (e) { // jQuery for form submission
                     e.preventDefault();
 
                     // Check for validation errors
@@ -1089,10 +1149,10 @@
                     }
 
                     // Disable submit button
-                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const submitBtn = $(this).find('button[type="submit"]'); // Use jQuery
                     if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+                        submitBtn.prop('disabled', true); // Use prop for jQuery
+                        submitBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...'); // Use html for jQuery
                     }
 
                     // Unformat all formatted-number inputs before submission
@@ -1163,46 +1223,78 @@
 
                             // Re-enable submit button
                             if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Tạo hợp đồng';
+                                submitBtn.prop('disabled', false); // Use prop for jQuery
+                                submitBtn.html('<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Tạo hợp đồng'); // Use html for jQuery
                             }
                         });
                 });
             }
-            // Auto-select employee if nhan_vien_id is in URL
+
+            // Auto-select employee if nhan_vien_id is in URL (for normal creation from profile/transfer)
             const urlParams = new URLSearchParams(window.location.search);
             const nhanVienId = urlParams.get('nhan_vien_id');
             const phieuId = urlParams.get('phieu_dieu_chuyen_id');
 
             if (phieuId) {
-                document.getElementById('phieuDieuChuyenId').value = phieuId;
+                const phieuInput = document.getElementById('phieuDieuChuyenId');
+                if (phieuInput) phieuInput.value = phieuId;
             }
 
             if (nhanVienId) {
-                const nhanVienSelect = document.getElementById('nhanVienSelect');
-                if (nhanVienSelect) {
-                    nhanVienSelect.value = nhanVienId;
-                    // Disable to prevent change
-                    nhanVienSelect.classList.add('locked-field');
-                    nhanVienSelect.style.backgroundColor = '#f3f4f6';
-                    nhanVienSelect.style.pointerEvents = 'none';
+                $(document).ready(function() {
+                    const nhanVienSelect = $('#nhanVienSelect');
+                    if (nhanVienSelect.length) {
+                        nhanVienSelect.val(nhanVienId).trigger('change');
+                        nhanVienSelect.prop('disabled', true).addClass('locked-field');
+                        nhanVienSelect.next('.select2-container').find('.select2-selection--single').css({
+                            'background-color': '#f3f4f6',
+                            'pointer-events': 'none'
+                        });
 
-                    // Trigger the change event to update other fields
-                    nhanVienSelect.dispatchEvent(new Event('change'));
-
-                    // Lock position fields
-                    const posFields = ['donViSelect', 'phongBanSelect', 'chucVuSelect'];
-                    posFields.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) {
-                            el.classList.add('locked-field');
-                            el.style.backgroundColor = '#f3f4f6';
-                            el.style.pointerEvents = 'none';
-                            el.setAttribute('tabindex', '-1');
+                        // Lock position fields if coming from transfer
+                        if (phieuId) {
+                            const posFields = ['donViSelect', 'phongBanSelect', 'chucVuSelect'];
+                            posFields.forEach(id => {
+                                const el = $('#' + id);
+                                if (el.length) {
+                                    el.prop('disabled', true).addClass('locked-field');
+                                    el.next('.select2-container').find('.select2-selection--single').css({
+                                        'background-color': '#f3f4f6',
+                                        'pointer-events': 'none'
+                                    });
+                                }
+                            });
                         }
+                    }
+                });
+            }
+
+            // Renewal initialization
+            @if(isset($isRenew))
+                $(document).ready(function() {
+                    $('#nhanVienSelect').trigger('change');
+                    
+                    // Set next start date
+                    @if($oldContract->NgayKetThuc)
+                        const oldEndDate = "{{ $oldContract->NgayKetThuc }}";
+                        const nextDate = new Date(oldEndDate);
+                        nextDate.setDate(nextDate.getDate() + 1);
+                        startDatePicker.setDate(nextDate, true);
+                    @endif
+
+                    // Trigger salary calculation
+                    calculateSalary();
+
+                    // Apply locked styles to Select2
+                    const lockedFields = ['#nhanVienSelect', '#donViSelect', '#phongBanSelect', '#chucVuSelect'];
+                    lockedFields.forEach(selector => {
+                        $(selector).next('.select2-container').find('.select2-selection--single').css({
+                            'background-color': '#f3f4f6',
+                            'pointer-events': 'none'
+                        });
                     });
 
-                    // Add a small notice
+                    // Add notice
                     const positionSection = document.querySelector('.form-section:nth-of-type(2)');
                     if (positionSection) {
                         const notice = document.createElement('div');
@@ -1210,57 +1302,61 @@
                         notice.style.color = '#0F5132';
                         notice.style.marginTop = '8px';
                         notice.style.fontStyle = 'italic';
-                        notice.innerHTML = '<i class="bi bi-info-circle"></i> Vị trí công việc đã được cố định theo phiếu điều chuyển nội bộ.';
+                        notice.innerHTML = '<i class="bi bi-info-circle"></i> Thông tin nhân viên và vị trí được cố định từ hợp đồng cũ.';
                         positionSection.appendChild(notice);
                     }
-                }
-            }
+                });
+            @endif
             // =============================================
             // Ngạch lương & Bậc lương – cascade logic
             // =============================================
-            (function () {
+            $(document).ready(function () {
+                // Initialize Select2
+                $('.select2').select2({
+                    width: '100%',
+                    placeholder: 'Chọn một mục',
+                    allowClear: true
+                });
+
                 const ngachData = JSON.parse(document.getElementById('ngachBacData').textContent);
-                const ngachSelect = document.getElementById('ngachLuongSelect');
-                const bacSelect = document.getElementById('bacLuongSelect');
-                const heSoBadge = document.getElementById('heSoBadge');
-                const heSoValue = document.getElementById('heSoValue');
-                const luongTinhTu = document.getElementById('luongTinhTu');
-                const luongCoBanInput = document.getElementById('luongCoBan');
+                const ngachSelect = $('#ngachLuongSelect'); // Use jQuery
+                const bacSelect = $('#bacLuongSelect'); // Use jQuery
+                const heSoBadge = $('#heSoBadge'); // Use jQuery
+                const heSoValue = $('#heSoValue'); // Use jQuery
+                const luongTinhTu = $('#luongTinhTu'); // Use jQuery
+                const luongCoBanInput = $('#luongCoBan'); // Use jQuery
 
                 // Khi chọn Ngạch lương → load danh sách Bậc lương
-                ngachSelect.addEventListener('change', function () {
-                    const ngachId = parseInt(this.value);
-                    bacSelect.innerHTML = '<option value="">-- Chọn bậc lương --</option>';
-                    heSoBadge.style.display = 'none';
+                ngachSelect.on('change', function () { // Select2 change event
+                    const ngachId = parseInt($(this).val()); // Use .val()
+                    bacSelect.html('<option value="">-- Chọn bậc lương --</option>'); // Use html()
+                    heSoBadge.hide(); // Use hide()
 
                     if (!ngachId) {
-                        bacSelect.disabled = true;
+                        bacSelect.prop('disabled', true).trigger('change'); // Use prop and trigger
                         return;
                     }
 
                     const ngach = ngachData.find(n => n.id === ngachId);
                     if (!ngach || !ngach.bacs.length) {
-                        bacSelect.disabled = true;
+                        bacSelect.prop('disabled', true).trigger('change');
                         return;
                     }
 
                     ngach.bacs.forEach(b => {
-                        const opt = document.createElement('option');
-                        opt.value = b.id;
-                        opt.dataset.heso = b.heso;
-                        opt.textContent = `Bậc ${b.bac}  –  Hệ số ${b.heso.toFixed(2)}`;
-                        bacSelect.appendChild(opt);
+                        const opt = `<option value="${b.id}" data-heso="${b.heso}">Bậc ${b.bac}  –  Hệ số ${b.heso.toFixed(2)}</option>`;
+                        bacSelect.append(opt); // Use append
                     });
-                    bacSelect.disabled = false;
+                    bacSelect.prop('disabled', false).trigger('change'); // Enable and refresh Select2
                 });
 
                 // Khi chọn Bậc lương → tính và điền Lương cơ bản
-                bacSelect.addEventListener('change', function () {
-                    const opt = this.options[this.selectedIndex];
-                    const heso = parseFloat(opt.dataset.heso);
+                bacSelect.on('change', function () { // Select2 change event
+                    const opt = $(this).find('option:selected'); // Get selected option
+                    const heso = parseFloat(opt.data('heso'));
 
                     if (!heso) {
-                        heSoBadge.style.display = 'none';
+                        heSoBadge.hide();
                         return;
                     }
 
@@ -1268,17 +1364,32 @@
                     const formatted = formatNumber(luong);
 
                     // Điền vào ô lương cơ bản
-                    luongCoBanInput.value = formatted;
+                    luongCoBanInput.val(formatted); // Use val()
 
                     // Cập nhật badge
-                    heSoValue.textContent = heso.toFixed(2);
-                    luongTinhTu.textContent = formatNumber(luong) + ' đ';
-                    heSoBadge.style.display = 'block';
+                    heSoValue.text(heso.toFixed(2)); // Use text()
+                    luongTinhTu.text(formatNumber(luong) + ' đ'); // Use text()
+                    heSoBadge.show(); // Use show()
 
                     // Kích hoạt tính tổng lương
                     calculateSalary();
                 });
-            })();
+
+                // Pre-select Bậc if renewal
+                @if(isset($isRenew) && $oldDienBien)
+                    const oldNgachId = "{{ $oldDienBien->NgachLuongId }}";
+                    const oldBacId = "{{ $oldDienBien->BacLuongId }}";
+                    if (oldNgachId) {
+                        ngachSelect.val(oldNgachId).trigger('change');
+                        if (oldBacId) {
+                            // Wait a bit for the cascade to finish
+                            setTimeout(() => {
+                                bacSelect.val(oldBacId).trigger('change');
+                            }, 500);
+                        }
+                    }
+                @endif
+            });
         </script>
     @endpush
 @endsection

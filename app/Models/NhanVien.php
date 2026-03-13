@@ -11,6 +11,29 @@ class NhanVien extends Model
     use HasUnitScoping;
     protected $table = 'nhan_viens';
 
+    protected static function booted()
+    {
+        static::saved(function ($nhanVien) {
+            $user = $nhanVien->nguoiDung;
+            if ($user) {
+                $updates = [];
+                if ($nhanVien->wasChanged('Ten') && $user->Ten !== $nhanVien->Ten) {
+                    $updates['Ten'] = $nhanVien->Ten;
+                }
+                if ($nhanVien->wasChanged('Email') && $user->Email !== $nhanVien->Email) {
+                    $updates['Email'] = $nhanVien->Email;
+                }
+                if ($nhanVien->wasChanged('SoDienThoai') && $user->SoDienThoai !== $nhanVien->SoDienThoai) {
+                    $updates['SoDienThoai'] = $nhanVien->SoDienThoai;
+                }
+
+                if (!empty($updates)) {
+                    $user->update($updates);
+                }
+            }
+        });
+    }
+
     protected $fillable = [
         'Ma',  // Mã nhân viên: NV_YY_XXXXX
         'Ten',  //

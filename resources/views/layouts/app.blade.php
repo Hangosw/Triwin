@@ -909,18 +909,22 @@
                                 class="submenu-item {{ request()->routeIs('cham-cong.danh-sach') ? 'active' : '' }}">
                                 <span>Danh sách chấm công</span>
                             </a>
+                            @unlessrole('Employee|Nhân viên')
                             <a href="{{ route('cham-cong.taoView') }}"
                                 class="submenu-item {{ request()->routeIs('cham-cong.taoView') ? 'active' : '' }}">
                                 <span>Chấm công (Admin)</span>
                             </a>
+                            @endunlessrole
                             <a href="{{ route('cham-cong.ca-nhan') }}"
                                 class="submenu-item {{ request()->routeIs('cham-cong.ca-nhan') ? 'active' : '' }}">
                                 <span>Chấm công cá nhân</span>
                             </a>
+                            @unlessrole('Employee|Nhân viên')
                             <a href="{{ route('cham-cong.schedule') }}"
                                 class="submenu-item {{ request()->routeIs('cham-cong.schedule') ? 'active' : '' }}">
                                 <span>Lịch làm việc</span>
                             </a>
+                            @endunlessrole
                         </div>
                     </div>
                 @endcan
@@ -941,26 +945,32 @@
                             </svg>
                         </div>
                         <div class="submenu" id="overtime-leave-submenu">
+                            @unlessrole('Employee|Nhân viên')
                             <a href="{{ route('tang-ca.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('tang-ca.danh-sach') ? 'active' : '' }}">
                                 <span>Tăng ca (Admin)</span>
                             </a>
+                            @endunlessrole
                             <a href="{{ route('tang-ca.ca-nhan') }}"
                                 class="submenu-item {{ request()->routeIs('tang-ca.ca-nhan') ? 'active' : '' }}">
                                 <span>Đăng ký tăng ca</span>
                             </a>
+                            @unlessrole('Employee|Nhân viên')
                             <a href="{{ route('nghi-phep.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('nghi-phep.danh-sach') ? 'active' : '' }}">
                                 <span>Nghỉ phép (Admin)</span>
                             </a>
+                            @endunlessrole
                             <a href="{{ route('nghi-phep.ca-nhan') }}"
                                 class="submenu-item {{ request()->routeIs('nghi-phep.ca-nhan') ? 'active' : '' }}">
                                 <span>Đăng ký nghỉ phép</span>
                             </a>
+                            @unlessrole('Employee|Nhân viên')
                             <a href="{{ route('nghi-phep.config') }}"
                                 class="submenu-item {{ request()->routeIs('nghi-phep.config') ? 'active' : '' }}">
                                 <span>Cấu hình nghỉ phép</span>
                             </a>
+                            @endunlessrole
                         </div>
                     </div>
                 @endcan
@@ -1173,6 +1183,29 @@
                 dateFormat: 'd/m/Y',        // Format: DD/MM/YYYY
                 allowInput: true,           // Cho phép nhập tay
                 disableMobile: true         // Không dùng native mobile picker
+            });
+        });
+
+        // Global Select2 Initialization
+        $(document).ready(function () {
+            function initSelect2(container) {
+                $(container).find('select:not(.no-select2):not(.select2-hidden-accessible)').each(function () {
+                    const dropdownParent = $(this).closest('.modal').length ? $(this).closest('.modal') : null;
+                    $(this).select2({
+                        width: '100%',
+                        placeholder: $(this).data('placeholder') || 'Chọn một mục',
+                        allowClear: true,
+                        dropdownParent: dropdownParent
+                    });
+                });
+            }
+
+            // Initial call
+            initSelect2(document);
+
+            // Re-initialize for dynamic content (like Bootstrap modals)
+            $(document).on('shown.bs.moda l', function (e) {
+                initSelect2(e.target);
             });
         });
     </script>

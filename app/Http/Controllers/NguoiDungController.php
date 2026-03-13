@@ -32,14 +32,20 @@ class NguoiDungController extends Controller
         ];
 
         $validated = $request->validate([
+            'Ten' => 'nullable|string|max:255',
             'TaiKhoan' => 'required|string|max:255|unique:nguoi_dungs,TaiKhoan',
             'Email' => 'nullable|email|max:255|unique:nguoi_dungs,Email',
             'SoDienThoai' => 'nullable|string|max:20',
             'TrangThai' => 'required|in:0,1',
-        ], $messages);
+            'don_vis' => 'required_with:roles|array|min:1',
+        ], array_merge($messages, [
+                'don_vis.required_with' => 'Bạn phải chọn ít nhất một Đơn vị quản lý trước khi gán Quyền (Roles).',
+                'don_vis.min' => 'Bạn phải chọn ít nhất một Đơn vị quản lý.',
+            ]));
 
         try {
             $user = new NguoiDung();
+            $user->Ten = $validated['Ten'] ?? null;
             $user->TaiKhoan = $validated['TaiKhoan'];
             $user->Email = $validated['Email'] ?? null;
             $user->SoDienThoai = $validated['SoDienThoai'] ?? null;
@@ -82,7 +88,7 @@ class NguoiDungController extends Controller
     {
         $users = NguoiDung::whereHas('nhanVien', function ($q) {
             $q->byUnit();
-        })->select(['id', 'TaiKhoan', 'Email', 'SoDienThoai', 'TrangThai'])->get();
+        })->select(['id', 'Ten', 'TaiKhoan', 'Email', 'SoDienThoai', 'TrangThai'])->get();
         return response()->json(['data' => $users]);
     }
 
@@ -118,10 +124,12 @@ class NguoiDungController extends Controller
 
         // Validation rules
         $rules = [
+            'Ten' => 'nullable|string|max:255',
             'TaiKhoan' => 'required|string|max:255|unique:nguoi_dungs,TaiKhoan,' . $id,
             'Email' => 'nullable|email|max:255|unique:nguoi_dungs,Email,' . $id,
             'SoDienThoai' => 'nullable|string|max:20',
             'TrangThai' => 'required|in:0,1',
+            'don_vis' => 'required_with:roles|array|min:1',
         ];
 
         // Nếu có nhập mật khẩu mới
@@ -145,10 +153,14 @@ class NguoiDungController extends Controller
         ];
 
         // Validate
-        $validated = $request->validate($rules, $messages);
+        $validated = $request->validate($rules, array_merge($messages, [
+            'don_vis.required_with' => 'Bạn phải chọn ít nhất một Đơn vị quản lý trước khi gán Quyền (Roles).',
+            'don_vis.min' => 'Bạn phải chọn ít nhất một Đơn vị quản lý.',
+        ]));
 
         try {
             // Cập nhật thông tin cơ bản
+            $user->Ten = $validated['Ten'] ?? $user->Ten;
             $user->TaiKhoan = $validated['TaiKhoan'];
             $user->Email = $validated['Email'] ?? null;
             $user->SoDienThoai = $validated['SoDienThoai'] ?? null;

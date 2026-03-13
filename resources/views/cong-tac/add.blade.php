@@ -138,7 +138,7 @@
                             <option value="">-- Tìm kiếm & Chọn nhân viên --</option>
                             @foreach($nhanViens as $nv)
                                 <option value="{{ $nv->id }}" {{ old('NhanVienId') == $nv->id ? 'selected' : '' }}>
-                                    {{ $nv->Ma }} - {{ $nv->Ten }} ({{ $nv->CCCD }})
+                                    {{ $nv->Ma }} - {{ $nv->Ten }} ({{ $nv->SoCCCD }})
                                 </option>
                             @endforeach
                         </select>
@@ -206,7 +206,8 @@
                             {{ auth()->user()->nhanVien->Ten ?? auth()->user()->TaiKhoan }}
                         </div>
                         <div style="font-size: 13px; color: #64748b;">Mã NV:
-                            {{ auth()->user()->nhanVien->Ma ?? 'Chưa liên kết hồ sơ' }}</div>
+                            {{ auth()->user()->nhanVien->Ma ?? 'Chưa liên kết hồ sơ' }}
+                        </div>
                     </div>
                 </div>
 

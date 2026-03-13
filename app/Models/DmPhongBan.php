@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUnitScoping;
 
 class DmPhongBan extends Model
 {
+    use HasUnitScoping;
     protected $table = 'dm_phong_bans';
 
     protected $fillable = [

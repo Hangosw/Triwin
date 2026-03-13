@@ -19,7 +19,7 @@ class NghiPhepController extends Controller
         $loaiNghiPhepId = $request->loai_phep_id;
         $trangThai = $request->trang_thai;
 
-        $query = DangKyNghiPhep::with(['nhanVien.ttCongViec.phongBan', 'loaiNghiPhep']);
+        $query = DangKyNghiPhep::with(['nhanVien.ttCongViec.phongBan', 'loaiNghiPhep'])->byUnit();
 
         if ($phongBanId) {
             $query->whereHas('nhanVien.ttCongViec', function ($q) use ($phongBanId) {
@@ -39,15 +39,15 @@ class NghiPhepController extends Controller
 
         // Stats
         $now = Carbon::now();
-        $totalInMonth = DangKyNghiPhep::where(function ($q) use ($now) {
+        $totalInMonth = DangKyNghiPhep::byUnit()->where(function ($q) use ($now) {
             $q->whereYear('TuNgay', $now->year)->whereMonth('TuNgay', $now->month)
                 ->orWhereYear('DenNgay', $now->year)->whereMonth('DenNgay', $now->month);
         })->count();
 
-        $totalCount = DangKyNghiPhep::count();
-        $pendingCount = DangKyNghiPhep::where('TrangThai', 2)->count();
-        $approvedCount = DangKyNghiPhep::where('TrangThai', 1)->count();
-        $rejectedCount = DangKyNghiPhep::where('TrangThai', 0)->count();
+        $totalCount = DangKyNghiPhep::byUnit()->count();
+        $pendingCount = DangKyNghiPhep::byUnit()->where('TrangThai', 2)->count();
+        $approvedCount = DangKyNghiPhep::byUnit()->where('TrangThai', 1)->count();
+        $rejectedCount = DangKyNghiPhep::byUnit()->where('TrangThai', 0)->count();
 
         $phongBans = DmPhongBan::all();
         $loaiNghiPheps = LoaiNghiPhep::all();
@@ -260,7 +260,7 @@ class NghiPhepController extends Controller
             ]);
         }
 
-        $leave = DangKyNghiPhep::with('loaiNghiPhep')->findOrFail($id);
+        $leave = DangKyNghiPhep::with('loaiNghiPhep')->byUnit()->findOrFail($id);
 
         $leave->update([
             'TrangThai' => 1,
@@ -297,7 +297,7 @@ class NghiPhepController extends Controller
             ]);
         }
 
-        $leave = DangKyNghiPhep::findOrFail($id);
+        $leave = DangKyNghiPhep::byUnit()->findOrFail($id);
 
         $leave->update([
             'TrangThai' => 0,
@@ -329,7 +329,7 @@ class NghiPhepController extends Controller
             return response()->json(['success' => false, 'message' => 'Vui lòng chọn ít nhất một đơn.']);
         }
 
-        $leaves = DangKyNghiPhep::with('loaiNghiPhep')->whereIn('id', $ids)->where('TrangThai', 2)->get();
+        $leaves = DangKyNghiPhep::with('loaiNghiPhep')->byUnit()->whereIn('id', $ids)->where('TrangThai', 2)->get();
         foreach ($leaves as $leave) {
             $leave->update([
                 'TrangThai' => 1,
@@ -371,7 +371,7 @@ class NghiPhepController extends Controller
             return response()->json(['success' => false, 'message' => 'Vui lòng chọn ít nhất một đơn.']);
         }
 
-        DangKyNghiPhep::whereIn('id', $ids)->where('TrangThai', 2)->update([
+        DangKyNghiPhep::byUnit()->whereIn('id', $ids)->where('TrangThai', 2)->update([
             'TrangThai' => 0,
             'NguoiDuyetId' => $nhanVien->id
         ]);

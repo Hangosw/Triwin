@@ -137,6 +137,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/xoa-nhieu', [HopDongController::class, 'XoaNhieu'])->name('xoa-nhieu');
         Route::get('/{id}/download-word', [HopDongController::class, 'downloadWord'])->name('download-word');
         Route::get('/{id}/print', [HopDongController::class, 'print'])->name('print');
+        Route::get('/tai-ki/{id}', [HopDongController::class, 'RenewView'])->name('renew');
     });
 
     Route::prefix('cham-cong')->name('cham-cong.')->group(function () {
@@ -146,20 +147,20 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/danh-sach', [ChamCongController::class, 'DanhSachView'])->name('danh-sach');
         Route::get('/data', [ChamCongController::class, 'DataChamCong'])->name('data');
-        Route::get('/tao', [ChamCongController::class, 'TaoView'])->name('taoView');
-        Route::post('/tao', [ChamCongController::class, 'Tao'])->name('tao');
-        Route::get('/import', [ChamCongController::class, 'importView'])->name('importView');
-        Route::post('/import', [ChamCongController::class, 'import'])->name('import');
-        Route::get('/info/{id}', [ChamCongController::class, 'Info'])->name('info');
-        Route::get('/sua/{id}', [ChamCongController::class, 'SuaView'])->name('suaView');
-        Route::post('/sua/{id}', [ChamCongController::class, 'CapNhat'])->name('cap-nhat');
-        Route::post('/xoa/{id}', [ChamCongController::class, 'Xoa'])->name('xoa');
-        Route::post('/xoa-nhieu', [ChamCongController::class, 'XoaNhieu'])->name('xoa-nhieu');
+        Route::get('/tao', [ChamCongController::class, 'TaoView'])->name('taoView')->middleware('permission:Quản lý chấm công');
+        Route::post('/tao', [ChamCongController::class, 'Tao'])->name('tao')->middleware('permission:Quản lý chấm công');
+        Route::get('/import', [ChamCongController::class, 'importView'])->name('importView')->middleware('permission:Quản lý chấm công');
+        Route::post('/import', [ChamCongController::class, 'import'])->name('import')->middleware('permission:Quản lý chấm công');
+        Route::get('/info/{id}', [ChamCongController::class, 'Info'])->name('info')->middleware('permission:Quản lý chấm công');
+        Route::get('/sua/{id}', [ChamCongController::class, 'SuaView'])->name('suaView')->middleware('permission:Quản lý chấm công');
+        Route::post('/sua/{id}', [ChamCongController::class, 'CapNhat'])->name('cap-nhat')->middleware('permission:Quản lý chấm công');
+        Route::post('/xoa/{id}', [ChamCongController::class, 'Xoa'])->name('xoa')->middleware('permission:Quản lý chấm công');
+        Route::post('/xoa-nhieu', [ChamCongController::class, 'XoaNhieu'])->name('xoa-nhieu')->middleware('permission:Quản lý chấm công');
 
         // Lịch làm việc
-        Route::get('/lich-lam-viec', [ChamCongController::class, 'schedule'])->name('schedule');
-        Route::post('/lich-lam-viec/save', [ChamCongController::class, 'saveSchedule'])->name('schedule.save');
-        Route::post('/lich-lam-viec', [ChamCongController::class, 'saveSchedule'])->name('schedule.save');
+        Route::get('/lich-lam-viec', [ChamCongController::class, 'schedule'])->name('schedule')->middleware('permission:Quản lý chấm công');
+        Route::post('/lich-lam-viec/save', [ChamCongController::class, 'saveSchedule'])->name('schedule.save')->middleware('permission:Quản lý chấm công');
+        Route::post('/lich-lam-viec', [ChamCongController::class, 'saveSchedule'])->name('schedule.save')->middleware('permission:Quản lý chấm công');
     });
 
     Route::prefix('tang-ca')->name('tang-ca.')->group(function () {
@@ -169,26 +170,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/yeu-cau-lai/{id}', [TangCaController::class, 'YeuCauLai'])->name('yeu-cau-lai');
 
         // Tuyến đường cho Admin
-        Route::get('/danh-sach', [TangCaController::class, 'DanhSachView'])->name('danh-sach');
-        Route::post('/duyet/{id}', [TangCaController::class, 'Duyet'])->name('duyet');
-        Route::post('/tu-choi/{id}', [TangCaController::class, 'TuChoi'])->name('tu-choi');
-        Route::post('/bulk-duyet', [TangCaController::class, 'DuyetNhieu'])->name('bulk-duyet');
-        Route::post('/bulk-tu-choi', [TangCaController::class, 'TuChoiNhieu'])->name('bulk-tu-choi');
+        Route::get('/danh-sach', [TangCaController::class, 'DanhSachView'])->name('danh-sach')->middleware('permission:Quản lý tăng ca nghỉ phép');
+        Route::post('/duyet/{id}', [TangCaController::class, 'Duyet'])->name('duyet')->middleware('permission:Duyệt yêu cầu');
+        Route::post('/tu-choi/{id}', [TangCaController::class, 'TuChoi'])->name('tu-choi')->middleware('permission:Duyệt yêu cầu');
+        Route::post('/bulk-duyet', [TangCaController::class, 'DuyetNhieu'])->name('bulk-duyet')->middleware('permission:Duyệt yêu cầu');
+        Route::post('/bulk-tu-choi', [TangCaController::class, 'TuChoiNhieu'])->name('bulk-tu-choi')->middleware('permission:Duyệt yêu cầu');
     });
 
     Route::prefix('nghi-phep')->name('nghi-phep.')->group(function () {
         Route::get('/ca-nhan', [NghiPhepController::class, 'CaNhanView'])->name('ca-nhan');
         Route::post('/tao-moi', [NghiPhepController::class, 'TaoMoi'])->name('tao-moi');
-        Route::get('/danh-sach', [NghiPhepController::class, 'DanhSachView'])->name('danh-sach');
-        Route::post('/duyet/{id}', [NghiPhepController::class, 'Duyet'])->name('duyet');
-        Route::post('/tu-choi/{id}', [NghiPhepController::class, 'TuChoi'])->name('tu-choi');
-        Route::post('/bulk-duyet', [NghiPhepController::class, 'DuyetNhieu'])->name('bulk-duyet');
-        Route::post('/bulk-tu-choi', [NghiPhepController::class, 'TuChoiNhieu'])->name('bulk-tu-choi');
+        Route::get('/danh-sach', [NghiPhepController::class, 'DanhSachView'])->name('danh-sach')->middleware('permission:Quản lý tăng ca nghỉ phép');
+        Route::post('/duyet/{id}', [NghiPhepController::class, 'Duyet'])->name('duyet')->middleware('permission:Duyệt yêu cầu');
+        Route::post('/tu-choi/{id}', [NghiPhepController::class, 'TuChoi'])->name('tu-choi')->middleware('permission:Duyệt yêu cầu');
+        Route::post('/bulk-duyet', [NghiPhepController::class, 'DuyetNhieu'])->name('bulk-duyet')->middleware('permission:Duyệt yêu cầu');
+        Route::post('/bulk-tu-choi', [NghiPhepController::class, 'TuChoiNhieu'])->name('bulk-tu-choi')->middleware('permission:Duyệt yêu cầu');
 
         // Cấu hình loại nghỉ phép
-        Route::get('/config', [NghiPhepController::class, 'ConfigView'])->name('config');
-        Route::post('/config/save', [NghiPhepController::class, 'SaveLoaiPhep'])->name('config.save');
-        Route::post('/config/delete/{id}', [NghiPhepController::class, 'DeleteLoaiPhep'])->name('config.delete');
+        Route::get('/config', [NghiPhepController::class, 'ConfigView'])->name('config')->middleware('permission:Quản lý tăng ca nghỉ phép');
+        Route::post('/config/save', [NghiPhepController::class, 'SaveLoaiPhep'])->name('config.save')->middleware('permission:Quản lý tăng ca nghỉ phép');
+        Route::post('/config/delete/{id}', [NghiPhepController::class, 'DeleteLoaiPhep'])->name('config.delete')->middleware('permission:Quản lý tăng ca nghỉ phép');
     });
 
     Route::prefix('dieu-chuyen')->name('dieu-chuyen.')->group(function () {

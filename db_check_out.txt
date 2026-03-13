@@ -1,0 +1,147 @@
+User: admin | ID: 1 | Employee: NONE | Email: admin@gmail.com | Phone: 0983241514
+User: mdieu@gmail.com | ID: 3 | Employee: M Dieu Updated | Email: mdieu@gmail.com | Phone: 0987654321
+User: mthuy@gmail.com | ID: 4 | Employee: Nguyễn Minh Thúy | Email:  | Phone: 
+User: mduc@gmail.com | ID: 5 | Employee: Nguyễn Minh Đức | Email:  | Phone: 
+User: phang@gmail.com | ID: 6 | Employee: Phương Hằng | Email: phang@gmail.com | Phone: 0291829182
+User: worker_1@company.com | ID: 7 | Employee: Công Nhân Giả Định 1 | Email:  | Phone: 
+User: worker_2@company.com | ID: 8 | Employee: Công Nhân Giả Định 2 | Email:  | Phone: 
+User: worker_3@company.com | ID: 9 | Employee: Công Nhân Giả Định 3 | Email:  | Phone: 
+User: worker_4@company.com | ID: 10 | Employee: Công Nhân Giả Định 4 | Email:  | Phone: 
+User: worker_5@company.com | ID: 11 | Employee: Công Nhân Giả Định 5 | Email:  | Phone: 
+User: worker_6@company.com | ID: 12 | Employee: Công Nhân Giả Định 6 | Email:  | Phone: 
+User: worker_7@company.com | ID: 13 | Employee: Công Nhân Giả Định 7 | Email:  | Phone: 
+User: worker_8@company.com | ID: 14 | Employee: Công Nhân Giả Định 8 | Email:  | Phone: 
+User: worker_9@company.com | ID: 15 | Employee: Công Nhân Giả Định 9 | Email:  | Phone: 
+User: worker_10@company.com | ID: 16 | Employee: Công Nhân Giả Định 10 | Email:  | Phone: 
+User: anh.nguyen90@gmail.com | ID: 17 | Employee: Hoàng Đôn Huấn | Email: anh.nguyen90@gmail.com | Phone: 0901234567
+User: bao.tran85@gmail.com | ID: 18 | Employee: Hoàng Như Hoàng Oanh | Email: bao.tran85@gmail.com | Phone: 0912345678
+User: chi.le92@gmail.com | ID: 19 | Employee: Võ Hà Chung | Email: chi.le92@gmail.com | Phone: 0983456789
+User: duy.pham88@gmail.com | ID: 20 | Employee: Nguyễn Thị Mỹ Liên | Email: duy.pham88@gmail.com | Phone: 0974567890
+User: em.hoang95@gmail.com | ID: 21 | Employee: Đinh Hoàng Phú | Email: em.hoang95@gmail.com | Phone: 0935678901
+User: giang.vo82@gmail.com | ID: 22 | Employee: Phan Cao Tùng | Email: giang.vo82@gmail.com | Phone: 0946789012
+User: huong.do78@gmail.com | ID: 23 | Employee: Hồ Thị Thái Hằng | Email: huong.do78@gmail.com | Phone: 0867890123
+User: khoi.dang91@gmail.com | ID: 24 | Employee: Nguyễn Thế Hựu | Email: khoi.dang91@gmail.com | Phone: 0888901234
+User: lam.trinh89@gmail.com | ID: 25 | Employee: Nguyễn Thanh Sơn | Email: lam.trinh89@gmail.com | Phone: 0329012345
+User: mai.vu97@gmail.com | ID: 26 | Employee: Hạ Thị Anh Đào | Email: mai.vu97@gmail.com | Phone: 0330123456
+User: ngoc.phan84@gmail.com | ID: 27 | Employee: Mai Văn Cường | Email: ngoc.phan84@gmail.com | Phone: 0341234567
+User: phuc.ly93@gmail.com | ID: 28 | Employee: Phạm Văn Dược | Email: phuc.ly93@gmail.com | Phone: 0352345678
+User: quan.ngo87@gmail.com | ID: 29 | Employee: Võ Thị Ngọc Xuyến | Email: quan.ngo87@gmail.com | Phone: 0363456789
+User: son.trương96@gmail.com | ID: 30 | Employee: Nguyễn Thị Thúy Hà | Email: son.trương96@gmail.com | Phone: 0374567890
+User: thao.bui80@gmail.com | ID: 31 | Employee: Trần Thị Thanh Huệ | Email: thao.bui80@gmail.com | Phone: 0385678901
+User: tu.dinh94@gmail.com | ID: 32 | Employee: Diệp Xuân Trường | Email: tu.dinh94@gmail.com | Phone: 0396789012
+User: vinh.ha83@gmail.com | ID: 33 | Employee: Trương Phụng Loan | Email: vinh.ha83@gmail.com | Phone: 0707890123
+User: yen.mac98@gmail.com | ID: 34 | Employee: Đỗ Chu Trinh | Email: yen.mac98@gmail.com | Phone: 0768901234
+User: an.trieu75@gmail.com | ID: 35 | Employee: Ngô Thị Nhân | Email: an.trieu75@gmail.com | Phone: 0779012345
+User: binh.ta86@gmail.com | ID: 36 | Employee: Võ Hoàng Minh | Email: binh.ta86@gmail.com | Phone: 0780123456
+User: cuong.luu91@gmail.com | ID: 37 | Employee: Lê Vũ Yến Thanh | Email: cuong.luu91@gmail.com | Phone: 0791234567
+User: dung.quach81@gmail.com | ID: 38 | Employee: Trương Thị Lan Anh | Email: dung.quach81@gmail.com | Phone: 0892345678
+User: hung.nguyen99@gmail.com | ID: 39 | Employee: Trần Anh Tuấn | Email: hung.nguyen99@gmail.com | Phone: 0813456789
+User: khanh.le88@gmail.com | ID: 40 | Employee: Phan Trọng Luật | Email: khanh.le88@gmail.com | Phone: 0824567890
+User: linh.tran92@gmail.com | ID: 41 | Employee: Nguyễn Lê Ponagar Thiên Lan | Email: linh.tran92@gmail.com | Phone: 0835678901
+User: minh.pham85@gmail.com | ID: 42 | Employee: Nguyễn Chung Bạch Huệ | Email: minh.pham85@gmail.com | Phone: 0846789012
+User: nam.hoang90@gmail.com | ID: 43 | Employee: Phan Thị Thanh Huyền | Email: nam.hoang90@gmail.com | Phone: 0857890123
+User: oanh.do79@gmail.com | ID: 44 | Employee: Lê Thanh Hà | Email: oanh.do79@gmail.com | Phone: 0528901234
+User: phương.dang93@gmail.com | ID: 45 | Employee: Nguyễn Thị Mỹ Dung | Email: phương.dang93@gmail.com | Phone: 0569012345
+User: quynh.trinh82@gmail.com | ID: 46 | Employee: Lê Văn Dậu | Email: quynh.trinh82@gmail.com | Phone: 0580123456
+User: sang.vu96@gmail.com | ID: 47 | Employee: Lê Huy Bảo | Email: sang.vu96@gmail.com | Phone: 0921234567
+User: tam.phan84@gmail.com | ID: 48 | Employee: Trần Lan Anh | Email: tam.phan84@gmail.com | Phone: 0962345678
+User: uyen.ly97@gmail.com | ID: 49 | Employee: Đào Ngọc Huyền Trang | Email: uyen.ly97@gmail.com | Phone: 0903322114
+User: viet.ngo89@gmail.com | ID: 50 | Employee: Cao Thị Minh Tiến | Email: viet.ngo89@gmail.com | Phone: 0914433225
+User: xuan.trương80@gmail.com | ID: 51 | Employee: Vương Hồng Hạnh | Email: xuan.trương80@gmail.com | Phone: 0985544336
+User: bach.bui94@gmail.com | ID: 52 | Employee: Trần Đức Tiếu | Email: bach.bui94@gmail.com | Phone: 0976655447
+User: cong.dinh83@gmail.com | ID: 53 | Employee: Võ Hoàng Anh | Email: cong.dinh83@gmail.com | Phone: 0937766558
+User: dao.ha98@gmail.com | ID: 54 | Employee: Nguyễn Thị Ngọc Hà | Email: dao.ha98@gmail.com | Phone: 0948877669
+User: ha.trieu77@gmail.com | ID: 55 | Employee: Nguyễn Xuân Lý | Email: ha.trieu77@gmail.com | Phone: 0869988770
+User: hien.ta86@gmail.com | ID: 56 | Employee: Lê Thị Hoài Phương | Email: hien.ta86@gmail.com | Phone: 0881122331
+User: huy.luu91@gmail.com | ID: 57 | Employee: Đỗ Tuyết Sương | Email: huy.luu91@gmail.com | Phone: 0322233442
+User: kiet.quach81@gmail.com | ID: 58 | Employee: Nguyễn Thành Đức | Email: kiet.quach81@gmail.com | Phone: 0333344553
+User: long.nguyen99@gmail.com | ID: 59 | Employee: Châu Quốc Đạt | Email: long.nguyen99@gmail.com | Phone: 0344455664
+User: nga.le88@gmail.com | ID: 60 | Employee: Trần Thị Mai Lan | Email: nga.le88@gmail.com | Phone: 0355566775
+User: phat.tran92@gmail.com | ID: 61 | Employee: Trần Anh Sơn | Email: phat.tran92@gmail.com | Phone: 0366677886
+User: quang.pham85@gmail.com | ID: 62 | Employee: Lâm Thị Hải Hậu | Email: quang.pham85@gmail.com | Phone: 0377788997
+User: thanh.hoang90@gmail.com | ID: 63 | Employee: Đỗ Phú Hồng Quân | Email: thanh.hoang90@gmail.com | Phone: 0388899008
+User: trang.do79@gmail.com | ID: 64 | Employee: Nguyễn Minh Trang | Email: trang.do79@gmail.com | Phone: 0399900119
+User: tuan.dang93@gmail.com | ID: 65 | Employee: Hoàng Quỳnh Ngọc Thảo | Email: tuan.dang93@gmail.com | Phone: 0701122330
+User: van.trinh82@gmail.com | ID: 66 | Employee: Hoàng Quốc Hưng | Email: van.trinh82@gmail.com | Phone: 0762233441
+User: anh.vu96@gmail.com | ID: 67 | Employee: Lương Hồng Thế Quỳnh | Email: anh.vu96@gmail.com | Phone: 0773344552
+User: binh.phan84@gmail.com | ID: 68 | Employee: Nguyễn Thị Kim Ngân | Email: binh.phan84@gmail.com | Phone: 0784455663
+User: chi.ly97@gmail.com | ID: 69 | Employee: Dương Tuấn Anh | Email: chi.ly97@gmail.com | Phone: 0795566774
+User: danh.ngo89@gmail.com | ID: 70 | Employee: Phan Thị Thanh Hiếu | Email: danh.ngo89@gmail.com | Phone: 0896677885
+User: giang.trương80@gmail.com | ID: 71 | Employee: Lưu Thị Hồng Hạnh | Email: giang.trương80@gmail.com | Phone: 0817788996
+User: hiep.bui94@gmail.com | ID: 72 | Employee: Lê Trần Hồng Phụng | Email: hiep.bui94@gmail.com | Phone: 0828899007
+User: khai.dinh83@gmail.com | ID: 73 | Employee: Vũ Hải Triều | Email: khai.dinh83@gmail.com | Phone: 0839900118
+User: lam.ha98@gmail.com | ID: 74 | Employee: Lê Văn Dương | Email: lam.ha98@gmail.com | Phone: 0840011229
+User: minh.trieu76@gmail.com | ID: 75 | Employee: Nguyễn Minh Tâm | Email: minh.trieu76@gmail.com | Phone: 0851122330
+User: nguyet.ta86@gmail.com | ID: 76 | Employee: Đặng Thị Nga | Email: nguyet.ta86@gmail.com | Phone: 0522233441
+User: phong.luu91@gmail.com | ID: 77 | Employee: Lê Kim Khánh | Email: phong.luu91@gmail.com | Phone: 0563344552
+User: quoc.quach81@gmail.com | ID: 78 | Employee: Nguyễn Cửu Tuệ | Email: quoc.quach81@gmail.com | Phone: 0584455663
+User: thuy.nguyen99@gmail.com | ID: 79 | Employee: Vũ Tiến Hoàng Đạo | Email: thuy.nguyen99@gmail.com | Phone: 0925566774
+User: toan.le88@gmail.com | ID: 80 | Employee: Phan Thị Vành Khuyên | Email: toan.le88@gmail.com | Phone: 0966677885
+User: vui.tran92@gmail.com | ID: 81 | Employee: Nguyễn Cao Nguyên | Email: vui.tran92@gmail.com | Phone: 0901112223
+User: an.pham75@gmail.com | ID: 82 | Employee: Bùi Quốc Tuấn | Email: an.pham75@gmail.com | Phone: 0912223334
+User: ba.hoang82@gmail.com | ID: 83 | Employee: Lê Trung Hiếu | Email: ba.hoang82@gmail.com | Phone: 0983334445
+User: canh.do79@gmail.com | ID: 84 | Employee: Trần Thị Thanh Trúc | Email: canh.do79@gmail.com | Phone: 0974445556
+User: diem.dang93@gmail.com | ID: 85 | Employee: Vũ Minh Hiền | Email: diem.dang93@gmail.com | Phone: 0935556667
+User: ha.trinh82@gmail.com | ID: 86 | Employee: Tô Ngọc Diễm | Email: ha.trinh82@gmail.com | Phone: 0946667778
+User: hung.vu96@gmail.com | ID: 87 | Employee: Vũ Thị Hải Yến | Email: hung.vu96@gmail.com | Phone: 0867778889
+User: khoa.phan84@gmail.com | ID: 88 | Employee: Đặng Văn Thanh | Email: khoa.phan84@gmail.com | Phone: 0888889990
+User: lan.ly97@gmail.com | ID: 89 | Employee: Phan Văn Út | Email: lan.ly97@gmail.com | Phone: 0329990001
+User: manh.ngo89@gmail.com | ID: 90 | Employee: Đoàn Võ Hải Đăng | Email: manh.ngo89@gmail.com | Phone: 0331110002
+User: nhung.trương80@gmail.com | ID: 91 | Employee: Đỗ Xuân Điều | Email: nhung.trương80@gmail.com | Phone: 0342220003
+User: oanh.bui94@gmail.com | ID: 92 | Employee: Nguyễn Ngọc Thuý | Email: oanh.bui94@gmail.com | Phone: 0353330004
+User: phương.dinh83@gmail.com | ID: 93 | Employee: Lương Lê Bảo Châu | Email: phương.dinh83@gmail.com | Phone: 0364440005
+User: quy.ha98@gmail.com | ID: 94 | Employee: Nguyễn Văn Phát | Email: quy.ha98@gmail.com | Phone: 0375550006
+User: sy.trieu77@gmail.com | ID: 95 | Employee: Phạm Quang Lập | Email: sy.trieu77@gmail.com | Phone: 0386660007
+User: tai.ta86@gmail.com | ID: 96 | Employee: Hoàng Nhật Viễn Đông | Email: tai.ta86@gmail.com | Phone: 0397770008
+User: thanh.luu91@gmail.com | ID: 97 | Employee: Nguyễn Thị Phương Dung | Email: thanh.luu91@gmail.com | Phone: 0708880009
+User: uoc.quach81@gmail.com | ID: 98 | Employee: Võ Thị Thảo Oanh | Email: uoc.quach81@gmail.com | Phone: 0769991110
+User: viet.nguyen99@gmail.com | ID: 99 | Employee: Lê Văn Thua | Email: viet.nguyen99@gmail.com | Phone: 0771231231
+User: xuan.le88@gmail.com | ID: 100 | Employee: Lê Anh Dũng | Email: xuan.le88@gmail.com | Phone: 0782342342
+User: yen.tran92@gmail.com | ID: 101 | Employee: Trần Huỳnh Ngọc Cẩm | Email: yen.tran92@gmail.com | Phone: 0793453453
+User: binh.pham78@gmail.com | ID: 102 | Employee: Đào Trung Phong | Email: binh.pham78@gmail.com | Phone: 0894564564
+User: chien.hoang85@gmail.com | ID: 103 | Employee: Lương Nguyên Khánh | Email: chien.hoang85@gmail.com | Phone: 0815675675
+User: du.do73@gmail.com | ID: 104 | Employee: Nguyễn Minh Tuấn | Email: du.do73@gmail.com | Phone: 0826786786
+User: giang.dang94@gmail.com | ID: 105 | Employee: Ngô Tấn Đính | Email: giang.dang94@gmail.com | Phone: 0837897897
+User: huy.trinh87@gmail.com | ID: 106 | Employee: Nguyễn Quang Bảo | Email: huy.trinh87@gmail.com | Phone: 0848908908
+User: it.vu91@gmail.com | ID: 107 | Employee: Nguyễn Văn Nghĩa | Email: it.vu91@gmail.com | Phone: 0859019019
+User: kieu.phan80@gmail.com | ID: 108 | Employee: Cao Minh Mẫn | Email: kieu.phan80@gmail.com | Phone: 0520120120
+User: loi.ly95@gmail.com | ID: 109 | Employee: Phạm Thị Mỹ Khương | Email: loi.ly95@gmail.com | Phone: 0561231231
+User: my.ngo86@gmail.com | ID: 110 | Employee: Nguyễn Hoàng Tân | Email: my.ngo86@gmail.com | Phone: 0582342342
+User: ngan.trương92@gmail.com | ID: 111 | Employee: Hoàng Quốc Thắng | Email: ngan.trương92@gmail.com | Phone: 0923453453
+User: phuc.bui88@gmail.com | ID: 112 | Employee: Dương Bảo Tín | Email: phuc.bui88@gmail.com | Phone: 0964564564
+User: quang.dinh81@gmail.com | ID: 113 | Employee: Nguyễn Văn Cường | Email: quang.dinh81@gmail.com | Phone: 0905675675
+User: rung.ha79@gmail.com | ID: 114 | Employee: Nguyễn Thành Công | Email: rung.ha79@gmail.com | Phone: 0916786786
+User: sang.trieu93@gmail.com | ID: 115 | Employee: Trần Quốc Thái | Email: sang.trieu93@gmail.com | Phone: 0987897897
+User: tien.ta84@gmail.com | ID: 116 | Employee: Trịnh Thế Sơn | Email: tien.ta84@gmail.com | Phone: 0978908908
+User: uong.luu89@gmail.com | ID: 117 | Employee: Lê Minh Trung | Email: uong.luu89@gmail.com | Phone: 0939019019
+User: vy.quach97@gmail.com | ID: 118 | Employee: Nguyễn Văn Quang | Email: vy.quach97@gmail.com | Phone: 0940120120
+User: xuyen.nguyen82@gmail.com | ID: 119 | Employee: Nguyễn Văn Hãng | Email: xuyen.nguyen82@gmail.com | Phone: 0861234123
+User: yeu.le96@gmail.com | ID: 120 | Employee: Bùi Đức Vinh | Email: yeu.le96@gmail.com | Phone: 0882345234
+User: an.tran83@gmail.com | ID: 121 | Employee: Lê Duy Thanh | Email: an.tran83@gmail.com | Phone: 0323456345
+User: ba.pham77@gmail.com | ID: 122 | Employee: Phan Thanh Minh | Email: ba.pham77@gmail.com | Phone: 0334567456
+User: ca.hoang90@gmail.com | ID: 123 | Employee: Võ Văn Tuấn | Email: ca.hoang90@gmail.com | Phone: 0345678567
+User: danh.do85@gmail.com | ID: 124 | Employee: Phạm Văn Quang | Email: danh.do85@gmail.com | Phone: 0356789678
+User: em.dang98@gmail.com | ID: 125 | Employee: Nguyễn Thị Hà | Email: em.dang98@gmail.com | Phone: 0367890789
+User: ha.trinh72@gmail.com | ID: 126 | Employee: Vũ Thiều Nhung | Email: ha.trinh72@gmail.com | Phone: 0378901890
+User: huu.vu89@gmail.com | ID: 127 | Employee: Nguyễn Minh Đức | Email: huu.vu89@gmail.com | Phone: 0389012901
+User: ke.phan81@gmail.com | ID: 128 | Employee: Nguyễn Quốc Cường | Email: ke.phan81@gmail.com | Phone: 0390123012
+User: lam.ly94@gmail.com | ID: 129 | Employee: Lưu Thị Tố Như | Email: lam.ly94@gmail.com | Phone: 0701234123
+User: mo.ngo76@gmail.com | ID: 130 | Employee: Bùi Thị Bích | Email: mo.ngo76@gmail.com | Phone: 0762345234
+User: nu.trương87@gmail.com | ID: 131 | Employee: Trần Như Hùng | Email: nu.trương87@gmail.com | Phone: 0773456345
+User: on.bui82@gmail.com | ID: 132 | Employee: Triệu Thị Thu Hồng | Email: on.bui82@gmail.com | Phone: 0784567456
+User: phi.dinh95@gmail.com | ID: 133 | Employee: Trần Minh Tâm | Email: phi.dinh95@gmail.com | Phone: 0795678567
+User: que.ha80@gmail.com | ID: 134 | Employee: Bùi Chí Tùng | Email: que.ha80@gmail.com | Phone: 0896789678
+User: re.trieu88@gmail.com | ID: 135 | Employee: Trần Minh Ngọc | Email: re.trieu88@gmail.com | Phone: 0817890789
+User: su.ta83@gmail.com | ID: 136 | Employee: Nguyễn Minh Thông | Email: su.ta83@gmail.com | Phone: 0828901890
+User: thi.luu91@gmail.com | ID: 137 | Employee: Lê Minh Thư | Email: thi.luu91@gmail.com | Phone: 0839012901
+User: un.quach86@gmail.com | ID: 138 | Employee: Lê Trí Đức | Email: un.quach86@gmail.com | Phone: 0840123012
+User: ve.nguyen79@gmail.com | ID: 139 | Employee: Trần Quang Huy | Email: ve.nguyen79@gmail.com | Phone: 0851234123
+User: xa.le92@gmail.com | ID: 140 | Employee: Bùi Thanh Tâm | Email: xa.le92@gmail.com | Phone: 0522345234
+User: y.tran84@gmail.com | ID: 141 | Employee: Phạm Văn Khoa | Email: y.tran84@gmail.com | Phone: 0563456345
+User: am.pham89@gmail.com | ID: 142 | Employee: Nguyễn Thị Ngọc Mai | Email: am.pham89@gmail.com | Phone: 0584567456
+User: bo.hoang75@gmail.com | ID: 143 | Employee: Tô Thanh Hiền | Email: bo.hoang75@gmail.com | Phone: 0925678567
+User: co.do93@gmail.com | ID: 144 | Employee: Lê Văn Thắng | Email: co.do93@gmail.com | Phone: 0966789678
+User: du.dang81@gmail.com | ID: 145 | Employee: Đồng Văn Tuấn Đạt | Email: du.dang81@gmail.com | Phone: 0901010101
+User: e.trinh96@gmail.com | ID: 146 | Employee: Phạm Thanh Hòa | Email: e.trinh96@gmail.com | Phone: 0912020202
+User: thanh.thuy87@gmail.com | ID: 147 | Employee: Nguyễn Đức Long | Email: thanh.thuy87@gmail.com | Phone: 0983030303
+User: minh.huan94@gmail.com | ID: 148 | Employee: Lê Thị Tùng Oanh | Email: minh.huan94@gmail.com | Phone: 0974040404

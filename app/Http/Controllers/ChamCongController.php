@@ -16,24 +16,27 @@ class ChamCongController extends Controller
     {
         $month = $request->month ?? Carbon::now()->month;
         $year = $request->year ?? Carbon::now()->year;
+        $user = auth()->user();
+        $isEmployeeOnly = $user->hasAnyRole(['Employee', 'Nhân viên']) && !$user->hasAnyRole(['Super Admin', 'Admin Đơn Vị', 'CEO', 'Supervisor', 'HR Manager', 'System Admin', 'Factory Supervisor', 'Line Manager']);
+        $nhanVienId = $user->nhanVien?->id;
 
         // Stats for the month
-        $totalEmployees = NhanVien::count();
-        $onTimeCount = ChamCong::whereYear('Vao', $year)
-            ->whereMonth('Vao', $month)
-            ->where('TrangThai', 'dung_gio')
-            ->count();
-        $lateCount = ChamCong::whereYear('Vao', $year)
-            ->whereMonth('Vao', $month)
-            ->where('TrangThai', 'tre')
-            ->count();
+        $totalEmployeesQuery = NhanVien::byUnit();
+        $onTimeQuery = ChamCong::byUnit()->whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'dung_gio');
+        $lateQuery = ChamCong::byUnit()->whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
+        $attendancesQuery = ChamCong::byUnit()->with('nhanVien.ttCongViec.phongBan')->whereYear('Vao', $year)->whereMonth('Vao', $month)->orderBy('Vao', 'desc');
 
-        // Fetch attendances for display
-        $attendances = ChamCong::with('nhanVien.ttCongViec.phongBan')
-            ->whereYear('Vao', $year)
-            ->whereMonth('Vao', $month)
-            ->orderBy('Vao', 'desc')
-            ->get();
+        if ($isEmployeeOnly && $nhanVienId) {
+            $totalEmployeesQuery->where('id', $nhanVienId);
+            $onTimeQuery->where('NhanVienId', $nhanVienId);
+            $lateQuery->where('NhanVienId', $nhanVienId);
+            $attendancesQuery->where('NhanVienId', $nhanVienId);
+        }
+
+        $totalEmployees = $totalEmployeesQuery->count();
+        $onTimeCount = $onTimeQuery->count();
+        $lateCount = $lateQuery->count();
+        $attendances = $attendancesQuery->get();
 
         return view('attendance.index', compact('attendances', 'totalEmployees', 'onTimeCount', 'lateCount', 'month', 'year'));
     }
@@ -44,7 +47,7 @@ class ChamCongController extends Controller
     public function TaoView()
     {
         // Get all employees for the dropdown
-        $nhanViens = NhanVien::orderBy('Ten')->get();
+        $nhanViens = NhanVien::byUnit()->orderBy('Ten')->get();
 
         // Get today's attendance records to show recent activity
         $todayAttendances = ChamCong::whereDate('Vao', Carbon::today())

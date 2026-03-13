@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xuất Phiếu Lương - HRM System</title>
+    <title>Xuất Phiếu Lương - Công ty TNHH Cao Su Bình Long</title>
     <style>
         body {
             font-family: Arial, sans-serif;

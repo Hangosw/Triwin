@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\HasUnitScoping;
 
 class PhieuDieuChuyenNoiBo extends Model
 {
+    use HasUnitScoping;
     protected $table = 'phieu_dieu_chuyen_noi_bo';
 
     protected $fillable = [

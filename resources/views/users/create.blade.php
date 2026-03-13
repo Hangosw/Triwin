@@ -21,15 +21,50 @@
                 icon: 'error',
                 title: 'Lỗi Validation!',
                 html: `
-                                                                        <ul style="text-align: left;">
-                                                                            @foreach($errors->all() as $error)
-                                                                                <li>{{ $error }}</li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    `,
+                                                                                                <ul style="text-align: left;">
+                                                                                                    @foreach($errors->all() as $error)
+                                                                                                        <li>{{ $error }}</li>
+                                                                                                    @endforeach
+                                                                                                </ul>
+                                                                                            `,
                 confirmButtonColor: '#dc2626'
             });
         @endif
+
+        $(document).ready(function () {
+            const unitSpecs = $('input[name="don_vis[]"]');
+            const roleSpecs = $('.role-checkbox');
+            const rolesContainer = $('#roles-container');
+            const roleHint = $('#role-hint');
+            const roleLabels = $('.role-label');
+
+            function updateRolesState() {
+                const anyUnitSelected = $('input[name="don_vis[]"]:checked').length > 0;
+
+                if (anyUnitSelected) {
+                    roleSpecs.prop('disabled', false);
+                    rolesContainer.css({
+                        'background-color': 'transparent',
+                        'opacity': '1'
+                    });
+                    roleLabels.css('cursor', 'pointer');
+                    roleHint.hide();
+                } else {
+                    roleSpecs.prop('disabled', true).prop('checked', false);
+                    rolesContainer.css({
+                        'background-color': '#f3f4f6',
+                        'opacity': '0.6'
+                    });
+                    roleLabels.css('cursor', 'not-allowed');
+                    roleHint.show();
+                }
+            }
+
+            unitSpecs.on('change', updateRolesState);
+
+            // Initial check
+            updateRolesState();
+        });
     </script>
 @endpush
 
@@ -44,19 +79,24 @@
             @csrf
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" placeholder="Nhập địa chỉ email">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Số điện thoại</label>
-                    <input type="text" name="phone" class="form-control" placeholder="Nhập số điện thoại">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" name="Ten" class="form-control" placeholder="Nhập họ và tên (Ví dụ: Nguyễn Văn A)">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Tài khoản <span style="color: red;">*</span></label>
-                    <input type="text" name="TaiKhoan" class="form-control" placeholder="Nhập tài khoản">
+                    <input type="text" name="TaiKhoan" class="form-control" placeholder="Nhập tài khoản" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="Email" class="form-control" placeholder="Nhập địa chỉ email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="text" name="SoDienThoai" class="form-control" placeholder="Nhập số điện thoại">
                 </div>
 
                 <div class="form-group">
@@ -73,12 +113,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Phân quyền (Roles)</label>
-                    <div
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; border: 1px solid #d1d5db; padding: 12px; border-radius: 8px;">
+                    <label class="form-label">Phân quyền (Roles) <span id="role-hint"
+                            style="font-size: 11px; color: #dc2626; font-weight: normal; margin-left: 8px;">(Vui lòng chọn
+                            Đơn vị quản lý trước)</span></label>
+                    <div id="roles-container"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; border: 1px solid #d1d5db; padding: 12px; border-radius: 8px; background-color: #f3f4f6; opacity: 0.6;">
                         @foreach($roles as $role)
-                            <label style="display:flex; align-items:center; gap:8px; cursor: pointer;">
-                                <input type="checkbox" name="roles[]" value="{{ $role->name }}">
+                            <label style="display:flex; align-items:center; gap:8px; cursor: not-allowed;" class="role-label">
+                                <input type="checkbox" name="roles[]" value="{{ $role->name }}" class="role-checkbox" disabled>
                                 <span>{{ $role->name }}</span>
                             </label>
                         @endforeach
@@ -86,9 +128,9 @@
                 </div>
 
                 <div class="form-group" style="grid-column: span 2;">
-                    <label class="form-label">Đơn vị quản lý (Chỉ dành cho Admin Đơn Vị)</label>
-                    <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Nếu không chọn, mặc định sẽ lấy đơn vị
-                        của nhân viên liên kết.</p>
+                    <label class="form-label">Đơn vị quản lý (Bắt buộc khi có Phân quyền)</label>
+                    <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Nếu gán quyền cho người dùng, bạn bắt
+                        buộc phải chọn ít nhất một đơn vị mà họ được phép quản lý/thao tác.</p>
                     <div
                         style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; border: 1px solid #d1d5db; padding: 16px; border-radius: 8px; background: #f9fafb;">
                         @foreach($donVis as $dv)

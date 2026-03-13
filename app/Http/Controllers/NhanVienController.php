@@ -103,13 +103,16 @@ class NhanVienController extends Controller
             'ttCongViec.chucVu',
             'ttCongViec.phongBan.donVi',
             'thanNhans',
+            'hopDongs' => function ($q) {
+                $q->with(['loaiHopDong', 'chucVu', 'donVi'])->orderBy('NgayBatDau', 'desc');
+            },
             'dienBienLuongs' => function ($q) {
                 $q->with(['ngachLuong', 'bacLuong'])->orderBy('NgayHuong', 'desc');
             },
             'luongs' => function ($q) {
                 $q->orderBy('ThoiGian', 'desc');
             },
-        ])->findOrFail($id);
+        ])->byUnit()->findOrFail($id);
 
         return view('employees.show', compact('employee'));
     }
@@ -335,7 +338,7 @@ class NhanVienController extends Controller
         $employee = NhanVien::with([
             'ttCongViec.chucVu',
             'ttCongViec.phongBan.donVi'
-        ])->findOrFail($id);
+        ])->byUnit()->findOrFail($id);
 
         $phongBans = DmPhongBan::all();
         $chucVus = DmChucVu::all();
@@ -370,7 +373,7 @@ class NhanVienController extends Controller
 
             $validated = $request->validate($rules, $messages);
 
-            $employee = NhanVien::findOrFail($id);
+            $employee = NhanVien::byUnit()->findOrFail($id);
 
             // Update NhanVien table
             $employee->update([

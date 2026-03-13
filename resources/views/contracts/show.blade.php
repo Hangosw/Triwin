@@ -241,7 +241,24 @@
                         style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
                         {{ $hopDong->SoHopDong }}
                     </span>
-                    @if($hopDong->TrangThai == 1)
+                    @php
+                        $isExpiringSoon = false;
+                        if ($hopDong->NgayKetThuc && $hopDong->TrangThai == 1) {
+                            $today = \Carbon\Carbon::today();
+                            $endDate = \Carbon\Carbon::parse($hopDong->NgayKetThuc);
+                            $diff = $today->diffInDays($endDate, false);
+                            if ($diff >= 0 && $diff <= 25) {
+                                $isExpiringSoon = true;
+                            }
+                        }
+                    @endphp
+
+                    @if($isExpiringSoon)
+                        <span class="badge badge-warning" style="background: #ffffff; color: #92400e; display: flex; align-items: center; gap: 6px;">
+                            Sắp hết hạn
+                            <i class="bi bi-arrow-repeat" style="font-size: 14px;"></i>
+                        </span>
+                    @elseif($hopDong->TrangThai == 1)
                         <span class="badge badge-success" style="background: #ffffff; color: #065f46;">Đang hiệu lực</span>
                     @elseif($hopDong->TrangThai == 0)
                         <span class="badge badge-danger" style="background: #ffffff; color: #991b1b;">Hết hiệu lực</span>

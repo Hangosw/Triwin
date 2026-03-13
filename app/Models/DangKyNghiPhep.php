@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Traits\HasUnitScoping;
 
 class DangKyNghiPhep extends Model
 {
+    use HasUnitScoping;
     protected $table = 'dang_ky_nghi_pheps';
-    
+
     protected $fillable = [
         'NhanVienId',
         'NguoiDuyetId',
@@ -88,10 +90,10 @@ class DangKyNghiPhep extends Model
         if (!$this->TuNgay || !$this->DenNgay) {
             return 0;
         }
-        
+
         $start = Carbon::parse($this->TuNgay);
         $end = Carbon::parse($this->DenNgay);
-        
+
         // Add 1 because both start and end dates are included
         return $start->diffInDays($end) + 1;
     }
@@ -125,15 +127,15 @@ class DangKyNghiPhep extends Model
      */
     public function scopeThang($query, $month, $year)
     {
-        return $query->where(function($q) use ($month, $year) {
-            $q->where(function($subQ) use ($month, $year) {
+        return $query->where(function ($q) use ($month, $year) {
+            $q->where(function ($subQ) use ($month, $year) {
                 $subQ->whereYear('TuNgay', $year)
-                     ->whereMonth('TuNgay', $month);
+                    ->whereMonth('TuNgay', $month);
             })
-            ->orWhere(function($subQ) use ($month, $year) {
-                $subQ->whereYear('DenNgay', $year)
-                     ->whereMonth('DenNgay', $month);
-            });
+                ->orWhere(function ($subQ) use ($month, $year) {
+                    $subQ->whereYear('DenNgay', $year)
+                        ->whereMonth('DenNgay', $month);
+                });
         });
     }
 }

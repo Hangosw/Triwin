@@ -68,6 +68,7 @@
                             <span class="stt-text">STT</span>
                             <input type="checkbox" id="selectAll" class="dt-checkboxes">
                         </th>
+                        <th>Họ tên</th>
                         <th>Tài khoản</th>
                         <th>Email</th>
                         <th>Số điện thoại</th>
@@ -97,11 +98,12 @@
                         orderable: false,
                         render: function (data, type, row, meta) {
                             return `
-                                            <span class="stt-text">${meta.row + 1}</span>
-                                            <input type="checkbox" class="user-checkbox dt-checkboxes" value="${row.id}">
-                                        `;
+                                                <span class="stt-text">${meta.row + 1}</span>
+                                                <input type="checkbox" class="user-checkbox dt-checkboxes" value="${row.id}">
+                                            `;
                         }
                     },
+                    { data: 'Ten', render: function (data) { return data || '<span class="text-muted">Chưa cập nhật</span>'; } },
                     { data: 'TaiKhoan' },
                     { data: 'Email' },
                     { data: 'SoDienThoai', render: function (data) { return data || '--'; } },
@@ -119,19 +121,19 @@
                         orderable: false,
                         render: function (data) {
                             return `
-                                            <div style="display: flex; gap: 8px;">
-                                                <a href="/nguoi-dung/sua/${data}" class="btn-icon text-primary" title="Sửa">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                    </svg>
-                                                </a>
-                                                <button type="button" class="btn-icon text-danger btn-delete" data-id="${data}" title="Xóa" style="background: none; border: none; cursor: pointer; color: #dc2626;">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        `;
+                                                <div style="display: flex; gap: 8px;">
+                                                    <a href="/nguoi-dung/sua/${data}" class="btn-icon text-primary" title="Sửa">
+                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        </svg>
+                                                    </a>
+                                                    <button type="button" class="btn-icon text-danger btn-delete" data-id="${data}" title="Xóa" style="background: none; border: none; cursor: pointer; color: #dc2626;">
+                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            `;
                         }
                     }
                 ],

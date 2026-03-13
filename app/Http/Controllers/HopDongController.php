@@ -21,8 +21,13 @@ class HopDongController extends Controller
     {
         $query = \App\Models\HopDong::with(['nhanVien'])->byUnit();
 
-        // Server-side processing
-        $totalRecords = $query->count();
+        // Filters
+        if ($request->filled('loai')) {
+            $query->where('Loai', $request->loai);
+        }
+        if ($request->filled('trang_thai')) {
+            $query->where('TrangThai', $request->trang_thai);
+        }
 
         // Search
         if ($request->has('search') && $request->search['value']) {
@@ -35,10 +40,24 @@ class HopDongController extends Controller
             });
         }
 
+        // Server-side processing
+        $totalRecords = \App\Models\HopDong::byUnit()->count();
         $filteredRecords = $query->count();
 
-        // Sorting
-        if ($request->has('order')) {
+        // Priority Sort: Expiring Soon First (within 25 days)
+        $today = now()->toDateString();
+        $query->orderByRaw("
+            CASE 
+                WHEN TrangThai = 1 
+                     AND NgayKetThuc IS NOT NULL 
+                     AND DATEDIFF(NgayKetThuc, '$today') BETWEEN 0 AND 25 
+                THEN 0 
+                ELSE 1 
+            END ASC
+        ");
+
+        // Sorting (DataTables order)
+        if ($request->has('order') && $request->order[0]['column'] != 0) {
             $columnIndex = $request->order[0]['column'];
             $columnDir = $request->order[0]['dir'];
             $columns = ['id', 'NhanVienId', 'Loai', 'NgayBatDau', 'TongLuong', 'TrangThai'];
@@ -69,7 +88,7 @@ class HopDongController extends Controller
             'phongBan',
             'chucVu',
             'loaiHopDong'
-        ])->findOrFail($id);
+        ])->byUnit()->findOrFail($id);
 
         return view('contracts.show', compact('hopDong'));
     }
@@ -78,7 +97,7 @@ class HopDongController extends Controller
     {
         $ids = $request->ids;
         if (!empty($ids)) {
-            \App\Models\HopDong::whereIn('id', $ids)->delete();
+            \App\Models\HopDong::byUnit()->whereIn('id', $ids)->delete();
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa ' . count($ids) . ' hợp đồng thành công!'
@@ -96,7 +115,7 @@ class HopDongController extends Controller
         $donvi = DonVi::all();
         $phongban = DmPhongBan::all();
         $chucvu = DmChucVu::all();
-        $nhanvien = NhanVien::with(['ttCongViec.chucVu', 'ttCongViec.phongBan', 'ttCongViec.donVi'])->get();
+        $nhanvien = NhanVien::byUnit()->with(['ttCongViec.chucVu', 'ttCongViec.phongBan', 'ttCongViec.donVi'])->get();
 
         // Get current base salary
         $baseSalary = \App\Models\ThamSoLuong::getCurrentBaseSalary();
@@ -265,7 +284,7 @@ class HopDongController extends Controller
     }
     public function downloadWord($id)
     {
-        $hopDong = \App\Models\HopDong::with('nhanVien')->findOrFail($id);
+        $hopDong = \App\Models\HopDong::byUnit()->with('nhanVien')->findOrFail($id);
 
         $templatePath = storage_path('app/contracts/template_hop_dong.docx');
         if (!file_exists($templatePath)) {
@@ -284,12 +303,12 @@ class HopDongController extends Controller
         $templateProcessor->setValue('SoHopDong', $hopDong->SoHopDong ?? '');
         $templateProcessor->setValue('TenNhanVien', $nv ? $nv->Ten : '');
         $templateProcessor->setValue('NgaySinh', $nv && $nv->NgaySinh ? \Carbon\Carbon::parse($nv->NgaySinh)->format('d/m/Y') : '');
-        $templateProcessor->setValue('NoiSinh', $nv ? $nv->NoiSinh : '');
-        $templateProcessor->setValue('DiaChiThuongTru', $nv ? $nv->ThuongTru : '');
+        $templateProcessor->setValue('NoiSinh', $nv ? $nv->QueQuan : '');
+        $templateProcessor->setValue('DiaChiThuongTru', $nv ? $nv->DiaChi : '');
         $templateProcessor->setValue('NgheNghiep', 'Nhân viên');
-        $templateProcessor->setValue('SoCMND', $nv ? $nv->CCCD : '');
-        $templateProcessor->setValue('NgayCap', $nv && $nv->NgayCapCCCD ? \Carbon\Carbon::parse($nv->NgayCapCCCD)->format('d/m/Y') : '');
-        $templateProcessor->setValue('NoiCap', $nv ? $nv->NoiCapCCCD : '');
+        $templateProcessor->setValue('SoCMND', $nv ? $nv->SoCCCD : '');
+        $templateProcessor->setValue('NgayCap', $nv && $nv->NgayCap ? \Carbon\Carbon::parse($nv->NgayCap)->format('d-m-Y') : '');
+        $templateProcessor->setValue('NoiCap', $nv ? $nv->NoiCap : '');
 
         // Variables from HopDong
         $loaiHopDongStr = $hopDong->loaiHopDong ? $hopDong->loaiHopDong->TenLoai : 'Hợp đồng lao động';
@@ -319,8 +338,177 @@ class HopDongController extends Controller
             'loaiHopDong',
             'donVi',
             'nguoiKy'
-        ])->findOrFail($id);
+        ])->byUnit()->findOrFail($id);
 
         return view('contracts.template', compact('hopDong'));
+    }
+
+    public function SuaView($id)
+    {
+        $hopDong = \App\Models\HopDong::with([
+            'nhanVien',
+            'nguoiKy',
+            'donVi',
+            'phongBan',
+            'chucVu',
+            'loaiHopDong'
+        ])->byUnit()->findOrFail($id);
+
+        $donvi = DonVi::all();
+        $phongban = DmPhongBan::all();
+        $chucvu = DmChucVu::all();
+        $nhanvien = NhanVien::byUnit()->with(['ttCongViec.chucVu', 'ttCongViec.phongBan', 'ttCongViec.donVi'])->get();
+
+        // Get current base salary
+        $baseSalary = \App\Models\ThamSoLuong::getCurrentBaseSalary();
+        $mucLuongCoSo = $baseSalary ? $baseSalary->MucLuongCoSo : 2340000;
+
+        // Ngạch lương & bậc lương
+        $ngachLuongs = NgachLuong::with('bacLuongs')->orderBy('Ma')->get();
+
+        return view('contracts.edit', compact('hopDong', 'nhanvien', 'donvi', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
+    }
+
+    public function CapNhat(Request $request, $id)
+    {
+        $hopDong = \App\Models\HopDong::byUnit()->findOrFail($id);
+
+        // Validate incoming request
+        $validated = $request->validate([
+            'nhan_vien_id' => 'required|exists:nhan_viens,id',
+            'NguoiKyId' => 'required|exists:nhan_viens,id',
+            'so_hop_dong' => 'required|string|max:255',
+            'loai_hop_dong_id' => 'required|integer',
+            'loai' => 'required|string|max:50',
+            'don_vi_id' => 'required|exists:don_vis,id',
+            'phong_ban_id' => 'required|exists:dm_phong_bans,id',
+            'chuc_vu_id' => 'required|exists:dm_chuc_vus,id',
+            'NgayBatDau' => 'required|date_format:d/m/Y',
+            'NgayKetThuc' => 'nullable|date_format:d/m/Y',
+            'trang_thai' => 'required|in:0,1,2',
+            // Salary fields
+            'luong_co_ban' => 'required|numeric|min:5310000',
+            'phu_cap_chuc_vu' => 'nullable|numeric|min:0',
+            'phu_cap_trach_nhiem' => 'nullable|numeric|min:0',
+            'phu_cap_doc_hai' => 'nullable|numeric|min:0',
+            'phu_cap_tham_nien' => 'nullable|numeric|min:0',
+            'phu_cap_khu_vuc' => 'nullable|numeric|min:0',
+            'phu_cap_an_trua' => 'nullable|numeric|min:0',
+            'phu_cap_xang_xe' => 'nullable|numeric|min:0',
+            'phu_cap_dien_thoai' => 'nullable|numeric|min:0',
+            'phu_cap_nha_o' => 'nullable|numeric|min:0',
+            'phu_cap_khac' => 'nullable|numeric|min:0',
+            'tong_luong' => 'required|numeric|min:0',
+            // Ngạch & bậc lương
+            'ngach_luong_id' => 'nullable|exists:ngach_luongs,id',
+            'bac_luong_id' => 'nullable|exists:bac_luongs,id',
+            // File upload
+            'file' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+        ]);
+
+        try {
+            $data = [
+                'NhanVienId' => $validated['nhan_vien_id'],
+                'NguoiKyId' => $validated['NguoiKyId'],
+                'SoHopDong' => $validated['so_hop_dong'],
+                'Loai' => $validated['loai'],
+                'DonViId' => $validated['don_vi_id'],
+                'PhongBanId' => $validated['phong_ban_id'],
+                'ChucVuId' => $validated['chuc_vu_id'],
+                'TrangThai' => $validated['trang_thai'],
+                // Salary fields
+                'LuongCoBan' => $validated['luong_co_ban'],
+                'PhuCapChucVu' => $validated['phu_cap_chuc_vu'] ?? 0,
+                'PhuCapTrachNhiem' => $validated['phu_cap_trach_nhiem'] ?? 0,
+                'PhuCapDocHai' => $validated['phu_cap_doc_hai'] ?? 0,
+                'PhuCapThamNien' => $validated['phu_cap_tham_nien'] ?? 0,
+                'PhuCapKhuVuc' => $validated['phu_cap_khu_vuc'] ?? 0,
+                'PhuCapAnTrua' => $validated['phu_cap_an_trua'] ?? 0,
+                'PhuCapXangXe' => $validated['phu_cap_xang_xe'] ?? 0,
+                'PhuCapDienThoai' => $validated['phu_cap_dien_thoai'] ?? 0,
+                'PhuCapKhac' => ($validated['phu_cap_khac'] ?? 0) + ($validated['phu_cap_nha_o'] ?? 0),
+                'TongLuong' => $validated['tong_luong'],
+            ];
+
+            $data['NgayBatDau'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['NgayBatDau'])->format('Y-m-d');
+            if (!empty($validated['NgayKetThuc'])) {
+                $data['NgayKetThuc'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['NgayKetThuc'])->format('Y-m-d');
+            } else {
+                $data['NgayKetThuc'] = null;
+            }
+
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/contracts'), $filename);
+                $data['File'] = 'uploads/contracts/' . $filename;
+            }
+
+            \DB::transaction(function () use ($hopDong, $data, $request) {
+                $hopDong->update($data);
+
+                // Update DienBienLuong if ngach/bac changed
+                if ($request->filled('ngach_luong_id') && $request->filled('bac_luong_id')) {
+                    DienBienLuong::updateOrCreate(
+                        ['HopDongId' => $hopDong->id],
+                        [
+                            'NhanVienId' => $hopDong->NhanVienId,
+                            'NgachLuongId' => (int) $request->ngach_luong_id,
+                            'BacLuongId' => (int) $request->bac_luong_id,
+                            'NgayHuong' => $data['NgayBatDau'],
+                        ]
+                    );
+                }
+            });
+
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Hợp đồng đã được cập nhật thành công!'
+                ]);
+            }
+
+            return redirect()->route('hop-dong.info', $id)->with('success', 'Hợp đồng đã được cập nhật thành công!');
+
+        } catch (\Exception $e) {
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->withInput()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+    }
+
+    public function RenewView($id)
+    {
+        $oldContract = \App\Models\HopDong::with([
+            'nhanVien',
+            'nguoiKy',
+            'donVi',
+            'phongBan',
+            'chucVu',
+            'loaiHopDong'
+        ])->byUnit()->findOrFail($id);
+
+        // Fetch related salary progression (Ngạch/Bậc)
+        $oldDienBien = \App\Models\DienBienLuong::where('HopDongId', $id)->first();
+
+        $donvi = DonVi::all();
+        $phongban = DmPhongBan::all();
+        $chucvu = DmChucVu::all();
+        $nhanvien = NhanVien::byUnit()->with(['ttCongViec.chucVu', 'ttCongViec.phongBan', 'ttCongViec.donVi'])->get();
+
+        // Get current base salary
+        $baseSalary = \App\Models\ThamSoLuong::getCurrentBaseSalary();
+        $mucLuongCoSo = $baseSalary ? $baseSalary->MucLuongCoSo : 2340000;
+
+        // Ngạch lương & bậc lương
+        $ngachLuongs = NgachLuong::with('bacLuongs')->orderBy('Ma')->get();
+
+        $isRenew = true;
+
+        return view('contracts.create', compact('oldContract', 'oldDienBien', 'isRenew', 'nhanvien', 'donvi', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
     }
 }

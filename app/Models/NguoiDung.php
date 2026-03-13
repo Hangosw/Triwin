@@ -11,9 +11,33 @@ class NguoiDung extends Authenticatable
 {
     use Notifiable, HasRoles;
 
+    protected static function booted()
+    {
+        static::saved(function ($user) {
+            $nhanVien = $user->nhanVien;
+            if ($nhanVien) {
+                $updates = [];
+                if ($user->wasChanged('Ten') && $nhanVien->Ten !== $user->Ten) {
+                    $updates['Ten'] = $user->Ten;
+                }
+                if ($user->wasChanged('Email') && $nhanVien->Email !== $user->Email) {
+                    $updates['Email'] = $user->Email;
+                }
+                if ($user->wasChanged('SoDienThoai') && $nhanVien->SoDienThoai !== $user->SoDienThoai) {
+                    $updates['SoDienThoai'] = $user->SoDienThoai;
+                }
+
+                if (!empty($updates)) {
+                    $nhanVien->update($updates);
+                }
+            }
+        });
+    }
+
     protected $table = 'nguoi_dungs';
 
     protected $fillable = [
+        'Ten',
         'TaiKhoan',
         'MatKhau',
         'SoDienThoai',

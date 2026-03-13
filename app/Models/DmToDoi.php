@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUnitScoping;
 
 class DmToDoi extends Model
 {
+    use HasUnitScoping;
     protected $table = 'dm_to_dois';
 
     protected $fillable = ['PhongBanId', 'Ma', 'Ten', 'GhiChu'];

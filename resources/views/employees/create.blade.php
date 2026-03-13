@@ -182,6 +182,27 @@
                 width: 100%;
             }
         }
+
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--single {
+            height: 42px;
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px;
+            color: #1f2937;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
     </style>
 @endpush
 
@@ -323,7 +344,7 @@
 
                 <div class="form-group">
                     <label>Tình trạng hôn nhân</label>
-                    <select name="TinhTrangHonNhan">
+                    <select name="TinhTrangHonNhan" class="select2">
                         <option value="0">Độc thân</option>
                         <option value="1">Đã kết hôn</option>
                         <option value="2">Ly hôn</option>
@@ -353,7 +374,7 @@
 
                 <div class="form-group">
                     <label>Loại nhân viên <span class="required">*</span></label>
-                    <select name="Nhom" required>
+                    <select name="Nhom" class="select2" required>
                         <option value="">-- Chọn loại nhân viên --</option>
                         <option value="van_phong">Văn phòng</option>
                         <option value="cong_nhan">Công nhân</option>
@@ -364,7 +385,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Đơn vị <span class="required">*</span></label>
-                    <select name="DonViId" id="NgaySinh" required>
+                    <select name="DonViId" id="DonViId" class="select2" required>
                         <option value="">-- Chọn đơn vị --</option>
                         @foreach ($donVis as $donVi)
                             <option value="{{ $donVi->id }}">{{ $donVi->Ten }}</option>
@@ -374,7 +395,7 @@
 
                 <div class="form-group">
                     <label>Phòng ban <span class="required">*</span></label>
-                    <select name="PhongBanId" id="PhongBanId" required>
+                    <select name="PhongBanId" id="PhongBanId" class="select2" required>
                         <option value="">-- Chọn phòng ban --</option>
                         @foreach ($phongBans as $phongBan)
                             <option value="{{ $phongBan->id }}">{{ $phongBan->Ten }}</option>
@@ -386,7 +407,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Chức vụ <span class="required">*</span></label>
-                    <select name="ChucVuId" id="ChucVuId" required disabled>
+                    <select name="ChucVuId" id="ChucVuId" class="select2" required disabled>
                         <option value="">-- Chọn phòng ban trước --</option>
                         @foreach ($chucVus as $chucVu)
                             <option value="{{ $chucVu->id }}" data-loai="{{ $chucVu->Loai }}">{{ $chucVu->Ten }}</option>
@@ -412,7 +433,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Trình độ học vấn</label>
-                    <select name="TrinhDoHocVan">
+                    <select name="TrinhDoHocVan" class="select2">
                         <option value="">-- Chọn trình độ --</option>
                         <option value="Trung học cơ sở">Trung học cơ sở</option>
                         <option value="Trung học phổ thông">Trung học phổ thông</option>
@@ -457,7 +478,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Tên ngân hàng</label>
-                    <select name="TenNganHang">
+                    <select name="TenNganHang" class="select2">
                         <option value="">-- Chọn ngân hàng --</option>
                         <option value="Vietcombank">Vietcombank - Ngân hàng TMCP Ngoại thương Việt Nam</option>
                         <option value="VietinBank">VietinBank - Ngân hàng TMCP Công thương Việt Nam</option>
@@ -537,7 +558,7 @@
 
                 <div class="form-group">
                     <label>Quan hệ</label>
-                    <select name="quan_he_nguoi_lien_he">
+                    <select name="quan_he_nguoi_lien_he" class="select2">
                         <option value="">-- Chọn quan hệ --</option>
                         <option value="Bố">Bố</option>
                         <option value="Mẹ">Mẹ</option>
@@ -618,6 +639,15 @@
 
             // Wait for DOM to be fully loaded
             document.addEventListener('DOMContentLoaded', function () {
+                // Initialize Select2
+                $('.select2').select2({
+                    width: '100%',
+                    placeholder: function () {
+                        $(this).data('placeholder');
+                    },
+                    allowClear: true
+                });
+
                 // Auto format phone number
                 document.querySelectorAll('input[type="tel"]').forEach(input => {
                     input.addEventListener('input', function (e) {
@@ -627,8 +657,8 @@
                 });
 
                 // Enable/disable chức vụ select khi chọn phòng ban
-                const phongBanSelect = document.getElementById('PhongBanId');
-                const chucVuSelect = document.getElementById('ChucVuId');
+                const phongBanSelect = $('#PhongBanId');
+                const chucVuSelect = $('#ChucVuId');
 
                 // Helper function to get CSRF token safely
                 function getCsrfToken() {
@@ -641,22 +671,21 @@
                     return csrfInput ? csrfInput.value : '';
                 }
 
-                if (phongBanSelect && chucVuSelect) {
-                    phongBanSelect.addEventListener('change', function () {
+                if (phongBanSelect.length && chucVuSelect.length) {
+                    phongBanSelect.on('change', function () {
                         if (this.value) {
-                            chucVuSelect.disabled = false;
-                            chucVuSelect.querySelector('option[value=""]').textContent = '-- Chọn chức vụ --';
+                            chucVuSelect.prop('disabled', false).trigger('change');
+                            chucVuSelect.find('option[value=""]').text('-- Chọn chức vụ --');
                         } else {
-                            chucVuSelect.disabled = true;
-                            chucVuSelect.value = '';
-                            chucVuSelect.querySelector('option[value=""]').textContent = '-- Chọn phòng ban trước --';
+                            chucVuSelect.prop('disabled', true).val('').trigger('change');
+                            chucVuSelect.find('option[value=""]').text('-- Chọn phòng ban trước --');
                             hideChucVuError();
                         }
                     });
 
                     // Kiểm tra chức vụ khi chọn
-                    chucVuSelect.addEventListener('change', function () {
-                        const phongBanId = phongBanSelect.value;
+                    chucVuSelect.on('change', function () {
+                        const phongBanId = phongBanSelect.val();
                         const chucVuId = this.value;
 
                         if (!phongBanId || !chucVuId) {

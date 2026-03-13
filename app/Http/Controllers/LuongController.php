@@ -47,7 +47,7 @@ class LuongController extends Controller
             'dienBienLuongs' => function ($q) {
                 $q->with(['ngachLuong', 'bacLuong'])->orderBy('NgayHuong', 'desc');
             },
-        ])->findOrFail($nhanVienId);
+        ])->byUnit()->findOrFail($nhanVienId);
 
         $dienBienLuongs = $nhanVien->dienBienLuongs;
         $dienBienHienTai = $dienBienLuongs->first();
@@ -81,7 +81,7 @@ class LuongController extends Controller
             },
             'thanNhans',
             'ttCongViec',
-        ])->findOrFail($id);
+        ])->byUnit()->findOrFail($id);
 
         // Tính lương đầy đủ
         $luong = LuongService::tinhLuong($nhanVien, $thang, $nam);
@@ -115,7 +115,7 @@ class LuongController extends Controller
             'ttCongViec.phongBan',
             'hopDongs' => fn($q) => $q->where('TrangThai', 1)->latest(),
             'thanNhans',
-        ])->findOrFail($id);
+        ])->byUnit()->findOrFail($id);
 
         $luong = LuongService::tinhLuong($nhanVien, $thang, $nam);
         $hopDong = $luong['hop_dong'];
@@ -145,7 +145,7 @@ class LuongController extends Controller
                 $query->where('TrangThai', 1)->latest();
             },
             'thanNhans',
-        ])->findOrFail($id);
+        ])->byUnit()->findOrFail($id);
 
         $ketQua = LuongService::tinhLuong($nhanVien, $thang, $nam);
 
@@ -173,9 +173,10 @@ class LuongController extends Controller
             },
             'thanNhans',
             'ttCongViec',
-        ])->whereHas('hopDongs', function ($q) {
-            $q->where('TrangThai', 1);
-        })->get();
+        ])->byUnit()
+            ->whereHas('hopDongs', function ($q) {
+                $q->where('TrangThai', 1);
+            })->get();
 
         $thanhCong = 0;
         $boQua = 0;

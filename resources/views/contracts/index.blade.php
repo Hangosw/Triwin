@@ -162,7 +162,7 @@
     </div>
 
     <div class="card">
-        <div class="action-bar">
+        <div class="action-bar" style="border-bottom: none;">
             <div class="action-buttons">
                 <button type="button" class="btn btn-danger" id="deleteSelectedBtn" style="display: none;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
@@ -170,13 +170,6 @@
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                     Xóa đã chọn (<span id="selectedCount">0</span>)
-                </button>
-                <button class="btn btn-secondary">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                    Lọc
                 </button>
                 <button class="btn btn-secondary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
@@ -191,6 +184,29 @@
                     </svg>
                     Thêm hợp đồng
                 </a>
+            </div>
+        </div>
+
+        <div style="padding: 0 24px 20px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+            <div class="form-group mb-0">
+                <label class="form-label" style="font-size: 13px; color: #6b7280;">BỘ LỌC LOẠI HỢP ĐỒNG</label>
+                <select id="filterLoai" class="form-control" style="height: 42px;">
+                    <option value="">Tất cả loại (Mặc định)</option>
+                    <option value="thu_viec">Thử việc</option>
+                    <option value="chinh_thuc_xac_dinh_thoi_han">Xác định thời hạn</option>
+                    <option value="chinh_thuc_khong_xac_dinh_thoi_han">Không xác định thời hạn</option>
+                    <option value="khoan_viec">Khoán việc</option>
+                    <option value="thoi_vu">Thời vụ</option>
+                </select>
+            </div>
+            <div class="form-group mb-0">
+                <label class="form-label" style="font-size: 13px; color: #6b7280;">BỘ LỌC TRẠNG THÁI</label>
+                <select id="filterTrangThai" class="form-control" style="height: 42px;">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="1" selected>Có hiệu lực (Mặc định)</option>
+                    <option value="0">Hết hiệu lực</option>
+                    <option value="2">Bị hủy/Thanh lý</option>
+                </select>
             </div>
         </div>
     </div>
@@ -233,7 +249,13 @@
             const table = $('#contractsTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route('hop-dong.data') }}',
+                ajax: {
+                    url: '{{ route('hop-dong.data') }}',
+                    data: function (d) {
+                        d.loai = $('#filterLoai').val();
+                        d.trang_thai = $('#filterTrangThai').val();
+                    }
+                },
                 columns: [
                     {
                         data: null,
@@ -304,8 +326,30 @@
                     },
                     {
                         data: 'TrangThai',
-                        render: function (data) {
-                            if (data == 1) return '<span class="badge badge-success">Có hiệu lực</span>';
+                        render: function (data, type, row) {
+                            if (data == 1) {
+                                if (row.NgayKetThuc) {
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0);
+                                    const endDate = new Date(row.NgayKetThuc);
+                                    endDate.setHours(0, 0, 0, 0);
+                                    const diffTime = endDate - today;
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                                    if (diffDays >= 0 && diffDays <= 25) {
+                                        const renewUrl = `{{ route('hop-dong.renew', ':id') }}`.replace(':id', row.id);
+                                        return `
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span class="badge badge-warning">Sắp hết hạn</span>
+                                                <a href="${renewUrl}" title="Tái kí">
+                                                    <i class="bi bi-arrow-repeat text-warning" style="font-size: 18px; font-weight: bold; cursor: pointer;"></i>
+                                                </a>
+                                            </div>
+                                        `;
+                                    }
+                                }
+                                return '<span class="badge badge-success">Có hiệu lực</span>';
+                            }
                             if (data == 0) return '<span class="badge badge-danger">Hết hiệu lực</span>';
                             return '<span class="badge badge-warning">Bị hủy/Thanh lý</span>';
                         }
@@ -341,6 +385,10 @@
             $(document).on('change', '.contract-checkbox', function () {
                 updateSelectedCount();
                 $('#selectAll').prop('checked', $('.contract-checkbox:checked').length === $('.contract-checkbox').length);
+            });
+
+            $('#filterLoai, #filterTrangThai').on('change', function () {
+                table.ajax.reload();
             });
 
             function updateSelectedCount() {

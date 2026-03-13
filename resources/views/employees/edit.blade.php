@@ -131,6 +131,27 @@
                 width: 100%;
             }
         }
+
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--single {
+            height: 42px;
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px;
+            color: #1f2937;
+        }
+
+        .select2-container {
+            width: 100% !important;
+        }
     </style>
 @endpush
 
@@ -212,7 +233,12 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Tình trạng hôn nhân</label>
-                    <input type="text" name="TinhTrangHonNhan" value="{{ $employee->TinhTrangHonNhan }}" placeholder="Độc thân">
+                    <select name="TinhTrangHonNhan" class="select2">
+                        <option value="0" {{ $employee->TinhTrangHonNhan == '0' ? 'selected' : '' }}>Độc thân</option>
+                        <option value="1" {{ $employee->TinhTrangHonNhan == '1' ? 'selected' : '' }}>Đã kết hôn</option>
+                        <option value="2" {{ $employee->TinhTrangHonNhan == '2' ? 'selected' : '' }}>Ly hôn</option>
+                        <option value="3" {{ $employee->TinhTrangHonNhan == '3' ? 'selected' : '' }}>Góa</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -293,7 +319,26 @@
             <div class="form-row-3">
                 <div class="form-group">
                     <label>Tên ngân hàng</label>
-                    <input type="text" name="TenNganHang" value="{{ $employee->TenNganHang }}" placeholder="Vietcombank">
+                    <select name="TenNganHang" class="select2">
+                        <option value="">-- Chọn ngân hàng --</option>
+                        @php
+                            $banks = [
+                                'Vietcombank' => 'Vietcombank - Ngân hàng TMCP Ngoại thương Việt Nam',
+                                'VietinBank' => 'VietinBank - Ngân hàng TMCP Công thương Việt Nam',
+                                'BIDV' => 'BIDV - Ngân hàng TMCP Đầu tư và Phát triển Việt Nam',
+                                'Agribank' => 'Agribank - Ngân hàng Nông nghiệp và Phát triển Nông thôn',
+                                'Techcombank' => 'Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam',
+                                'ACB' => 'ACB - Ngân hàng TMCP Á Châu',
+                                'MB Bank' => 'MB Bank - Ngân hàng TMCP Quân đội',
+                                'VPBank' => 'VPBank - Ngân hàng TMCP Việt Nam Thịnh Vượng',
+                                'TPBank' => 'TPBank - Ngân hàng TMCP Tiên Phong',
+                                'Sacombank' => 'Sacombank - Ngân hàng TMCP Sài Gòn Thương Tín'
+                            ];
+                        @endphp
+                        @foreach($banks as $value => $label)
+                            <option value="{{ $value }}" {{ $employee->TenNganHang == $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -356,7 +401,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Loại nhân viên</label>
-                    <select name="LoaiNhanVien">
+                    <select name="LoaiNhanVien" class="select2">
                         <option value="">-- Chọn loại nhân viên --</option>
                         <option value="1" {{ $employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien == 1 ? 'selected' : '' }}>Văn phòng</option>
                         <option value="0" {{ $employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien == 0 ? 'selected' : '' }}>Công nhân</option>
@@ -365,7 +410,7 @@
 
                 <div class="form-group">
                     <label>Đơn vị</label>
-                    <select name="DonViId" id="donViSelect">
+                    <select name="DonViId" id="donViSelect" class="select2">
                         <option value="">-- Chọn đơn vị --</option>
                         @foreach($donVis as $donVi)
                             <option value="{{ $donVi->id }}" 
@@ -380,7 +425,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Phòng ban</label>
-                    <select name="PhongBanId" id="phongBanSelect">
+                    <select name="PhongBanId" id="phongBanSelect" class="select2">
                         <option value="">-- Chọn phòng ban --</option>
                         @foreach($phongBans as $phongBan)
                             <option value="{{ $phongBan->id }}" data-donvi="{{ $phongBan->DonViId }}"
@@ -393,7 +438,7 @@
 
                 <div class="form-group">
                     <label>Chức vụ</label>
-                    <select name="ChucVuId">
+                    <select name="ChucVuId" class="select2">
                         <option value="">-- Chọn chức vụ --</option>
                         @foreach($chucVus as $chucVu)
                             <option value="{{ $chucVu->id }}"
@@ -435,9 +480,15 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Trình độ học vấn</label>
-                    <input type="text" name="TrinhDoHocVan" 
-                        value="{{ $employee->ttCongViec->TrinhDoHocVan ?? '' }}" 
-                        placeholder="Đại học">
+                    <select name="TrinhDoHocVan" class="select2">
+                        <option value="">-- Chọn trình độ --</option>
+                        @php
+                            $levels = ['Trung học cơ sở', 'Trung học phổ thông', 'Trung cấp', 'Cao đẳng', 'Đại học', 'Thạc sĩ', 'Tiến sĩ'];
+                        @endphp
+                        @foreach($levels as $level)
+                            <option value="{{ $level }}" {{ ($employee->ttCongViec->TrinhDoHocVan ?? '') == $level ? 'selected' : '' }}>{{ $level }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -501,6 +552,13 @@
         <script>
             // Initialize Flatpickr for date fields
             document.addEventListener('DOMContentLoaded', function() {
+                // Initialize Select2
+                $('.select2').select2({
+                    width: '100%',
+                    placeholder: 'Chọn một mục',
+                    allowClear: true
+                });
+
                 flatpickr('.datepicker', {
                     dateFormat: 'd-m-Y',
                     locale: 'vn',
@@ -508,28 +566,38 @@
                 });
 
                 // Cascading dropdown: Đơn vị -> Phòng ban
-                const donViSelect = document.getElementById('donViSelect');
-                const phongBanSelect = document.getElementById('phongBanSelect');
-                const allPhongBanOptions = Array.from(phongBanSelect.options);
+                const donViSelect = $('#donViSelect');
+                const phongBanSelect = $('#phongBanSelect');
+                // Store all options initially
+                const allPhongBanOptions = Array.from(document.getElementById('phongBanSelect').options).map(opt => ({
+                    value: opt.value,
+                    text: opt.text,
+                    donvi: opt.dataset.donvi
+                }));
 
                 function filterPhongBan() {
-                    const selectedDonVi = donViSelect.value;
+                    const selectedDonVi = donViSelect.val();
+                    const currentVal = phongBanSelect.val();
                     
-                    // Clear current options except first
-                    phongBanSelect.innerHTML = '<option value="">-- Chọn phòng ban --</option>';
+                    // Clear current options
+                    phongBanSelect.html('<option value="">-- Chọn phòng ban --</option>');
                     
                     // Add filtered options
                     allPhongBanOptions.forEach(option => {
-                        if (option.value && (!selectedDonVi || option.dataset.donvi == selectedDonVi)) {
-                            phongBanSelect.appendChild(option.cloneNode(true));
+                        if (option.value && (!selectedDonVi || option.donvi == selectedDonVi)) {
+                            const newOption = new Option(option.text, option.value, false, option.value == currentVal);
+                            phongBanSelect.append(newOption);
                         }
                     });
+
+                    // Refresh Select2
+                    phongBanSelect.trigger('change.select2');
                 }
 
-                donViSelect.addEventListener('change', filterPhongBan);
+                donViSelect.on('change', filterPhongBan);
                 
                 // Initial filter
-                filterPhongBan();
+                // filterPhongBan(); // Commented out to keep initial value if any
             });
 
             // Form submission

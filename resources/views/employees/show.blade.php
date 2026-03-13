@@ -111,6 +111,9 @@
             border-bottom: 3px solid transparent;
             transition: all 0.2s;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .tab:hover {
@@ -133,7 +136,58 @@
         .action-buttons-header {
             display: flex;
             gap: 12px;
-            margin-top: 16px;
+            margin-top: 24px;
+        }
+
+        /* Standardize Section Headers */
+        .detail-section h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0F5132;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #ecfdf5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-section h2 i {
+            font-size: 1.25rem;
+        }
+
+        /* Standardize Tables */
+        .premium-table {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef2f6;
+        }
+
+        .premium-table thead {
+            background-color: #f8fafc;
+        }
+
+        .premium-table th {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            padding: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .premium-table td {
+            padding: 16px;
+            vertical-align: middle;
+            color: #334155;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .premium-table tr:hover {
+            background-color: #f8fafc;
         }
 
         /* Relatives Section Styling */
@@ -340,12 +394,9 @@
                 </div>
 
                 <div class="action-buttons-header">
-                    <a href="{{ route('nhan-vien.suaView', $employee->id) }}" class="btn btn-secondary">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Chỉnh sửa
+                    <a href="{{ route('nhan-vien.suaView', $employee->id) }}" class="btn btn-light" style="background: white; border: none; font-weight: 600; color: #0F5132; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                        <i class="bi bi-pencil-square"></i>
+                        Chỉnh sửa hồ sơ
                     </a>
 
                 </div>
@@ -355,606 +406,68 @@
 
     <!-- Tabs Navigation -->
     <div class="tabs">
-        <button class="tab active" onclick="switchTab('basic')">Thông tin cơ bản</button>
-        <button class="tab" onclick="switchTab('work')">Thông tin công việc</button>
-        <button class="tab" onclick="switchTab('relatives')">Thân nhân</button>
-        <button class="tab" onclick="switchTab('salary')">
-            <i class="bi bi-cash-coin" style="margin-right:4px;"></i>Diễn biến lương
+        <button class="tab active" onclick="switchTab(event, 'basic')">
+            <i class="bi bi-person-lines-fill"></i> Thông tin cơ bản
+        </button>
+        <button class="tab" onclick="switchTab(event, 'work')">
+            <i class="bi bi-briefcase-fill"></i> Thông tin công việc
+        </button>
+        <button class="tab" onclick="switchTab(event, 'relatives')">
+            <i class="bi bi-people-fill"></i> Thân nhân
+        </button>
+        <button class="tab" onclick="switchTab(event, 'salary')">
+            <i class="bi bi-cash-coin"></i> Diễn biến lương
             @if($employee->dienBienLuongs->isNotEmpty())
-                <span style="background:#0F5132;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
+                <span class="badge" style="background:#0F5132;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
                     {{ $employee->dienBienLuongs->count() }}
+                </span>
+            @endif
+        </button>
+        <button class="tab" onclick="switchTab(event, 'contracts')">
+            <i class="bi bi-file-earmark-text-fill"></i> Hợp đồng
+            @if($employee->hopDongs->isNotEmpty())
+                <span class="badge" style="background:#0F5132;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
+                    {{ $employee->hopDongs->count() }}
                 </span>
             @endif
         </button>
     </div>
 
-    <!-- Tab: Thông tin cơ bản -->
-    <!-- ... (existing basic info tab) ... -->
-    <div class="tab-content active" id="tab-basic">
-        <!-- (Existing content remains here) -->
-        <div class="detail-section">
-            <h2>Thông tin cá nhân</h2>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Mã nhân viên</div>
-                    <div class="detail-value">{{ $employee->Ma ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Họ và tên</div>
-                    <div class="detail-value">{{ $employee->Ten }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Số CCCD</div>
-                    <div class="detail-value">{{ $employee->SoCCCD ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Nơi cấp CCCD</div>
-                    <div class="detail-value">{{ $employee->NoiCap ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày cấp</div>
-                    <div class="detail-value">
-                        {{ $employee->NgayCap ? \Carbon\Carbon::parse($employee->NgayCap)->format('d/m/Y') : 'Chưa có' }}
-                    </div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày sinh</div>
-                    <div class="detail-value">
-                        {{ $employee->NgaySinh ? \Carbon\Carbon::parse($employee->NgaySinh)->format('d/m/Y') : 'Chưa có' }}
-                    </div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Giới tính</div>
-                    <div class="detail-value">{{ $employee->GioiTinh == 1 ? 'Nam' : 'Nữ' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Dân tộc</div>
-                    <div class="detail-value">{{ $employee->DanToc ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Tôn giáo</div>
-                    <div class="detail-value">{{ $employee->TonGiao ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Quốc tịch</div>
-                    <div class="detail-value">{{ $employee->QuocTich ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Tình trạng hôn nhân</div>
-                    <div class="detail-value">{{ $employee->TinhTrangHonNhan ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item" style="grid-column: 1 / -1;">
-                    <div class="detail-label">Địa chỉ thường trú</div>
-                    <div class="detail-value">{{ $employee->DiaChi ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item" style="grid-column: 1 / -1;">
-                    <div class="detail-label">Quê quán</div>
-                    <div class="detail-value">{{ $employee->QueQuan ?? 'Chưa có' }}</div>
-                </div>
-            </div>
-        </div>
+    {{-- Tab Contents --}}
+    @include('employees.partials.tab_basic')
+    @include('employees.partials.tab_work')
+    @include('employees.partials.tab_relatives')
+    @include('employees.partials.tab_salary')
+    @include('employees.partials.tab_contracts')
 
-        <div class="detail-section">
-            <h2>Thông tin liên hệ</h2>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Số điện thoại</div>
-                    <div class="detail-value">{{ $employee->SoDienThoai ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Email</div>
-                    <div class="detail-value">{{ $employee->Email ?? 'Chưa có' }}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <h2>Thông tin ngân hàng</h2>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Tên ngân hàng</div>
-                    <div class="detail-value">{{ $employee->TenNganHang ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Số tài khoản</div>
-                    <div class="detail-value">{{ $employee->SoTaiKhoan ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Chi nhánh</div>
-                    <div class="detail-value">{{ $employee->ChiNhanhNganHang ?? 'Chưa có' }}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <h2>Bảo hiểm</h2>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Số BHXH</div>
-                    <div class="detail-value">{{ $employee->BHXH ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Nơi cấp BHXH</div>
-                    <div class="detail-value">{{ $employee->NoiCapBHXH ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Số BHYT</div>
-                    <div class="detail-value">{{ $employee->BHYT ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Nơi cấp BHYT</div>
-                    <div class="detail-value">{{ $employee->NoiCapBHYT ?? 'Chưa có' }}</div>
-                </div>
-            </div>
-        </div>
-
-        @if($employee->Note)
-            <div class="detail-section">
-                <h2>Ghi chú</h2>
-                <div class="detail-value">{{ $employee->Note }}</div>
-            </div>
-        @endif
-    </div>
-
-    <!-- Tab: Thông tin công việc -->
-    <div class="tab-content" id="tab-work">
-        <div class="detail-section">
-            <h2>Thông tin công việc hiện tại</h2>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Loại nhân viên</div>
-                    <div class="detail-value">
-                        @if($employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien !== null)
-                            @if($employee->ttCongViec->LoaiNhanVien == 1)
-                                <span class="badge badge-info">Văn phòng</span>
-                            @else
-                                <span class="badge badge-warning">Công nhân</span>
-                            @endif
-                        @else
-                            Chưa có
-                        @endif
-                    </div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Đơn vị</div>
-                    <div class="detail-value">{{ $employee->ttCongViec->phongBan->donVi->Ten ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Phòng ban</div>
-                    <div class="detail-value">{{ $employee->ttCongViec->phongBan->Ten ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Chức vụ</div>
-                    <div class="detail-value">{{ $employee->ttCongViec->chucVu->Ten ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày tuyển dụng</div>
-                    <div class="detail-value">
-                        {{ $employee->ttCongViec && $employee->ttCongViec->NgayTuyenDung ? \Carbon\Carbon::parse($employee->ttCongViec->NgayTuyenDung)->format('d/m/Y') : 'Chưa có' }}
-                    </div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày vào biên chế</div>
-                    <div class="detail-value">
-                        {{ $employee->ttCongViec && $employee->ttCongViec->NgayVaoBienChe ? \Carbon\Carbon::parse($employee->ttCongViec->NgayVaoBienChe)->format('d/m/Y') : 'Chưa có' }}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <h2>Trình độ học vấn & Chuyên môn</h2>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Trình độ học vấn</div>
-                    <div class="detail-value">{{ $employee->ttCongViec->TrinhDoHocVan ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Chuyên ngành</div>
-                    <div class="detail-value">{{ $employee->ttCongViec->ChuyenNganh ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Trình độ chuyên môn</div>
-                    <div class="detail-value">{{ $employee->ttCongViec->TrinhDoChuyenMon ?? 'Chưa có' }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngoại ngữ</div>
-                    <div class="detail-value">{{ $employee->ttCongViec->NgoaiNgu ?? 'Chưa có' }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab: Diễn biến lương -->
-    <div class="tab-content" id="tab-salary">
-        <div class="detail-section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="margin-bottom:0; border-bottom:none;">
-                    <i class="bi bi-graph-up-arrow" style="color:#0F5132;"></i>
-                    Diễn biến lương
-                </h2>
-                <a href="{{ route('salary.config', ['nhanVienId' => $employee->id]) }}" class="btn btn-primary"
-                    style="display:flex;align-items:center;gap:6px;">
-                    <i class="bi bi-box-arrow-up-right"></i>
-                    Xem chi tiết / Quản lý
-                </a>
-            </div>
-
-            @if($employee->dienBienLuongs->isEmpty())
-                <div style="text-align:center; padding:48px 24px; color:#9ca3af;">
-                    <i class="bi bi-cash-stack" style="font-size:48px; display:block; margin-bottom:16px; opacity:0.35;"></i>
-                    <div style="font-size:15px; font-weight:500; margin-bottom:8px; color:#6b7280;">Chưa có diễn biến lương
-                    </div>
-                    <div style="font-size:14px;">
-                        Diễn biến lương sẽ được tạo tự động khi tạo hợp đồng có chọn <strong>Ngạch/Bậc lương</strong>.
-                    </div>
-                    <div style="margin-top:20px;">
-                        <a href="{{ route('salary.config', ['nhanVienId' => $employee->id]) }}" class="btn btn-secondary">
-                            <i class="bi bi-gear-fill"></i> Mở trang cấu hình lương
-                        </a>
-                    </div>
-                </div>
-            @else
-                @php
-                    $mucLuongCoSo = \App\Models\ThamSoLuong::getCurrentBaseSalary()?->MucLuongCoSo ?? 2340000;
-                @endphp
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>STT</th>
-                                <th>Ngày hưởng</th>
-                                <th>Mã ngạch</th>
-                                <th>Tên ngạch</th>
-                                <th>Bậc</th>
-                                <th>Hệ số</th>
-                                <th>PC Vượt khung</th>
-                                <th>Lương ngạch bậc</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($employee->dienBienLuongs as $i => $dbl)
-                                @php
-                                    $luongBac = $dbl->bacLuong
-                                        ? $dbl->bacLuong->HeSo * $mucLuongCoSo * (1 + ($dbl->PhuCapVuotKhung ?? 0) / 100)
-                                        : 0;
-                                    $isFirst = $i === 0;
-                                @endphp
-                                <tr @if($isFirst) style="background:#f0fdf4;" @endif>
-                                    <td><strong>{{ $i + 1 }}</strong></td>
-                                    <td>{{ $dbl->NgayHuong ? \Carbon\Carbon::parse($dbl->NgayHuong)->format('d/m/Y') : '–' }}</td>
-                                    <td>{{ $dbl->ngachLuong?->Ma ?? '–' }}</td>
-                                    <td>{{ $dbl->ngachLuong?->Ten ?? '–' }}</td>
-                                    <td>{{ $dbl->bacLuong ? 'Bậc ' . $dbl->bacLuong->Bac : '–' }}</td>
-                                    <td><strong>{{ $dbl->bacLuong ? number_format($dbl->bacLuong->HeSo, 2) : '–' }}</strong></td>
-                                    <td>{{ $dbl->PhuCapVuotKhung ?? 0 }}%</td>
-                                    <td style="font-weight:600; color:{{ $isFirst ? '#0F5132' : '#6b7280' }};">
-                                        {{ number_format($luongBac, 0, ',', '.') }} đ
-                                    </td>
-                                    <td>
-                                        @if($isFirst)
-                                            <span class="badge badge-success">Hiện tại</span>
-                                        @else
-                                            <span class="badge" style="background:#f3f4f6;color:#6b7280;">Đã qua</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-
-        {{-- DANH SÁCH PHIẾU LƯƠNG THÁNG --}}
-        <div class="detail-section">
-            <h2 style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
-                <i class="bi bi-file-earmark-text" style="color:#0F5132;"></i>
-                Danh sách phiếu lương tháng
-            </h2>
-
-            @if($employee->luongs->isEmpty())
-                <div style="text-align:center; padding:32px; color:#9ca3af;">
-                    <i class="bi bi-receipt" style="font-size:40px; opacity:0.3; margin-bottom:12px; display:block;"></i>
-                    <div>Chưa có dữ liệu bảng lương tháng nào</div>
-                </div>
-            @else
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Kỳ lương</th>
-                                <th>Loại</th>
-                                <th>Thực nhận</th>
-                                <th>Trạng thái</th>
-                                <th style="text-align:right;">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($employee->luongs as $l)
-                                @php
-                                    $dt = \Carbon\Carbon::parse($l->ThoiGian);
-                                @endphp
-                                <tr>
-                                    <td><strong>Tháng {{ $dt->month }}/{{ $dt->year }}</strong></td>
-                                    <td>
-                                        @if($l->LoaiLuong === 0)
-                                            <span class="badge badge-info">Văn phòng</span>
-                                        @else
-                                            <span class="badge badge-warning">Công nhân</span>
-                                        @endif
-                                    </td>
-                                    <td style="font-weight:600; color:#0F5132;">
-                                        {{ number_format($l->Luong, 0, ',', '.') }} đ
-                                    </td>
-                                    <td>
-                                        @if($l->TrangThai == 1)
-                                            <span class="badge badge-success">Đã thanh toán</span>
-                                        @else
-                                            <span class="badge badge-warning">Chưa thanh toán</span>
-                                        @endif
-                                    </td>
-                                    <td style="text-align:right;">
-                                        <button class="btn btn-secondary btn-sm btn-show-slip"
-                                            data-nv-id="{{ $employee->id }}"
-                                            data-thang="{{ $dt->month }}"
-                                            data-nam="{{ $dt->year }}"
-                                            style="padding:4px 10px; font-size:13px; display:inline-flex; align-items:center; gap:4px;">
-                                            <i class="bi bi-printer"></i> In phiếu
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-
-    </div>
-
-    <!-- Tab: Thân nhân -->
-    <div class="tab-content" id="tab-relatives">
-        <div class="detail-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h2 style="margin-bottom: 0; border-bottom: none;">
-                    <i class="bi bi-people-fill" style="color: #0F5132; margin-right: 8px;"></i>
-                    Danh sách thân nhân
-                </h2>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRelativeModal"
-                    style="border-radius: 8px; padding: 10px 20px; font-weight: 500;">
-                    <i class="bi bi-plus-lg"></i> Thêm thân nhân
-                </button>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table relatives-table" id="relativesTable">
-                    <thead>
-                        <tr>
-                            <th style="width: 250px;">Họ và tên</th>
-                            <th>Mối quan hệ</th>
-                            <th>Ngày sinh</th>
-                            <th>CCCD/CMND</th>
-                            <th>Số điện thoại</th>
-                            <th>Giảm trừ</th>
-                            <th style="width: 100px; text-align: center;">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($employee->thanNhans as $tn)
-                            @php
-                                $relClass = match ($tn->QuanHe) {
-                                    'bo_de', 'me_de' => 'badge-bo-me',
-                                    'vo_chong' => 'badge-vo-chong',
-                                    'con_ruot', 'con_nuoi' => 'badge-con',
-                                    default => 'badge-khac'
-                                };
-                                $relText = match ($tn->QuanHe) {
-                                    'bo_de' => 'Bố đẻ',
-                                    'me_de' => 'Mẹ đẻ',
-                                    'vo_chong' => 'Vợ/Chồng',
-                                    'con_ruot' => 'Con ruột',
-                                    'con_nuoi' => 'Con nuôi',
-                                    default => 'Khác'
-                                };
-                            @endphp
-                            <tr>
-                                <td style="font-weight: 500; color: #111827;">{{ $tn->HoTen }}</td>
-                                <td>
-                                    <span class="badge-relationship {{ $relClass }}">
-                                        {{ $relText }}
-                                    </span>
-                                </td>
-                                <td>{{ $tn->NgaySinh ? \Carbon\Carbon::parse($tn->NgaySinh)->format('d/m/Y') : '-' }}</td>
-                                <td style="font-family: monospace; color: #4b5563;">{{ $tn->CCCD ?? '-' }}</td>
-                                <td>{{ $tn->SoDienThoai ?? '-' }}</td>
-                                <td>
-                                    @if($tn->LaGiamTruGiaCanh)
-                                        <span class="badge badge-success"
-                                            style="background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0;">
-                                            <i class="bi bi-check-circle-fill"></i> Có giảm trừ
-                                        </span>
-                                    @else
-                                        <span class="badge badge-secondary"
-                                            style="background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB;">
-                                            Không
-                                        </span>
-                                    @endif
-                                </td>
-                                <td style="text-align: center;">
-                                    <button class="action-icon-btn" onclick="deleteRelative({{ $tn->id }})" title="Xóa">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" style="text-align: center; padding: 48px; background: #fafafa;">
-                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                                        <i class="bi bi-people" style="font-size: 48px; color: #d1d5db;"></i>
-                                        <div style="color: #6b7280; font-size: 15px;">Chưa có thông tin thân nhân trong hồ sơ
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    {{-- Modal Thêm thân nhân --}}
-    <div class="modal fade" id="addRelativeModal" tabindex="-1" aria-labelledby="addRelativeModalLabel" aria-hidden="true"
-        style="display:none;">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content modal-premium">
-                <div class="modal-header">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <div
-                            style="background: rgba(255, 255, 255, 0.2); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-person-plus-fill" style="font-size: 24px;"></i>
-                        </div>
-                        <div>
-                            <h5 class="modal-title" id="addRelativeModalLabel" style="font-weight: 700; margin: 0;">Thêm
-                                thân nhân mới</h5>
-                            <p style="margin: 0; font-size: 13px; opacity: 0.8;">Điền thông tin người thân của nhân viên</p>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="addRelativeForm">
-                    @csrf
-                    <input type="hidden" name="NhanVienId" value="{{ $employee->id }}">
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <label class="form-label" style="font-weight: 600; color: #374151;">Họ tên <span
-                                        class="text-danger">*</span></label>
-                                <div class="form-icon-group">
-                                    <i class="bi bi-person-fill form-icon"></i>
-                                    <input type="text" name="HoTen" class="form-control form-icon-input"
-                                        placeholder="Họ và tên" required>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label" style="font-weight: 600; color: #374151;">Quan hệ <span
-                                        class="text-danger">*</span></label>
-                                <div class="form-icon-group">
-                                    <i class="bi bi-diagram-3-fill form-icon"></i>
-                                    <select name="QuanHe" class="form-select form-icon-input" required>
-                                        <option value="">-- Quan hệ --</option>
-                                        <option value="bo_de">Bố đẻ</option>
-                                        <option value="me_de">Mẹ đẻ</option>
-                                        <option value="vo_chong">Vợ/Chồng</option>
-                                        <option value="con_ruot">Con ruột</option>
-                                        <option value="con_nuoi">Con nuôi</option>
-                                        <option value="khac">Khác</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label" style="font-weight: 600; color: #374151;">Ngày sinh</label>
-                                <div class="form-icon-group">
-                                    <i class="bi bi-calendar-date-fill form-icon"></i>
-                                    <input type="date" name="NgaySinh" class="form-control form-icon-input">
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label" style="font-weight: 600; color: #374151;">CCCD/CMND</label>
-                                <div class="form-icon-group">
-                                    <i class="bi bi-card-heading form-icon"></i>
-                                    <input type="text" name="CCCD" class="form-control form-icon-input"
-                                        placeholder="Số CCCD">
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label" style="font-weight: 600; color: #374151;">Điện thoại</label>
-                                <div class="form-icon-group">
-                                    <i class="bi bi-telephone-fill form-icon"></i>
-                                    <input type="text" name="SoDienThoai" class="form-control form-icon-input"
-                                        placeholder="Số điện thoại">
-                                </div>
-                            </div>
-                            <div class="col-5">
-                                <label class="form-label" style="font-weight: 600; color: #374151;">Mã số thuế</label>
-                                <div class="form-icon-group">
-                                    <i class="bi bi-hash form-icon"></i>
-                                    <input type="text" name="MaSoThue" class="form-control form-icon-input"
-                                        placeholder="Mã số thuế">
-                                </div>
-                            </div>
-                            <div class="col-7">
-                                <label class="form-label" style="font-weight: 600; color: #374151;">Giấy tờ chứng minh
-                                    (Ảnh/PDF)</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"
-                                        style="background: #fff; border-right: none; border-radius: 8px 0 0 8px;">
-                                        <i class="bi bi-file-earmark-arrow-up-fill" style="color: #6b7280;"></i>
-                                    </span>
-                                    <input type="file" name="TepDinhKem" class="form-control"
-                                        style="border-left: none; border-radius: 0 8px 8px 0; padding: 10px 12px;">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="toggle-switch-group" onclick="document.getElementById('laGiamTru').click()">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <div
-                                            style="background: #D1FAE5; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="bi bi-shield-check" style="color: #059669; font-size: 20px;"></i>
-                                        </div>
-                                        <div>
-                                            <div style="font-weight: 600; color: #111827;">Người phụ thuộc</div>
-                                            <div style="font-size: 13px; color: #6b7280;">Giảm trừ gia cảnh (thuế TNCN)
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-check form-switch" style="padding-left: 0; margin-bottom: 0;">
-                                        <input class="form-check-input" type="checkbox" name="LaGiamTruGiaCanh"
-                                            id="laGiamTru" value="1" style="width: 48px; height: 24px; cursor: pointer;">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e5e7eb;">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                            style="border-radius: 8px; padding: 10px 24px;">Hủy bỏ</button>
-                        <button type="submit" class="btn btn-primary"
-                            style="background: #0F5132; border: none; border-radius: 8px; padding: 10px 32px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(15, 81, 50, 0.2);">
-                            Lưu thông tin
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    {{-- Modals --}}
+    @include('employees.partials.modal_add_relative')
+    @include('employees.partials.modal_salary_slip')
 
     @push('scripts')
         <script>
-            function switchTab(tabName) {
+            function switchTab(event, tabName) {
+                // Disable active state for all tab contents
                 document.querySelectorAll('.tab-content').forEach(content => {
                     content.classList.remove('active');
                 });
+                
+                // Disable active state for all tab buttons
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.classList.remove('active');
                 });
-                document.getElementById('tab-' + tabName).classList.add('active');
-
-                const tabLabelMap = {
-                    'basic': 'cơ bản',
-                    'work': 'công việc',
-                    'relatives': 'thân nhân',
-                    'salary': 'diễn biến lương',
-                };
-                const label = tabLabelMap[tabName] || '';
-                const clickedTab = Array.from(document.querySelectorAll('.tab')).find(tab =>
-                    tab.textContent.trim().toLowerCase().includes(label)
-                );
-                if (clickedTab) clickedTab.classList.add('active');
+                
+                // Activate selected content
+                const targetContent = document.getElementById('tab-' + tabName);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                
+                // Activate clicked button
+                if (event && event.currentTarget) {
+                    event.currentTarget.classList.add('active');
+                }
             }
-
 
             document.getElementById('addRelativeForm').addEventListener('submit', function (e) {
                 e.preventDefault();
@@ -1088,59 +601,6 @@
                 printWin.focus();
                 setTimeout(() => { printWin.print(); }, 500);
             });
-            // ===== END MODAL PHIẾU LƯƠNG =====
-
         </script>
-    {{-- ========== MODAL PHIẾU LƯƠNG ========== --}}
-    <div id="slipModal" style="
-        display:none; position:fixed; inset:0; z-index:9999;
-        background:rgba(0,0,0,0.55); align-items:center; justify-content:center;
-        overflow-y:auto; padding:24px 16px;
-    ">
-        <div style="
-            background:#fff; border-radius:12px; width:100%; max-width:860px;
-            margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3);
-            display:flex; flex-direction:column; max-height:90vh;
-        ">
-            {{-- Modal Header --}}
-            <div style="
-                display:flex; justify-content:space-between; align-items:center;
-                padding:16px 20px; border-bottom:1px solid #e5e7eb;
-                background:linear-gradient(135deg,#0F5132,#166534);
-                border-radius:12px 12px 0 0;
-            ">
-                <div style="color:#fff; font-size:16px; font-weight:700;">
-                    <i class="bi bi-file-earmark-text"></i>
-                    &nbsp;Phiếu Lương
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <button id="btnPrintSlip" style="
-                        background:#fff; color:#0F5132; border:none; border-radius:6px;
-                        padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
-                        display:flex; align-items:center; gap:6px;
-                    ">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                        </svg>
-                        In phiếu
-                    </button>
-                    <button onclick="closeSlipModal()" style="
-                        background:rgba(255,255,255,0.2); border:none; border-radius:6px;
-                        color:#fff; font-size:20px; cursor:pointer; width:32px; height:32px;
-                        display:flex; align-items:center; justify-content:center; line-height:1;
-                    ">✕</button>
-                </div>
-            </div>
-
-            {{-- Modal Body --}}
-            <div id="slipContent" style="padding:20px; overflow-y:auto; flex:1;">
-                <div style="text-align:center; padding:40px; color:#6b7280;">
-                    <div style="font-size:32px; margin-bottom:8px;">⏳</div>
-                    <div>Đang tải phiếu lương...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {{-- ========== END MODAL ========== --}}
+    @endpush
 @endsection

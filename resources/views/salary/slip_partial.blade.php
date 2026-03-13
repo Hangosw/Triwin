@@ -134,7 +134,7 @@
     {{-- Header --}}
     <div class="slip-header">
         <div style="font-size:13px; max-width:160px;">
-            Công ty HRM System
+            Công ty TNHH Cao Su Bình Long
         </div>
         <div class="slip-title">PHIẾU LƯƠNG THÁNG {{ $thang }}/{{ $nam }}</div>
         <div style="width:100px;"></div>
