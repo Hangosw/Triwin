@@ -44,7 +44,7 @@
             <div class="form-group">
                 <label class="form-label">Phụ cấp chức vụ</label>
                 <div
-                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0F5132;">
+                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0BAA4B;">
                     {{ number_format($chucVu->PhuCapChucVu ?? 0, 0, ',', '.') }} VNĐ
                 </div>
             </div>
@@ -52,7 +52,7 @@
             <div class="form-group">
                 <label class="form-label">Số nhân viên</label>
                 <div
-                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0F5132;">
+                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0BAA4B;">
                     {{ $chucVu->nhan_viens_count ?? 0 }} người
                 </div>
             </div>

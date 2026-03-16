@@ -51,7 +51,7 @@
                     title: 'Thành công!',
                     text: @json(session('success')),
                     confirmButtonText: 'Đóng',
-                    confirmButtonColor: '#0F5132'
+                    confirmButtonColor: '#0BAA4B'
                 });
             });
         </script>
@@ -101,14 +101,14 @@
 
     <style>
         .todoi-name-link {
-            color: #0F5132;
+            color: #0BAA4B;
             font-weight: 500;
             text-decoration: none;
             transition: all 0.2s;
         }
 
         .todoi-name-link:hover {
-            color: #166534;
+            color: #088c3d;
             text-decoration: underline;
         }
 
@@ -126,7 +126,7 @@
             align-items: center;
             padding: 4px 10px;
             background-color: #f0fdf4;
-            color: #0F5132;
+            color: #0BAA4B;
             border: 1px solid #bbf7d0;
             border-radius: 6px;
             font-weight: 500;

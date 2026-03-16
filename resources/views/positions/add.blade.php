@@ -22,18 +22,10 @@
                 </div>
             @endif
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <div class="form-group">
-                    <label class="form-label">Mã chức vụ <span style="color: #dc2626;">*</span></label>
-                    <input type="text" name="Ma" class="form-control" value="{{ old('Ma') }}" placeholder="Ví dụ: CV001"
-                        required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Tên chức vụ <span style="color: #dc2626;">*</span></label>
-                    <input type="text" name="Ten" class="form-control" value="{{ old('Ten') }}"
-                        placeholder="Nhập tên chức vụ" required>
-                </div>
+            <div class="form-group">
+                <label class="form-label">Tên chức vụ <span style="color: #dc2626;">*</span></label>
+                <input type="text" name="Ten" class="form-control" value="{{ old('Ten') }}"
+                    placeholder="Nhập tên chức vụ" required>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
@@ -48,8 +40,9 @@
 
                 <div class="form-group">
                     <label class="form-label">Phụ cấp chức vụ (VNĐ)</label>
-                    <input type="number" name="PhuCapChucVu" class="form-control" value="{{ old('PhuCapChucVu') }}"
-                        placeholder="0" min="0" step="1000">
+                    <input type="text" name="PhuCapChucVu" class="form-control currency-input" 
+                        value="{{ number_format(old('PhuCapChucVu', 0), 0, ',', '.') }}"
+                        placeholder="0">
                 </div>
             </div>
 
@@ -65,3 +58,27 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    function formatCurrency(value) {
+        if (!value) return '';
+        // Remove non-numeric characters
+        value = value.toString().replace(/[^0-9]/g, '');
+        // Format with thousand separator
+        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    $('.currency-input').on('input', function() {
+        let value = $(this).val();
+        $(this).val(formatCurrency(value));
+    });
+
+    // Initialize formatting on load
+    $('.currency-input').each(function() {
+        $(this).val(formatCurrency($(this).val()));
+    });
+});
+</script>
+@endpush

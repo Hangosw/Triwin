@@ -4,17 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-use App\Traits\HasUnitScoping;
-
 class TtNhanVienCongViec extends Model
 {
-    use HasUnitScoping;
     protected $table = 'tt_nhan_vien_cong_viecs';
 
     protected $fillable = [
         'NhanVienId',        // Foreign key to nhan_viens
         'LoaiNhanVien',      // 0: công nhân, 1: văn phòng
-        'DonViId',
         'ChucVuId',
         'PhongBanId',
         'NgayTuyenDung',
@@ -27,7 +23,6 @@ class TtNhanVienCongViec extends Model
 
     protected $casts = [
         'LoaiNhanVien' => 'integer',
-        'DonViId' => 'integer',
         'ChucVuId' => 'integer',
         'PhongBanId' => 'integer',
         'TrinhDoHocVan' => 'integer',
@@ -41,11 +36,7 @@ class TtNhanVienCongViec extends Model
      * =====================
      */
 
-    // Đơn vị công tác
-    public function donVi()
-    {
-        return $this->belongsTo(DonVi::class, 'DonViId');
-    }
+
 
     // Chức vụ
     public function chucVu()

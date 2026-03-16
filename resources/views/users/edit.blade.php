@@ -5,38 +5,14 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            const unitSpecs = $('input[name="don_vis[]"]');
-            const roleSpecs = $('.role-checkbox');
-            const rolesContainer = $('#roles-container');
-            const roleHint = $('#role-hint');
-            const roleLabels = $('.role-label');
-
-            function updateRolesState() {
-                const anyUnitSelected = $('input[name="don_vis[]"]:checked').length > 0;
-                
-                if (anyUnitSelected) {
-                    roleSpecs.prop('disabled', false);
-                    rolesContainer.css({
-                        'background-color': 'transparent',
-                        'opacity': '1'
-                    });
-                    roleLabels.css('cursor', 'pointer');
-                    roleHint.hide();
-                } else {
-                    roleSpecs.prop('disabled', true).prop('checked', false);
-                    rolesContainer.css({
-                        'background-color': '#f3f4f6',
-                        'opacity': '0.6'
-                    });
-                    roleLabels.css('cursor', 'not-allowed');
-                    roleHint.show();
-                }
-            }
-
-            unitSpecs.on('change', updateRolesState);
-            
-            // Initial check
-            updateRolesState();
+            // Simplified: all roles enabled as Unit scoping is removed
+            $('.role-checkbox').prop('disabled', false);
+            $('#roles-container').css({
+                'background-color': 'transparent',
+                'opacity': '1'
+            });
+            $('.role-label').css('cursor', 'pointer');
+            $('#role-hint').hide();
         });
     </script>
 @endpush
@@ -114,7 +90,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Phân quyền (Roles) <span id="role-hint" style="font-size: 11px; color: #dc2626; font-weight: normal; margin-left: 8px;">(Vui lòng chọn Đơn vị quản lý trước)</span> <span style="font-size:12px;color:gray;">(Chỉ có System
+                    <label class="form-label">Phân quyền (Roles) <span style="font-size:12px;color:gray;">(Chỉ có System
                             Admin mới chỉnh được hệ thống cao nhất)</span></label>
                     <div id="roles-container"
                         style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; border: 1px solid #d1d5db; padding: 12px; border-radius: 8px;">
@@ -128,19 +104,7 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="grid-column: span 2;">
-                    <label class="form-label">Đơn vị quản lý (Bắt buộc khi có Phân quyền)</label>
-                    <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">Nếu gán quyền cho người dùng, bạn bắt buộc phải chọn ít nhất một đơn vị mà họ được phép quản lý/thao tác.</p>
-                    <div
-                        style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; border: 1px solid #d1d5db; padding: 16px; border-radius: 8px; background: #f9fafb;">
-                        @foreach ($donVis as $dv)
-                            <label style="display:flex; align-items:center; gap:8px; cursor: pointer; padding: 4px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
-                                <input type="checkbox" name="don_vis[]" value="{{ $dv->id }}" {{ in_array($dv->id, $userDonVis) ? 'checked' : '' }}>
-                                <span style="font-size: 13px;">{{ $dv->Ten }} ({{ $dv->Ma }})</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
+
 
             </div>
 

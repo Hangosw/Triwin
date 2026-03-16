@@ -23,19 +23,7 @@
             @endif
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <div class="form-group">
-                    <label class="form-label">Đơn vị <span style="color: #dc2626;">*</span></label>
-                    <select name="DonViId" class="form-control" required>
-                        <option value="">-- Chọn đơn vị --</option>
-                        @foreach($donVis as $donVi)
-                            <option value="{{ $donVi->id }}" {{ old('DonViId') == $donVi->id ? 'selected' : '' }}>
-                                {{ $donVi->Ten }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group">
+                <div class="form-group" style="grid-column: span 2;">
                     <label class="form-label">Tên phòng ban <span style="color: #dc2626;">*</span></label>
                     <input type="text" name="Ten" class="form-control" value="{{ old('Ten') }}"
                         placeholder="Nhập tên phòng ban" required>

@@ -1,6 +1,6 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
-@section('title', 'Đăng ký tăng ca - Vietnam Rubber Group')
+@section('title', 'Đăng ký tăng ca - Triwin')
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -45,6 +45,7 @@
             font-size: 20px;
             font-weight: 600;
             color: #1f2937;
+            margin: 0;
         }
 
         .modal-body {
@@ -89,7 +90,7 @@
         .user-avatar {
             width: 60px;
             height: 60px;
-            background: #0F5132;
+            background: #0BAA4B;
             color: white;
             display: flex;
             align-items: center;
@@ -111,6 +112,79 @@
             color: #64748b;
             margin: 0;
         }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #0BAA4B;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #098a3d;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: #f9fafb;
+            padding: 12px 24px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #1f2937;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success { background: #dcfce7; color: #088c3d; }
+        .badge-warning { background: #fef9c3; color: #854d0e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+
+        .form-label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+        .form-control {
+            width: 100%; padding: 10px 14px; border-radius: 10px;
+            border: 1px solid #d1d5db; font-size: 14px;
+        }
     </style>
 @endpush
 
@@ -121,8 +195,13 @@
     </div>
 
     @if(isset($error))
-        <div class="alert alert-danger">
-            {{ $error }}
+        <div class="alert alert-danger" style="background: #fef2f2; border: 1px solid #fecaca; padding: 20px; border-radius: 12px; color: #dc2626; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span style="font-weight: 600;">{{ $error }}</span>
+            </div>
         </div>
     @else
         <div class="user-card">
@@ -145,7 +224,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" style="background: white; border-radius: 16px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 24px;">
             <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">Lịch sử đăng ký tăng ca</h3>
             <div class="table-container">
                 <table class="table">
@@ -157,7 +236,7 @@
                             <th>Tổng giờ</th>
                             <th>Lý do</th>
                             <th>Ghi chú lãnh đạo</th>
-                            <th>Lần gửi</th>
+                            <th style="text-align: center;">Lần gửi</th>
                             <th>Trạng thái</th>
                             <th>Hành động</th>
                         </tr>
@@ -168,7 +247,7 @@
                                 <td class="font-medium">{{ $ot->Ngay->format('d/m/Y') }}</td>
                                 <td>{{ substr($ot->BatDau, 0, 5) }}</td>
                                 <td>{{ substr($ot->KetThuc, 0, 5) }}</td>
-                                <td class="font-medium" style="color: #0F5132;">{{ $ot->Tong }}h</td>
+                                <td class="font-medium" style="color: #0BAA4B;">{{ $ot->Tong }}h</td>
                                 <td>{{ $ot->LyDo }}</td>
                                 <td style="max-width:200px; font-size:13px; color:#6b7280;">
                                     @if($ot->GhiChuLanhDao)
@@ -207,7 +286,7 @@
 
                         @empty
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">
+                                <td colspan="9" style="text-align: center; padding: 40px; color: #6b7280;">
                                     Bạn chưa có đơn đăng ký tăng ca nào.
                                 </td>
                             </tr>
@@ -231,13 +310,13 @@
             </div>
             <form id="overtimeForm" onsubmit="submitOvertime(event)">
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 20px;">
                         <label class="form-label">Ngày tăng ca <span style="color: #ef4444;">*</span></label>
                         <input type="text" class="form-control datepicker" id="overtimeDate" placeholder="dd/mm/yyyy"
                             required readonly>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
                         <div class="form-group">
                             <label class="form-label">Giờ bắt đầu <span style="color: #ef4444;">*</span></label>
                             <input type="time" class="form-control" id="overtimeStart" required>
@@ -337,7 +416,7 @@
                     icon: 'error',
                     title: 'Lỗi',
                     text: 'Giờ kết thúc phải sau giờ bắt đầu!',
-                    confirmButtonColor: '#0F5132'
+                    confirmButtonColor: '#0BAA4B'
                 });
                 return;
             }
@@ -371,7 +450,7 @@
                             icon: 'error',
                             title: 'Lỗi',
                             text: data.message,
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                         btnSubmit.disabled = false;
                         btnSubmit.innerText = 'Gửi đơn';
@@ -383,7 +462,7 @@
                         icon: 'error',
                         title: 'Lỗi hệ thống',
                         text: 'Có lỗi xảy ra, vui lòng thử lại sau!',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
                     btnSubmit.disabled = false;
                     btnSubmit.innerText = 'Gửi đơn';
@@ -392,10 +471,6 @@
 
 
         // ==================== YEU CAU LAI ====================
-        document.getElementById('reRequestModal').addEventListener('click', function (e) {
-            if (e.target === this) closeReRequestModal();
-        });
-
         let currentReRequestId = null;
 
         function openReRequestModal(id, soLanHienTai) {
@@ -415,12 +490,12 @@
         function submitReRequest() {
             const lyDo = document.getElementById('reRequestReason').value.trim();
             if (!lyDo) {
-                Swal.fire({ icon: 'warning', title: 'Thieu thong tin', text: 'Vui long nhap ly do yeu cau lai.', confirmButtonColor: '#0F5132' });
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập lý do yêu cầu lại.', confirmButtonColor: '#0BAA4B' });
                 return;
             }
             const btn = document.getElementById('btnReRequest');
             btn.disabled = true;
-            btn.textContent = 'Dang gui...';
+            btn.textContent = 'Đang gửi...';
 
             fetch('/tang-ca/yeu-cau-lai/' + currentReRequestId, {
                 method: 'POST',
@@ -430,25 +505,25 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        Swal.fire({ icon: 'success', title: 'Da gui!', text: data.message, timer: 2000, showConfirmButton: false })
+                        Swal.fire({ icon: 'success', title: 'Đã gửi!', text: data.message, timer: 2000, showConfirmButton: false })
                             .then(() => location.reload());
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Loi', text: data.message, confirmButtonColor: '#0F5132' });
+                        Swal.fire({ icon: 'error', title: 'Lỗi', text: data.message, confirmButtonColor: '#0BAA4B' });
                         btn.disabled = false;
-                        btn.textContent = 'Gui yeu cau lai';
+                        btn.textContent = 'Gửi yêu cầu lại';
                     }
                 })
                 .catch(() => {
-                    Swal.fire({ icon: 'error', title: 'Loi he thong', confirmButtonColor: '#0F5132' });
+                    Swal.fire({ icon: 'error', title: 'Lỗi hệ thống', confirmButtonColor: '#0BAA4B' });
                     btn.disabled = false;
-                    btn.textContent = 'Gui yeu cau lai';
+                    btn.textContent = 'Gửi yêu cầu lại';
                 });
         }
+
         // Close modal on outside click
-        document.getElementById('overtimeModal').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closeOvertimeModal();
-            }
-        });
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('overtimeModal')) closeOvertimeModal();
+            if (event.target == document.getElementById('reRequestModal')) closeReRequestModal();
+        }
     </script>
 @endpush

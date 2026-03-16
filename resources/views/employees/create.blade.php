@@ -18,7 +18,7 @@
             color: #1f2937;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #0F5132;
+            border-bottom: 2px solid #0BAA4B;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -70,7 +70,7 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
         }
 
@@ -103,7 +103,7 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #0F5132;
+            accent-color: #0BAA4B;
         }
 
         .radio-item label {
@@ -121,7 +121,7 @@
         }
 
         .upload-area:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             background-color: #f9fafb;
         }
 
@@ -383,15 +383,7 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label>Đơn vị <span class="required">*</span></label>
-                    <select name="DonViId" id="DonViId" class="select2" required>
-                        <option value="">-- Chọn đơn vị --</option>
-                        @foreach ($donVis as $donVi)
-                            <option value="{{ $donVi->id }}">{{ $donVi->Ten }}</option>
-                        @endforeach
-                    </select>
-                </div>
+
 
                 <div class="form-group">
                     <label>Phòng ban <span class="required">*</span></label>
@@ -840,7 +832,7 @@
                                 icon: 'error',
                                 title: 'Lỗi!',
                                 text: 'Vui lòng sửa các lỗi trước khi tiếp tục',
-                                confirmButtonColor: '#0F5132'
+                                confirmButtonColor: '#0BAA4B'
                             });
                             return;
                         }
@@ -863,7 +855,7 @@
                                 icon: 'warning',
                                 title: 'Thiếu thông tin!',
                                 text: 'Vui lòng điền đầy đủ các thông tin bắt buộc (*)',
-                                confirmButtonColor: '#0F5132'
+                                confirmButtonColor: '#0BAA4B'
                             });
 
                             // Scroll to first invalid field
@@ -921,7 +913,7 @@
                                         icon: 'success',
                                         title: 'Thành công!',
                                         text: data.message,
-                                        confirmButtonColor: '#0F5132',
+                                        confirmButtonColor: '#0BAA4B',
                                         showConfirmButton: false,
                                         timer: 2000
                                     }).then(() => {
@@ -932,7 +924,7 @@
                                         icon: 'error',
                                         title: 'Lỗi!',
                                         text: data.message || 'Có lỗi xảy ra khi thêm nhân viên',
-                                        confirmButtonColor: '#0F5132'
+                                        confirmButtonColor: '#0BAA4B'
                                     });
                                 }
                             })
@@ -942,7 +934,7 @@
                                     icon: 'error',
                                     title: 'Lỗi!',
                                     text: 'Có lỗi xảy ra khi thêm nhân viên. Vui lòng thử lại.',
-                                    confirmButtonColor: '#0F5132'
+                                    confirmButtonColor: '#0BAA4B'
                                 });
                             });
                     });

@@ -4,11 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-use App\Traits\HasUnitScoping;
-
 class NhanVien extends Model
 {
-    use HasUnitScoping;
     protected $table = 'nhan_viens';
 
     protected static function booted()
@@ -101,13 +98,7 @@ class NhanVien extends Model
         return $this->ttCongViec?->phongBan;
     }
 
-    /**
-     * Accessor: Get DonVi through ttCongViec
-     */
-    public function getDonViAttribute()
-    {
-        return $this->ttCongViec?->donVi;
-    }
+
 
     /**
      * Accessor: Get Nhom (LoaiNhanVien) through ttCongViec

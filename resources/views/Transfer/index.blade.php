@@ -5,7 +5,7 @@
 @section('content')
     <div class="page-header">
         <h1>Danh sách điều chuyển nội bộ</h1>
-        <p>Quản lý các yêu cầu điều chuyển đơn vị, phòng ban, chức vụ của nhân viên.</p>
+        <p>Quản lý các yêu cầu điều chuyển phòng ban, chức vụ của nhân viên.</p>
     </div>
 
     <!-- Actions Bar -->
@@ -65,9 +65,7 @@
                             </td>
                             <td>{{ $phieu->NgayDuKien?->format('d/m/Y') }}</td>
                             <td>
-                                @if ($phieu->donViMoi)
-                                    <div class="text-sm"><strong>Đơn vị:</strong> {{ $phieu->donViMoi->Ten }}</div>
-                                @endif
+
                                 @if ($phieu->phongBanMoi)
                                     <div class="text-sm"><strong>Phòng ban:</strong> {{ $phieu->phongBanMoi->Ten }}</div>
                                 @endif
@@ -83,7 +81,7 @@
                                     @endif
                                 </div>
 
-                                @if (!$phieu->donViMoi && !$phieu->phongBanMoi && !$phieu->chucVuMoi)
+                                @if (!$phieu->phongBanMoi && !$phieu->chucVuMoi)
                                     <span class="text-gray-400 italic text-sm">Không thay đổi</span>
                                 @endif
                             </td>
@@ -155,7 +153,19 @@
         $(document).ready(function () {
             const table = $('#transferTable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+                    "sProcessing": "Đang xử lý...",
+                    "sLengthMenu": "Hiển thị _MENU_ dòng",
+                    "sZeroRecords": "Không tìm thấy dữ liệu",
+                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                    "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                    "sSearch": "Tìm kiếm:",
+                    "oPaginate": {
+                        "sFirst": "Đầu",
+                        "sPrevious": "Trước",
+                        "sNext": "Tiếp",
+                        "sLast": "Cuối"
+                    }
                 },
                 order: [
                     [6, 'desc']
@@ -178,7 +188,7 @@
                     icon: 'success',
                     title: 'Thành công!',
                     text: "{{ session('success') }}",
-                    confirmButtonColor: '#0F5132'
+                    confirmButtonColor: '#0BAA4B'
                 });
             @endif
                         });
@@ -190,7 +200,7 @@
                 inputLabel: 'Ghi chú lãnh đạo (nếu có)',
                 inputPlaceholder: 'Nhập ghi chú...',
                 showCancelButton: true,
-                confirmButtonColor: '#0F5132',
+                confirmButtonColor: '#0BAA4B',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Phê duyệt',
                 cancelButtonText: 'Hủy',
@@ -210,7 +220,7 @@
                                         icon: 'success',
                                         title: 'Đã phê duyệt!',
                                         text: res.message + ' Cần tạo hợp đồng mới cho nhân viên này.',
-                                        confirmButtonColor: '#0F5132',
+                                        confirmButtonColor: '#0BAA4B',
                                         confirmButtonText: 'Tạo hợp đồng ngay'
                                     }).then(() => {
                                         window.location.href = res.redirect_url;

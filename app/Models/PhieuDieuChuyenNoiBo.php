@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Traits\HasUnitScoping;
+
 
 class PhieuDieuChuyenNoiBo extends Model
 {
-    use HasUnitScoping;
+    
     protected $table = 'phieu_dieu_chuyen_noi_bo';
 
     protected $fillable = [
         'NhanVienId',
         'NguoiYeuCauId',
-        'DonViMoiId',
+
         'PhongBanMoiId',
         'ChucVuMoiId',
         'NgayDuKien',
@@ -41,11 +41,7 @@ class PhieuDieuChuyenNoiBo extends Model
         return $this->belongsTo(NhanVien::class, 'NguoiYeuCauId');
     }
 
-    // Đơn vị mới
-    public function donViMoi(): BelongsTo
-    {
-        return $this->belongsTo(DonVi::class, 'DonViMoiId');
-    }
+
 
     // Phòng ban mới
     public function phongBanMoi(): BelongsTo

@@ -35,7 +35,7 @@
         <div class="card donvi-card" style="transition: box-shadow 0.2s; cursor: pointer;">
             <div style="display: flex; align-items: flex-start; gap: 16px;">
                 <div style="width: 48px; height: 48px; background-color: rgba(15, 81, 50, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <svg fill="none" stroke="#0F5132" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
+                    <svg fill="none" stroke="#0BAA4B" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
@@ -51,7 +51,7 @@
                         </div>
                         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 14px;">
                             <span style="color: #6b7280;">Số phòng ban:</span>
-                            <span class="font-medium" style="color: #0F5132;">{{ $donVi->phongBans->count() ?? 0 }} phòng ban</span>
+                            <span class="font-medium" style="color: #0BAA4B;">{{ $donVi->phongBans->count() ?? 0 }} phòng ban</span>
                         </div>
                     </div>
 

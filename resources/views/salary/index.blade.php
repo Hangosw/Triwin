@@ -46,7 +46,7 @@
 
             <div class="action-buttons">
                 <button id="btnTinhLuongHangLoat" class="btn btn-primary"
-                    style="background:#0F5132; display:flex; align-items:center; gap:6px;">
+                    style="background:#0BAA4B; display:flex; align-items:center; gap:6px;">
                     <i class="bi bi-lightning-charge-fill"></i>
                     Tính lương tự động
                 </button>
@@ -70,7 +70,7 @@
     <div
         style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
         <div class="card"
-            style="padding: 16px 20px; margin-bottom: 0; background: linear-gradient(135deg, #0F5132, #166534); color: white;">
+            style="padding: 16px 20px; margin-bottom: 0; background: linear-gradient(135deg, #0BAA4B, #088c3d); color: white;">
             <div style="font-size: 13px; opacity: 0.85;">Tổng thực nhận tháng {{ $thang }}/{{ $nam }}</div>
             <div style="font-size: 22px; font-weight: 700; margin-top: 4px;">
                 {{ number_format($tongThucNhan, 0, ',', '.') }} đ
@@ -108,7 +108,7 @@
                             <th>Lương cơ bản</th>
                             <th>Phụ cấp + Tăng ca</th>
                             <th>Khấu trừ</th>
-                            <th style="color: #0F5132;">Thực nhận</th>
+                            <th style="color: #0BAA4B;">Thực nhận</th>
                             <th>Trạng thái</th>
                             <th style="text-align: right;">Hành động</th>
                         </tr>
@@ -124,7 +124,7 @@
                                 <td><strong>{{ $index + 1 }}</strong></td>
                                 <td>
                                     <a href="{{ route('salary.detail', [$nv?->id, 'thang' => $thang, 'nam' => $nam]) }}"
-                                        style="color: #0F5132; text-decoration: none; font-weight: 600;">
+                                        style="color: #0BAA4B; text-decoration: none; font-weight: 600;">
                                         {{ $nv?->Ten ?? '—' }}
                                     </a>
                                     <div style="font-size: 13px; color: #6b7280;">{{ $nv?->Ma }}</div>
@@ -165,7 +165,7 @@
                                     <div style="font-size: 11px; color: #9ca3af;">BH + Thuế</div>
                                 </td>
                                 <td>
-                                    <strong style="color: #0F5132; font-size: 15px; white-space: nowrap;">
+                                    <strong style="color: #0BAA4B; font-size: 15px; white-space: nowrap;">
                                         {{ number_format($luong->Luong, 0, ',', '.') }} đ
                                     </strong>
                                 </td>
@@ -219,7 +219,7 @@
             <div style="
                                 display:flex; justify-content:space-between; align-items:center;
                                 padding:16px 20px; border-bottom:1px solid #e5e7eb;
-                                background:linear-gradient(135deg,#0F5132,#166534);
+                                background:linear-gradient(135deg,#0BAA4B,#088c3d);
                                 border-radius:12px 12px 0 0;
                             ">
                 <div style="color:#fff; font-size:16px; font-weight:700;">
@@ -228,7 +228,7 @@
                 </div>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <button id="btnPrintSlip" style="
-                                        background:#fff; color:#0F5132; border:none; border-radius:6px;
+                                        background:#fff; color:#0BAA4B; border:none; border-radius:6px;
                                         padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
                                         display:flex; align-items:center; gap:6px;
                                     ">
@@ -281,7 +281,7 @@
                         html: `Hệ thống sẽ tính lương tự động cho <strong>toàn bộ nhân viên có hợp đồng active</strong> trong kỳ <strong>tháng ${thang}/${nam}</strong>.<br><br>Nếu đã tồn tại dữ liệu, sẽ <span style="color:#f97316;font-weight:600;">cập nhật lại</span>.`,
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonColor: '#0F5132',
+                        confirmButtonColor: '#0BAA4B',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: '<i class="bi bi-lightning-charge-fill"></i> Xác nhận tính lương',
                         cancelButtonText: 'Hủy',
@@ -318,7 +318,7 @@
                                         title: 'Hoàn thành!',
                                         html,
                                         icon: 'success',
-                                        confirmButtonColor: '#0F5132',
+                                        confirmButtonColor: '#0BAA4B',
                                         confirmButtonText: 'OK',
                                     }).then(() => window.location.reload());
                                 } else if (data.success && data.bo_qua > 0) {
@@ -327,7 +327,7 @@
                                         title: 'Tất cả thất bại!',
                                         html: `<b>${data.message}</b><br><ul style="text-align:left;margin-top:8px;color:#dc2626;">${errList}</ul>`,
                                         icon: 'error',
-                                        confirmButtonColor: '#0F5132',
+                                        confirmButtonColor: '#0BAA4B',
                                     });
                                 } else {
                                     Swal.fire('Lỗi', data.message ?? 'Có lỗi xảy ra.', 'error');

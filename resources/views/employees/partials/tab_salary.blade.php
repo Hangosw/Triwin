@@ -61,7 +61,7 @@
                                 <td>{{ $dbl->bacLuong ? 'Bậc ' . $dbl->bacLuong->Bac : '–' }}</td>
                                 <td><strong>{{ $dbl->bacLuong ? number_format($dbl->bacLuong->HeSo, 2) : '–' }}</strong></td>
                                 <td>{{ $dbl->PhuCapVuotKhung ?? 0 }}%</td>
-                                <td style="font-weight:600; color:{{ $isFirst ? '#0F5132' : '#6b7280' }};">
+                                <td style="font-weight:600; color:{{ $isFirst ? '#0BAA4B' : '#6b7280' }};">
                                     {{ number_format($luongBac, 0, ',', '.') }} đ
                                 </td>
                                 <td>
@@ -116,7 +116,7 @@
                                         <span class="badge badge-warning">Công nhân</span>
                                     @endif
                                 </td>
-                                <td style="font-weight:600; color:#0F5132;">
+                                <td style="font-weight:600; color:#0BAA4B;">
                                     {{ number_format($l->Luong, 0, ',', '.') }} đ
                                 </td>
                                 <td>

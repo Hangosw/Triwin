@@ -79,13 +79,7 @@ class NguoiDung extends Authenticatable
     /**
      * Relationship: Mỗi người dùng gắn với một nhân viên
      */
-    /**
-     * Relationship: Các đơn vị được phép quản lý (dùng để phân quyền)
-     */
-    public function donVis()
-    {
-        return $this->belongsToMany(DonVi::class, 'nguoi_dung_don_vi', 'nguoi_dung_id', 'don_vi_id');
-    }
+
 
     public function nhanVien()
     {

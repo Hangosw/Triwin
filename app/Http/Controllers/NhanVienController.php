@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DonVi;
+
 use App\Models\NhanVien;
 use App\Models\DmChucVu;
 use App\Models\DmPhongBan;
-use App\Models\DmDonVi;
+
 use App\Models\TtNhanVienCongViec;
 use App\Models\NguoiDung;
 use Illuminate\Http\Request;
@@ -23,8 +23,8 @@ class NhanVienController extends Controller
 
     public function DataNhanVien(Request $request)
     {
-        $query = NhanVien::with(['ttCongViec.phongBan.donVi', 'ttCongViec.chucVu'])
-            ->byUnit();
+        $query = NhanVien::with(['ttCongViec.phongBan', 'ttCongViec.chucVu'])
+            ;
 
         // Server-side processing
         $totalRecords = $query->count();
@@ -101,10 +101,10 @@ class NhanVienController extends Controller
     {
         $employee = NhanVien::with([
             'ttCongViec.chucVu',
-            'ttCongViec.phongBan.donVi',
+            'ttCongViec.phongBan',
             'thanNhans',
             'hopDongs' => function ($q) {
-                $q->with(['loaiHopDong', 'chucVu', 'donVi'])->orderBy('NgayBatDau', 'desc');
+                $q->with(['loaiHopDong', 'chucVu'])->orderBy('NgayBatDau', 'desc');
             },
             'dienBienLuongs' => function ($q) {
                 $q->with(['ngachLuong', 'bacLuong'])->orderBy('NgayHuong', 'desc');
@@ -112,7 +112,7 @@ class NhanVienController extends Controller
             'luongs' => function ($q) {
                 $q->orderBy('ThoiGian', 'desc');
             },
-        ])->byUnit()->findOrFail($id);
+        ])->findOrFail($id);
 
         return view('employees.show', compact('employee'));
     }
@@ -140,8 +140,7 @@ class NhanVienController extends Controller
     {
         $phongBans = DmPhongBan::all();
         $chucVus = DmChucVu::all();
-        $donVis = DonVi::all();
-        return view('employees.create', compact('phongBans', 'chucVus', 'donVis'));
+        return view('employees.create', compact('phongBans', 'chucVus'));
     }
 
     public function Tao(Request $request)
@@ -155,7 +154,7 @@ class NhanVienController extends Controller
             'Email' => 'required|email|unique:nhan_viens,Email|unique:nguoi_dungs,Email',
             'SoDienThoai' => 'required|string',
             'DiaChi' => 'required|string',
-            'DonViId' => 'required|integer',
+
             'PhongBanId' => 'required|integer',
             'ChucVuId' => 'required|integer',
             'Nhom' => 'required|string',
@@ -182,7 +181,7 @@ class NhanVienController extends Controller
             'DiaChi.required' => 'Vui lòng nhập địa chỉ thường trú.',
 
             // Công việc
-            'DonViId.required' => 'Vui lòng chọn đơn vị.',
+
             'PhongBanId.required' => 'Vui lòng chọn phòng ban.',
             'ChucVuId.required' => 'Vui lòng chọn chức vụ.',
             'Nhom.required' => 'Vui lòng chọn loại nhân viên.',
@@ -302,7 +301,7 @@ class NhanVienController extends Controller
                 TtNhanVienCongViec::create([
                     'NhanVienId' => $nhanVien->id,
                     'LoaiNhanVien' => $loaiNhanVien,
-                    'DonViId' => $request->DonViId,
+
                     'PhongBanId' => $request->PhongBanId,
                     'ChucVuId' => $request->ChucVuId,
                     'NgayTuyenDung' => $ngayTuyenDung,
@@ -337,14 +336,13 @@ class NhanVienController extends Controller
     {
         $employee = NhanVien::with([
             'ttCongViec.chucVu',
-            'ttCongViec.phongBan.donVi'
-        ])->byUnit()->findOrFail($id);
+            'ttCongViec.phongBan'
+        ])->findOrFail($id);
 
         $phongBans = DmPhongBan::all();
         $chucVus = DmChucVu::all();
-        $donVis = DonVi::all();
 
-        return view('employees.edit', compact('employee', 'phongBans', 'chucVus', 'donVis'));
+        return view('employees.edit', compact('employee', 'phongBans', 'chucVus'));
     }
 
     public function CapNhat(Request $request, $id)
@@ -373,7 +371,7 @@ class NhanVienController extends Controller
 
             $validated = $request->validate($rules, $messages);
 
-            $employee = NhanVien::byUnit()->findOrFail($id);
+            $employee = NhanVien::findOrFail($id);
 
             // Update NhanVien table
             $employee->update([
@@ -406,7 +404,7 @@ class NhanVienController extends Controller
                 ['NhanVienId' => $employee->id],
                 [
                     'LoaiNhanVien' => $request->LoaiNhanVien,
-                    'DonViId' => $request->DonViId,
+
                     'PhongBanId' => $request->PhongBanId,
                     'ChucVuId' => $request->ChucVuId,
                     'NgayTuyenDung' => $this->convertDateFormat($request->NgayTuyenDung),
@@ -517,7 +515,7 @@ class NhanVienController extends Controller
      */
     public function checkChucVuTonTai(Request $request)
     {
-        $donViId = $request->don_vi_id; // Thêm don_vi_id
+
         $phongBanId = $request->phong_ban_id;
         $chucVuId = $request->chuc_vu_id;
         $nhanVienId = $request->nhan_vien_id; // Null khi tạo mới, có giá trị khi cập nhật
@@ -533,9 +531,8 @@ class NhanVienController extends Controller
             ]);
         }
 
-        // Kiểm tra logic: 1 Đơn vị, 1 Phòng ban, 1 Chức vụ loại 1
-        $query = TtNhanVienCongViec::where('DonViId', $donViId)
-            ->where('PhongBanId', $phongBanId)
+        // Kiểm tra logic: 1 Phòng ban, 1 Chức vụ loại 1
+        $query = TtNhanVienCongViec::where('PhongBanId', $phongBanId)
             ->where('ChucVuId', $chucVuId);
 
         // Nếu đang cập nhật, loại trừ nhân viên hiện tại
@@ -551,7 +548,7 @@ class NhanVienController extends Controller
 
             return response()->json([
                 'exists' => true,
-                'message' => "Đơn vị và Phòng ban này đã có nhân viên " . ($nhanVien ? $nhanVien->Ten : '') . " giữ chức vụ {$chucVu->Ten} rồi.",
+                'message' => "Phòng ban này đã có nhân viên " . ($nhanVien ? $nhanVien->Ten : '') . " giữ chức vụ {$chucVu->Ten} rồi.",
                 'chuc_vu_ten' => $chucVu->Ten
             ]);
         }

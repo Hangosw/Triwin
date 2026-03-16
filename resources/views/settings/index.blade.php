@@ -10,7 +10,7 @@
 
 <!-- Profile Settings -->
 <div class="card">
-    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0F5132;">Thông tin tài khoản</h3>
+    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Thông tin tài khoản</h3>
     
     <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 24px;">
         <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
@@ -51,7 +51,7 @@
 
 <!-- Security Settings -->
 <div class="card">
-    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0F5132;">Bảo mật</h3>
+    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Bảo mật</h3>
     
     <div class="form-group">
         <label class="form-label">Mật khẩu hiện tại</label>
@@ -79,7 +79,7 @@
 
 <!-- Notification Settings -->
 <div class="card">
-    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0F5132;">Thông báo</h3>
+    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Thông báo</h3>
     
     <div style="display: flex; flex-direction: column; gap: 16px;">
         <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px;">
@@ -89,7 +89,7 @@
             </div>
             <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
                 <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
-                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #0F5132; transition: 0.4s; border-radius: 24px;"></span>
+                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #0BAA4B; transition: 0.4s; border-radius: 24px;"></span>
             </label>
         </div>
         
@@ -100,7 +100,7 @@
             </div>
             <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
                 <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
-                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #0F5132; transition: 0.4s; border-radius: 24px;"></span>
+                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #0BAA4B; transition: 0.4s; border-radius: 24px;"></span>
             </label>
         </div>
         
@@ -119,7 +119,7 @@
 
 <!-- Appearance Settings -->
 <div class="card">
-    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0F5132;">Giao diện</h3>
+    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Giao diện</h3>
     
     <div class="form-group">
         <label class="form-label">Ngôn ngữ</label>

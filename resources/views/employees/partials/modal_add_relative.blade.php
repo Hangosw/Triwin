@@ -114,7 +114,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                         style="border-radius: 8px; padding: 10px 24px;">Hủy bỏ</button>
                     <button type="submit" class="btn btn-primary"
-                        style="background: #0F5132; border: none; border-radius: 8px; padding: 10px 32px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(15, 81, 50, 0.2);">
+                        style="background: #0BAA4B; border: none; border-radius: 8px; padding: 10px 32px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(15, 81, 50, 0.2);">
                         Lưu thông tin
                     </button>
                 </div>

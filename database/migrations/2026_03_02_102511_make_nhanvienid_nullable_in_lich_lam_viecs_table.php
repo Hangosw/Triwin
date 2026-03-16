@@ -11,15 +11,19 @@ return new class extends Migration {
     public function up(): void
     {
         // Step 1: Drop foreign key
-        Schema::table('lich_lam_viecs', function (Blueprint $table) {
-            $table->dropForeign(['NhanVienId']);
-        });
+        try {
+            Schema::table('lich_lam_viecs', function (Blueprint $table) {
+                $table->dropForeign(['NhanVienId']);
+            });
+        } catch (\Exception $e) {}
 
         // Step 2: Modify column and add foreign key
-        Schema::table('lich_lam_viecs', function (Blueprint $table) {
-            $table->unsignedBigInteger('NhanVienId')->nullable()->change();
-            $table->foreign('NhanVienId')->references('id')->on('nhan_viens')->nullOnDelete();
-        });
+        try {
+            Schema::table('lich_lam_viecs', function (Blueprint $table) {
+                $table->unsignedBigInteger('NhanVienId')->nullable()->change();
+                $table->foreign('NhanVienId')->references('id')->on('nhan_viens')->nullOnDelete();
+            });
+        } catch (\Exception $e) {}
     }
 
     /**

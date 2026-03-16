@@ -27,7 +27,7 @@
                 <tbody>
                     @forelse($employee->hopDongs as $hd)
                         <tr>
-                            <td style="font-weight: 600; color: #0F5132;">{{ $hd->SoHopDong }}</td>
+                            <td style="font-weight: 600; color: #0BAA4B;">{{ $hd->SoHopDong }}</td>
                             <td>{{ $hd->loaiHopDong->TenLoai ?? 'Hợp đồng mới' }}</td>
                             <td>{{ $hd->chucVu->Ten ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($hd->NgayBatDau)->format('d/m/Y') }}</td>

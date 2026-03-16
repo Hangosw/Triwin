@@ -34,7 +34,7 @@
             <div class="form-group">
                 <label class="form-label">Số phòng ban</label>
                 <div
-                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0F5132;">
+                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0BAA4B;">
                     {{ $donVi->phongBans->count() }} phòng ban
                 </div>
             </div>

@@ -87,7 +87,7 @@
                             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                     <p style="text-align: center; color: #4b5563; font-size: 16px; margin-bottom: 8px;">Kéo thả file vào đây
-                        hoặc <span style="color: #0F5132; font-weight: 500;">nhấp chuột để chọn</span></p>
+                        hoặc <span style="color: #0BAA4B; font-weight: 500;">nhấp chuột để chọn</span></p>
                     <p style="text-align: center; color: #6b7280; font-size: 14px; margin-bottom: 24px;">Hỗ trợ định dạng:
                         .xlsx, .xls</p>
 
@@ -98,7 +98,7 @@
                         Duyệt file
                     </button>
 
-                    <div id="file-name" style="margin-top: 16px; font-weight: 500; color: #0F5132;"></div>
+                    <div id="file-name" style="margin-top: 16px; font-weight: 500; color: #0BAA4B;"></div>
                 </div>
             </div>
 
@@ -144,7 +144,7 @@
                     submitBtn.disabled = false;
                     submitBtn.style.opacity = '1';
                     submitBtn.style.cursor = 'pointer';
-                    dropZone.style.borderColor = '#0F5132';
+                    dropZone.style.borderColor = '#0BAA4B';
                     dropZone.style.backgroundColor = 'rgba(15, 81, 50, 0.05)';
                 } else {
                     fileNameDisplay.textContent = '';
@@ -159,7 +159,7 @@
             // Add drag and drop logic
             dropZone.addEventListener('dragover', function (e) {
                 e.preventDefault();
-                dropZone.style.borderColor = '#0F5132';
+                dropZone.style.borderColor = '#0BAA4B';
                 dropZone.style.backgroundColor = 'rgba(15, 81, 50, 0.05)';
             });
 

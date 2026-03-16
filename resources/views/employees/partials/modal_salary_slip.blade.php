@@ -12,7 +12,7 @@
         <div style="
             display:flex; justify-content:space-between; align-items:center;
             padding:16px 20px; border-bottom:1px solid #e5e7eb;
-            background:linear-gradient(135deg,#0F5132,#166534);
+            background:linear-gradient(135deg,#0BAA4B,#088c3d);
             border-radius:12px 12px 0 0;
         ">
             <div style="color:#fff; font-size:16px; font-weight:700;">
@@ -21,7 +21,7 @@
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
                 <button id="btnPrintSlip" style="
-                    background:#fff; color:#0F5132; border:none; border-radius:6px;
+                    background:#fff; color:#0BAA4B; border:none; border-radius:6px;
                     padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
                     display:flex; align-items:center; gap:6px;
                 ">

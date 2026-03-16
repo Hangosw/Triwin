@@ -20,7 +20,7 @@
 
         @if(session('success'))
             <div class="alert alert-success"
-                style="color: #0f5132; background-color: #d1fae5; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                style="color: #0BAA4B; background-color: #d1fae5; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
                 {{ session('success') }}
             </div>
         @endif
@@ -46,13 +46,13 @@
                         <tr>
                             <td>{{ $r->id }}</td>
                             <td>
-                                <strong style="color: #0F5132;">{{ $r->name }}</strong>
+                                <strong style="color: #0BAA4B;">{{ $r->name }}</strong>
                             </td>
                             <td>{{ $r->users_count }} users</td>
                             <td style="text-align: right;">
                                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                     <a href="{{ route('roles.edit', $r->id) }}" class="btn-icon" title="Sửa Role"
-                                        style="color:#0F5132;">
+                                        style="color:#0BAA4B;">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">

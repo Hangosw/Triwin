@@ -113,7 +113,7 @@
         }
 
         .print-btn {
-            background-color: #0F5132;
+            background-color: #0BAA4B;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -125,7 +125,7 @@
         }
 
         .print-btn:hover {
-            background-color: #166534;
+            background-color: #088c3d;
         }
     </style>
 </head>

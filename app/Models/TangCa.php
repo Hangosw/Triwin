@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-use App\Traits\HasUnitScoping;
+
 
 class TangCa extends Model
 {
-    use HasUnitScoping;
+    
     protected $table = 'tang_cas';
 
     protected $fillable = [

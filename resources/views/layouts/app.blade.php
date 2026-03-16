@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Vietnam Rubber Group HRM')</title>
-    <link rel="icon" href="{{ asset('image/binhlonglogo.png') }}">
+    <link rel="icon" href="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}">
     <style>
         * {
             margin: 0;
@@ -28,22 +28,27 @@
         /* Sidebar Styles */
         .sidebar {
             width: 280px;
-            background-color: #0F5132;
-            color: white;
+            background-color: white;
+            color: #1f2937;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            border-right: 1px solid #e5e7eb;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
         }
 
         .sidebar-header {
             padding: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: white;
+            border-bottom: 1px solid #f3f4f6;
             text-align: center;
         }
 
         .sidebar-logo {
-            width: 120px;
-            height: 120px;
+            width: 100%;
+            height: auto;
+            max-height: 80px;
+            object-fit: contain;
             margin: 0 auto;
         }
 
@@ -66,20 +71,22 @@
             align-items: center;
             gap: 12px;
             padding: 12px 24px;
-            color: #d1fae5;
+            color: #4b5563;
             text-decoration: none;
             transition: all 0.2s;
             border-left: 4px solid transparent;
+            font-weight: 500;
         }
 
         .nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: #f9fafb;
+            color: #0BAA4B;
         }
 
         .nav-item.active {
-            background-color: #166534;
-            border-left-color: white;
-            color: white;
+            background-color: #f0fdf4;
+            border-left-color: #0BAA4B;
+            color: #0BAA4B;
         }
 
         .nav-item svg {
@@ -101,7 +108,7 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease;
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: #f9fafb;
         }
 
         .submenu.open {
@@ -113,21 +120,24 @@
             align-items: center;
             gap: 12px;
             padding: 10px 24px 10px 56px;
-            color: #d1fae5;
+            color: #6b7280;
             text-decoration: none;
             transition: all 0.2s;
-            border-left: 4px solid transparent;
+            border-left: 3px solid transparent;
             font-size: 14px;
+            font-weight: 400;
         }
 
         .submenu-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: #f0fdf4;
+            color: #0BAA4B;
         }
 
         .submenu-item.active {
-            background-color: #166534;
-            border-left-color: white;
-            color: white;
+            background-color: #f0fdf4;
+            border-left-color: #0BAA4B;
+            color: #0BAA4B;
+            font-weight: 500;
         }
 
         .chevron-icon {
@@ -142,7 +152,9 @@
 
         .sidebar-footer {
             padding: 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #f9fafb;
+            border-top: 1px solid #f3f4f6;
+            color: #1f2937;
         }
 
         .user-info {
@@ -156,10 +168,12 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #166534;
+            background-color: #f0fdf4;
+            color: #0BAA4B;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 600;
         }
 
         .logout-btn {
@@ -237,12 +251,12 @@
         }
 
         .btn-primary {
-            background-color: #0F5132;
+            background-color: #0BAA4B;
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #0d4429;
+            background-color: #0d7a3a;
         }
 
         .btn-secondary {
@@ -279,8 +293,8 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #0F5132;
-            box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+            border-color: #0BAA4B;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.1);
         }
 
         /* Table Styles */
@@ -445,6 +459,14 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #0BAA4B;
         }
 
         .stat-card .label {
@@ -461,7 +483,7 @@
 
         /* Utility Classes */
         .text-primary {
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .text-gray {
@@ -565,13 +587,13 @@
         }
 
         .dataTables_wrapper .dataTables_length select:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
         }
 
         .dataTables_wrapper .dataTables_length select:focus {
             outline: none;
-            border-color: #0F5132;
-            box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+            border-color: #0BAA4B;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.1);
         }
 
         /* Search Input Styling */
@@ -585,7 +607,8 @@
         }
 
         .dataTables_wrapper .dataTables_filter input {
-            padding: 8px 16px 8px 40px;
+            padding: 8px 12px 8px 40px !important;
+            display: inline-block;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 14px;
@@ -594,17 +617,35 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
             background-position: 12px center;
             background-repeat: no-repeat;
-            background-size: 20px;
+            background-size: 18px;
+            background-color: white;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            padding: 6px 32px 6px 12px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            font-size: 14px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
+            background-position: right 10px center !important;
+            background-repeat: no-repeat !important;
+            background-size: 12px !important;
+            background-color: white !important;
+            min-width: 60px;
         }
 
         .dataTables_wrapper .dataTables_filter input:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
         }
 
         .dataTables_wrapper .dataTables_filter input:focus {
             outline: none;
-            border-color: #0F5132;
-            box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+            border-color: #0BAA4B;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.1);
         }
 
         /* Info Text Styling */
@@ -643,20 +684,20 @@
 
         .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
             background-color: #f9fafb;
-            border-color: #0F5132;
-            color: #0F5132;
+            border-color: #0BAA4B;
+            color: #0BAA4B;
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background-color: #0F5132 !important;
-            border-color: #0F5132 !important;
+            background-color: #0BAA4B !important;
+            border-color: #0BAA4B !important;
             color: white !important;
-            box-shadow: 0 2px 4px rgba(15, 81, 50, 0.2);
+            box-shadow: 0 2px 4px rgba(11, 170, 75, 0.2);
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-            background-color: #0d4429 !important;
-            border-color: #0d4429 !important;
+            background-color: #0d7a3a !important;
+            border-color: #0d7a3a !important;
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
@@ -783,10 +824,15 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="{{ asset('image/binhlonglogo.png') }}" alt="Vietnam Rubber Group" class="sidebar-logo"
-                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27120%27 height=%27120%27%3E%3Ccircle cx=%2760%27 cy=%2760%27 r=%2750%27 fill=%27%230F5132%27/%3E%3Ctext x=%2760%27 y=%2770%27 font-size=%2730%27 fill=%27white%27 text-anchor=%27middle%27%3EVRG%3C/text%3E%3C/svg%3E'">
+                <img src="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}" alt="Logo" class="sidebar-logo"
+                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27120%27 height=%27120%27%3E%3Ccircle cx=%2760%27 cy=%2760%27 r=%2750%27 fill=%27%230BAA4B%27/%3E%3Ctext x=%2760%27 y=%2770%27 font-size=%2724%27 fill=%27white%27 text-anchor=%27middle%27%3ETRIWIN%3C/text%3E%3C/svg%3E'">
             </div>
             <nav class="sidebar-nav">
+                @php
+                    $authUser = auth()->user();
+                    $authNV = $authUser?->nhanVien;
+                    $activeContract = $authNV ? ($authNV->hopDongs->where('TrangThai', 1)->first() ?? $authNV->hopDongs->first()) : null;
+                @endphp
                 <a href="{{ route('dashboard') }}"
                     class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -795,6 +841,34 @@
                     </svg>
                     <span>Trang chủ</span>
                 </a>
+
+                @hasrole('Employee|Nhân viên')
+                    <div class="nav-item-parent">
+                        <div class="nav-item {{ request()->routeIs('nhan-vien.info') || request()->routeIs('hop-dong.info') ? 'active' : '' }}"
+                            onclick="toggleSubmenu('profile-submenu')" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                </svg>
+                                <span>Hồ sơ cá nhân</span>
+                            </div>
+                            <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="submenu" id="profile-submenu">
+                            <a href="{{ $authNV ? route('nhan-vien.info', $authNV->id) : '#' }}"
+                                class="submenu-item {{ request()->routeIs('nhan-vien.info') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
+                                <span>Thông tin cá nhân</span>
+                            </a>
+                            <a href="{{ $activeContract ? route('hop-dong.info', $activeContract->id) : '#' }}"
+                                class="submenu-item {{ request()->routeIs('hop-dong.info') && request()->route('id') == ($activeContract?->id ?? 0) ? 'active' : '' }}">
+                                <span>Hợp đồng cá nhân</span>
+                            </a>
+                        </div>
+                    </div>
+                @endhasrole
                 @can('Quản lý người dùng')
                     <a href="{{ route('nguoi-dung.danh-sach') }}"
                         class="nav-item {{ request()->routeIs('nguoi-dung.*') ? 'active' : '' }}">
@@ -817,17 +891,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span>Đơn vị</span>
+                                <span>Cơ cấu tổ chức</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                         <div class="submenu" id="don-vi-submenu">
-                            <a href="{{ route('don-vi.index') }}"
-                                class="submenu-item {{ request()->routeIs('don-vi.*') ? 'active' : '' }}">
-                                <span>Đơn vị</span>
-                            </a>
+
                             <a href="{{ route('phong-ban.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('phong-ban.*') ? 'active' : '' }}">
                                 <span>Phòng ban</span>
@@ -844,6 +915,7 @@
                     </div>
                 @endcan
 
+                @unlessrole('Employee|Nhân viên')
                 @can('Xem nhân viên')
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('nhan-vien.*') || request()->routeIs('dieu-chuyen.*') || request()->routeIs('cong-tac.*') ? 'active' : '' }}"
@@ -877,7 +949,9 @@
                         </div>
                     </div>
                 @endcan
+                @endunlessrole
 
+                @unlessrole('Employee|Nhân viên')
                 @can('Xem hợp đồng')
                     <a href="{{ route('hop-dong.danh-sach') }}"
                         class="nav-item {{ request()->routeIs('hop-dong.*') ? 'active' : '' }}">
@@ -888,6 +962,7 @@
                         <span>Hợp đồng</span>
                     </a>
                 @endcan
+                @endunlessrole
 
                 @can('Xem chấm công')
                     <div class="nav-item-parent">
@@ -975,34 +1050,6 @@
                     </div>
                 @endcan
 
-                @can('Xem văn thư')
-                    <div class="nav-item-parent">
-                        <div class="nav-item {{ request()->routeIs('documents.*') ? 'active' : '' }}"
-                            onclick="toggleSubmenu('documents-submenu')" style="cursor: pointer;">
-                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                </svg>
-                                <span>Văn thư</span>
-                            </div>
-                            <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                        <div class="submenu" id="documents-submenu">
-                            <a href="{{ route('documents.incoming') }}"
-                                class="submenu-item {{ request()->routeIs('documents.incoming') ? 'active' : '' }}">
-                                <span>Văn thư đến</span>
-                            </a>
-                            <a href="{{ route('documents.outgoing') }}"
-                                class="submenu-item {{ request()->routeIs('documents.outgoing') ? 'active' : '' }}">
-                                <span>Văn thư đi</span>
-                            </a>
-                        </div>
-                    </div>
-                @endcan
-
                 @can('Xem lương')
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('salary.*') ? 'active' : '' }}"
@@ -1029,17 +1076,6 @@
                 @endcan
 
                 @can('Quản lý hệ thống')
-                    <a href="{{ route('config.index') }}"
-                        class="nav-item {{ request()->routeIs('config.*') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span>Cấu hình</span>
-                    </a>
-
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'active' : '' }}"
                             onclick="toggleSubmenu('roles-submenu')" style="cursor: pointer;">
@@ -1065,16 +1101,35 @@
                             </a>
                         </div>
                     </div>
-                @endcan
 
-                <a href="{{ route('settings.index') }}"
-                    class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                    </svg>
-                    <span>Cài đặt</span>
-                </a>
+                    <div class="nav-item-parent">
+                        <div class="nav-item {{ request()->routeIs('config.*') || request()->routeIs('lich-su.*') || request()->routeIs('settings.*') ? 'active' : '' }}"
+                            onclick="toggleSubmenu('settings-main-submenu')" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span>Cài đặt</span>
+                            </div>
+                            <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="submenu" id="settings-main-submenu">
+                            <a href="{{ route('config.index') }}"
+                                class="submenu-item {{ request()->routeIs('config.*') ? 'active' : '' }}">
+                                <span>Cấu hình</span>
+                            </a>
+                            <a href="{{ route('lich-su.index') }}"
+                                class="submenu-item {{ request()->routeIs('lich-su.*') ? 'active' : '' }}">
+                                <span>Lịch sử hệ thống</span>
+                            </a>
+                        </div>
+                    </div>
+                @endcan
             </nav>
             <div class="sidebar-footer">
                 <div class="user-info">
@@ -1101,7 +1156,7 @@
                         text: 'Bạn có chắc chắn muốn đăng xuất?',
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonColor: '#0F5132',
+                        confirmButtonColor: '#0BAA4B',
                         cancelButtonColor: '#6b7280',
                         confirmButtonText: 'Đăng xuất',
                         cancelButtonText: 'Hủy'
@@ -1189,7 +1244,7 @@
         // Global Select2 Initialization
         $(document).ready(function () {
             function initSelect2(container) {
-                $(container).find('select:not(.no-select2):not(.select2-hidden-accessible)').each(function () {
+                $(container).find('select:not(.no-select2):not(.select2-hidden-accessible):not(.flatpickr-monthDropdown-months)').each(function () {
                     const dropdownParent = $(this).closest('.modal').length ? $(this).closest('.modal') : null;
                     $(this).select2({
                         width: '100%',
@@ -1204,7 +1259,7 @@
             initSelect2(document);
 
             // Re-initialize for dynamic content (like Bootstrap modals)
-            $(document).on('shown.bs.moda l', function (e) {
+            $(document).on('shown.bs.modal', function (e) {
                 initSelect2(e.target);
             });
         });

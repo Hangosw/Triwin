@@ -16,7 +16,7 @@
         </div>
         <div>
             <!-- Bạn có thể thêm nút sửa ở đây nếu cần -->
-            <a href="#" class="btn btn-primary" style="background-color: #0F5132; border-color: #0F5132;">
+            <a href="#" class="btn btn-primary" style="background-color: #0BAA4B; border-color: #0BAA4B;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px; margin-right: 4px; display: inline-block;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
@@ -44,10 +44,7 @@
                             <span style="color: #6b7280; font-size: 14px;">Tên Tổ Đội</span>
                             <span style="font-weight: 600; color: #111827;">{{ $todoi->Ten }}</span>
                         </li>
-                        <li style="border-bottom: 1px dashed #e5e7eb; padding-bottom: 16px;">
-                            <div style="color: #6b7280; font-size: 14px; margin-bottom: 4px;">Thuộc Đơn Vị</div>
-                            <div style="font-weight: 600; color: #111827;">{{ $todoi->phongBan->donVi->Ten ?? 'Chưa xác định' }}</div>
-                        </li>
+
                         <li style="border-bottom: 1px dashed #e5e7eb; padding-bottom: 16px;">
                             <div style="color: #6b7280; font-size: 14px; margin-bottom: 4px;">Thuộc Phòng Ban</div>
                             <div style="font-weight: 600; color: #111827;">{{ $todoi->phongBan->Ten ?? 'Chưa xác định' }}</div>
@@ -129,7 +126,7 @@
                                     <td>{{ $nv->ttCongViec->chucVu->Ten ?? 'Chưa rõ' }}</td>
                                     <td>
                                         @if ($nv->ttCongViec && $nv->ttCongViec->TrangThai == 'DangLamViec')
-                                            <span style="display: inline-flex; align-items: center; padding: 4px 8px; font-size: 12px; font-weight: 500; color: #0F5132; background-color: #e8f5e9; border-radius: 9999px;">
+                                            <span style="display: inline-flex; align-items: center; padding: 4px 8px; font-size: 12px; font-weight: 500; color: #0BAA4B; background-color: #e8f5e9; border-radius: 9999px;">
                                                 <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #198754; margin-right: 6px;"></span>
                                                 Đang làm việc
                                             </span>
@@ -167,7 +164,7 @@
             align-items: center;
             padding: 4px 10px;
             background-color: #f0fdf4;
-            color: #0F5132;
+            color: #0BAA4B;
             border: 1px solid #bbf7d0;
             border-radius: 6px;
             font-weight: 500;
@@ -203,7 +200,7 @@
                             @endforeach
                         </select>
                         <div class="form-text text-muted" style="margin-top: 8px; font-size: 13px; color: #6b7280; line-height: 1.5;">
-                            Danh sách hiển thị các nhân viên thuộc đơn vị <strong>{{ $todoi->phongBan->donVi->Ten ?? '' }}</strong> và phòng ban <strong>{{ $todoi->phongBan->Ten ?? '' }}</strong> nhưng chưa thuộc tổ đội này. Bạn có thể chọn nhiều nhân viên cùng lúc.
+                            Danh sách hiển thị các nhân viên thuộc phòng ban <strong>{{ $todoi->phongBan->Ten ?? '' }}</strong> nhưng chưa thuộc tổ đội này. Bạn có thể chọn nhiều nhân viên cùng lúc.
                         </div>
                         @error('NhanVienIds')
                             <div class="invalid-feedback" style="color: #ef4444; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
@@ -212,7 +209,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeAddMemberModal()">Đóng</button>
-                    <button type="submit" class="btn btn-primary" style="background-color: #0F5132; border-color: #0F5132;">Thêm vào tổ đội</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #0BAA4B; border-color: #0BAA4B;">Thêm vào tổ đội</button>
                 </div>
             </form>
         </div>
@@ -254,7 +251,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeChangeLeaderModal()">Đóng</button>
-                    <button type="submit" class="btn btn-primary" style="background-color: #0F5132; border-color: #0F5132;">Thay đổi</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #0BAA4B; border-color: #0BAA4B;">Thay đổi</button>
                 </div>
             </form>
         </div>
@@ -347,21 +344,21 @@
     }
     
     .select2-container--default.select2-container--focus .select2-selection--multiple {
-        border-color: #0F5132;
+        border-color: #0BAA4B;
         box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
     }
     
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
         background-color: #e8f5e9;
         border: 1px solid #bbf7d0;
-        color: #0F5132;
+        color: #0BAA4B;
         border-radius: 4px;
         padding: 4px 8px;
         margin-top: 4px;
     }
     
     .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        color: #0F5132;
+        color: #0BAA4B;
         margin-right: 6px;
     }
     

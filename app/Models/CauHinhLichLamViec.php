@@ -16,7 +16,7 @@ class CauHinhLichLamViec extends Model
     ];
 
     protected $casts = [
-        'CoLamViec' => 'integer',
+        'CoLamViec' => 'float',
         'HeSoNgayCong' => 'float'
     ];
 }

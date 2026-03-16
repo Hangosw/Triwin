@@ -109,12 +109,12 @@
         }
 
         .tab:hover {
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .tab.active {
-            color: #0F5132;
-            border-bottom-color: #0F5132;
+            color: #0BAA4B;
+            border-bottom-color: #0BAA4B;
         }
 
         .tab-content {
@@ -162,9 +162,9 @@
         }
 
         .dataTables_wrapper .paginate_button.current {
-            background: #0F5132 !important;
+            background: #0BAA4B !important;
             color: white !important;
-            border-color: #0F5132 !important;
+            border-color: #0BAA4B !important;
         }
     </style>
 @endpush
@@ -201,7 +201,7 @@
         <div class="card-body"
             style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-weight: 600; color: #166534;">Đã chọn <span id="selectedCount">0</span> đơn</span>
+                <span style="font-weight: 600; color: #088c3d;">Đã chọn <span id="selectedCount">0</span> đơn</span>
             </div>
             <div style="display: flex; gap: 12px;">
                 <button type="button" class="btn btn-primary" onclick="bulkApprove()">
@@ -305,7 +305,7 @@
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 12px;">
                                         <div class="avatar"
-                                            style="width: 40px; height: 40px; background: #0F5132; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
+                                            style="width: 40px; height: 40px; background: #0BAA4B; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
                                             {{ substr($leave->nhanVien->Ten, 0, 1) }}
                                         </div>
                                         <div class="font-medium">{{ $leave->nhanVien->Ten }}</div>
@@ -324,7 +324,7 @@
                                                 style="color: #1f2937;">{{ $leave->TuNgay->format('d/m/Y') }}</span></div>
                                         <div style="color: #6b7280;">Đến: <span class="font-medium"
                                                 style="color: #1f2937;">{{ $leave->DenNgay->format('d/m/Y') }}</span></div>
-                                        <div style="color: #0F5132; font-weight: 600;">Tổng: {{ $leave->SoNgayNghi }} ngày</div>
+                                        <div style="color: #0BAA4B; font-weight: 600;">Tổng: {{ $leave->SoNgayNghi }} ngày</div>
                                     </div>
                                 </td>
                                 <td>{{ $leave->LyDo }}</td>
@@ -577,7 +577,7 @@
                         icon: 'error',
                         title: 'Lỗi',
                         text: 'Ngày kết thúc phải sau ngày bắt đầu!',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
                     endPicker.clear();
                     document.getElementById('leaveDays').value = '';
@@ -614,7 +614,7 @@
                 icon: 'info',
                 title: 'Thông báo',
                 text: 'Chức năng admin đăng ký hộ hiện đang được phát triển nâng cao.',
-                confirmButtonColor: '#0F5132'
+                confirmButtonColor: '#0BAA4B'
             });
         }
 
@@ -625,7 +625,7 @@
                 text: 'Bạn có chắc chắn muốn phê duyệt đơn nghỉ phép này?',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#0F5132',
+                confirmButtonColor: '#0BAA4B',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Duyệt',
                 cancelButtonText: 'Hủy'
@@ -655,7 +655,7 @@
                                     icon: 'error',
                                     title: 'Lỗi',
                                     text: data.message,
-                                    confirmButtonColor: '#0F5132'
+                                    confirmButtonColor: '#0BAA4B'
                                 });
                             }
                         })
@@ -665,7 +665,7 @@
                                 icon: 'error',
                                 title: 'Lỗi',
                                 text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0F5132'
+                                confirmButtonColor: '#0BAA4B'
                             });
                         });
                 }
@@ -718,7 +718,7 @@
                                     icon: 'error',
                                     title: 'Lỗi',
                                     text: data.message,
-                                    confirmButtonColor: '#0F5132'
+                                    confirmButtonColor: '#0BAA4B'
                                 });
                             }
                         })
@@ -728,7 +728,7 @@
                                 icon: 'error',
                                 title: 'Lỗi',
                                 text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0F5132'
+                                confirmButtonColor: '#0BAA4B'
                             });
                         });
                 }
@@ -745,7 +745,7 @@
                 text: `Bạn có chắc chắn muốn phê duyệt ${selectedIds.length} đơn nghỉ phép đã chọn?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#0F5132',
+                confirmButtonColor: '#0BAA4B',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Đồng ý',
                 cancelButtonText: 'Hủy'
@@ -777,7 +777,7 @@
                                     icon: 'error',
                                     title: 'Lỗi',
                                     text: data.message,
-                                    confirmButtonColor: '#0F5132'
+                                    confirmButtonColor: '#0BAA4B'
                                 });
                             }
                         })
@@ -787,7 +787,7 @@
                                 icon: 'error',
                                 title: 'Lỗi',
                                 text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0F5132'
+                                confirmButtonColor: '#0BAA4B'
                             });
                         });
                 }
@@ -836,7 +836,7 @@
                                     icon: 'error',
                                     title: 'Lỗi',
                                     text: data.message,
-                                    confirmButtonColor: '#0F5132'
+                                    confirmButtonColor: '#0BAA4B'
                                 });
                             }
                         })
@@ -846,7 +846,7 @@
                                 icon: 'error',
                                 title: 'Lỗi',
                                 text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0F5132'
+                                confirmButtonColor: '#0BAA4B'
                             });
                         });
                 }

@@ -4,7 +4,7 @@ namespace App\Imports;
 
 use App\Models\DmChucVu;
 use App\Models\DmPhongBan;
-use App\Models\DonVi;
+
 use App\Models\NhanVien;
 use App\Models\TtNhanVienCongViec;
 use App\Models\NguoiDung;
@@ -29,7 +29,7 @@ class NhanVienImport implements ToCollection, WithStartRow
     public function collection(Collection $rows)
     {
         // Load relationships into memory to avoid N+1 queries during import
-        $donVis = DonVi::all()->keyBy('Ten');
+
         $phongBans = DmPhongBan::all()->keyBy('Ten');
         $chucVus = DmChucVu::all()->keyBy('Ten');
 
@@ -48,7 +48,7 @@ class NhanVienImport implements ToCollection, WithStartRow
             $ngaySinhRaw = isset($row[5]) ? trim($row[5]) : null; // F
             $gioiTinhRaw = isset($row[6]) ? trim($row[6]) : null; // G
             $cccd = isset($row[7]) ? trim($row[7]) : null; // H
-            $tenDonVi = isset($row[8]) ? trim($row[8]) : null; // I
+
             $tenPhongBan = isset($row[9]) ? trim($row[9]) : null; // J
             $tenChucVu = isset($row[10]) ? trim($row[10]) : null; // K
             $ngayTuyenDungRaw = isset($row[11]) ? trim($row[11]) : null; // L
@@ -67,15 +67,11 @@ class NhanVienImport implements ToCollection, WithStartRow
                 continue;
             }
 
-            // 2. Tra cứu Đơn vị, Phòng ban, Chức vụ
-            $donViModel = $donVis->get($tenDonVi);
+            // 2. Tra cứu Phòng ban, Chức vụ
             $phongBanModel = $phongBans->get($tenPhongBan);
             $chucVuModel = $chucVus->get($tenChucVu);
 
-            if (!$donViModel) {
-                $this->errors[] = "Dòng $rowNumber: Đơn vị '$tenDonVi' không tồn tại trên hệ thống.";
-                continue;
-            }
+
             if (!$phongBanModel) {
                 $this->errors[] = "Dòng $rowNumber: Phòng ban '$tenPhongBan' không tồn tại trên hệ thống.";
                 continue;
@@ -119,7 +115,7 @@ class NhanVienImport implements ToCollection, WithStartRow
                 // Tạo thông tin công tác
                 TtNhanVienCongViec::create([
                     'NhanVienId' => $nhanVien->id,
-                    'DonViId' => $donViModel->id,
+
                     'PhongBanId' => $phongBanModel->id,
                     'ChucVuId' => $chucVuModel->id,
                     'NgayTuyenDung' => $ngayTuyenDung,

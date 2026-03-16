@@ -18,7 +18,7 @@
             color: #1f2937;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #0F5132;
+            border-bottom: 2px solid #0BAA4B;
         }
 
         .detail-grid {
@@ -48,7 +48,7 @@
         }
 
         .profile-header {
-            background: linear-gradient(135deg, #0F5132 0%, #166534 100%);
+            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
             border-radius: 8px;
             padding: 32px;
             margin-bottom: 24px;
@@ -117,12 +117,12 @@
         }
 
         .tab:hover {
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .tab.active {
-            color: #0F5132;
-            border-bottom-color: #0F5132;
+            color: #0BAA4B;
+            border-bottom-color: #0BAA4B;
         }
 
         .tab-content {
@@ -143,7 +143,7 @@
         .detail-section h2 {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #0F5132;
+            color: #0BAA4B;
             margin-bottom: 24px;
             padding-bottom: 12px;
             border-bottom: 2px solid #ecfdf5;
@@ -243,7 +243,7 @@
 
         .badge-con {
             background: #DCFCE7;
-            color: #166534;
+            color: #088c3d;
         }
 
         .badge-khac {
@@ -260,7 +260,7 @@
         }
 
         .modal-premium .modal-header {
-            background: linear-gradient(135deg, #0F5132 0%, #166534 100%);
+            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
             color: white;
             border-bottom: none;
             padding: 24px;
@@ -296,7 +296,7 @@
         }
 
         .form-icon-input:focus {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
         }
 
@@ -313,7 +313,7 @@
         }
 
         .toggle-switch-group:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             background: #f0fdf4;
         }
 
@@ -394,7 +394,7 @@
                 </div>
 
                 <div class="action-buttons-header">
-                    <a href="{{ route('nhan-vien.suaView', $employee->id) }}" class="btn btn-light" style="background: white; border: none; font-weight: 600; color: #0F5132; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <a href="{{ route('nhan-vien.suaView', $employee->id) }}" class="btn btn-light" style="background: white; border: none; font-weight: 600; color: #0BAA4B; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                         <i class="bi bi-pencil-square"></i>
                         Chỉnh sửa hồ sơ
                     </a>
@@ -418,7 +418,7 @@
         <button class="tab" onclick="switchTab(event, 'salary')">
             <i class="bi bi-cash-coin"></i> Diễn biến lương
             @if($employee->dienBienLuongs->isNotEmpty())
-                <span class="badge" style="background:#0F5132;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
+                <span class="badge" style="background:#0BAA4B;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
                     {{ $employee->dienBienLuongs->count() }}
                 </span>
             @endif
@@ -426,7 +426,7 @@
         <button class="tab" onclick="switchTab(event, 'contracts')">
             <i class="bi bi-file-earmark-text-fill"></i> Hợp đồng
             @if($employee->hopDongs->isNotEmpty())
-                <span class="badge" style="background:#0F5132;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
+                <span class="badge" style="background:#0BAA4B;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
                     {{ $employee->hopDongs->count() }}
                 </span>
             @endif

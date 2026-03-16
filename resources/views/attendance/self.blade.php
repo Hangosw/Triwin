@@ -47,7 +47,7 @@
 
         .action-card.in {
             background-color: #f0fdf4;
-            color: #166534;
+            color: #088c3d;
         }
 
         .action-card.in:hover {
@@ -86,7 +86,7 @@
         .user-avatar {
             width: 60px;
             height: 60px;
-            background: #0F5132;
+            background: #0BAA4B;
             color: white;
             display: flex;
             align-items: center;
@@ -134,18 +134,22 @@
             <div class="user-details">
                 <h2>{{ $nhanVien->Ten }}</h2>
                 <p>Mã nhân viên: <strong>{{ $nhanVien->Ma }}</strong></p>
-                @if($todayAttendance)
+                @if($latestAttendance)
                     <div class="status-badge">
-                        Trạng thái hôm nay:
-                        @if($todayAttendance->Ra)
-                            <span class="badge badge-success">Đã hoàn thành</span>
+                        Trạng thái:
+                        @if(!$latestAttendance->Ra)
+                            <span class="badge badge-primary">Đang làm việc ({{ $latestAttendance->Loai == 1 ? 'Tăng ca' : 'Hành chính' }})</span>
                         @else
-                            <span class="badge badge-primary">Đang làm việc</span>
+                            @if($approvedOT && $latestAttendance->Loai == 0)
+                                <span class="badge badge-warning">Đã xong ca HC - Chờ vào ca Tăng ca</span>
+                            @else
+                                <span class="badge badge-success">Đã hoàn thành công việc</span>
+                            @endif
                         @endif
                     </div>
                 @else
                     <div class="status-badge">
-                        Trạng thái hôm nay: <span class="badge badge-gray">Chưa chấm công</span>
+                        Trạng thái: <span class="badge badge-gray">Chưa chấm công</span>
                     </div>
                 @endif
             </div>
@@ -156,17 +160,19 @@
             <div id="live-date">...</div>
 
             <div class="attendance-actions">
-                @if(!$todayAttendance || !$todayAttendance->Ra)
+                @if(!$latestAttendance || !$latestAttendance->Ra || ($latestAttendance->Ra && $approvedOT && $latestAttendance->Loai == 0))
                     <div class="action-card in" onclick="submitAttendance()">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
                         <h3>
-                            @if(!$todayAttendance)
-                                Chấm công Vào
+                            @if(!$latestAttendance)
+                                Chấm công VÀO
+                            @elseif($latestAttendance->Ra && $approvedOT)
+                                Chấm công VÀO TĂNG CA
                             @else
-                                Chấm công Ra
+                                Chấm công RA
                             @endif
                         </h3>
                         <p>Nhấp vào đây để ghi nhận thời gian</p>
@@ -183,32 +189,42 @@
             </div>
         </div>
 
-        @if($todayAttendance)
+        @if($todayAttendances->count() > 0)
             <div class="recent-activity"
                 style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
                 <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Chi tiết chấm công hôm nay</h3>
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>Loại</th>
                             <th>Giờ vào</th>
                             <th>Giờ ra</th>
                             <th>Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach($todayAttendances as $att)
                         <tr>
-                            <td>{{ $todayAttendance->Vao->format('H:i:s') }}</td>
-                            <td>{{ $todayAttendance->Ra ? $todayAttendance->Ra->format('H:i:s') : '-' }}</td>
                             <td>
-                                @if($todayAttendance->TrangThai === 'dung_gio')
+                                @if($att->Loai == 1)
+                                    <span class="badge" style="background:#6366f1; color:white;">Tăng ca</span>
+                                @else
+                                    <span class="badge" style="background:#3b82f6; color:white;">Hành chính</span>
+                                @endif
+                            </td>
+                            <td>{{ $att->Vao->format('H:i:s') }}</td>
+                            <td>{{ $att->Ra ? $att->Ra->format('H:i:s') : '-' }}</td>
+                            <td>
+                                @if($att->TrangThai === 'dung_gio')
                                     <span class="badge badge-success">Đúng giờ</span>
-                                @elseif($todayAttendance->TrangThai === 'tre')
+                                @elseif($att->TrangThai === 'tre')
                                     <span class="badge badge-warning">Đi muộn</span>
-                                @elseif($todayAttendance->TrangThai === 've_som')
+                                @elseif($att->TrangThai === 've_som')
                                     <span class="badge badge-orange">Về sớm</span>
                                 @endif
                             </td>
                         </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -266,7 +282,7 @@
                             icon: 'error',
                             title: 'Lỗi',
                             text: data.message,
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                     }
                 })
@@ -276,7 +292,7 @@
                         icon: 'error',
                         title: 'Lỗi hệ thống',
                         text: 'Có lỗi xảy ra, vui lòng thử lại sau!',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
                 });
         }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NguoiDung;
-use App\Models\DonVi;
+
 use Illuminate\Http\Request;
 
 class NguoiDungController extends Controller
@@ -16,8 +16,7 @@ class NguoiDungController extends Controller
     public function TaoView()
     {
         $roles = \Spatie\Permission\Models\Role::all();
-        $donVis = DonVi::all();
-        return view('users.create', compact('roles', 'donVis'));
+        return view('users.create', compact('roles'));
     }
 
     public function Tao(Request $request)
@@ -37,11 +36,7 @@ class NguoiDungController extends Controller
             'Email' => 'nullable|email|max:255|unique:nguoi_dungs,Email',
             'SoDienThoai' => 'nullable|string|max:20',
             'TrangThai' => 'required|in:0,1',
-            'don_vis' => 'required_with:roles|array|min:1',
-        ], array_merge($messages, [
-                'don_vis.required_with' => 'Bạn phải chọn ít nhất một Đơn vị quản lý trước khi gán Quyền (Roles).',
-                'don_vis.min' => 'Bạn phải chọn ít nhất một Đơn vị quản lý.',
-            ]));
+        ], $messages);
 
         try {
             $user = new NguoiDung();
@@ -61,9 +56,7 @@ class NguoiDungController extends Controller
                 $user->assignRole($request->input('roles'));
             }
 
-            if ($request->has('don_vis')) {
-                $user->donVis()->sync($request->input('don_vis'));
-            }
+
 
             return redirect()->route('nguoi-dung.danh-sach')
                 ->with('success', 'Thêm người dùng thành công!');
@@ -76,18 +69,16 @@ class NguoiDungController extends Controller
 
     public function SuaView($id)
     {
-        $user = NguoiDung::with('donVis')->where('id', $id)->firstOrFail();
+        $user = NguoiDung::where('id', $id)->firstOrFail();
         $roles = \Spatie\Permission\Models\Role::all();
-        $donVis = DonVi::all();
         $userRoles = $user->roles->pluck('name')->toArray();
-        $userDonVis = $user->donVis->pluck('id')->toArray();
-        return view('users.edit', compact('id', 'user', 'roles', 'userRoles', 'donVis', 'userDonVis'));
+        return view('users.edit', compact('id', 'user', 'roles', 'userRoles'));
     }
 
     public function DataNguoiDung()
     {
         $users = NguoiDung::whereHas('nhanVien', function ($q) {
-            $q->byUnit();
+            $q;
         })->select(['id', 'Ten', 'TaiKhoan', 'Email', 'SoDienThoai', 'TrangThai'])->get();
         return response()->json(['data' => $users]);
     }
@@ -129,7 +120,6 @@ class NguoiDungController extends Controller
             'Email' => 'nullable|email|max:255|unique:nguoi_dungs,Email,' . $id,
             'SoDienThoai' => 'nullable|string|max:20',
             'TrangThai' => 'required|in:0,1',
-            'don_vis' => 'required_with:roles|array|min:1',
         ];
 
         // Nếu có nhập mật khẩu mới
@@ -153,10 +143,7 @@ class NguoiDungController extends Controller
         ];
 
         // Validate
-        $validated = $request->validate($rules, array_merge($messages, [
-            'don_vis.required_with' => 'Bạn phải chọn ít nhất một Đơn vị quản lý trước khi gán Quyền (Roles).',
-            'don_vis.min' => 'Bạn phải chọn ít nhất một Đơn vị quản lý.',
-        ]));
+        $validated = $request->validate($rules, $messages);
 
         try {
             // Cập nhật thông tin cơ bản
@@ -179,11 +166,7 @@ class NguoiDungController extends Controller
                 $user->syncRoles([]);
             }
 
-            if ($request->has('don_vis')) {
-                $user->donVis()->sync($request->input('don_vis'));
-            } else {
-                $user->donVis()->sync([]);
-            }
+
 
             return redirect()->route('nguoi-dung.suaView', $id)
                 ->with('success', 'Cập nhật thông tin người dùng thành công!');

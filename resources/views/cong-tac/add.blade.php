@@ -29,7 +29,7 @@
         }
 
         .custom-tab-btn.active {
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .custom-tab-btn.active::after {
@@ -39,7 +39,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background-color: #0F5132;
+            background-color: #0BAA4B;
         }
 
         .tab-pane {

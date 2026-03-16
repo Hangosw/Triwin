@@ -266,7 +266,7 @@
 
         .schedule-select:focus {
             outline: none;
-            box-shadow: inset 0 0 0 2px #0F5132;
+            box-shadow: inset 0 0 0 2px #0BAA4B;
         }
 
         .is-modified::after {
@@ -284,7 +284,7 @@
         /* Shift Color Coding */
         .bg-shift-ca1 {
             background-color: #dcfce7 !important;
-            color: #166534 !important;
+            color: #088c3d !important;
         }
 
         /* Light Green */
@@ -302,7 +302,7 @@
         /* Light Red/Orange */
         .bg-shift-hc {
             background-color: #dcfce7 !important;
-            color: #166534 !important;
+            color: #088c3d !important;
         }
 
         /* Light Green */

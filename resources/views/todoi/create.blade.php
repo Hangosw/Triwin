@@ -22,13 +22,13 @@
         }
 
         .select2-container--bootstrap-5 .select2-dropdown {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             border-radius: 8px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
-            background-color: #0F5132;
+            background-color: #0BAA4B;
         }
     </style>
 @endpush
@@ -93,32 +93,16 @@
                         </div>
 
                         <div class="row mb-4">
-                            <!-- Đơn vị -->
-                            <div class="col-md-4 form-group">
-                                <label class="form-label font-weight-bold">Thuộc Đơn Vị <span
-                                        class="text-danger">*</span></label>
-                                <select id="DonViId" name="DonViId"
-                                    class="form-select select2-init @error('DonViId') is-invalid @enderror" required>
-                                    <option value="">-- Chọn đơn vị --</option>
-                                    @foreach ($donVis as $donVi)
-                                        <option value="{{ $donVi->id }}">
-                                            {{ $donVi->Ten }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('DonViId')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
                             <!-- Phòng Ban -->
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label class="form-label font-weight-bold">Thuộc Phòng Ban <span
                                         class="text-danger">*</span></label>
                                 <select id="PhongBanId" name="PhongBanId"
-                                    class="form-select select2-init @error('PhongBanId') is-invalid @enderror" required
-                                    disabled>
-                                    <option value="">-- Vui lòng chọn đơn vị trước --</option>
+                                    class="form-select select2-init @error('PhongBanId') is-invalid @enderror" required>
+                                    <option value="">-- Chọn phòng ban --</option>
+                                    @foreach ($phongBans as $phongBan)
+                                        <option value="{{ $phongBan->id }}">{{ $phongBan->Ten }}</option>
+                                    @endforeach
                                 </select>
                                 @error('PhongBanId')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -126,7 +110,7 @@
                             </div>
 
                             <!-- Tổ trưởng -->
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label class="form-label font-weight-bold">Tổ Trưởng (Công nhân)</label>
                                 <select id="TruongToId" name="TruongToId"
                                     class="form-select select2-init @error('TruongToId') is-invalid @enderror" disabled>
@@ -203,30 +187,7 @@
                 }
             });
 
-            // Handle cascading dropdown: Don Vi -> Phong Ban
-            $('#DonViId').on('change', function () {
-                var donViId = $(this).val();
-                var phongBanSelect = $('#PhongBanId');
-                var nhanVienSelect = $('#TruongToId');
-                var thanhVienSelect = $('#ThanhVienIds');
 
-                // Clear Phong Ban, Nhan Vien (Truong To) and Thanh Vien
-                phongBanSelect.empty().append('<option value="">-- Chọn phòng ban --</option>').prop('disabled', true);
-                nhanVienSelect.empty().append('<option value="">-- Vui lòng chọn phòng ban trước --</option>').prop('disabled', true);
-                thanhVienSelect.empty().prop('disabled', true);
-
-                if (donViId) {
-                    // Fetch Phong Bans
-                    $.get('/to-doi/ajax/phong-ban/' + donViId, function (data) {
-                        phongBanSelect.prop('disabled', false);
-                        $.each(data, function (index, pb) {
-                            phongBanSelect.append('<option value="' + pb.id + '">' + pb.Ten + '</option>');
-                        });
-                        // Trigger change in case we want to re-evaluate anything
-                        phongBanSelect.trigger('change');
-                    });
-                }
-            });
 
             // Handle cascading dropdown: Phong Ban -> Nhan Vien
             $('#PhongBanId').on('change', function () {

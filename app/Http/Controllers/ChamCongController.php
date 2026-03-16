@@ -21,10 +21,10 @@ class ChamCongController extends Controller
         $nhanVienId = $user->nhanVien?->id;
 
         // Stats for the month
-        $totalEmployeesQuery = NhanVien::byUnit();
-        $onTimeQuery = ChamCong::byUnit()->whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'dung_gio');
-        $lateQuery = ChamCong::byUnit()->whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
-        $attendancesQuery = ChamCong::byUnit()->with('nhanVien.ttCongViec.phongBan')->whereYear('Vao', $year)->whereMonth('Vao', $month)->orderBy('Vao', 'desc');
+        $totalEmployeesQuery = NhanVien::query();
+        $onTimeQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'dung_gio');
+        $lateQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
+        $attendancesQuery = ChamCong::with('nhanVien.ttCongViec.phongBan')->whereYear('Vao', $year)->whereMonth('Vao', $month)->orderBy('Vao', 'desc');
 
         if ($isEmployeeOnly && $nhanVienId) {
             $totalEmployeesQuery->where('id', $nhanVienId);
@@ -47,7 +47,7 @@ class ChamCongController extends Controller
     public function TaoView()
     {
         // Get all employees for the dropdown
-        $nhanViens = NhanVien::byUnit()->orderBy('Ten')->get();
+        $nhanViens = NhanVien::orderBy('Ten')->get();
 
         // Get today's attendance records to show recent activity
         $todayAttendances = ChamCong::whereDate('Vao', Carbon::today())
@@ -71,20 +71,15 @@ class ChamCongController extends Controller
         $today = $now->toDateString();
         $nhanVienId = $request->nhan_vien_id;
 
-        // Check if employee has a schedule today
-        $lichLamViec = \App\Models\LichLamViec::with('caLamViec')
-            ->where('NhanVienId', $nhanVienId)
-            ->whereDate('NgayLamViec', $today)
-            ->first();
+        // Lấy ca làm việc từ danh mục ca làm việc (không phụ thuộc lịch làm việc)
+        $caLamViec = \App\Models\DmCaLamViec::first();
 
-        if (!$lichLamViec || !$lichLamViec->caLamViec) {
+        if (!$caLamViec) {
             return response()->json([
                 'success' => false,
-                'message' => 'Bạn không có ca nào hôm nay để chấm công.'
+                'message' => 'Hệ thống chưa thiết lập ca làm việc nào trong danh mục.'
             ]);
         }
-
-        $caLamViec = $lichLamViec->caLamViec;
         $gioVao = Carbon::parse($caLamViec->GioVao);
         $gioRa = Carbon::parse($caLamViec->GioRa);
 
@@ -93,26 +88,6 @@ class ChamCongController extends Controller
             if ($gioRa->lessThan($gioVao)) {
                 $gioRa->addDay();
             }
-        }
-
-        // Validate if current time is within shift limits (allow 60 mins before and after)
-        $allowedStart = (clone $gioVao)->subMinutes(60);
-        $allowedEnd = (clone $gioRa)->addMinutes(60);
-
-        // Ensure $now has the same date context for comparison
-        $currentTime = Carbon::parse($now->format('H:i:s'));
-
-        // For overnight shifts, if the current time is very early morning (e.g. 01:00 AM) and shift started yesterday,
-        // we need to add a day to the $currentTime for proper comparison
-        if ($caLamViec->LaCaQuaDem && $currentTime->hour < 12) {
-            $currentTime->addDay();
-        }
-
-        if (!$currentTime->between($allowedStart, $allowedEnd)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hiện tại không nằm trong thời gian cho phép chấm công của ca làm việc (' . $caLamViec->TenCa . ').'
-            ]);
         }
 
         // Setup work times based on the shift
@@ -124,22 +99,47 @@ class ChamCongController extends Controller
             ->whereDate('Vao', $today)
             ->first();
 
-        if (!$attendance) {
-            // CLOCK IN
+        // Check if there is already a record for today
+        $attendance = ChamCong::where('NhanVienId', $nhanVienId)
+            ->whereDate('Vao', $today)
+            ->orderBy('Vao', 'desc') // Lấy bản ghi mới nhất
+            ->first();
+
+        // Kiểm tra xem nhân viên có phiếu tăng ca được duyệt hôm nay không
+        $approvedOT = \App\Models\TangCa::where('NhanVienId', $nhanVienId)
+            ->where('Ngay', $today)
+            ->where('TrangThai', 'da_duyet')
+            ->first();
+
+        if (!$attendance || ($attendance->Ra && $approvedOT && $attendance->Loai == 0)) {
+            // CLOCK IN (Lần đầu hoặc bắt đầu ca tăng ca sau khi đã kết thúc ca HC)
             $status = 'dung_gio';
-            if ($now->toTimeString() > $startWorkTime) {
-                $status = 'tre';
+            $loai = 0; // Mặc định là hành chính
+            $tangCaId = null;
+
+            // Nếu đã có ca HC rồi thì ca này mặc định là tăng ca
+            if ($attendance && $attendance->Ra) {
+                $loai = 1;
+                $tangCaId = $approvedOT->id;
+            } else {
+                // Kiểm tra trễ giờ hành chính
+                if ($now->toTimeString() > $startWorkTime) {
+                    $status = 'tre';
+                }
             }
 
             ChamCong::create([
                 'NhanVienId' => $nhanVienId,
                 'Vao' => $now,
+                'Loai' => $loai,
+                'TangCaId' => $tangCaId,
                 'TrangThai' => $status
             ]);
 
+            $msg = $loai == 1 ? 'Vào ca TĂNG CA' : 'Vào làm';
             return response()->json([
                 'success' => true,
-                'message' => 'Bạn đã ghi nhận Vào làm lúc ' . $now->format('H:i:s'),
+                'message' => "Bạn đã ghi nhận {$msg} lúc " . $now->format('H:i:s'),
                 'type' => 'vao'
             ]);
         } else {
@@ -151,11 +151,55 @@ class ChamCongController extends Controller
                 ]);
             }
 
-            $currentStatus = $attendance->TrangThai; // Keep if already 'tre'
+            // XỬ LÝ SPLIT CA (Case 2: Làm một mạch từ sáng đến hết ca tăng ca)
+            // Nếu bản ghi hiện tại là HC (Loai=0) và có approvedOT
+            if ($attendance->Loai == 0 && $approvedOT) {
+                $otStartTime = Carbon::parse($today . ' ' . $approvedOT->BatDau);
+                
+                // Nếu giờ ra hiện tại sau giờ bắt đầu tăng ca -> Thực hiện tách ca
+                if ($now->greaterThan($otStartTime)) {
+                    // 1. Kết thúc ca HC tại thời điểm bắt đầu tăng ca
+                    $currentStatus = $attendance->TrangThai;
+                    if ($currentStatus !== 'tre') {
+                        // Ca HC coi như đúng giờ nếu làm đến tận lúc tăng ca
+                        $currentStatus = 'dung_gio';
+                    }
 
-            // If they clocked in on time but are leaving early
-            if ($currentStatus === 'dung_gio' && $now->toTimeString() < $endWorkTime) {
-                $currentStatus = 've_som';
+                    $attendance->update([
+                        'Ra' => $otStartTime,
+                        'TrangThai' => $currentStatus
+                    ]);
+
+                    // 2. Tạo bản ghi mới cho ca Tăng ca (từ otStartTime đến bây giờ)
+                    ChamCong::create([
+                        'NhanVienId' => $nhanVienId,
+                        'Vao' => $otStartTime,
+                        'Ra' => $now,
+                        'Loai' => 1,
+                        'TangCaId' => $approvedOT->id,
+                        'TrangThai' => 'dung_gio'
+                    ]);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Hệ thống đã tự động ghi nhận 2 ca (Hành chính & Tăng ca). Giờ về cuối cùng: ' . $now->format('H:i:s'),
+                        'type' => 'ra'
+                    ]);
+                }
+            }
+
+            // Clock out bình thường (Hoặc kết thúc ca tăng ca riêng biệt)
+            $currentStatus = $attendance->TrangThai;
+            if ($attendance->Loai == 0) {
+                if ($currentStatus !== 'tre') {
+                    if ($now->toTimeString() >= $endWorkTime) {
+                        $currentStatus = 'dung_gio';
+                    } else {
+                        $currentStatus = 've_som';
+                    }
+                }
+            } else {
+                $currentStatus = 'dung_gio'; // Mặc định tăng ca là đúng giờ
             }
 
             $attendance->update([
@@ -186,12 +230,21 @@ class ChamCongController extends Controller
             return view('attendance.self', ['error' => 'Tài khoản của bạn chưa được liên kết với hồ sơ nhân viên.']);
         }
 
-        // Lấy thông tin chấm công hôm nay của nhân viên này
-        $todayAttendance = ChamCong::where('NhanVienId', $nhanVien->id)
+        // Lấy danh sách chấm công hôm nay của nhân viên này
+        $todayAttendances = ChamCong::where('NhanVienId', $nhanVien->id)
             ->whereDate('Vao', Carbon::today())
+            ->orderBy('Vao', 'desc')
+            ->get();
+
+        $latestAttendance = $todayAttendances->first();
+
+        // Kiểm tra xem nhân viên có phiếu tăng ca được duyệt hôm nay không
+        $approvedOT = \App\Models\TangCa::where('NhanVienId', $nhanVien->id)
+            ->where('Ngay', Carbon::today())
+            ->where('TrangThai', 'da_duyet')
             ->first();
 
-        return view('attendance.self', compact('nhanVien', 'todayAttendance'));
+        return view('attendance.self', compact('nhanVien', 'todayAttendances', 'latestAttendance', 'approvedOT'));
     }
 
     /**

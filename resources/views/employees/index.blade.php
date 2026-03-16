@@ -86,14 +86,14 @@
     @push('scripts')
         <style>
             .employee-name-link {
-                color: #0F5132;
+                color: #0BAA4B;
                 font-weight: 500;
                 text-decoration: none;
                 transition: all 0.2s;
             }
 
             .employee-name-link:hover {
-                color: #166534;
+                color: #088c3d;
                 text-decoration: underline;
             }
 
@@ -164,8 +164,8 @@
 
                                 return `
                                                                                                                             <div style="display: flex; flex-direction: column; gap: 4px;">
-                                                                                                                                <div style="font-size: 14px;"><i class="bi bi-telephone-fill" style="color: #0F5132;"></i> ${phone}</div>
-                                                                                                                                <div style="font-size: 14px;"><i class="bi bi-envelope-fill" style="color: #0F5132;"></i> ${email}</div>
+                                                                                                                                <div style="font-size: 14px;"><i class="bi bi-telephone-fill" style="color: #0BAA4B;"></i> ${phone}</div>
+                                                                                                                                <div style="font-size: 14px;"><i class="bi bi-envelope-fill" style="color: #0BAA4B;"></i> ${email}</div>
                                                                                                                                 <div style="font-size: 14px; color: #6b7280;"><i class="bi bi-house-fill" style="color: #6b7280;"></i> ${address}</div>
                                                                                                                             </div>
                                                                                                                         `;
@@ -176,13 +176,11 @@
                             render: function (data, type, row) {
                                 const phongBan = row.tt_cong_viec?.phong_ban?.Ten || 'Chưa phân công';
                                 const chucVu = row.tt_cong_viec?.chuc_vu?.Ten || 'Chưa có';
-                                const donVi = row.tt_cong_viec?.phong_ban?.don_vi?.Ten || '';
 
                                 return `
                                                                                                                             <div style="display: flex; flex-direction: column; gap: 4px;">
                                                                                                                                 <div class="font-medium" style="font-size: 14px;">${phongBan}</div>
                                                                                                                                 <div class="text-gray" style="font-size: 14px;">${chucVu}</div>
-                                                                                                                                <div style="font-size: 13px; color: #9ca3af;">${donVi}</div>
                                                                                                                             </div>
                                                                                                                         `;
                             }

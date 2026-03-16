@@ -7,7 +7,7 @@
                 icon: 'success',
                 title: 'Thành công!',
                 text: "{{ session('success') }}",
-                confirmButtonColor: '#0F5132'
+                confirmButtonColor: '#0BAA4B'
             });
         @endif
     </script>
@@ -138,7 +138,19 @@
                     }
                 ],
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+                    "sProcessing": "Đang xử lý...",
+                    "sLengthMenu": "Hiển thị _MENU_ dòng",
+                    "sZeroRecords": "Không tìm thấy dữ liệu",
+                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                    "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                    "sSearch": "Tìm kiếm:",
+                    "oPaginate": {
+                        "sFirst": "Đầu",
+                        "sPrevious": "Trước",
+                        "sNext": "Tiếp",
+                        "sLast": "Cuối"
+                    }
                 },
                 dom: 'rtip', // Hide default search box
             });

@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasUnitScoping;
+
 
 class HopDong extends Model
 {
-    use HasUnitScoping;
+    
     protected $table = 'hop_dongs';
 
     protected $fillable = [
         'NhanVienId',
         'NguoiKyId',
-        'DonViId',
+
         'PhongBanId',
         'ChucVuId',
         'SoHopDong', // [Số thứ tự]/[Năm]/[Mã Loại Hợp Đồng]-[Mã Đơn Vị]
@@ -39,7 +39,7 @@ class HopDong extends Model
     protected $casts = [
         'NhanVienId' => 'integer',
         'NguoiKyId' => 'integer',
-        'DonViId' => 'integer',
+
         'PhongBanId' => 'integer',
         'ChucVuId' => 'integer',
         'LuongThoaThuan' => 'decimal:2',
@@ -65,13 +65,7 @@ class HopDong extends Model
         return $this->belongsTo(NhanVien::class, 'NguoiKyId');
     }
 
-    /**
-     * Relationship: Hợp đồng thuộc đơn vị
-     */
-    public function donVi()
-    {
-        return $this->belongsTo(DonVi::class, 'DonViId');
-    }
+
 
     /**
      * Relationship: Hợp đồng thuộc phòng ban

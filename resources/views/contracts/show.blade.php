@@ -18,7 +18,7 @@
             color: #1f2937;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #0F5132;
+            border-bottom: 2px solid #0BAA4B;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -51,7 +51,7 @@
         }
 
         .profile-header {
-            background: linear-gradient(135deg, #0F5132 0%, #166534 100%);
+            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
             border-radius: 8px;
             padding: 32px;
             margin-bottom: 24px;
@@ -127,7 +127,7 @@
 
         .salary-value {
             font-weight: 700;
-            color: #0F5132;
+            color: #0BAA4B;
             font-size: 18px;
         }
 
@@ -143,7 +143,7 @@
         }
 
         .file-box:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             background: #f0fdf4;
         }
 
@@ -167,8 +167,8 @@
         }
 
         .tab.active {
-            color: #0F5132;
-            border-bottom-color: #0F5132;
+            color: #0BAA4B;
+            border-bottom-color: #0BAA4B;
         }
 
         .tab-content {
@@ -428,7 +428,7 @@
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Tổng thu nhập</div>
-                    <div class="salary-value" style="font-size: 24px; color: #0F5132;">
+                    <div class="salary-value" style="font-size: 24px; color: #0BAA4B;">
                         {{ number_format($hopDong->TongLuong, 0, ',', '.') }} VNĐ
                     </div>
                 </div>

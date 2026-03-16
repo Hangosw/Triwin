@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DienBienLuong;
 use App\Models\DmChucVu;
 use App\Models\DmPhongBan;
-use App\Models\DonVi;
+
 use App\Models\NhanVien;
 use App\Models\NgachLuong;
 use Illuminate\Http\Request;
@@ -19,7 +19,7 @@ class HopDongController extends Controller
 
     public function DataHopDong(Request $request)
     {
-        $query = \App\Models\HopDong::with(['nhanVien'])->byUnit();
+        $query = \App\Models\HopDong::with(['nhanVien']);
 
         // Filters
         if ($request->filled('loai')) {
@@ -27,6 +27,12 @@ class HopDongController extends Controller
         }
         if ($request->filled('trang_thai')) {
             $query->where('TrangThai', $request->trang_thai);
+        }
+        if ($request->get('expiring_soon') == '1') {
+            $today = now()->toDateString();
+            $query->where('TrangThai', 1)
+                ->whereNotNull('NgayKetThuc')
+                ->whereRaw("DATEDIFF(NgayKetThuc, ?) BETWEEN 0 AND 25", [$today]);
         }
 
         // Search
@@ -41,7 +47,7 @@ class HopDongController extends Controller
         }
 
         // Server-side processing
-        $totalRecords = \App\Models\HopDong::byUnit()->count();
+        $totalRecords = \App\Models\HopDong::count();
         $filteredRecords = $query->count();
 
         // Priority Sort: Expiring Soon First (within 25 days)
@@ -88,7 +94,7 @@ class HopDongController extends Controller
             'phongBan',
             'chucVu',
             'loaiHopDong'
-        ])->byUnit()->findOrFail($id);
+        ])->findOrFail($id);
 
         return view('contracts.show', compact('hopDong'));
     }
@@ -97,7 +103,7 @@ class HopDongController extends Controller
     {
         $ids = $request->ids;
         if (!empty($ids)) {
-            \App\Models\HopDong::byUnit()->whereIn('id', $ids)->delete();
+            \App\Models\HopDong::whereIn('id', $ids)->delete();
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa ' . count($ids) . ' hợp đồng thành công!'
@@ -112,10 +118,9 @@ class HopDongController extends Controller
 
     public function TaoView()
     {
-        $donvi = DonVi::all();
         $phongban = DmPhongBan::all();
         $chucvu = DmChucVu::all();
-        $nhanvien = NhanVien::byUnit()->with(['ttCongViec.chucVu', 'ttCongViec.phongBan', 'ttCongViec.donVi'])->get();
+        $nhanvien = NhanVien::with(['ttCongViec.chucVu', 'ttCongViec.phongBan'])->get();
 
         // Get current base salary
         $baseSalary = \App\Models\ThamSoLuong::getCurrentBaseSalary();
@@ -124,7 +129,7 @@ class HopDongController extends Controller
         // Ngạch lương & bậc lương
         $ngachLuongs = NgachLuong::with('bacLuongs')->orderBy('Ma')->get();
 
-        return view('contracts.create', compact('nhanvien', 'donvi', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
+        return view('contracts.create', compact('nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
     }
 
     public function Tao(Request $request)
@@ -139,7 +144,7 @@ class HopDongController extends Controller
             'so_hop_dong' => 'required|string|max:255',
             'loai_hop_dong_id' => 'required|integer',
             'loai' => 'required|string|max:50',
-            'don_vi_id' => 'required|exists:don_vis,id',
+
             'phong_ban_id' => 'required|exists:dm_phong_bans,id',
             'chuc_vu_id' => 'required|exists:dm_chuc_vus,id',
             'NgayBatDau' => 'required|date_format:d/m/Y',
@@ -172,7 +177,6 @@ class HopDongController extends Controller
                 'NguoiKyId' => $validated['NguoiKyId'], // Use validated data
                 'SoHopDong' => $validated['so_hop_dong'],
                 'Loai' => $validated['loai'],
-                'DonViId' => $validated['don_vi_id'],
                 'PhongBanId' => $validated['phong_ban_id'],
                 'ChucVuId' => $validated['chuc_vu_id'],
                 'TrangThai' => $validated['trang_thai'],
@@ -240,7 +244,6 @@ class HopDongController extends Controller
                 [
                     'PhongBanId' => $data['PhongBanId'],
                     'ChucVuId' => $data['ChucVuId'],
-                    'DonViId' => $data['DonViId'],
                 ]
             );
 
@@ -284,7 +287,7 @@ class HopDongController extends Controller
     }
     public function downloadWord($id)
     {
-        $hopDong = \App\Models\HopDong::byUnit()->with('nhanVien')->findOrFail($id);
+        $hopDong = \App\Models\HopDong::with('nhanVien')->findOrFail($id);
 
         $templatePath = storage_path('app/contracts/template_hop_dong.docx');
         if (!file_exists($templatePath)) {
@@ -336,9 +339,8 @@ class HopDongController extends Controller
             'chucVu',
             'phongBan',
             'loaiHopDong',
-            'donVi',
             'nguoiKy'
-        ])->byUnit()->findOrFail($id);
+        ])->findOrFail($id);
 
         return view('contracts.template', compact('hopDong'));
     }
@@ -348,16 +350,14 @@ class HopDongController extends Controller
         $hopDong = \App\Models\HopDong::with([
             'nhanVien',
             'nguoiKy',
-            'donVi',
             'phongBan',
             'chucVu',
             'loaiHopDong'
-        ])->byUnit()->findOrFail($id);
+        ])->findOrFail($id);
 
-        $donvi = DonVi::all();
         $phongban = DmPhongBan::all();
         $chucvu = DmChucVu::all();
-        $nhanvien = NhanVien::byUnit()->with(['ttCongViec.chucVu', 'ttCongViec.phongBan', 'ttCongViec.donVi'])->get();
+        $nhanvien = NhanVien::with(['ttCongViec.chucVu', 'ttCongViec.phongBan'])->get();
 
         // Get current base salary
         $baseSalary = \App\Models\ThamSoLuong::getCurrentBaseSalary();
@@ -366,12 +366,12 @@ class HopDongController extends Controller
         // Ngạch lương & bậc lương
         $ngachLuongs = NgachLuong::with('bacLuongs')->orderBy('Ma')->get();
 
-        return view('contracts.edit', compact('hopDong', 'nhanvien', 'donvi', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
+        return view('contracts.edit', compact('hopDong', 'nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
     }
 
     public function CapNhat(Request $request, $id)
     {
-        $hopDong = \App\Models\HopDong::byUnit()->findOrFail($id);
+        $hopDong = \App\Models\HopDong::findOrFail($id);
 
         // Validate incoming request
         $validated = $request->validate([
@@ -380,7 +380,7 @@ class HopDongController extends Controller
             'so_hop_dong' => 'required|string|max:255',
             'loai_hop_dong_id' => 'required|integer',
             'loai' => 'required|string|max:50',
-            'don_vi_id' => 'required|exists:don_vis,id',
+
             'phong_ban_id' => 'required|exists:dm_phong_bans,id',
             'chuc_vu_id' => 'required|exists:dm_chuc_vus,id',
             'NgayBatDau' => 'required|date_format:d/m/Y',
@@ -412,7 +412,6 @@ class HopDongController extends Controller
                 'NguoiKyId' => $validated['NguoiKyId'],
                 'SoHopDong' => $validated['so_hop_dong'],
                 'Loai' => $validated['loai'],
-                'DonViId' => $validated['don_vi_id'],
                 'PhongBanId' => $validated['phong_ban_id'],
                 'ChucVuId' => $validated['chuc_vu_id'],
                 'TrangThai' => $validated['trang_thai'],
@@ -486,19 +485,17 @@ class HopDongController extends Controller
         $oldContract = \App\Models\HopDong::with([
             'nhanVien',
             'nguoiKy',
-            'donVi',
             'phongBan',
             'chucVu',
             'loaiHopDong'
-        ])->byUnit()->findOrFail($id);
+        ])->findOrFail($id);
 
         // Fetch related salary progression (Ngạch/Bậc)
         $oldDienBien = \App\Models\DienBienLuong::where('HopDongId', $id)->first();
 
-        $donvi = DonVi::all();
         $phongban = DmPhongBan::all();
         $chucvu = DmChucVu::all();
-        $nhanvien = NhanVien::byUnit()->with(['ttCongViec.chucVu', 'ttCongViec.phongBan', 'ttCongViec.donVi'])->get();
+        $nhanvien = NhanVien::with(['ttCongViec.chucVu', 'ttCongViec.phongBan'])->get();
 
         // Get current base salary
         $baseSalary = \App\Models\ThamSoLuong::getCurrentBaseSalary();
@@ -509,6 +506,6 @@ class HopDongController extends Controller
 
         $isRenew = true;
 
-        return view('contracts.create', compact('oldContract', 'oldDienBien', 'isRenew', 'nhanvien', 'donvi', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
+        return view('contracts.create', compact('oldContract', 'oldDienBien', 'isRenew', 'nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'ngachLuongs'));
     }
 }

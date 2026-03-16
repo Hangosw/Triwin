@@ -19,7 +19,7 @@
             color: #1f2937;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #0F5132;
+            border-bottom: 2px solid #0BAA4B;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -74,7 +74,7 @@
         }
 
         .file-upload-area:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             background-color: #f0fdf4;
         }
 
@@ -100,14 +100,14 @@
 
         .contract-number-preview {
             background: #f0fdf4;
-            border: 1px solid #0F5132;
+            border: 1px solid #0BAA4B;
             border-radius: 8px;
             padding: 16px;
             margin-top: 12px;
         }
 
         .contract-number-preview strong {
-            color: #0F5132;
+            color: #0BAA4B;
             font-size: 18px;
         }
 
@@ -214,7 +214,6 @@
                                 @if(isset($isRenew) && $oldContract->NhanVienId == $nv->id) selected @endif
                                 data-ma="{{ $nv->Ma }}" data-ten="{{ $nv->Ten }}"
                                 data-phongban="{{ $nv->phongBan?->Ten }}" data-chucvu="{{ $nv->chucVu?->Ten }}"
-                                data-donvi="{{ $nv->donVi?->Ten }}" data-donvi-id="{{ $nv->ttCongViec?->DonViId }}"
                                 data-phongban-id="{{ $nv->ttCongViec?->PhongBanId }}"
                                 data-chucvu-id="{{ $nv->ttCongViec?->ChucVuId }}">
                                 {{ $nv->Ma }} - {{ $nv->Ten }} - {{ $nv->phongBan?->Ten }}
@@ -269,20 +268,9 @@
                 Vị trí công việc
             </h2>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Đơn vị <span class="required">*</span></label>
-                    <select name="don_vi_id" id="donViSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
-                        <option value="">-- Chọn đơn vị --</option>
-                        @foreach ($donvi as $dv)
-                            <option value="{{ $dv->id }}" @if(isset($isRenew) && $oldContract->DonViId == $dv->id) selected @endif data-ma="{{ $dv->Ma }}">{{ $dv->Ten }}</option>
-                        @endforeach
-                    </select>
-                    @if(isset($isRenew))
-                        <input type="hidden" name="don_vi_id" value="{{ $oldContract->DonViId }}">
-                    @endif
-                </div>
 
+
+            <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Phòng ban <span class="required">*</span></label>
                     <select name="phong_ban_id" id="phongBanSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
@@ -295,11 +283,10 @@
                         <input type="hidden" name="phong_ban_id" value="{{ $oldContract->PhongBanId }}">
                     @endif
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label class="form-label">Chức vụ <span class="required">*</span></label>
-                <select name="chuc_vu_id" id="chucVuSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
+                <div class="form-group">
+                    <label class="form-label">Chức vụ <span class="required">*</span></label>
+                    <select name="chuc_vu_id" id="chucVuSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
                     <option value="">-- Chọn chức vụ --</option>
                     @foreach ($chucvu as $cv)
                         <option value="{{ $cv->id }}" @if(isset($isRenew) && $oldContract->ChucVuId == $cv->id) selected @endif data-phucap="{{ $cv->PhuCapChucVu }}" data-loai="{{ $cv->Loai }}">
@@ -331,7 +318,7 @@
                     <label class="form-label">Số hợp đồng <span class="required">*</span></label>
                     <input type="text" name="so_hop_dong" id="soHopDong" class="form-control" placeholder="Tự động tạo"
                         readonly style="background: #f9fafb;">
-                    <div class="help-text">Format: [STT]/[Năm]/[Mã Loại]-[Mã Đơn Vị]</div>
+                    <div class="help-text">Format: [STT]/[Năm]/[Mã Loại]</div>
 
                     <div class="contract-number-preview" id="contractPreview" style="display: none;">
                         <div style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">Số hợp đồng sẽ là:</div>
@@ -464,8 +451,8 @@
 
                     {{-- Badge hiển thị hệ số sau khi chọn --}}
                     <div id="heSoBadge" style="display:none; margin-top: 8px; padding: 8px 12px;
-                                             background: #f0fdf4; border: 1px solid #0F5132; border-radius: 6px;
-                                             font-size: 13px; color: #0F5132;">
+                                             background: #f0fdf4; border: 1px solid #0BAA4B; border-radius: 6px;
+                                             font-size: 13px; color: #0BAA4B;">
                         <strong id="heSoValue">–</strong>
                         <span style="color: #6b7280;"> × {{ number_format($mucLuongCoSo, 0, ',', '.') }} đ
                             = </span>
@@ -570,10 +557,10 @@
 
             <!-- Tổng hợp lương -->
             <div id="salaryCard"
-                style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #0F5132; border-radius: 12px; display: none;">
+                style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #0BAA4B; border-radius: 12px; display: none;">
                 <div
                     style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    <i class="bi bi-bar-chart-fill" style="font-size: 20px; color: #0F5132;"></i>
+                    <i class="bi bi-bar-chart-fill" style="font-size: 20px; color: #0BAA4B;"></i>
                     TỔNG HỢP LƯƠNG
                 </div>
 
@@ -588,12 +575,12 @@
                         <span id="displayPhuCapBHXH" style="font-weight: 600; color: #1f2937;">0 ₫</span>
                     </div>
 
-                    <div style="border-top: 1px dashed #0F5132; margin: 4px 0;"></div>
+                    <div style="border-top: 1px dashed #0BAA4B; margin: 4px 0;"></div>
 
                     <div
                         style="display: flex; justify-content: space-between; padding: 8px 0; background: rgba(15, 81, 50, 0.1); margin: 0 -12px; padding-left: 12px; padding-right: 12px; border-radius: 6px;">
-                        <span style="color: #0F5132; font-weight: 600;">Tiền lương đóng BHXH:</span>
-                        <span id="displayLuongBHXH" style="font-weight: 700; color: #0F5132;">0 ₫</span>
+                        <span style="color: #0BAA4B; font-weight: 600;">Tiền lương đóng BHXH:</span>
+                        <span id="displayLuongBHXH" style="font-weight: 700; color: #0BAA4B;">0 ₫</span>
                     </div>
 
                     <div style="border-top: 1px solid #d1d5db; margin: 8px 0;"></div>
@@ -603,11 +590,11 @@
                         <span id="displayPhuCapKhongBHXH" style="font-weight: 600; color: #1f2937;">0 ₫</span>
                     </div>
 
-                    <div style="border-top: 2px solid #0F5132; margin: 8px 0;"></div>
+                    <div style="border-top: 2px solid #0BAA4B; margin: 8px 0;"></div>
 
                     <div style="display: flex; justify-content: space-between; padding: 12px 0;">
                         <span style="font-size: 16px; font-weight: 700; color: #1f2937;">💰 TỔNG THU NHẬP:</span>
-                        <span id="displayTongThuNhap" style="font-size: 18px; font-weight: 700; color: #0F5132;">0 ₫</span>
+                        <span id="displayTongThuNhap" style="font-size: 18px; font-weight: 700; color: #0BAA4B;">0 ₫</span>
                     </div>
                 </div>
             </div>
@@ -623,7 +610,7 @@
             <div class="form-group">
                 <label>Tải lên file hợp đồng (PDF)</label>
                 <div class="file-upload-area" onclick="document.getElementById('fileUpload').click()">
-                    <i class="bi bi-cloud-upload" style="font-size: 48px; color: #0F5132;"></i>
+                    <i class="bi bi-cloud-upload" style="font-size: 48px; color: #0BAA4B;"></i>
                     <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">
                         Click để tải file lên
                     </div>
@@ -636,7 +623,7 @@
 
                 <div class="file-info" id="fileInfo">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="bi bi-file-earmark-pdf" style="font-size: 24px; color: #0F5132;"></i>
+                        <i class="bi bi-file-earmark-pdf" style="font-size: 24px; color: #0BAA4B;"></i>
                         <div style="flex: 1;">
                             <div id="fileName" style="font-weight: 500; color: #1f2937;">-</div>
                             <div id="fileSize" style="font-size: 13px; color: #6b7280;">-</div>
@@ -717,7 +704,6 @@
                     card.classList.add('show');
 
                     // Auto-fill position info
-                    $('#donViSelect').val(option.data('donvi-id')).trigger('change');
                     $('#phongBanSelect').val(option.data('phongban-id')).trigger('change');
                     $('#chucVuSelect').val(option.data('chucvu-id')).trigger('change');
 
@@ -754,18 +740,15 @@
             // Generate contract number
             function generateContractNumber() {
                 const loaiSelect = $('#loaiHopDongSelect'); // Use jQuery
-                const donViSelect = $('#donViSelect'); // Use jQuery
                 const currentYear = new Date().getFullYear();
 
-                if (loaiSelect.val() && donViSelect.val()) { // Use .val() for jQuery
+                if (loaiSelect.val()) { // Use .val() for jQuery
                     const loaiOption = loaiSelect.find('option:selected'); // Get selected option
-                    const donViOption = donViSelect.find('option:selected'); // Get selected option
 
                     const maLoai = loaiOption.data('ma') || 'HD';
-                    const maDonVi = donViOption.data('ma') || 'DV001';
 
-                    // Format: [STT]/[Năm]/[Mã Loại]-[Mã Đơn Vị]
-                    const soHopDong = `${String(contractCounter).padStart(3, '0')}/${currentYear}/${maLoai}-${maDonVi}`;
+                    // Format: [STT]/[Năm]/[Mã Loại]
+                    const soHopDong = `${String(contractCounter).padStart(3, '0')}/${currentYear}/${maLoai}`;
 
                     document.getElementById('soHopDong').value = soHopDong;
                     document.getElementById('contractNumberDisplay').textContent = soHopDong;
@@ -786,9 +769,7 @@
                 generateContractNumber();
             });
 
-            // Update contract number when don vi changes
-            // document.getElementById('donViSelect').addEventListener('change', generateContractNumber); // Original
-            $('#donViSelect').on('change', generateContractNumber); // Select2 change event
+
 
             // Calculate contract duration
             function calculateDuration() {
@@ -892,7 +873,7 @@
                             icon: 'error',
                             title: 'Lỗi',
                             text: 'Ngày kết thúc phải sau ngày bắt đầu!',
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                         e.preventDefault();
                         return;
@@ -905,7 +886,7 @@
                         icon: 'warning',
                         title: 'Thông tin chưa đầy đủ',
                         text: 'Vui lòng điền đầy đủ các thông tin bắt buộc (*)',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
 
                     const firstInvalid = document.querySelector('[required]:invalid, [required][value=""]');
@@ -1143,7 +1124,7 @@
                             icon: 'error',
                             title: 'Lỗi!',
                             text: 'Vui lòng sửa các lỗi trước khi tiếp tục',
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                         return;
                     }
@@ -1193,7 +1174,7 @@
                                 icon: 'success',
                                 title: 'Thành công!',
                                 text: data.message || 'Hợp đồng đã được tạo thành công và thông tin nhân viên đã được cập nhật!',
-                                confirmButtonColor: '#0F5132',
+                                confirmButtonColor: '#0BAA4B',
                                 confirmButtonText: 'OK'
                             }).then((result) => {
                                 // Redirect to contracts.index
@@ -1253,7 +1234,7 @@
 
                         // Lock position fields if coming from transfer
                         if (phieuId) {
-                            const posFields = ['donViSelect', 'phongBanSelect', 'chucVuSelect'];
+                            const posFields = ['phongBanSelect', 'chucVuSelect'];
                             posFields.forEach(id => {
                                 const el = $('#' + id);
                                 if (el.length) {
@@ -1286,7 +1267,7 @@
                     calculateSalary();
 
                     // Apply locked styles to Select2
-                    const lockedFields = ['#nhanVienSelect', '#donViSelect', '#phongBanSelect', '#chucVuSelect'];
+                    const lockedFields = ['#nhanVienSelect', '#phongBanSelect', '#chucVuSelect'];
                     lockedFields.forEach(selector => {
                         $(selector).next('.select2-container').find('.select2-selection--single').css({
                             'background-color': '#f3f4f6',
@@ -1299,7 +1280,7 @@
                     if (positionSection) {
                         const notice = document.createElement('div');
                         notice.style.fontSize = '12px';
-                        notice.style.color = '#0F5132';
+                        notice.style.color = '#0BAA4B';
                         notice.style.marginTop = '8px';
                         notice.style.fontStyle = 'italic';
                         notice.innerHTML = '<i class="bi bi-info-circle"></i> Thông tin nhân viên và vị trí được cố định từ hợp đồng cũ.';

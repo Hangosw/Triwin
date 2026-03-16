@@ -5,7 +5,7 @@
 @push('styles')
     <style>
         :root {
-            --primary-green: #0F5132;
+            --primary-green: #0BAA4B;
             --secondary-green: #D1E7DD;
             --text-muted: #6b7280;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -116,7 +116,7 @@
 
         .badge-success {
             background: #dcfce7;
-            color: #166534;
+            color: #088c3d;
         }
 
         .badge-gray {
@@ -236,6 +236,7 @@
                         <th>% Hưởng lương</th>
                         <th>Hạn mức</th>
                         <th style="width: 100px;">Hạn mức (ngày)</th>
+                        <th>Trạng thái</th>
                         <th style="width: 200px; text-align: center;">Thao tác</th>
                     </tr>
                 </thead>
@@ -264,15 +265,28 @@
                                 @endif
                             </td>
                             <td>
+                                @if($loai->TrangThai == 1)
+                                    <span class="badge badge-success">Đang hoạt động</span>
+                                @else
+                                    <span class="badge" style="background: #fee2e2; color: #ef4444;">Đã khóa</span>
+                                @endif
+                            </td>
+                            <td>
                                 <div style="display: flex; gap: 8px; justify-content: center;">
                                     <button class="btn btn-outline-primary" style="padding: 6px 12px;"
                                         onclick="editLoaiPhep({{ json_encode($loai) }})">
                                         Sửa
                                     </button>
+                                    @if($loai->TrangThai == 1)
                                     <button class="btn btn-outline-danger" style="padding: 6px 12px;"
                                         onclick="deleteLoaiPhep({{ $loai->id }})">
-                                        Xóa
+                                        Khóa
                                     </button>
+                                    @else
+                                    <button class="btn" style="padding: 6px 12px; background: #f3f4f6; color: #9ca3af; cursor: not-allowed;" title="Đã khóa" onclick="return false;">
+                                        Đã khóa
+                                    </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -403,7 +417,7 @@
                             icon: 'error',
                             title: 'Lỗi',
                             text: data.message,
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                     }
                 })
@@ -413,20 +427,20 @@
                         icon: 'error',
                         title: 'Lỗi hệ thống',
                         text: 'Có lỗi xảy ra khi lưu dữ liệu.',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
                 });
         }
 
         function deleteLoaiPhep(id) {
             Swal.fire({
-                title: 'Xác nhận xóa?',
-                text: "Dữ liệu đã xóa sẽ không thể khôi phục!",
+                title: 'Xác nhận khóa?',
+                text: "Loại nghỉ phép này sẽ không còn hiển thị cho nhân viên chọn nữa!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Đồng ý xóa',
+                confirmButtonText: 'Đồng ý khóa',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -442,7 +456,7 @@
                             if (data.success) {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Đã xóa',
+                                    title: 'Đã khóa',
                                     text: data.message,
                                     timer: 2000,
                                     showConfirmButton: false
@@ -452,9 +466,9 @@
                             } else {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Không thể xóa',
+                                    title: 'Không thể khóa',
                                     text: data.message,
-                                    confirmButtonColor: '#0F5132'
+                                    confirmButtonColor: '#0BAA4B'
                                 });
                             }
                         });

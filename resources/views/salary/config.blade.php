@@ -27,7 +27,7 @@
         background: #f9fafb;
         border-radius: 8px;
         padding: 16px;
-        border-left: 4px solid #0F5132;
+        border-left: 4px solid #0BAA4B;
     }
     .salary-structure-grid {
         display: grid;
@@ -36,7 +36,7 @@
         margin-top: 20px;
     }
     .component-label { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
-    .component-value { font-size: 18px; font-weight: 600; color: #0F5132; }
+    .component-value { font-size: 18px; font-weight: 600; color: #0BAA4B; }
     .info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -63,7 +63,7 @@
 
 {{-- ===== Thông tin nhân viên ===== --}}
 <div class="detail-section">
-    <h2><i class="bi bi-person-badge" style="color:#0F5132;"></i> Thông tin nhân viên</h2>
+    <h2><i class="bi bi-person-badge" style="color:#0BAA4B;"></i> Thông tin nhân viên</h2>
     <div class="info-grid">
         <div class="info-item">
             <div>Mã nhân viên</div>
@@ -86,7 +86,7 @@
 
 {{-- ===== Diễn biến lương hiện tại ===== --}}
 <div class="detail-section">
-    <h2><i class="bi bi-graph-up-arrow" style="color:#0F5132;"></i> Diễn biến lương hiện tại</h2>
+    <h2><i class="bi bi-graph-up-arrow" style="color:#0BAA4B;"></i> Diễn biến lương hiện tại</h2>
 
     @if ($dienBienHienTai)
         @php
@@ -115,7 +115,7 @@
             </div>
             <div class="info-item">
                 <div>Hệ số lương</div>
-                <div style="color:#0F5132;">{{ $bac ? number_format($bac->HeSo, 2) : '–' }}</div>
+                <div style="color:#0BAA4B;">{{ $bac ? number_format($bac->HeSo, 2) : '–' }}</div>
             </div>
             <div class="info-item">
                 <div>Phụ cấp vượt khung</div>
@@ -168,7 +168,7 @@
 
 {{-- ===== Lịch sử diễn biến lương ===== --}}
 <div class="detail-section">
-    <h2><i class="bi bi-clock-history" style="color:#0F5132;"></i> Lịch sử diễn biến lương</h2>
+    <h2><i class="bi bi-clock-history" style="color:#0BAA4B;"></i> Lịch sử diễn biến lương</h2>
 
     @if ($dienBienLuongs->isEmpty())
         <div class="empty-state" style="padding:32px;">
@@ -209,7 +209,7 @@
                             <td>{{ $dbl->bacLuong ? 'Bậc ' . $dbl->bacLuong->Bac : '–' }}</td>
                             <td><strong>{{ $dbl->bacLuong ? number_format($dbl->bacLuong->HeSo, 2) : '–' }}</strong></td>
                             <td>{{ $dbl->PhuCapVuotKhung ?? 0 }}%</td>
-                            <td style="font-weight:600; color:{{ $isFirst ? '#0F5132' : '#6b7280' }};">
+                            <td style="font-weight:600; color:{{ $isFirst ? '#0BAA4B' : '#6b7280' }};">
                                 {{ number_format($luongBac, 0, ',', '.') }} đ
                             </td>
                             <td>

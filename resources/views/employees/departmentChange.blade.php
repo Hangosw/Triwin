@@ -22,7 +22,7 @@
         }
 
         .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #0F5132;
+            background-color: #0BAA4B;
         }
 
         /* Custom Radio Styles */
@@ -46,7 +46,7 @@
         }
 
         .radio-item:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             background: #f0f7f4;
         }
 
@@ -62,8 +62,8 @@
         }
 
         .radio-item input[type="radio"]:checked {
-            border-color: #0F5132;
-            background-color: #0F5132;
+            border-color: #0BAA4B;
+            background-color: #0BAA4B;
         }
 
         .radio-item input[type="radio"]:checked::after {
@@ -84,7 +84,7 @@
         }
 
         .radio-item input[type="radio"]:checked+span {
-            color: #0F5132;
+            color: #0BAA4B;
         }
     </style>
 @endpush
@@ -94,7 +94,7 @@
     <div class="content-wrapper">
         <div class="page-header">
             <h1>Điều chuyển nội bộ</h1>
-            <p>Tạo phiếu điều chuyển nhân viên giữa các đơn vị, phòng ban hoặc chức vụ.</p>
+            <p>Tạo phiếu điều chuyển nhân viên giữa các phòng ban hoặc chức vụ.</p>
         </div>
 
 
@@ -121,12 +121,11 @@
                             <select name="NhanVienId" id="NhanVienId" class="form-control select2" required>
                                 <option value="">-- Chọn nhân viên --</option>
                                 @foreach($nhanViens as $nv)
-                                    <option value="{{ $nv->id }}" data-donvi="{{ $nv->ttCongViec?->donVi?->Ten }}"
+                                    <option value="{{ $nv->id }}"
                                         data-phongban="{{ $nv->ttCongViec?->phongBan?->Ten }}"
                                         data-chucvu="{{ $nv->ttCongViec?->chucVu?->Ten }}"
                                         data-phongban-id="{{ $nv->ttCongViec?->PhongBanId }}"
-                                        data-chucvu-id="{{ $nv->ttCongViec?->ChucVuId }}"
-                                        data-donvi-id="{{ $nv->ttCongViec?->DonViId }}">
+                                        data-chucvu-id="{{ $nv->ttCongViec?->ChucVuId }}">
                                         {{ $nv->Ma }} - {{ $nv->Ten }}
                                     </option>
                                 @endforeach
@@ -135,7 +134,6 @@
 
                         <div id="current-info" class="p-4 bg-gray-50 rounded-lg mb-4"
                             style="background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; display: none;">
-                            <p class="mb-2"><strong>Đơn vị hiện tại:</strong> <span id="cur-donvi"></span></p>
                             <p class="mb-2"><strong>Phòng ban hiện tại:</strong> <span id="cur-phongban"></span></p>
                             <p class="mb-0"><strong>Chức vụ hiện tại:</strong> <span id="cur-chucvu"></span></p>
                         </div>
@@ -164,15 +162,7 @@
                     <div class="form-section">
                         <h3 class="mb-4 text-primary">Thông tin điều chuyển mới</h3>
 
-                        <div class="form-group mb-4">
-                            <label class="form-label">Đơn vị mới</label>
-                            <select name="DonViMoiId" class="form-control select2">
-                                <option value="">-- Giữ nguyên --</option>
-                                @foreach($donVis as $dv)
-                                    <option value="{{ $dv->id }}">{{ $dv->Ten }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+
 
                         <div class="form-group mb-4">
                             <label class="form-label">Phòng ban mới</label>
@@ -233,7 +223,6 @@
             $('#NhanVienId').on('change', function () {
                 const selected = $(this).find('option:selected');
                 if (selected.val()) {
-                    $('#cur-donvi').text(selected.data('donvi') || 'Chưa cập nhật');
                     $('#cur-phongban').text(selected.data('phongban') || 'Chưa cập nhật');
                     $('#cur-chucvu').text(selected.data('chucvu') || 'Chưa cập nhật');
                     $('#current-info').fadeIn();
@@ -243,8 +232,8 @@
                 checkChucVu();
             });
 
-            // Lắng nghe thay đổi đơn vị, phòng ban và chức vụ mới
-            $('select[name="DonViMoiId"], select[name="PhongBanMoiId"], select[name="ChucVuMoiId"]').on('change', function () {
+            // Lắng nghe thay đổi phòng ban và chức vụ mới
+            $('select[name="PhongBanMoiId"], select[name="ChucVuMoiId"]').on('change', function () {
                 checkChucVu();
             });
 
@@ -254,11 +243,10 @@
 
                 if (!nhanVienId) return;
 
-                const donViMoiId = $('select[name="DonViMoiId"]').val() || nhanVienSelect.data('donvi-id');
                 const phongBanMoiId = $('select[name="PhongBanMoiId"]').val() || nhanVienSelect.data('phongban-id');
                 const chucVuMoiId = $('select[name="ChucVuMoiId"]').val() || nhanVienSelect.data('chucvu-id');
 
-                if (!donViMoiId || !phongBanMoiId || !chucVuMoiId) {
+                if (!phongBanMoiId || !chucVuMoiId) {
                     hideError();
                     return;
                 }
@@ -268,7 +256,6 @@
                     method: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
-                        don_vi_id: donViMoiId,
                         phong_ban_id: phongBanMoiId,
                         chuc_vu_id: chucVuMoiId,
                         nhan_vien_id: nhanVienId
@@ -303,7 +290,7 @@
                 icon: 'success',
                 title: 'Thành công!',
                 text: "{{ session('success') }}",
-                confirmButtonColor: '#0F5132'
+                confirmButtonColor: '#0BAA4B'
             });
         @endif
     </script>

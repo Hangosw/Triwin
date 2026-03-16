@@ -30,9 +30,10 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                 <div class="form-group">
-                    <label class="form-label">Mã chức vụ <span style="color: #dc2626;">*</span></label>
-                    <input type="text" name="Ma" class="form-control" value="{{ old('Ma', $chucVu->Ma) }}"
-                        placeholder="Ví dụ: CV001" required>
+                    <label class="form-label">Mã chức vụ</label>
+                    <input type="text" class="form-control" value="{{ $chucVu->Ma }}" disabled 
+                        style="background-color: #f3f4f6; cursor: not-allowed; color: #6b7280;">
+                    <small style="color: #6b7280; margin-top: 4px; display: block;">Mã chức vụ không thể thay đổi</small>
                 </div>
 
                 <div class="form-group">
@@ -54,8 +55,9 @@
 
                 <div class="form-group">
                     <label class="form-label">Phụ cấp chức vụ (VNĐ)</label>
-                    <input type="number" name="PhuCapChucVu" class="form-control"
-                        value="{{ old('PhuCapChucVu', $chucVu->PhuCapChucVu) }}" placeholder="0" min="0" step="1000">
+                    <input type="text" name="PhuCapChucVu" class="form-control currency-input"
+                        value="{{ number_format(old('PhuCapChucVu', $chucVu->PhuCapChucVu), 0, ',', '.') }}" 
+                        placeholder="0">
                 </div>
             </div>
 
@@ -71,3 +73,27 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    function formatCurrency(value) {
+        if (!value) return '';
+        // Remove non-numeric characters
+        value = value.toString().replace(/[^0-9]/g, '');
+        // Format with thousand separator
+        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    $('.currency-input').on('input', function() {
+        let value = $(this).val();
+        $(this).val(formatCurrency(value));
+    });
+
+    // Initialize formatting on load
+    $('.currency-input').each(function() {
+        $(this).val(formatCurrency($(this).val()));
+    });
+});
+</script>
+@endpush

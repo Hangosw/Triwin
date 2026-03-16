@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DmPhongBan;
-use App\Models\DonVi;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -12,33 +12,22 @@ class PhongBanController extends Controller
 {
     public function DanhSachView()
     {
-        $phongBans = DmPhongBan::with('donVi')->get();
+        $phongBans = DmPhongBan::all();
         return view('departments.index', compact('phongBans'));
     }
 
     public function TaoView()
     {
-        $donVis = DonVi::all();
-        return view('departments.add', compact('donVis'));
+        return view('departments.add');
     }
 
     public function Tao(Request $request)
     {
         $validated = $request->validate([
-            'DonViId' => 'required|exists:don_vis,id',
-            'Ten' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('dm_phong_bans')->where(function ($query) use ($request) {
-                    return $query->where('DonViId', $request->DonViId);
-                })
-            ],
+            'Ten' => 'required|string|max:255|unique:dm_phong_bans,Ten',
         ], [
-            'DonViId.required' => 'Vui lòng chọn đơn vị.',
-            'DonViId.exists' => 'Đơn vị không tồn tại.',
             'Ten.required' => 'Tên phòng ban không được để trống.',
-            'Ten.unique' => 'Tên phòng ban đã tồn tại trong đơn vị này.',
+            'Ten.unique' => 'Tên phòng ban đã tồn tại.',
         ]);
 
         try {
@@ -71,8 +60,41 @@ class PhongBanController extends Controller
 
     public function InfoView($id)
     {
-        $phongBan = DmPhongBan::with('donVi')->findOrFail($id);
+        $phongBan = DmPhongBan::findOrFail($id);
         return view('departments.info', compact('phongBan'));
+    }
+
+    public function SuaView($id)
+    {
+        $phongBan = DmPhongBan::findOrFail($id);
+        return view('departments.edit', compact('phongBan'));
+    }
+
+    public function CapNhat(Request $request, $id)
+    {
+        $phongBan = DmPhongBan::findOrFail($id);
+
+        $validated = $request->validate([
+            'Ten' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('dm_phong_bans', 'Ten')->ignore($phongBan->id),
+            ],
+        ], [
+            'Ten.required' => 'Tên phòng ban không được để trống.',
+            'Ten.unique' => 'Tên phòng ban đã tồn tại.',
+        ]);
+
+        try {
+            $phongBan->update($validated);
+            return redirect()->route('phong-ban.danh-sach')
+                ->with('success', 'Cập nhật phòng ban thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Lỗi: ' . $e->getMessage()]);
+        }
     }
 
     public function Xoa($id)

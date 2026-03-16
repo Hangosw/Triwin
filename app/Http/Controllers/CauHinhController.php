@@ -10,13 +10,15 @@ class CauHinhController extends Controller
     {
         $configs = \App\Models\SystemConfig::pluck('value', 'key')->toArray();
         $caLamViecs = \App\Models\DmCaLamViec::all();
-        return view('config.index', compact('configs', 'caLamViecs'));
+        $lichLamViecs = \App\Models\CauHinhLichLamViec::orderBy('Thu', 'asc')->get();
+        return view('config.index', compact('configs', 'caLamViecs', 'lichLamViecs'));
     }
 
     public function update(Request $request)
     {
-        $data = $request->except(['_token']);
+        $data = $request->except(['_token', 'company_logo']);
 
+        // Handle text-based configs
         foreach ($data as $key => $value) {
             if ($value === 'on') {
                 $value = 1;
@@ -24,6 +26,19 @@ class CauHinhController extends Controller
             \App\Models\SystemConfig::updateOrCreate(
                 ['key' => $key],
                 ['value' => $value]
+            );
+        }
+
+        // Handle file upload for company logo
+        if ($request->hasFile('company_logo')) {
+            $file = $request->file('company_logo');
+            $filename = 'company_logo_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/company'), $filename);
+            $publicPath = 'uploads/company/' . $filename;
+
+            \App\Models\SystemConfig::updateOrCreate(
+                ['key' => 'company_logo'],
+                ['value' => $publicPath]
             );
         }
 
@@ -57,5 +72,34 @@ class CauHinhController extends Controller
         }
 
         return redirect()->back()->with('success', 'Đã cập nhật thông tin ca làm việc thành công!');
+    }
+
+    public function updateLichLamViec(Request $request)
+    {
+        $data = $request->validate([
+            'lich_lam_viecs' => 'required|array',
+            'lich_lam_viecs.*.type' => 'required|in:full,half,off',
+        ]);
+
+        foreach ($data['lich_lam_viecs'] as $id => $lichData) {
+            $lich = \App\Models\CauHinhLichLamViec::find($id);
+            if ($lich) {
+                $updateData = [];
+                switch ($lichData['type']) {
+                    case 'full':
+                        $updateData = ['CoLamViec' => 1, 'HeSoNgayCong' => 1.0];
+                        break;
+                    case 'half':
+                        $updateData = ['CoLamViec' => 1, 'HeSoNgayCong' => 0.5];
+                        break;
+                    case 'off':
+                        $updateData = ['CoLamViec' => 0, 'HeSoNgayCong' => 0.0];
+                        break;
+                }
+                $lich->update($updateData);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Đã cập nhật cấu hình ngày làm việc thành công!');
     }
 }

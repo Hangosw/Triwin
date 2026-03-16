@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasUnitScoping;
+
 
 class Luong extends Model
 {
-    use HasUnitScoping;
+    
     protected $table = 'luongs';
 
     protected $fillable = [

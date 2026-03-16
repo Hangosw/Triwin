@@ -6,134 +6,191 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root {
-            --primary-green: #0F5132;
+            --primary-green: #0BAA4B;
+            --primary-gradient: linear-gradient(135deg, #0BAA4B 0%, #059669 100%);
             --secondary-green: #D1E7DD;
+            --text-main: #111827;
             --text-muted: #6b7280;
+            --surface: #ffffff;
+            --bg-main: #f9fafb;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         .stat-card {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: var(--surface);
+            padding: 28px;
+            border-radius: 24px;
+            border: 1px solid #f3f4f6;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 100% 0%, var(--secondary-green), transparent 70%);
+            opacity: 0.3;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary-green);
+        }
+
+        .stat-card .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-card.total .icon-box { background: #ecfdf5; color: #10b981; }
+        .stat-card.used .icon-box { background: #fef2f2; color: #ef4444; }
+        .stat-card.remaining .icon-box { background: #eff6ff; color: #3b82f6; }
 
         .stat-card .label {
             color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 15px;
+            font-weight: 600;
             margin-bottom: 8px;
+            letter-spacing: -0.01em;
         }
 
         .stat-card .value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--primary-green);
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .stat-card.total .value { color: #059669; }
+        .stat-card.used .value { color: #dc2626; }
+        .stat-card.remaining .value { color: #2563eb; }
+
+        .stat-card .unit {
+            font-size: 16px;
+            font-weight: 500;
+            margin-left: 4px;
+            color: var(--text-muted);
         }
 
         .card {
-            background: white;
-            border-radius: 16px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 24px;
+            background: var(--surface);
+            border-radius: 24px;
+            border: 1px solid #f3f4f6;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 32px;
             overflow: hidden;
         }
 
-        .card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #e5e7eb;
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 24px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
 
-        .card-title {
-            font-size: 18px;
+        .leave-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .leave-type-item {
+            padding: 20px;
+            border-radius: 20px;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            transition: var(--transition);
+        }
+
+        .leave-type-item:hover {
+            background: white;
+            border-color: var(--primary-green);
+            box-shadow: var(--shadow-sm);
+            transform: scale(1.02);
+        }
+
+        .leave-type-name {
+            font-size: 14px;
             font-weight: 600;
-            color: #111827;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .leave-type-value {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .leave-type-value .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .leave-type-value .label-text {
+            font-size: 13px;
+            color: var(--text-muted);
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 500;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
             transition: var(--transition);
             cursor: pointer;
             border: none;
-            font-size: 14px;
         }
 
         .btn-primary {
-            background: var(--primary-green);
+            background: var(--primary-gradient);
             color: white;
+            box-shadow: 0 4px 12px rgba(11, 170, 75, 0.25);
         }
 
         .btn-primary:hover {
-            background: #0a3d26;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(11, 170, 75, 0.35);
         }
 
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th {
-            background: #f9fafb;
-            padding: 12px 24px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .table td {
-            padding: 16px 24px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 14px;
-            color: #1f2937;
-        }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .badge-success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .badge-warning {
-            background: #fef9c3;
-            color: #854d0e;
-        }
-
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
+        /* Modal & Table styling updates */
+        .card-header {
+            padding: 24px 32px;
+            background: white;
+            border-bottom: 1px solid #f3f4f6;
         }
 
         .modal {
@@ -142,100 +199,150 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.4);
             display: none;
-            align-items: center;
-            justify-content: center;
             z-index: 1000;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
+            overflow-y: auto;
+            padding: 40px 16px;
         }
 
         .modal.show {
-            display: flex;
+            display: block;
         }
 
         .modal-content {
             background: white;
-            width: 500px;
-            border-radius: 20px;
+            width: 600px;
+            max-width: 100%;
+            margin: auto;
+            border-radius: 28px;
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid #f3f4f6;
+            position: relative;
         }
 
         .modal-header {
-            padding: 24px;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 24px 32px;
+            background: #ffffff;
+            border-bottom: 1px solid #f3f4f6;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .modal-body {
-            padding: 24px;
+            padding: 32px;
+        }
+
+        .table thead th {
+            background: #f8fafc;
+            padding: 16px 24px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table td {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-label {
             display: block;
             font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 6px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 10px;
         }
 
         .form-control {
             width: 100%;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-            font-size: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 15px;
             transition: var(--transition);
+            background: #f8fafc;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary-green);
-            box-shadow: 0 0 0 3px var(--secondary-green);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(11, 170, 75, 0.1);
         }
     </style>
 @endpush
 
 @section('content')
-    <div class="page-header">
-        <h1>Nghỉ phép cá nhân</h1>
-        <p>Theo dõi hạn mức phép và đăng ký nghỉ phép của bạn</p>
+    <div class="page-header" style="margin-bottom: 40px;">
+        <h1 style="font-size: 32px; font-weight: 850; letter-spacing: -0.03em;">Nghỉ phép cá nhân</h1>
+        <p style="font-size: 16px; color: var(--text-muted);">Quản lý hạn mức và theo dõi lịch sử nghỉ phép của bạn</p>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="label">Tổng phép ({{ now()->year }})</div>
-            <div class="value">{{ $phepNam->TongPhepDuocNghi ?? 0 }} ngày</div>
+        <div class="stat-card total">
+            <div class="icon-box">
+                <i class="bi bi-calendar-check" style="font-size: 24px;"></i>
+            </div>
+            <div>
+                <div class="label">Tổng phép năm ({{ now()->year }})</div>
+                <div class="value">{{ number_format($phepNam->TongPhepDuocNghi ?? 0, 1) }}<span class="unit">ngày</span></div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="label">Đã nghỉ</div>
-            <div class="value" style="color: #ef4444;">{{ $phepNam->DaNghi ?? 0 }} ngày</div>
+        <div class="stat-card used">
+            <div class="icon-box">
+                <i class="bi bi-calendar-minus" style="font-size: 24px;"></i>
+            </div>
+            <div>
+                <div class="label">Đã nghỉ</div>
+                <div class="value">{{ number_format($phepNam->DaNghi ?? 0, 1) }}<span class="unit">ngày</span></div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="label">Còn lại</div>
-            <div class="value" style="color: #3b82f6;">{{ $phepNam->ConLai ?? 0 }} ngày</div>
+        <div class="stat-card remaining">
+            <div class="icon-box">
+                <i class="bi bi-calendar-heart" style="font-size: 24px;"></i>
+            </div>
+            <div>
+                <div class="label">Phép còn lại</div>
+                <div class="value">{{ number_format($phepNam->ConLai ?? 0, 1) }}<span class="unit">ngày</span></div>
+            </div>
         </div>
     </div>
 
     {{-- Thống kê các loại nghỉ khác --}}
-    <div class="card" style="padding: 24px;">
-        <h3 class="card-title" style="margin-bottom: 20px;">Theo dõi các loại nghỉ khác ({{ now()->year }})</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+    <div class="card" style="padding: 32px;">
+        <h2 class="section-title">
+            <i class="bi bi-grid-1x2 text-primary" style="color: var(--primary-green)"></i>
+            Theo dõi các loại nghỉ khác ({{ now()->year }})
+        </h2>
+        <div class="leave-type-grid">
             @foreach($otherLeaveStats as $stat)
-                <div
-                    style="padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb; background: #f9fafb; display: flex; flex-direction: column; gap: 4px;">
-                    <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;">{{ $stat['ten'] }}</div>
-                    <div style="display: flex; align-items: baseline; gap: 4px;">
-                        <span style="font-size: 20px; font-weight: 700; color: #374151;">{{ $stat['da_dung'] }}</span>
-                        <span style="font-size: 12px; color: var(--text-muted);">ngày đã dùng</span>
+                <div class="leave-type-item">
+                    <div class="leave-type-name">{{ $stat['ten'] }}</div>
+                    <div class="leave-type-value">
+                        <span class="number">{{ number_format($stat['da_dung'], 1) }}</span>
+                        @if($stat['co_han_muc'])
+                            <span class="label-text">/ {{ number_format($stat['han_muc'], 1) }} ngày</span>
+                        @else
+                            <span class="label-text">ngày đã dùng</span>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -314,7 +421,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label">Loại nghỉ phép <span style="color: #ef4444;">*</span></label>
-                        <select class="form-control" name="LoaiNghiPhepId" required>
+                        <select class="form-control" name="LoaiNghiPhepId">
                             @foreach($loaiNghiPheps as $type)
                                 <option value="{{ $type->id }}">{{ $type->Ten }}</option>
                             @endforeach
@@ -323,22 +430,38 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
                             <label class="form-label">Từ ngày <span style="color: #ef4444;">*</span></label>
-                            <input type="text" class="form-control" id="startDate" name="TuNgay" required readonly>
+                            <input type="text" class="form-control" id="startDate" name="TuNgay" readonly>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Đến ngày <span style="color: #ef4444;">*</span></label>
-                            <input type="text" class="form-control" id="endDate" name="DenNgay" required readonly>
+                            <input type="text" class="form-control" id="endDate" name="DenNgay" readonly>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Lý do nghỉ <span style="color: #ef4444;">*</span></label>
-                        <textarea class="form-control" name="LyDo" rows="3" required
+                        <textarea class="form-control" name="LyDo" rows="3"
                             placeholder="Nhập lý do nghỉ..."></textarea>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Số ngày nghỉ</label>
                         <input type="text" class="form-control" id="leaveDaysDisplay" readonly
                             style="background-color: #f9fafb;">
+                    </div>
+                    <!-- Split Leave Warning & Type Selection -->
+                    <div id="splitLeaveSection" style="display: none; background: #fff7ed; padding: 16px; border-radius: 12px; border: 1px solid #ffedd5; margin-bottom: 24px;">
+                        <p style="color: #9a3412; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Quỹ phép năm của bạn không đủ. Phần dư sẽ được tính vào loại nghỉ thay thế.
+                        </p>
+                        <label class="form-label">Loại nghỉ thay thế cho phần dư <span style="color: #ef4444;">*</span></label>
+                        <select class="form-control no-select2" name="SplitLoaiNghiPhepId" id="splitTypeSelect">
+                            <option value="">-- Chọn loại nghỉ --</option>
+                            @foreach($loaiNghiPheps as $type)
+                                @if($type->Ten != 'Nghỉ phép năm')
+                                    <option value="{{ $type->id }}">{{ $type->Ten }}</option>
+                                @endif
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div
@@ -357,6 +480,8 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <script>
         const workingSchedule = @json($workingSchedule->keyBy('Thu'));
+        const remainingLeaveDays = {{ $phepNam->ConLai ?? 0 }};
+        const annualLeaveId = {{ $loaiNghiPheps->firstWhere('Ten', 'Nghỉ phép năm')->id ?? 'null' }};
         let startPicker, endPicker;
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -407,27 +532,87 @@
                     const dbDayOfWeek = (dayOfWeek === 0) ? 8 : (dayOfWeek + 1);
 
                     if (workingSchedule[dbDayOfWeek] && workingSchedule[dbDayOfWeek].CoLamViec) {
-                        count++;
+                        count += parseFloat(workingSchedule[dbDayOfWeek].CoLamViec);
                     }
                     cur.setDate(cur.getDate() + 1);
                 }
                 document.getElementById('leaveDaysDisplay').value = count + ' ngày';
+                
+                // Kiểm tra tách đơn
+                const typeSelect = document.getElementsByName('LoaiNghiPhepId')[0];
+                const splitSection = document.getElementById('splitLeaveSection');
+                
+                if (typeSelect.value == annualLeaveId && count > remainingLeaveDays) {
+                    splitSection.style.display = 'block';
+                } else {
+                    splitSection.style.display = 'none';
+                }
             }
         }
 
+        // Thêm listener cho select loại nghỉ chính
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementsByName('LoaiNghiPhepId')[0];
+            if (typeSelect) {
+                typeSelect.addEventListener('change', calculateDays);
+            }
+        });
+
         function openLeaveModal() {
             document.getElementById('leaveModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            calculateDays();
         }
 
         function closeLeaveModal() {
             document.getElementById('leaveModal').classList.remove('show');
             document.getElementById('leaveForm').reset();
+            document.body.style.overflow = '';
         }
 
         function submitLeave(event) {
             event.preventDefault();
             const form = event.target;
             const formData = new FormData(form);
+
+            // Manual Validation
+            const loaiNghiPhepId = form.querySelector('[name="LoaiNghiPhepId"]').value;
+            const tuNgay = form.querySelector('[name="TuNgay"]').value;
+            const denNgay = form.querySelector('[name="DenNgay"]').value;
+            const lyDo = form.querySelector('[name="LyDo"]').value;
+            const splitSection = document.getElementById('splitLeaveSection');
+            const splitTypeSelect = document.getElementById('splitTypeSelect');
+
+            if (!loaiNghiPhepId || !tuNgay || !denNgay || !lyDo.trim()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin',
+                    text: 'Vui lòng điền đầy đủ các thông tin bắt buộc (*)'
+                });
+                return;
+            }
+
+            if (splitSection.style.display === 'block' && !splitTypeSelect.value) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin',
+                    text: 'Vui lòng chọn loại nghỉ thay thế cho phần dư.'
+                });
+                return;
+            }
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = 'Đang xử lý...';
+
+            Swal.fire({
+                title: 'Đang gửi đơn...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             fetch('{{ route("nghi-phep.tao-moi") }}', {
                 method: 'POST',
@@ -437,34 +622,36 @@
                 },
                 body: formData
             })
-                .then(response => response.json())
+                .then(async response => {
+                    const isJson = response.headers.get('content-type')?.includes('application/json');
+                    const data = isJson ? await response.json() : null;
+                    
+                    if (!response.ok) {
+                        throw new Error(data?.message || 'Có lỗi xảy ra từ máy chủ (Mã lỗi: ' + response.status + ')');
+                    }
+                    return data;
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Thành công',
                             text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false
                         }).then(() => {
-                            location.reload();
+                            window.location.reload();
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: data.message,
-                            confirmButtonColor: '#0F5132'
-                        });
+                        throw new Error(data?.message || 'Có lỗi xảy ra');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
                     Swal.fire({
                         icon: 'error',
-                        title: 'Lỗi hệ thống',
-                        text: 'Có lỗi xảy ra khi gửi đơn.',
-                        confirmButtonColor: '#0F5132'
+                        title: 'Lỗi',
+                        text: error.message
                     });
                 });
         }

@@ -140,7 +140,7 @@
     </div>
     <div class="stat-card">
         <div class="label">Tổng thực lãnh</div>
-        <div class="value" style="color: #0F5132;">67,255,000 đ</div>
+        <div class="value" style="color: #0BAA4B;">67,255,000 đ</div>
     </div>
 </div>
 @endsection

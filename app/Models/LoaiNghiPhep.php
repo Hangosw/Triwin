@@ -13,6 +13,7 @@ class LoaiNghiPhep extends Model
         'HuongLuong',
         'CoHanMuc', // 0 là không có giới hạn số ngày, 1 là có giới hạn số ngày
         'HanMucToiDa',
+        'TrangThai',
     ];
 
     protected $casts = [

@@ -18,7 +18,7 @@
             color: #1f2937;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #0F5132;
+            border-bottom: 2px solid #0BAA4B;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -70,7 +70,7 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
         }
 
@@ -103,7 +103,7 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #0F5132;
+            accent-color: #0BAA4B;
         }
 
         .radio-item label {
@@ -408,18 +408,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label>Đơn vị</label>
-                    <select name="DonViId" id="donViSelect" class="select2">
-                        <option value="">-- Chọn đơn vị --</option>
-                        @foreach($donVis as $donVi)
-                            <option value="{{ $donVi->id }}" 
-                                {{ $employee->ttCongViec && $employee->ttCongViec->phongBan && $employee->ttCongViec->phongBan->DonViId == $donVi->id ? 'selected' : '' }}>
-                                {{ $donVi->Ten }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+
             </div>
 
             <div class="form-row">
@@ -428,7 +417,7 @@
                     <select name="PhongBanId" id="phongBanSelect" class="select2">
                         <option value="">-- Chọn phòng ban --</option>
                         @foreach($phongBans as $phongBan)
-                            <option value="{{ $phongBan->id }}" data-donvi="{{ $phongBan->DonViId }}"
+                            <option value="{{ $phongBan->id }}"
                                 {{ $employee->ttCongViec && $employee->ttCongViec->PhongBanId == $phongBan->id ? 'selected' : '' }}>
                                 {{ $phongBan->Ten }}
                             </option>
@@ -565,39 +554,7 @@
                     allowInput: true
                 });
 
-                // Cascading dropdown: Đơn vị -> Phòng ban
-                const donViSelect = $('#donViSelect');
-                const phongBanSelect = $('#phongBanSelect');
-                // Store all options initially
-                const allPhongBanOptions = Array.from(document.getElementById('phongBanSelect').options).map(opt => ({
-                    value: opt.value,
-                    text: opt.text,
-                    donvi: opt.dataset.donvi
-                }));
-
-                function filterPhongBan() {
-                    const selectedDonVi = donViSelect.val();
-                    const currentVal = phongBanSelect.val();
-                    
-                    // Clear current options
-                    phongBanSelect.html('<option value="">-- Chọn phòng ban --</option>');
-                    
-                    // Add filtered options
-                    allPhongBanOptions.forEach(option => {
-                        if (option.value && (!selectedDonVi || option.donvi == selectedDonVi)) {
-                            const newOption = new Option(option.text, option.value, false, option.value == currentVal);
-                            phongBanSelect.append(newOption);
-                        }
-                    });
-
-                    // Refresh Select2
-                    phongBanSelect.trigger('change.select2');
-                }
-
-                donViSelect.on('change', filterPhongBan);
-                
-                // Initial filter
-                // filterPhongBan(); // Commented out to keep initial value if any
+                // Cascading dropdown removed as Unit is removed
             });
 
             // Form submission
@@ -643,7 +600,7 @@
                             icon: 'success',
                             title: 'Thành công!',
                             text: data.message,
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         }).then(() => {
                             if (data.redirect) {
                                 window.location.href = data.redirect;
@@ -654,7 +611,7 @@
                             icon: 'error',
                             title: 'Lỗi!',
                             text: data.message,
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalBtnText;
@@ -666,7 +623,7 @@
                         icon: 'error',
                         title: 'Lỗi!',
                         text: 'Có lỗi xảy ra khi cập nhật thông tin',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;

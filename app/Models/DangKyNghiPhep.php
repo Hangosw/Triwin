@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-use App\Traits\HasUnitScoping;
+
 
 class DangKyNghiPhep extends Model
 {
-    use HasUnitScoping;
+    
     protected $table = 'dang_ky_nghi_pheps';
 
     protected $fillable = [

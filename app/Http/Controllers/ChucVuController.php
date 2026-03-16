@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DmChucVu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ChucVuController extends Controller
 {
@@ -20,23 +21,42 @@ class ChucVuController extends Controller
 
     public function Tao(Request $request)
     {
+        // Sanitize PhuCapChucVu: remove non-numeric characters (thousand separators)
+        if ($request->has('PhuCapChucVu')) {
+            $value = preg_replace('/[^0-9]/', '', $request->PhuCapChucVu);
+            $request->merge(['PhuCapChucVu' => $value]);
+        }
+
         $validated = $request->validate([
-            'Ma' => 'required|string|max:50|unique:dm_chuc_vus,Ma',
             'Ten' => 'required|string|max:255',
             'Loai' => 'required|in:0,1',
             'PhuCapChucVu' => 'nullable|numeric|min:0',
         ], [
-            'Ma.required' => 'Mã chức vụ không được để trống.',
-            'Ma.unique' => 'Mã chức vụ đã tồn tại.',
             'Ten.required' => 'Tên chức vụ không được để trống.',
             'Loai.required' => 'Vui lòng chọn loại chức vụ.',
             'PhuCapChucVu.numeric' => 'Phụ cấp phải là số.',
         ]);
 
         try {
-            DmChucVu::create($validated);
-            return redirect()->route('chuc-vu.danh-sach')
-                ->with('success', 'Thêm chức vụ thành công!');
+            return DB::transaction(function () use ($validated) {
+                // Generate Ma: CV + (count + 1) padded to 3 digits
+                $count = DmChucVu::count();
+                $nextNumber = $count + 1;
+                $ma = 'CV' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+                // Ensure uniqueness (in case of deletions or manual edits in DB)
+                while (DmChucVu::where('Ma', $ma)->exists()) {
+                    $nextNumber++;
+                    $ma = 'CV' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+                }
+
+                $validated['Ma'] = $ma;
+
+                DmChucVu::create($validated);
+
+                return redirect()->route('chuc-vu.danh-sach')
+                    ->with('success', 'Thêm chức vụ thành công! Mã chức vụ mới: ' . $ma);
+            });
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -60,14 +80,17 @@ class ChucVuController extends Controller
     {
         $chucVu = DmChucVu::findOrFail($id);
 
+        // Sanitize PhuCapChucVu: remove non-numeric characters (thousand separators)
+        if ($request->has('PhuCapChucVu')) {
+            $value = preg_replace('/[^0-9]/', '', $request->PhuCapChucVu);
+            $request->merge(['PhuCapChucVu' => $value]);
+        }
+
         $validated = $request->validate([
-            'Ma' => 'required|string|max:50|unique:dm_chuc_vus,Ma,' . $id,
             'Ten' => 'required|string|max:255',
             'Loai' => 'required|in:0,1',
             'PhuCapChucVu' => 'nullable|numeric|min:0',
         ], [
-            'Ma.required' => 'Mã chức vụ không được để trống.',
-            'Ma.unique' => 'Mã chức vụ đã tồn tại.',
             'Ten.required' => 'Tên chức vụ không được để trống.',
             'Loai.required' => 'Vui lòng chọn loại chức vụ.',
             'PhuCapChucVu.numeric' => 'Phụ cấp phải là số.',

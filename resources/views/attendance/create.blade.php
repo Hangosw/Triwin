@@ -47,7 +47,7 @@
 
         .action-card.in {
             background-color: #f0fdf4;
-            color: #166534;
+            color: #088c3d;
         }
 
         .action-card.in:hover {
@@ -156,7 +156,7 @@
                 <div class="activity-item">
                     <div class="employee-info">
                         <div class="avatar"
-                            style="width: 36px; height: 36px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #0F5132; font-weight: bold;">
+                            style="width: 36px; height: 36px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #0BAA4B; font-weight: bold;">
                             {{ substr($att->nhanVien->Ten, 0, 1) }}
                         </div>
                         <div>
@@ -213,7 +213,7 @@
                     icon: 'warning',
                     title: 'Chú ý',
                     text: 'Vui lòng chọn nhân viên trước!',
-                    confirmButtonColor: '#0F5132'
+                    confirmButtonColor: '#0BAA4B'
                 });
                 return;
             }
@@ -251,7 +251,7 @@
                             icon: 'error',
                             title: 'Lỗi',
                             text: data.message,
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                     }
                 })
@@ -261,7 +261,7 @@
                         icon: 'error',
                         title: 'Lỗi hệ thống',
                         text: 'Có lỗi xảy ra, vui lòng thử lại sau!',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
                 });
         }

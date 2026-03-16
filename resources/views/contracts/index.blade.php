@@ -129,7 +129,7 @@
 
         .salary-amount {
             font-weight: 600;
-            color: #0F5132;
+            color: #0BAA4B;
             font-size: 14px;
         }
 
@@ -148,9 +148,9 @@
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: #0F5132 !important;
+            background: #0BAA4B !important;
             color: white !important;
-            border-color: #0F5132 !important;
+            border-color: #0BAA4B !important;
         }
     </style>
 @endpush
@@ -254,6 +254,7 @@
                     data: function (d) {
                         d.loai = $('#filterLoai').val();
                         d.trang_thai = $('#filterTrangThai').val();
+                        d.expiring_soon = new URLSearchParams(window.location.search).get('expiring_soon');
                     }
                 },
                 columns: [

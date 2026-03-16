@@ -26,12 +26,12 @@
         }
 
         .tab:hover {
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .tab.active {
-            color: #0F5132;
-            border-bottom-color: #0F5132;
+            color: #0BAA4B;
+            border-bottom-color: #0BAA4B;
         }
 
         .tab-content {
@@ -76,7 +76,7 @@
         <div class="card-body"
             style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-weight: 600; color: #166534;">Đã chọn <span id="selectedCount">0</span> phiếu</span>
+                <span style="font-weight: 600; color: #088c3d;">Đã chọn <span id="selectedCount">0</span> phiếu</span>
             </div>
             <div style="display: flex; gap: 12px;">
                 <button type="button" class="btn btn-primary" onclick="bulkApprove()">
@@ -246,7 +246,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ngày tăng ca <span class="text-danger">*</span></label>
-                    <input type="date" name="Ngay" class="form-control" id="overtimeDate" required>
+                    <input type="text" name="Ngay" class="form-control datepicker" id="overtimeDate" placeholder="dd/mm/yyyy" required readonly>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                     <div class="form-group">
@@ -277,7 +277,19 @@
         $(document).ready(function () {
             const table = $('#overtimeTable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+                    "sProcessing": "Đang xử lý...",
+                    "sLengthMenu": "Hiển thị _MENU_ dòng",
+                    "sZeroRecords": "Không tìm thấy dữ liệu",
+                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                    "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                    "sSearch": "Tìm kiếm:",
+                    "oPaginate": {
+                        "sFirst": "Đầu",
+                        "sPrevious": "Trước",
+                        "sNext": "Tiếp",
+                        "sLast": "Cuối"
+                    }
                 },
                 order: [
                     [3, 'desc']
@@ -327,7 +339,11 @@
 
         function openOvertimeModal() {
             $('#overtimeModal').show();
-            $('#overtimeDate').val(new Date().toISOString().split('T')[0]);
+            const today = new Date();
+            const d = String(today.getDate()).padStart(2, '0');
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const y = today.getFullYear();
+            $('#overtimeDate').val(`${d}/${m}/${y}`);
         }
 
         function closeOvertimeModal() {
@@ -370,7 +386,7 @@
                 inputLabel: 'Ghi chú lãnh đạo (nếu có)',
                 inputPlaceholder: 'Nhập ghi chú...',
                 showCancelButton: true,
-                confirmButtonColor: '#0F5132',
+                confirmButtonColor: '#0BAA4B',
                 confirmButtonText: 'Phê duyệt',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
@@ -435,7 +451,7 @@
                 text: `Phê duyệt ${ids.length} phiếu đã chọn?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#0F5132',
+                confirmButtonColor: '#0BAA4B',
                 confirmButtonText: 'Duyệt ngay'
             }).then((result) => {
                 if (result.isConfirmed) {

@@ -3,7 +3,6 @@
 use App\Http\Controllers\ChamCongController;
 use App\Http\Controllers\ChucVuController;
 use App\Http\Controllers\DangNhapController;
-use App\Http\Controllers\DonViController;
 use App\Http\Controllers\HopDongController;
 use App\Http\Controllers\NguoiDungController;
 use App\Http\Controllers\NghiPhepController;
@@ -17,7 +16,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\CauHinhController;
 use App\Http\Controllers\ToDoiController;
-
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DangNhapController::class, 'DangNhap'])->name('login');
@@ -26,9 +25,7 @@ Route::post('/login', [DangNhapController::class, 'XuLyDangNhap']);
 Route::get('/logout', [DangNhapController::class, 'DangXuat'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
     // nguoidung
@@ -43,23 +40,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/xoa-nhieu', [NguoiDungController::class, 'XoaNhieu'])->name('xoa-nhieu')->middleware('permission:Quản lý người dùng');
     });
 
-    Route::prefix('don-vi')->name('don-vi.')->group(function () {
-        Route::get('/danh-sach', [DonViController::class, 'DanhSachView'])->name('danh-sach')->middleware('permission:Quản lý tổ chức');
-        // ... (Keep other don-vi routes, skipped for brevity in replacement but usually I'd wrap the whole group if possible)
-    });
-    // Let's actually wrap entire groups for efficiency
 
-    Route::prefix('don-vi')->name('don-vi.')->group(function () {
-        Route::get('/danh-sach', [DonViController::class, 'DanhSachView'])->name('danh-sach');
-        Route::get('/data', [DonViController::class, 'DataDonVi'])->name('data');
-        Route::get('/tao', [DonViController::class, 'TaoView'])->name('taoView');
-        Route::post('/tao', [DonViController::class, 'Tao'])->name('tao');
-        Route::get('/info/{id}', [DonViController::class, 'InfoView'])->name('info');
-        Route::get('/sua/{id}', [DonViController::class, 'SuaView'])->name('suaView');
-        Route::post('/sua/{id}', [DonViController::class, 'CapNhat'])->name('cap-nhat');
-        Route::post('/xoa/{id}', [DonViController::class, 'Xoa'])->name('xoa');
-        Route::post('/xoa-nhieu', [DonViController::class, 'XoaNhieu'])->name('xoa-nhieu');
-    });
 
     Route::prefix('phong-ban')->name('phong-ban.')->group(function () {
         Route::get('/danh-sach', [PhongBanController::class, 'DanhSachView'])->name('danh-sach');
@@ -94,7 +75,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/chi-tiet/{id}/thay-doi-to-truong', [ToDoiController::class, 'changeLeader'])->name('change-leader');
 
         // Ajax routes for cascading dropdowns
-        Route::get('/ajax/phong-ban/{donViId}', [ToDoiController::class, 'getPhongBans']);
         Route::get('/ajax/nhan-vien/{phongBanId}', [ToDoiController::class, 'getNhanViens']);
     });
 
@@ -246,9 +226,7 @@ Route::get('/employees', function () {
 Route::get('/employees/info', function () {
     return 'Thông tin nhân viên';
 })->name('employees.info-demo');
-Route::get('/don-vi', function () {
-    return redirect()->route('don-vi.danh-sach');
-})->name('don-vi.index');
+
 Route::get('/chuc-vu', function () {
     return redirect()->route('chuc-vu.danh-sach');
 })->name('chuc-vu.index');
@@ -261,12 +239,6 @@ Route::get('/attendance', function () {
 Route::get('/overtime-leave', function () {
     return 'Tăng ca & Nghỉ phép';
 })->name('overtime-leave.index');
-use App\Http\Controllers\VanThuController;
-
-Route::get('/documents/incoming', [VanThuController::class, 'IncomingView'])->name('documents.incoming');
-Route::get('/documents/incoming/data', [VanThuController::class, 'DataIncoming'])->name('documents.incoming.data');
-Route::get('/documents/outgoing', [VanThuController::class, 'OutgoingView'])->name('documents.outgoing');
-Route::get('/documents/outgoing/data', [VanThuController::class, 'DataOutgoing'])->name('documents.outgoing.data');
 Route::prefix('salary')->name('salary.')->group(function () {
     Route::get('/', [LuongController::class, 'IndexView'])->name('index');
     Route::get('/monthly', [LuongController::class, 'MonthlyView'])->name('monthly');
@@ -277,8 +249,10 @@ Route::prefix('salary')->name('salary.')->group(function () {
     Route::post('/tinh-luong-hang-loat', [LuongController::class, 'TinhLuongHangLoat'])->name('tinh-luong-hang-loat');
 });
 Route::get('/config', [CauHinhController::class, 'index'])->name('config.index');
+Route::get('/lich-su', [\App\Http\Controllers\LichSuController::class, 'index'])->name('lich-su.index');
 Route::post('/config', [CauHinhController::class, 'update'])->name('config.update');
 Route::post('/config/ca-lam-viec', [CauHinhController::class, 'updateCaLamViec'])->name('config.ca-lam-viec.update');
+Route::post('/config/lich-lam-viec', [CauHinhController::class, 'updateLichLamViec'])->name('config.lich-lam-viec.update');
 Route::get('/settings', function () {
     return 'Cài đặt';
 })->name('settings.index');

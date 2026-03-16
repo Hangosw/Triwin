@@ -17,7 +17,7 @@ class TangCaController extends Controller
     {
         $phongBanId = $request->phong_ban_id;
         $trangThai = $request->trang_thai;
-        $query = TangCa::with(['nhanVien.ttCongViec.phongBan'])->byUnit();
+        $query = TangCa::with(['nhanVien.ttCongViec.phongBan']);
 
         if ($phongBanId) {
             $query->whereHas('nhanVien.ttCongViec', function ($q) use ($phongBanId) {
@@ -33,14 +33,14 @@ class TangCaController extends Controller
 
         // Stats
         $now = Carbon::now();
-        $totalHoursThisMonth = TangCa::byUnit()->whereYear('Ngay', $now->year)
+        $totalHoursThisMonth = TangCa::whereYear('Ngay', $now->year)
             ->whereMonth('Ngay', $now->month)
             ->where('TrangThai', 'da_duyet')
             ->sum('Tong');
 
-        $pendingCount = TangCa::byUnit()->where('TrangThai', 'dang_cho')->count();
-        $approvedCount = TangCa::byUnit()->where('TrangThai', 'da_duyet')->count();
-        $rejectedCount = TangCa::byUnit()->where('TrangThai', 'tu_choi')->count();
+        $pendingCount = TangCa::where('TrangThai', 'dang_cho')->count();
+        $approvedCount = TangCa::where('TrangThai', 'da_duyet')->count();
+        $rejectedCount = TangCa::where('TrangThai', 'tu_choi')->count();
 
         $phongBans = \App\Models\DmPhongBan::with('ttNhanVienCongViec.nhanVien')->get();
 
@@ -144,46 +144,87 @@ class TangCaController extends Controller
             // Tính số giờ tăng ca của phiếu này
             $duration = round($start->diffInMinutes($end) / 60, 2);
 
-            // 1. Kiểm tra giới hạn 4h/ngày
-            $dailyTotal = TangCa::where('NhanVienId', $nhanVienId)
+            // TÍNH TOÁN HẠN MỨC DỰA TRÊN LỊCH LÀM VIỆC CÔNG TY
+            $lichLamViec = \App\Models\CauHinhLichLamViec::all()->keyBy('Thu');
+            $dtRequested = Carbon::parse($dateOnly);
+            
+            // 1. Kiểm tra giới hạn 12h/ngày (Giờ hành chính + Tăng ca)
+            $thuISO = $dtRequested->dayOfWeekIso; // 1=T2..7=CN
+            $configNgay = $lichLamViec->get($thuISO);
+            $gioHanhChinhNgay = ($configNgay ? (float)$configNgay->CoLamViec : 1.0) * 8;
+            
+            $dailyOTTotal = TangCa::where('NhanVienId', $nhanVienId)
                 ->where('Ngay', $dateOnly)
-                ->where('TrangThai', 'da_duyet')
+                ->whereIn('TrangThai', ['da_duyet', 'dang_cho'])
                 ->sum('Tong');
+            
+            // Tổng giờ làm thực tế dự kiến (Hành chính + Đã duyệt/Chờ duyệt + Đang đăng ký)
+            $tongGioDuKienNgay = $gioHanhChinhNgay + $dailyOTTotal + $duration;
 
-            if (($dailyTotal + $duration) > 4) {
+            if ($tongGioDuKienNgay > 12) {
+                $maxOTToday = max(0, 12 - $gioHanhChinhNgay - $dailyOTTotal);
                 return response()->json([
                     'success' => false,
-                    'message' => "Tổng giờ tăng ca trong ngày ({$dateOnly}) không được quá 4 tiếng. Hiện tại bạn đã duyệt {$dailyTotal}h."
+                    'message' => "Tổng giờ làm việc (Hành chính {$gioHanhChinhNgay}h + Tăng ca đã đăng ký {$dailyOTTotal}h) không được quá 12 tiếng/ngày. Bạn chỉ có thể đăng ký thêm tối đa {$maxOTToday}h tăng ca cho ngày này."
                 ]);
             }
 
-            // 2. Kiểm tra giới hạn 40h/tháng
-            $dt = Carbon::parse($dateOnly);
-            $month = $dt->month;
-            $year = $dt->year;
-            $monthlyTotal = TangCa::where('NhanVienId', $nhanVienId)
+            // 2. Kiểm tra giới hạn 60h/tuần (Giờ hành chính + Tăng ca)
+            // Lấy phạm vi tuần (Từ Thứ Hai đến Chủ Nhật)
+            $startOfWeek = $dtRequested->copy()->startOfWeek();
+            $endOfWeek = $dtRequested->copy()->endOfWeek();
+            
+            // Tính tổng giờ hành chính trong tuần đó
+            $tongHanhChinhTuan = 0;
+            for ($d = $startOfWeek->copy(); $d <= $endOfWeek; $d->addDay()) {
+                $c = $lichLamViec->get($d->dayOfWeekIso);
+                $tongHanhChinhTuan += ($c ? (float)$c->CoLamViec : 1.0) * 8;
+            }
+
+            // Tính tổng tăng ca đã duyệt + chờ duyệt trong tuần
+            $tongOTTuanTotal = TangCa::where('NhanVienId', $nhanVienId)
+                ->whereBetween('Ngay', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+                ->whereIn('TrangThai', ['da_duyet', 'dang_cho'])
+                ->sum('Tong');
+
+            $tongGioDuKienTuan = $tongHanhChinhTuan + $tongOTTuanTotal + $duration;
+
+            if ($tongGioDuKienTuan > 60) {
+                $maxOTThisWeek = max(0, 60 - $tongHanhChinhTuan - $tongOTTuanTotal);
+                return response()->json([
+                    'success' => false,
+                    'message' => "Tổng giờ làm việc trong tuần (Hành chính {$tongHanhChinhTuan}h + Tăng ca đã đăng ký {$tongOTTuanTotal}h) không được quá 60 tiếng. Bạn chỉ còn tối đa {$maxOTThisWeek}h tăng ca cho tuần này."
+                ]);
+            }
+
+            // 3. Kiểm tra giới hạn 40h/tháng (Chỉ tính riêng giờ tăng ca)
+            $month = $dtRequested->month;
+            $year = $dtRequested->year;
+            $monthlyTotalOT = TangCa::where('NhanVienId', $nhanVienId)
                 ->whereMonth('Ngay', $month)
                 ->whereYear('Ngay', $year)
-                ->where('TrangThai', 'da_duyet')
+                ->whereIn('TrangThai', ['da_duyet', 'dang_cho'])
                 ->sum('Tong');
 
-            if (($monthlyTotal + $duration) > 40) {
+            if (($monthlyTotalOT + $duration) > 40) {
+                $remainMonth = max(0, 40 - $monthlyTotalOT);
                 return response()->json([
                     'success' => false,
-                    'message' => "Tổng giờ tăng ca trong tháng {$month}/{$year} không được quá 40 tiếng. Hiện tại bạn đã duyệt {$monthlyTotal}h."
+                    'message' => "Tổng giờ tăng ca đã đăng ký trong tháng {$month}/{$year} không được quá 40 tiếng. Bạn chỉ còn {$remainMonth}h."
                 ]);
             }
 
-            // 3. Kiểm tra giới hạn 200h/năm
-            $yearlyTotal = TangCa::where('NhanVienId', $nhanVienId)
+            // 4. Kiểm tra giới hạn 200h/năm (Chỉ tính riêng giờ tăng ca)
+            $yearlyTotalOT = TangCa::where('NhanVienId', $nhanVienId)
                 ->whereYear('Ngay', $year)
-                ->where('TrangThai', 'da_duyet')
+                ->whereIn('TrangThai', ['da_duyet', 'dang_cho'])
                 ->sum('Tong');
 
-            if (($yearlyTotal + $duration) > 200) {
+            if (($yearlyTotalOT + $duration) > 200) {
+                $remainYear = max(0, 200 - $yearlyTotalOT);
                 return response()->json([
                     'success' => false,
-                    'message' => "Tổng giờ tăng ca trong năm {$year} không được quá 200 tiếng. Hiện tại bạn đã duyệt {$yearlyTotal}h."
+                    'message' => "Tổng giờ tăng ca đã đăng ký trong năm {$year} không được quá 200 tiếng. Bạn chỉ còn {$remainYear}h."
                 ]);
             }
 
@@ -220,7 +261,7 @@ class TangCaController extends Controller
             return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập.']);
         }
 
-        $overtime = TangCa::byUnit()->findOrFail($id);
+        $overtime = TangCa::findOrFail($id);
 
         // Chỉ chủ đơn mới được yêu cầu lại
         $nhanVien = $user->nhanVien;
@@ -270,7 +311,7 @@ class TangCaController extends Controller
         $nhanVien = auth()->user()?->nhanVien;
         $nguoiDuyetId = $nhanVien?->id;
 
-        $overtime = TangCa::byUnit()->findOrFail($id);
+        $overtime = TangCa::findOrFail($id);
         $overtime->update([
             'TrangThai' => 'da_duyet',
             'NguoiDuyetId' => $nguoiDuyetId,
@@ -289,7 +330,7 @@ class TangCaController extends Controller
         $nguoiDuyetId = $nhanVien?->id;
         $lyDoMoi = trim($request->GhiChuLanhDao ?? '');
 
-        $overtime = TangCa::byUnit()->findOrFail($id);
+        $overtime = TangCa::findOrFail($id);
         $ghiChuCu = $overtime->GhiChuLanhDao ?? '';
         $soLan = $overtime->Dem ?? 1;
 
@@ -322,7 +363,7 @@ class TangCaController extends Controller
             return response()->json(['success' => false, 'message' => 'Vui lòng chọn ít nhất một phiếu.']);
         }
 
-        TangCa::byUnit()->whereIn('id', $ids)->where('TrangThai', 'dang_cho')->update([
+        TangCa::whereIn('id', $ids)->where('TrangThai', 'dang_cho')->update([
             'TrangThai' => 'da_duyet',
             'NguoiDuyetId' => $nguoiDuyetId,
             'GhiChuLanhDao' => $request->GhiChuLanhDao ?? 'Phê duyệt hàng loạt',
@@ -346,7 +387,7 @@ class TangCaController extends Controller
         }
 
         // Xử lý từng record để cộng dồn GhiChuLanhDao đúng
-        $overtimes = TangCa::byUnit()->whereIn('id', $ids)->where('TrangThai', 'dang_cho')->get();
+        $overtimes = TangCa::whereIn('id', $ids)->where('TrangThai', 'dang_cho')->get();
         foreach ($overtimes as $ot) {
             $ghiChuCu = $ot->GhiChuLanhDao ?? '';
             $soLan = $ot->Dem ?? 1;

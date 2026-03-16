@@ -81,6 +81,7 @@
                     <tr>
                         <th><strong>STT</strong></th>
                         <th>Nhân viên</th>
+                        <th>Loại</th>
                         <th>Phòng ban</th>
                         <th>Ngày</th>
                         <th>Giờ vào</th>
@@ -95,11 +96,18 @@
                             <td>
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <div class="avatar"
-                                        style="width: 40px; height: 40px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #0F5132; font-weight: bold;">
+                                        style="width: 40px; height: 40px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #0BAA4B; font-weight: bold;">
                                         {{ substr($att->nhanVien->Ten, 0, 1) }}
                                     </div>
                                     <div class="font-medium">{{ $att->nhanVien->Ten }}</div>
                                 </div>
+                            </td>
+                            <td>
+                                @if($att->Loai == 1)
+                                    <span class="badge badge-primary" style="background-color: #6366f1; color: white;">Tăng ca</span>
+                                @else
+                                    <span class="badge badge-info" style="background-color: #3b82f6; color: white;">Hành chính</span>
+                                @endif
                             </td>
                             <td>{{ $att->nhanVien->ttCongViec->phongBan->Ten ?? '-' }}</td>
                             <td>{{ $att->Vao->format('d/m/Y') }}</td>

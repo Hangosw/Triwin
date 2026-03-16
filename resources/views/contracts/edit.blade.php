@@ -24,7 +24,7 @@
         }
 
         .section-title i {
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .form-label {
@@ -35,7 +35,7 @@
         }
 
         .form-control:focus {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
         }
 
@@ -63,7 +63,7 @@
             border-top: 2px solid #e2e8f0;
             font-weight: 700;
             font-size: 16px;
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .file-upload-wrapper {
@@ -76,7 +76,7 @@
         }
 
         .file-upload-wrapper:hover {
-            border-color: #0F5132;
+            border-color: #0BAA4B;
             background: #f0f7f4;
         }
 
@@ -153,7 +153,6 @@
                                 <option value="">-- Chọn nhân viên --</option>
                                 @foreach($nhanvien as $nv)
                                     <option value="{{ $nv->id }}" {{ $hopDong->NhanVienId == $nv->id ? 'selected' : '' }}
-                                        data-donvi="{{ $nv->ttCongViec->DonViId ?? '' }}"
                                         data-phongban="{{ $nv->ttCongViec->PhongBanId ?? '' }}"
                                         data-chucvu="{{ $nv->ttCongViec->ChucVuId ?? '' }}">
                                         {{ $nv->MaNhanVien }} - {{ $nv->Ten }}
@@ -198,16 +197,8 @@
                         Vị trí công tác
                     </h2>
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Đơn vị <span class="required-star">*</span></label>
-                            <select name="don_vi_id" id="donViSelect" class="form-control select2" required>
-                                <option value="">-- Chọn đơn vị --</option>
-                                @foreach($donvi as $dv)
-                                    <option value="{{ $dv->id }}" {{ $hopDong->DonViId == $dv->id ? 'selected' : '' }}>{{ $dv->TenDonVi }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-6">
                             <label class="form-label">Phòng ban <span class="required-star">*</span></label>
                             <select name="phong_ban_id" id="phongBanSelect" class="form-control select2" required>
                                 <option value="">-- Chọn phòng ban --</option>
@@ -216,7 +207,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Chức vụ <span class="required-star">*</span></label>
                             <select name="chuc_vu_id" id="chucVuSelect" class="form-control select2" required>
                                 <option value="">-- Chọn chức vụ --</option>
@@ -557,7 +548,7 @@
                             icon: 'error',
                             title: 'Lỗi',
                             text: 'Ngày kết thúc phải sau ngày bắt đầu!',
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         });
                         e.preventDefault();
                         return;
@@ -570,7 +561,7 @@
                         icon: 'warning',
                         title: 'Thông tin chưa đầy đủ',
                         text: 'Vui lòng điền đầy đủ các thông tin bắt buộc (*)',
-                        confirmButtonColor: '#0F5132'
+                        confirmButtonColor: '#0BAA4B'
                     });
                 }
             });
@@ -732,7 +723,7 @@
                             icon: 'success',
                             title: 'Thành công!',
                             text: data.message,
-                            confirmButtonColor: '#0F5132'
+                            confirmButtonColor: '#0BAA4B'
                         }).then(() => {
                             window.location.href = "{{ route('hop-dong.info', $hopDong->id) }}";
                         });

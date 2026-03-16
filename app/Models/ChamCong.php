@@ -3,16 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasUnitScoping;
+
 use Carbon\Carbon;
 
 class ChamCong extends Model
 {
-    use HasUnitScoping;
+    
     protected $table = 'cham_congs';
 
     protected $fillable = [
         'NhanVienId',
+        'Loai', // 0: Hành chính, 1: Tăng ca
+        'TangCaId',
         'Vao',
         'Ra',
         'TrangThai', // tre, dung_gio, ve_som
@@ -20,6 +22,8 @@ class ChamCong extends Model
 
     protected $casts = [
         'NhanVienId' => 'integer',
+        'Loai' => 'integer',
+        'TangCaId' => 'integer',
         'Vao' => 'datetime',
         'Ra' => 'datetime',
         'TrangThai' => 'string',

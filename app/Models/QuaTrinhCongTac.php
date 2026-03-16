@@ -12,7 +12,7 @@ class QuaTrinhCongTac extends Model
         'NhanVienId',
         'TuNgay',
         'DenNgay', // after TuNgay
-        'DonViId',
+
         'ChucVuId',
     ];
 
@@ -20,7 +20,7 @@ class QuaTrinhCongTac extends Model
         'TuNgay' => 'date',
         'DenNgay' => 'date',
         'NhanVienId' => 'integer',
-        'DonViId' => 'integer',
+
         'ChucVuId' => 'integer',
     ];
 
@@ -32,13 +32,7 @@ class QuaTrinhCongTac extends Model
         return $this->belongsTo(NhanVien::class, 'NhanVienId');
     }
 
-    /**
-     * Relationship: Quá trình công tác tại đơn vị
-     */
-    public function donVi()
-    {
-        return $this->belongsTo(DonVi::class, 'DonViId');
-    }
+
 
     /**
      * Relationship: Quá trình công tác với chức vụ

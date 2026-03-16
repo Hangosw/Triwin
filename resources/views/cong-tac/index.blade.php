@@ -24,7 +24,7 @@
 
             <div class="action-buttons">
                 @can('create cong-tac')
-                    <a href="{{ route('cong-tac.taoView') }}" class="btn btn-primary" style="background:#0F5132;">
+                    <a href="{{ route('cong-tac.taoView') }}" class="btn btn-primary" style="background:#0BAA4B;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -80,7 +80,7 @@
                                     <div style="font-size: 13px; color: #6b7280;">{{ $nv?->Ma ?? '' }}</div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 500; color: #0F5132;">{{ $donVi?->TenDonVi ?? '—' }}</div>
+                                    <div style="font-weight: 500; color: #0BAA4B;">{{ $donVi?->TenDonVi ?? '—' }}</div>
                                     <div style="font-size: 13px; color: #4b5563;">
                                         <i class="bi bi-briefcase" style="font-size: 11px;"></i>
                                         {{ $chucVu?->Ten ?? '—' }}

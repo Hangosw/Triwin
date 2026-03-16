@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\QuaTrinhCongTac;
-use App\Models\DonVi;
+
 use App\Models\DmChucVu;
 use App\Models\NhanVien;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,7 @@ class CongTacController extends Controller
 {
     public function index()
     {
-        $quatrinhs = QuaTrinhCongTac::with(['nhanVien', 'donVi', 'chucVu'])
+        $quatrinhs = QuaTrinhCongTac::with(['nhanVien', 'chucVu'])
             ->orderBy('TuNgay', 'desc')
             ->get();
 
@@ -22,10 +22,10 @@ class CongTacController extends Controller
 
     public function taoView()
     {
-        $donVis = DonVi::all();
+
         $chucVus = DmChucVu::all();
         $nhanViens = NhanVien::select('id', 'Ten', 'Ma', 'SoCCCD')->get();
-        return view('cong-tac.add', compact('donVis', 'chucVus', 'nhanViens'));
+        return view('cong-tac.add', compact('chucVus', 'nhanViens'));
     }
 
     public function store(Request $request)
@@ -33,7 +33,7 @@ class CongTacController extends Controller
         $messages = [
             'type.required' => 'Loại thao tác không hợp lệ.',
             'NhanVienId.required_if' => 'Vui lòng chọn nhân viên được phân công.',
-            'DonViId.required' => 'Vui lòng chọn Đơn vị công tác.',
+
             'ChucVuId.required' => 'Vui lòng chọn Chức vụ công tác.',
             'TuNgay.required' => 'Vui lòng chọn Ngày bắt đầu.',
             'DenNgay.after_or_equal' => 'Ngày kết thúc phải sau hoặc bằng Ngày bắt đầu.'
@@ -42,7 +42,7 @@ class CongTacController extends Controller
         $request->validate([
             'type' => 'required|in:top_down,bottom_up',
             'NhanVienId' => 'required_if:type,top_down',
-            'DonViId' => 'required',
+
             'ChucVuId' => 'required',
             'TuNgay' => 'required|date',
             'DenNgay' => 'nullable|date|after_or_equal:TuNgay',
@@ -68,7 +68,7 @@ class CongTacController extends Controller
 
             QuaTrinhCongTac::create([
                 'NhanVienId' => $nhanVienId,
-                'DonViId' => $request->DonViId,
+
                 'ChucVuId' => $request->ChucVuId,
                 'TuNgay' => $request->TuNgay,
                 'DenNgay' => $request->DenNgay,

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NhanVien;
-use App\Models\DonVi;
+
 use App\Models\DmPhongBan;
 use App\Models\DmChucVu;
 use App\Models\PhieuDieuChuyenNoiBo;
@@ -15,7 +15,7 @@ class DieuChuyenNoiBoController extends Controller
 {
     public function index()
     {
-        $phieus = PhieuDieuChuyenNoiBo::with(['nhanVien', 'donViMoi', 'phongBanMoi', 'chucVuMoi'])
+        $phieus = PhieuDieuChuyenNoiBo::with(['nhanVien', 'phongBanMoi', 'chucVuMoi'])
             ->orderBy('created_at', 'desc')
             ->get();
         return view('Transfer.index', compact('phieus'));
@@ -23,12 +23,11 @@ class DieuChuyenNoiBoController extends Controller
 
     public function create()
     {
-        $nhanViens = NhanVien::with('ttCongViec.donVi', 'ttCongViec.phongBan', 'ttCongViec.chucVu')->get();
-        $donVis = DonVi::all();
+        $nhanViens = NhanVien::with('ttCongViec.phongBan', 'ttCongViec.chucVu')->get();
         $phongBans = DmPhongBan::all();
         $chucVus = DmChucVu::all();
 
-        return view('employees.departmentChange', compact('nhanViens', 'donVis', 'phongBans', 'chucVus'));
+        return view('employees.departmentChange', compact('nhanViens', 'phongBans', 'chucVus'));
     }
 
     public function store(Request $request)
@@ -37,7 +36,7 @@ class DieuChuyenNoiBoController extends Controller
             'NhanVienId' => 'required|exists:nhan_viens,id',
             'NgayDuKien' => 'required|date_format:d/m/Y',
             'LyDo' => 'required|string',
-            'DonViMoiId' => 'nullable|exists:don_vis,id',
+
             'PhongBanMoiId' => 'nullable|exists:dm_phong_bans,id',
             'ChucVuMoiId' => 'nullable|exists:dm_chuc_vus,id',
             'CoThayDoiLuong' => 'nullable|in:0,1',
@@ -58,7 +57,6 @@ class DieuChuyenNoiBoController extends Controller
         PhieuDieuChuyenNoiBo::create([
             'NhanVienId' => $request->NhanVienId,
             'NguoiYeuCauId' => $requestedById,
-            'DonViMoiId' => $request->DonViMoiId ?: ($ttCongViec ? $ttCongViec->DonViId : null),
             'PhongBanMoiId' => $request->PhongBanMoiId ?: ($ttCongViec ? $ttCongViec->PhongBanId : null),
             'ChucVuMoiId' => $request->ChucVuMoiId ?: ($ttCongViec ? $ttCongViec->ChucVuId : null),
             'NgayDuKien' => Carbon::createFromFormat('d/m/Y', $request->NgayDuKien),
@@ -84,7 +82,6 @@ class DieuChuyenNoiBoController extends Controller
         \App\Models\TtNhanVienCongViec::updateOrCreate(
             ['NhanVienId' => $phieu->NhanVienId],
             [
-                'DonViId' => $phieu->DonViMoiId,
                 'PhongBanId' => $phieu->PhongBanMoiId,
                 'ChucVuId' => $phieu->ChucVuMoiId,
             ]

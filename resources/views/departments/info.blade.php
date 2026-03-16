@@ -24,17 +24,12 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Đơn vị</label>
-                <div style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500;">
-                    {{ $phongBan->donVi->Ten ?? '--' }}
-                </div>
-            </div>
+
 
             <div class="form-group">
                 <label class="form-label">Số nhân viên</label>
                 <div
-                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0F5132;">
+                    style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500; color: #0BAA4B;">
                     {{ $phongBan->nhanViens->count() }} người
                 </div>
             </div>
@@ -86,7 +81,7 @@
                     title: 'Không thể xóa',
                     text: `Phòng ban "${name}" hiện tại đang có ${employeeCount} nhân viên. Vui lòng chuyển nhân viên sang bộ phận khác trước khi xóa.`,
                     icon: 'error',
-                    confirmButtonColor: '#0F5132',
+                    confirmButtonColor: '#0BAA4B',
                     confirmButtonText: 'Đã hiểu'
                 });
                 return;

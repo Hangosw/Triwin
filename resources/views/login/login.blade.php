@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0F5132;
+            background-color: #0BAA4B;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -37,7 +37,7 @@
             background: #ffffff;
             padding: 40px 30px 10px 30px;
             text-align: center;
-            color: #0F5132;
+            color: #0BAA4B;
         }
 
         .login-header h1 {
@@ -47,8 +47,10 @@
         }
 
         .login-logo {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            max-height: 100px;
             margin-bottom: 20px;
             object-fit: contain;
         }
@@ -93,8 +95,8 @@
         }
 
         .form-group input:focus {
-            border-color: #0F5132;
-            box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+            border-color: #0BAA4B;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.1);
         }
 
         .form-group input::placeholder {
@@ -119,7 +121,7 @@
             width: 16px;
             height: 16px;
             cursor: pointer;
-            accent-color: #0F5132;
+            accent-color: #0BAA4B;
         }
 
         .remember-me label {
@@ -129,21 +131,21 @@
         }
 
         .forgot-password {
-            color: #0F5132;
+            color: #0BAA4B;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
         }
 
         .forgot-password:hover {
-            color: #1a7a4f;
+            color: #088c3d;
             text-decoration: underline;
         }
 
         .btn-login {
             width: 100%;
             padding: 14px;
-            background: #0F5132;
+            background: #0BAA4B;
             color: white;
             border: none;
             border-radius: 8px;
@@ -154,9 +156,9 @@
         }
 
         .btn-login:hover {
-            background: #1a7a4f;
+            background: #088c3d;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(15, 81, 50, 0.3);
+            box-shadow: 0 6px 20px rgba(11, 170, 75, 0.3);
         }
 
         .btn-login:active {
@@ -214,9 +216,8 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <img src="{{ asset('image/binhlonglogo.png') }}" alt="Logo" class="login-logo">
-            <div class="company-name" style="color: #666; font-size: 14px; margin-bottom: 5px;">BINH LONG RUBBER CO.,
-                LTD.</div>
+            <img src="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}" alt="Logo" class="login-logo">
+            <div class="company-name" style="color: #666; font-size: 14px; margin-bottom: 5px;">{{ \App\Models\SystemConfig::getValue('company_name', 'TRIWIN CO., LTD.') }}</div>
             <h1>Hệ Thống Quản Lý Nhân Sự</h1>
             <p style="color: #666;">Đăng nhập để tiếp tục</p>
         </div>
@@ -263,7 +264,7 @@
         </div>
     </div>
     <div class="login-footer">
-        &copy; {{ date('Y') }} Binh Long Rubber. All rights reserved.
+        &copy; {{ date('Y') }} Triwin. All rights reserved.
     </div>
 </body>
 

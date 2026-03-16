@@ -48,8 +48,8 @@ class ChamCongImport implements ToCollection, WithStartRow
             return;
         }
 
-        // ── Lấy Ca Hành Chính ───────────────────────────────────────────────
-        $caHC = DmCaLamViec::where('MaCa', 'HC')->first();
+        // Lấy ca làm việc chung (không phụ thuộc lịch làm việc)
+        $caLamViec = DmCaLamViec::first();
 
         // ── Cache danh sách nhân viên theo Mã ──────────────────────────────
         $nhanViens = NhanVien::all()->keyBy('Ma');
@@ -81,21 +81,31 @@ class ChamCongImport implements ToCollection, WithStartRow
                 $gioVao = $this->parseTimeToDatetime($rawVao, $dateStr);
                 $gioRa = $this->parseTimeToDatetime($rawRa, $dateStr);
 
-                // Xác định trạng thái (chỉ khi có đủ cả 2)
+                // Xác định trạng thái
                 $trangThai = null;
-                if ($gioVao && $gioRa && $caHC) {
-                    $caGioVao = $caHC->GioVao; // "08:00:00"
-                    $caGioRa = $caHC->GioRa;  // "17:00:00"
+                if ($gioVao && $caLamViec) {
+                    $caGioVao = $caLamViec->GioVao; 
+                    $caGioRa = $caLamViec->GioRa;  
 
                     $inTime = $gioVao->format('H:i:s');
-                    $outTime = $gioRa->format('H:i:s');
-
+                    
+                    // 1. Giờ vào > GioVao thì là 'tre', không cần xét giờ ra
                     if ($inTime > $caGioVao) {
                         $trangThai = 'tre';
-                    } elseif ($outTime < $caGioRa) {
-                        $trangThai = 've_som';
                     } else {
-                        $trangThai = 'dung_gio';
+                        if ($gioRa) {
+                            $outTime = $gioRa->format('H:i:s');
+                            // 2. Giờ chấm công vào trước GioVao và giờ ra sau GioRa thì trạng thái là dung_gio
+                            if ($outTime >= $caGioRa) {
+                                $trangThai = 'dung_gio';
+                            } 
+                            // 3. Giờ vào đúng giờ nhưng giờ ra trước GioRa thì là ve_som
+                            else {
+                                $trangThai = 've_som';
+                            }
+                        } else {
+                            $trangThai = 'dung_gio'; // Tạm thời là đúng giờ nếu chưa có giờ ra
+                        }
                     }
                 }
 

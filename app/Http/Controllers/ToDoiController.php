@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\DmToDoi;
 use App\Models\DmPhongBan;
-use App\Models\DonVi;
 use App\Models\NhanVien;
 use App\Models\ToDoiLanhDao;
 use Illuminate\Support\Facades\DB;
@@ -93,15 +92,11 @@ class ToDoiController extends Controller
 
     public function create()
     {
-        $donVis = DonVi::all();
-        return view('todoi.create', compact('donVis'));
+        $phongBans = DmPhongBan::all();
+        return view('todoi.create', compact('phongBans'));
     }
 
-    public function getPhongBans($donViId)
-    {
-        $phongBans = DmPhongBan::where('DonViId', $donViId)->get(['id', 'Ten']);
-        return response()->json($phongBans);
-    }
+
 
     public function getNhanViens($phongBanId)
     {
@@ -180,16 +175,10 @@ class ToDoiController extends Controller
             $q->where('ToDoiId', $id);
         })->with('ttCongViec.chucVu')->get();
 
-        // Get members in the same DonVi and PhongBan that are NOT currently in this ToDoi
         $phongBanId = $todoi->PhongBanId;
-        $donViId = $todoi->phongBan ? $todoi->phongBan->DonViId : null;
-
-        $nhanVienKhacs = \App\Models\NhanVien::whereHas('ttCongViec', function ($q) use ($id, $phongBanId, $donViId) {
+        $nhanVienKhacs = \App\Models\NhanVien::whereHas('ttCongViec', function ($q) use ($id, $phongBanId) {
             if ($phongBanId) {
                 $q->where('PhongBanId', $phongBanId);
-            }
-            if ($donViId) {
-                $q->where('DonViId', $donViId);
             }
             $q->where(function ($sq) use ($id) {
                 $sq->whereNull('ToDoiId')->orWhere('ToDoiId', '!=', $id);

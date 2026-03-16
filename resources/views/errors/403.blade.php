@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>403 - Không có quyền truy cập</title>
-    <link rel="icon" href="{{ asset('image/binhlonglogo.png') }}">
+    <link rel="icon" href="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}">
     <style>
         :root {
-            --primary-color: #0F5132;
-            --primary-hover: #0d4429;
+            --primary-color: #0BAA4B;
+            --primary-hover: #0d7a3a;
             --text-main: #1f2937;
             --text-muted: #6b7280;
             --bg-body: #f9fafb;
@@ -62,8 +62,15 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 32px;
-            box-shadow: 0 10px 25px rgba(15, 81, 50, 0.1);
+            box-shadow: 0 10px 25px rgba(11, 170, 75, 0.1);
             position: relative;
+            overflow: hidden;
+        }
+
+        .icon-wrapper img {
+            max-width: 80%;
+            height: auto;
+            object-fit: contain;
         }
 
         .icon-wrapper svg {
@@ -96,13 +103,13 @@
             border-radius: 12px;
             font-weight: 600;
             transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(15, 81, 50, 0.2);
+            box-shadow: 0 4px 12px rgba(11, 170, 75, 0.2);
         }
 
         .btn:hover {
             background-color: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(15, 81, 50, 0.3);
+            box-shadow: 0 6px 16px rgba(11, 170, 75, 0.3);
         }
 
         .btn:active {
