@@ -32,7 +32,7 @@
         @endif
 
         <div class="table-container">
-            <table class="table">
+            <table id="rolesTable" class="table">
                 <thead>
                     <tr>
                         <th style="width: 50px;">ID</th>
@@ -81,4 +81,34 @@
             </table>
         </div>
     </div>
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#rolesTable').DataTable({
+            language: {
+                "sProcessing": "Đang xử lý...",
+                "sLengthMenu": "Hiển thị _MENU_ dòng",
+                "sZeroRecords": "Không tìm thấy dữ liệu",
+                "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                "sSearch": "Tìm kiếm:",
+                "oPaginate": {
+                    "sFirst": "Đầu",
+                    "sPrevious": "Trước",
+                    "sNext": "Tiếp",
+                    "sLast": "Cuối"
+                }
+            },
+            responsive: true,
+            autoWidth: false,
+            pageLength: 10,
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: [3] }
+            ]
+        });
+    });
+</script>
+@endpush
 @endsection

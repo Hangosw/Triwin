@@ -219,6 +219,8 @@
                             "sLast": "Cuối"
                         }
                     },
+                    responsive: true,
+                    autoWidth: false,
                     pageLength: 10,
                     order: [[1, 'asc']],
                     drawCallback: function () {

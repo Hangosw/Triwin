@@ -3,8 +3,6 @@
 @section('title', 'Quản lý hợp đồng - Vietnam Rubber Group')
 
 @push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <style>
         .page-header {
             margin-bottom: 24px;
@@ -238,12 +236,6 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         $(document).ready(function () {
             const table = $('#contractsTable').DataTable({
@@ -366,6 +358,8 @@
                     "sSearch": "Tìm kiếm:",
                     "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" }
                 },
+                responsive: true,
+                autoWidth: false,
                 pageLength: 10,
                 order: [[1, 'asc']],
                 drawCallback: function () {

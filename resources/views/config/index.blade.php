@@ -106,6 +106,11 @@
                     <input type="number" name="annual_leave_days" class="form-control"
                         value="{{ $configs['annual_leave_days'] ?? 12 }}">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Giới hạn ngày nghỉ phép năm / lần</label>
+                    <input type="number" name="annual_leave_limit_per_request" class="form-control"
+                        value="{{ $configs['annual_leave_limit_per_request'] ?? 5 }}">
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary" style="margin-top: 15px;">
@@ -203,8 +208,8 @@
         <div class="card" style="margin-top: 20px;">
             <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Cấu hình ngày làm việc trong tuần</h3>
             
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover config-table">
+            <div class="table-container">
+                <table class="table table-bordered table-hover config-table" id="scheduleTable" style="width: 100%;">
                     <thead style="background-color: #f8f9fa;">
                         <tr>
                             <th style="width: 200px;">Thứ</th>
@@ -256,8 +261,8 @@
         <div class="card">
             <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Lịch trình ca làm việc</h3>
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover config-table">
+            <div class="table-container">
+                <table class="table table-bordered table-hover config-table" id="shiftTable" style="width: 100%;">
                     <thead style="background-color: #f8f9fa;">
                         <tr>
                             <th>Mã Ca</th>
@@ -344,3 +349,33 @@
 
 
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#scheduleTable, #shiftTable').DataTable({
+            language: {
+                "sProcessing": "Đang xử lý...",
+                "sLengthMenu": "Hiển thị _MENU_ mục",
+                "sZeroRecords": "Không tìm thấy dữ liệu",
+                "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                "sSearch": "Tìm kiếm:",
+                "oPaginate": {
+                    "sFirst": "Đầu",
+                    "sPrevious": "Trước",
+                    "sNext": "Tiếp",
+                    "sLast": "Cuối"
+                }
+            },
+            responsive: true,
+            autoWidth: false,
+            paging: false,
+            searching: false,
+            info: false,
+            ordering: false
+        });
+    });
+</script>
+@endpush

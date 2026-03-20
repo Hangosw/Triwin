@@ -69,29 +69,7 @@ class RolePermissionSeeder extends Seeder
         // nhưng vẫn gán full permissions cho chắc chắn và hiển thị UI.
         $superAdmin->syncPermissions(Permission::all());
 
-        // 2. Admin Đơn Vị (Quản lý đơn vị)
-        $unitAdmin = Role::firstOrCreate(['name' => 'Admin Đơn Vị']);
-        $unitAdmin->syncPermissions([
-            'Xem nhân viên',
-            'Thêm nhân viên',
-            'Sửa nhân viên',
-            'Xóa nhân viên',
-            'Xem hợp đồng',
-            'Quản lý hợp đồng',
-            'Xem chấm công',
-            'Quản lý chấm công',
-            'Xem tăng ca nghỉ phép',
-            'Quản lý tăng ca nghỉ phép',
-            'Duyệt yêu cầu',
-            'Xem lương',
-            'Quản lý lương',
-            'Xem văn thư',
-            'Quản lý văn thư',
-            'Xem công tác',
-            'Quản lý công tác',
-        ]);
-
-        // 3. Nhân viên (Quyền cơ bản)
+        // 2. Nhân viên (Quyền cơ bản)
         $employee = Role::firstOrCreate(['name' => 'Nhân viên']);
         $employee->syncPermissions([
             'Xem nhân viên',

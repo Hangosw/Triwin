@@ -13,6 +13,7 @@ class QuaTrinhCongTac extends Model
         'TuNgay',
         'DenNgay', // after TuNgay
 
+        'PhongBanId',
         'ChucVuId',
     ];
 
@@ -21,6 +22,7 @@ class QuaTrinhCongTac extends Model
         'DenNgay' => 'date',
         'NhanVienId' => 'integer',
 
+        'PhongBanId' => 'integer',
         'ChucVuId' => 'integer',
     ];
 
@@ -40,6 +42,14 @@ class QuaTrinhCongTac extends Model
     public function chucVu()
     {
         return $this->belongsTo(DmChucVu::class, 'ChucVuId');
+    }
+
+    /**
+     * Relationship: Quá trình công tác với phòng ban
+     */
+    public function phongBan()
+    {
+        return $this->belongsTo(DmPhongBan::class, 'PhongBanId');
     }
 
     /**

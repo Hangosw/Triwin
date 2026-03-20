@@ -312,11 +312,24 @@ class NhanVienController extends Controller
                     'NgoaiNgu' => $request->NgoaiNgu,
                 ]);
 
+                // Khởi tạo phép năm tự động
+                \App\Models\QuanLyPhepNam::khoiTaoPhepNam($nhanVien->id, date('Y'));
+
                 // Re-enable foreign key checks
                 \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
                 return $Ma;
             });
+
+            $nvCreated = NhanVien::where('Ma', $Ma)->first();
+            if ($nvCreated) {
+                \App\Services\SystemLogService::log(
+                    'Tạo mới', 
+                    'NhanVien', 
+                    $nvCreated->id, 
+                    "Thêm mới nhân viên: {$nvCreated->Ten} ({$nvCreated->Ma})"
+                );
+            }
 
             return response()->json([
                 'success' => true,
@@ -372,6 +385,7 @@ class NhanVienController extends Controller
             $validated = $request->validate($rules, $messages);
 
             $employee = NhanVien::findOrFail($id);
+            $oldData = $employee->toArray();
 
             // Update NhanVien table
             $employee->update([
@@ -414,6 +428,16 @@ class NhanVienController extends Controller
                     'TrinhDoChuyenMon' => $request->TrinhDoChuyenMon,
                     'NgoaiNgu' => $request->NgoaiNgu,
                 ]
+            );
+
+            $newData = $employee->fresh()->toArray();
+            \App\Services\SystemLogService::log(
+                'Cập nhật', 
+                'NhanVien', 
+                $employee->id, 
+                "Cập nhật thông tin nhân viên: {$employee->Ten}",
+                $oldData,
+                $newData
             );
 
             return response()->json([

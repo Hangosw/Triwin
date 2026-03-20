@@ -76,7 +76,7 @@
     <!-- Table -->
     <div class="card">
         <div class="table-container">
-            <table class="table">
+            <table class="table" id="attendanceTable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th><strong>STT</strong></th>
@@ -86,6 +86,7 @@
                         <th>Ngày</th>
                         <th>Giờ vào</th>
                         <th>Giờ ra</th>
+                        <th>Công</th>
                         <th>Trạng thái</th>
                     </tr>
                 </thead>
@@ -114,6 +115,13 @@
                             <td>{{ $att->Vao->format('H:i:s') }}</td>
                             <td>{{ $att->Ra ? $att->Ra->format('H:i:s') : '-' }}</td>
                             <td>
+                                @if($att->Cong > 0)
+                                    <span class="font-medium" style="color: #0BAA4B;">{{ number_format($att->Cong, 2) }}</span>
+                                @else
+                                    <span style="color: #9ca3af;">-</span>
+                                @endif
+                            </td>
+                            <td>
                                 @if($att->TrangThai === 'dung_gio')
                                     <span class="badge badge-success">Đúng giờ</span>
                                 @elseif($att->TrangThai === 'tre')
@@ -128,7 +136,7 @@
                     @endforeach
                     @if(count($attendances) == 0)
                         <tr>
-                            <td colspan="7" style="text-align: center; color: #6b7280; padding: 20px;">Không có dữ liệu chấm
+                            <td colspan="8" style="text-align: center; color: #6b7280; padding: 20px;">Không có dữ liệu chấm
                                 công cho thời gian này</td>
                         </tr>
                     @endif
@@ -136,7 +144,32 @@
             </table>
         </div>
     </div>
-    </table>
-    </div>
-    </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#attendanceTable').DataTable({
+            language: {
+                "sProcessing": "Đang xử lý...",
+                "sLengthMenu": "Hiển thị _MENU_ dòng",
+                "sZeroRecords": "Không tìm thấy dữ liệu",
+                "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                "sSearch": "Tìm kiếm:",
+                "oPaginate": {
+                    "sFirst": "Đầu",
+                    "sPrevious": "Trước",
+                    "sNext": "Tiếp",
+                    "sLast": "Cuối"
+                }
+            },
+            responsive: true,
+            autoWidth: false,
+            pageLength: 25,
+            order: [[4, 'desc'], [5, 'desc']]
+        });
+    });
+</script>
+@endpush

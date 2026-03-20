@@ -23,7 +23,7 @@
             </div>
 
             <div class="action-buttons">
-                @can('create cong-tac')
+                @can('Quản lý công tác')
                     <a href="{{ route('cong-tac.taoView') }}" class="btn btn-primary" style="background:#0BAA4B;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -51,12 +51,12 @@
     @else
         <div class="card">
             <div class="table-container">
-                <table class="table" id="congTacTable">
+                <table class="table" id="congTacTable" style="width: 100%;">
                     <thead>
                         <tr>
                             <th style="width: 50px;"><strong>STT</strong></th>
                             <th>Nhân viên</th>
-                            <th>Đơn vị, Chức vụ</th>
+                            <th>Phòng ban, Chức vụ</th>
                             <th>Từ ngày</th>
                             <th>Đến ngày</th>
                             <th>Trạng thái</th>
@@ -67,7 +67,7 @@
                         @foreach ($quatrinhs as $index => $qt)
                             @php
                                 $nv = $qt->nhanVien;
-                                $donVi = $qt->donVi;
+                                $phongBan = $qt->phongBan;
                                 $chucVu = $qt->chucVu;
                                 $isCurrent = is_null($qt->DenNgay) || \Carbon\Carbon::parse($qt->DenNgay)->endOfDay()->isFuture();
                             @endphp
@@ -80,7 +80,7 @@
                                     <div style="font-size: 13px; color: #6b7280;">{{ $nv?->Ma ?? '' }}</div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 500; color: #0BAA4B;">{{ $donVi?->TenDonVi ?? '—' }}</div>
+                                    <div style="font-weight: 500; color: #0BAA4B;">{{ $phongBan?->Ten ?? '—' }}</div>
                                     <div style="font-size: 13px; color: #4b5563;">
                                         <i class="bi bi-briefcase" style="font-size: 11px;"></i>
                                         {{ $chucVu?->Ten ?? '—' }}
@@ -137,19 +137,36 @@
 
     @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Table Search
-                const searchInput = document.getElementById('congTacSearch');
-                if (searchInput) {
-                    const rows = document.querySelectorAll('.congtac-row');
-                    searchInput.addEventListener('keyup', function () {
-                        const term = searchInput.value.toLowerCase();
-                        rows.forEach(row => {
-                            const text = row.innerText.toLowerCase();
-                            row.style.display = text.includes(term) ? '' : 'none';
-                        });
-                    });
-                }
+            $(document).ready(function () {
+                const table = $('#congTacTable').DataTable({
+                    language: {
+                        "sProcessing": "Đang xử lý...",
+                        "sLengthMenu": "Hiển thị _MENU_ dòng",
+                        "sZeroRecords": "Không tìm thấy dữ liệu",
+                        "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                        "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                        "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                        "sSearch": "Tìm kiếm:",
+                        "oPaginate": {
+                            "sFirst": "Đầu",
+                            "sPrevious": "Trước",
+                            "sNext": "Tiếp",
+                            "sLast": "Cuối"
+                        }
+                    },
+                    responsive: true,
+                    autoWidth: false,
+                    pageLength: 10,
+                    dom: 'rtip',
+                    columnDefs: [
+                        { orderable: false, targets: [6] }
+                    ]
+                });
+
+                // Custom Search
+                $('#congTacSearch').on('keyup', function () {
+                    table.search(this.value).draw();
+                });
             });
         </script>
     @endpush

@@ -28,61 +28,77 @@ class NhanVienImport implements ToCollection, WithStartRow
 
     public function collection(Collection $rows)
     {
-        // Load relationships into memory to avoid N+1 queries during import
+        $phongBans = DmPhongBan::all();
+        $chucVus = DmChucVu::all();
 
-        $phongBans = DmPhongBan::all()->keyBy('Ten');
-        $chucVus = DmChucVu::all()->keyBy('Ten');
+        // Chuẩn bị counter cho mã nhân viên tự động
+        $year = date('y');
+        $latestEmployee = NhanVien::where('Ma', 'like', "NV_{$year}_%")
+            ->orderBy('Ma', 'desc')
+            ->first();
+        
+        $currentSequence = 0;
+        if ($latestEmployee) {
+            $currentSequence = intval(substr($latestEmployee->Ma, -5));
+        }
 
         foreach ($rows as $index => $row) {
-            $rowNumber = $index + 2; // +1 for 0-index, +1 for startRow tracking
+            $rowNumber = $index + 2; 
 
-            // Bỏ qua dòng trống
-            if (!isset($row[1]) || !isset($row[2])) {
+            // Chỉ bỏ qua nếu không có Họ tên (Cột C)
+            if (!isset($row[2]) || empty(trim($row[2]))) {
                 continue;
             }
 
-            $maNV = trim($row[1]); // B
-            $hoTen = trim($row[2]); // C
-            $email = isset($row[3]) ? trim($row[3]) : null; // D
-            $sdt = isset($row[4]) ? trim($row[4]) : null; // E
-            $ngaySinhRaw = isset($row[5]) ? trim($row[5]) : null; // F
-            $gioiTinhRaw = isset($row[6]) ? trim($row[6]) : null; // G
-            $cccd = isset($row[7]) ? trim($row[7]) : null; // H
+            $maNV = isset($row[1]) ? trim($row[1]) : null;
+            $hoTen = trim($row[2]);
+            $email = isset($row[3]) ? trim($row[3]) : null;
+            $sdt = isset($row[4]) ? trim($row[4]) : null;
+            $ngaySinhRaw = isset($row[5]) ? trim($row[5]) : null;
+            $gioiTinhRaw = isset($row[6]) ? trim($row[6]) : null;
+            $cccd = isset($row[7]) ? trim($row[7]) : null;
+            $tenPhongBan = isset($row[8]) ? trim($row[8]) : null;
+            $tenChucVu = isset($row[9]) ? trim($row[9]) : null;
+            $ngayTuyenDungRaw = isset($row[10]) ? trim($row[10]) : null;
 
-            $tenPhongBan = isset($row[9]) ? trim($row[9]) : null; // J
-            $tenChucVu = isset($row[10]) ? trim($row[10]) : null; // K
-            $ngayTuyenDungRaw = isset($row[11]) ? trim($row[11]) : null; // L
+            // Tự động tạo mã nếu thiếu
+            if (empty($maNV)) {
+                $currentSequence++;
+                $sequenceStr = str_pad($currentSequence, 5, '0', STR_PAD_LEFT);
+                $maNV = "NV_{$year}_{$sequenceStr}";
+            }
 
             // 1. Kiểm tra nhân viên đã tồn tại
-            if (
-                NhanVien::where('Ma', $maNV)->orWhere(function ($query) use ($cccd) {
-                    if ($cccd) {
-                        $query->where('SoCCCD', $cccd);
-                    } else {
-                        $query->whereRaw('1 = 0'); // false condition if cccd is null
-                    }
-                })->exists()
-            ) {
-                $this->errors[] = "Dòng $rowNumber: Nhân viên có Mã '$maNV' hoặc CCCD '$cccd' đã tồn tại. Bỏ qua.";
+            $exists = NhanVien::where('Ma', $maNV)
+                ->when($cccd, function($q) use ($cccd) {
+                    return $q->orWhere('SoCCCD', $cccd);
+                })
+                ->exists();
+
+            if ($exists) {
+                $this->errors[] = "Dòng $rowNumber: Nhân viên có Mã '$maNV' hoặc CCCD '$cccd' đã tồn tại.";
                 continue;
             }
 
-            // 2. Tra cứu Phòng ban, Chức vụ
-            $phongBanModel = $phongBans->get($tenPhongBan);
-            $chucVuModel = $chucVus->get($tenChucVu);
-
+            // 2. Tra cứu Phòng ban, Chức vụ (không phân biệt hoa thường)
+            $phongBanModel = $phongBans->first(function($item) use ($tenPhongBan) {
+                return mb_strtolower($item->Ten) == mb_strtolower($tenPhongBan);
+            });
+            $chucVuModel = $chucVus->first(function($item) use ($tenChucVu) {
+                return mb_strtolower($item->Ten) == mb_strtolower($tenChucVu);
+            });
 
             if (!$phongBanModel) {
-                $this->errors[] = "Dòng $rowNumber: Phòng ban '$tenPhongBan' không tồn tại trên hệ thống.";
+                $this->errors[] = "Dòng $rowNumber: Phòng ban '$tenPhongBan' không tìm thấy.";
                 continue;
             }
             if (!$chucVuModel) {
-                $this->errors[] = "Dòng $rowNumber: Chức vụ '$tenChucVu' không tồn tại trên hệ thống.";
+                $this->errors[] = "Dòng $rowNumber: Chức vụ '$tenChucVu' không tìm thấy.";
                 continue;
             }
 
             // 3. Xử lý logic giới tính, ngày tháng
-            $gioiTinh = (strtolower($gioiTinhRaw) == 'nam') ? 1 : 0;
+            $gioiTinh = (mb_strtolower($gioiTinhRaw) == 'nam') ? 1 : 0;
             $ngaySinh = $this->parseDate($ngaySinhRaw);
             $ngayTuyenDung = $this->parseDate($ngayTuyenDungRaw);
 
@@ -90,7 +106,7 @@ class NhanVienImport implements ToCollection, WithStartRow
             try {
                 // Tạo tài khoản người dùng
                 $taiKhoan = $email ?: ($sdt ?: $maNV);
-                $matKhau = $sdt ?: $maNV; // Default password to phone or employee code
+                $matKhau = $sdt ?: $maNV;
 
                 $user = NguoiDung::create([
                     'TaiKhoan' => $taiKhoan,
@@ -105,7 +121,7 @@ class NhanVienImport implements ToCollection, WithStartRow
                     'Ma' => $maNV,
                     'Ten' => $hoTen,
                     'NguoiDungId' => $user->id,
-                    'Email' => $email, // Need to add Email to fillable or check if it's there
+                    'Email' => $email,
                     'SoDienThoai' => $sdt,
                     'NgaySinh' => $ngaySinh,
                     'GioiTinh' => $gioiTinh,
@@ -115,37 +131,42 @@ class NhanVienImport implements ToCollection, WithStartRow
                 // Tạo thông tin công tác
                 TtNhanVienCongViec::create([
                     'NhanVienId' => $nhanVien->id,
-
                     'PhongBanId' => $phongBanModel->id,
                     'ChucVuId' => $chucVuModel->id,
                     'NgayTuyenDung' => $ngayTuyenDung,
-                    'LoaiNhanVien' => 1, // Mặc định là Khối văn phòng (1) hoặc bạn có thể quy định khác
+                    'LoaiNhanVien' => 1,
                 ]);
+
+                // Khởi tạo phép năm
+                \App\Models\QuanLyPhepNam::khoiTaoPhepNam($nhanVien->id, date('Y'));
 
                 DB::commit();
                 $this->successCount++;
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                $this->errors[] = "Dòng $rowNumber: Lỗi hệ thống khi lưu - " . $e->getMessage();
+                $this->errors[] = "Dòng $rowNumber: Lỗi lưu dữ liệu - " . $e->getMessage();
             }
         }
     }
 
     private function parseDate($dateString)
     {
-        if (!$dateString)
+        if (empty($dateString))
             return null;
 
-        // Handle Excel numeric date format
         if (is_numeric($dateString)) {
             return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateString)->format('Y-m-d');
         }
 
         try {
+            // Thử parse các định dạng phổ biến ở VN
+            if (preg_match('/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/', $dateString, $matches)) {
+                return $matches[3] . '-' . $matches[2] . '-' . $matches[1];
+            }
             return Carbon::parse($dateString)->format('Y-m-d');
         } catch (\Exception $e) {
-            return null; // or log error/default date
+            return null;
         }
     }
 }

@@ -10,9 +10,9 @@ class LichSuController extends Controller
     public function index()
     {
         $logs = DB::table('lich_sus')
-            ->leftJoin('nhan_viens', 'lich_sus.NhanVienId', '=', 'nhan_viens.id')
-            ->select('lich_sus.*', 'nhan_viens.Ten as TenNhanVien')
-            ->latest('lich_sus.Created_At')
+            ->leftJoin('nguoi_dungs', 'lich_sus.NhanVienId', '=', 'nguoi_dungs.id')
+            ->select('lich_sus.*', 'nguoi_dungs.Ten as TenNguoiDung', 'nguoi_dungs.TaiKhoan')
+            ->latest('lich_sus.CreatedAt')
             ->paginate(50);
 
         return view('lich-su.index', compact('logs'));

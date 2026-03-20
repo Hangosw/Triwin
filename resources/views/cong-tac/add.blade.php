@@ -114,7 +114,7 @@
     <div class="card" style="max-width: 900px;">
         <!-- Tabs Header -->
         <div class="custom-tabs">
-            @can('create cong-tac')
+            @can('Quản lý công tác')
                 <button class="custom-tab-btn active" onclick="switchTab('top-down', this)">
                     <i class="bi bi-diagram-3" style="margin-right:8px;"></i> Quản lý Phân công (Top-down)
                 </button>
@@ -126,7 +126,7 @@
         </div>
 
         <!-- Tab 1: Top-down (Phân công) -->
-        @can('create cong-tac')
+        @can('Quản lý công tác')
             <div id="tab-top-down" class="tab-pane active">
                 <form action="{{ route('cong-tac.store') }}" method="POST">
                     @csrf
@@ -146,12 +146,12 @@
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group mb-4">
-                            <label class="form-label">Đơn vị công tác <span style="color:red">*</span></label>
-                            <select name="DonViId" class="form-control select2" style="width: 100%;" required>
-                                <option value="">-- Chọn Đơn vị --</option>
-                                @foreach($donVis as $dv)
-                                    <option value="{{ $dv->id }}" {{ old('DonViId') == $dv->id ? 'selected' : '' }}>
-                                        {{ $dv->TenDonVi ?? $dv->Ten }}
+                            <label class="form-label">Phòng ban công tác <span style="color:red">*</span></label>
+                            <select name="PhongBanId" class="form-control select2" style="width: 100%;" required>
+                                <option value="">-- Chọn Phòng ban --</option>
+                                @foreach($phongBans as $pb)
+                                    <option value="{{ $pb->id }}" {{ old('PhongBanId') == $pb->id ? 'selected' : '' }}>
+                                        {{ $pb->Ten }}
                                     </option>
                                 @endforeach
                             </select>
@@ -213,12 +213,12 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group mb-4">
-                        <label class="form-label">Đơn vị công tác <span style="color:red">*</span></label>
-                        <select name="DonViId" class="form-control select2" style="width: 100%;" required>
-                            <option value="">-- Chọn Đơn vị --</option>
-                            @foreach($donVis as $dv)
-                                <option value="{{ $dv->id }}" {{ old('DonViId') == $dv->id ? 'selected' : '' }}>
-                                    {{ $dv->TenDonVi ?? $dv->Ten }}
+                        <label class="form-label">Phòng ban công tác <span style="color:red">*</span></label>
+                        <select name="PhongBanId" class="form-control select2" style="width: 100%;" required>
+                            <option value="">-- Chọn Phòng ban --</option>
+                            @foreach($phongBans as $pb)
+                                <option value="{{ $pb->id }}" {{ old('PhongBanId') == $pb->id ? 'selected' : '' }}>
+                                    {{ $pb->Ten }}
                                 </option>
                             @endforeach
                         </select>

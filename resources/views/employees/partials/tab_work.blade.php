@@ -17,10 +17,6 @@
                 </div>
             </div>
             <div class="detail-item">
-                <div class="detail-label">Đơn vị</div>
-                <div class="detail-value">{{ $employee->ttCongViec->phongBan->donVi->Ten ?? 'Chưa có' }}</div>
-            </div>
-            <div class="detail-item">
                 <div class="detail-label">Phòng ban</div>
                 <div class="detail-value">{{ $employee->ttCongViec->phongBan->Ten ?? 'Chưa có' }}</div>
             </div>

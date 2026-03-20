@@ -90,7 +90,6 @@ class HopDongController extends Controller
         $hopDong = \App\Models\HopDong::with([
             'nhanVien',
             'nguoiKy',
-            'donVi',
             'phongBan',
             'chucVu',
             'loaiHopDong'

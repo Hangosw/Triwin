@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\NhanVien;
 use App\Models\CauHinhBaoHiem;
 use App\Services\LuongService;
+use App\Mail\SalarySlipMail;
+use Illuminate\Support\Facades\Mail;
 
 class LuongController extends Controller
 {
@@ -227,5 +229,109 @@ class LuongController extends Controller
             'message' => "Đã tính lương {$thang}/{$nam} cho {$thanhCong} nhân viên" .
                 ($boQua > 0 ? ", bỏ qua {$boQua} lỗi" : '') . '.',
         ]);
+    }
+
+    /**
+     * Gửi email phiếu lương hàng loạt.
+     */
+    public function GuiMailLuong(Request $request)
+    {
+        $thang = (int) $request->get('thang', date('n'));
+        $nam = (int) $request->get('nam', date('Y'));
+
+        $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-01');
+
+        $luongs = \App\Models\Luong::with(['nhanVien'])->where('ThoiGian', $thoiGian)->get();
+
+        if ($luongs->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => "Không tìm thấy dữ liệu lương tháng {$thang}/{$nam} để gửi mail."
+            ]);
+        }
+
+        $guiThanhCong = 0;
+        $guiLoi = 0;
+        $errors = [];
+
+        foreach ($luongs as $luong) {
+            $nv = $luong->nhanVien;
+            if (!$nv || empty($nv->Email)) {
+                $guiLoi++;
+                if ($nv) {
+                    $errors[] = "Nhân viên {$nv->Ten} không có địa chỉ email.";
+                }
+                continue;
+            }
+
+            try {
+                // Tính lại lương đầy đủ để có data cho email mailable (giống trang slip)
+                $dataLuong = LuongService::tinhLuong($nv, $thang, $nam);
+                
+                \Log::info("Sending salary email for {$nv->Ten} to {$nv->Email} (Month: {$thang}/{$nam})");
+
+                // Gửi mail (nên dùng queue để tránh timeout nếu gửi hàng loạt nhiều)
+                Mail::to($nv->Email)->queue(new SalarySlipMail($nv, $dataLuong, $thang, $nam));
+                
+                $guiThanhCong++;
+            } catch (\Exception $e) {
+                $guiLoi++;
+                $errors[] = "Lỗi khi gửi cho {$nv->Ten}: " . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'gui_thanh_cong' => $guiThanhCong,
+            'gui_loi' => $guiLoi,
+            'errors' => $errors,
+            'message' => "Đã đưa vào hàng chờ gửi {$guiThanhCong} email phiếu lương." . 
+                         ($guiLoi > 0 ? " Thất bại: {$guiLoi}." : "")
+        ]);
+    }
+
+    public function ConfigGlobalView()
+    {
+        $salaryCalculationType = \App\Models\SystemConfig::getValue('salary_calculation_type', 'contract');
+        $thamSoLuongs = \App\Models\ThamSoLuong::orderBy('NgayApDung', 'desc')->get();
+        return view('salary.config_global', compact('salaryCalculationType', 'thamSoLuongs'));
+    }
+
+    public function SaveThamSoLuong(Request $request)
+    {
+        $request->validate([
+            'NgayApDung' => 'required|date',
+            'MucLuongCoSo' => 'required|numeric|min:0',
+        ], [
+            'NgayApDung.required' => 'Ngày áp dụng không được để trống',
+            'NgayApDung.date' => 'Ngày áp dụng không hợp lệ',
+            'MucLuongCoSo.required' => 'Mức lương cơ sở không được để trống',
+            'MucLuongCoSo.numeric' => 'Mức lương cơ sở phải là số',
+        ]);
+
+        try {
+            \App\Models\ThamSoLuong::create($request->all());
+            return redirect()->back()->with('success', 'Đã thêm tham số lương mới thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+    }
+
+    public function SaveConfigGlobal(Request $request)
+    {
+        $request->validate([
+            'salary_calculation_type' => 'required|in:contract,attendance',
+        ]);
+
+        \App\Models\SystemConfig::updateOrCreate(
+            ['key' => 'salary_calculation_type'],
+            [
+                'value' => $request->salary_calculation_type,
+                'group' => 'salary',
+                'description' => 'Hình thức tính lương: contract (theo hợp đồng) hoặc attendance (theo chấm công)'
+            ]
+        );
+
+        return redirect()->back()->with('success', 'Đã lưu cấu hình lương thành công!');
     }
 }

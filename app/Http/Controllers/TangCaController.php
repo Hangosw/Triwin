@@ -402,4 +402,41 @@ class TangCaController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Đã từ chối các phiếu đã chọn.']);
     }
+
+    /**
+     * Khởi tạo phép năm hàng loạt cho toàn bộ nhân viên chưa có phép năm trong năm hiện tại
+     */
+    public function KhoiTaoPhepNamHangLoat(Request $request)
+    {
+        try {
+            $currentYear = date('Y');
+            $nhanViens = NhanVien::all();
+            $count = 0;
+
+            foreach ($nhanViens as $nv) {
+                // Kiểm tra xem nhân viên đã có phép năm cho năm hiện tại chưa
+                $exists = \App\Models\QuanLyPhepNam::where('NhanVienId', $nv->id)
+                    ->where('Nam', $currentYear)
+                    ->exists();
+
+                if (!$exists) {
+                    $result = \App\Models\QuanLyPhepNam::khoiTaoPhepNam($nv->id, $currentYear);
+                    if ($result) {
+                        $count++;
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Đã khởi tạo phép năm cho {$count} nhân viên mới.",
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi khởi tạo: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

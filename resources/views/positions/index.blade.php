@@ -18,8 +18,7 @@
             </a>
         </div>
 
-        <div class="table-responsive">
-            <table id="positionsTable" class="table table-hover">
+        <table id="positionsTable" class="table table-hover" style="width: 100%;">
                 <thead>
                     <tr>
                         <th width="50">#</th>
@@ -63,8 +62,7 @@
                         </tr>
                     @endforeach
                 </tbody>
-            </table>
-        </div>
+        </table>
     </div>
 @endsection
 
@@ -119,6 +117,8 @@
                     "sLast": "Cuối"
                 }
             },
+            responsive: true,
+            autoWidth: false,
             pageLength: 10,
             columnDefs: [
                 { orderable: false, targets: [6] }

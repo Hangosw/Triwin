@@ -48,25 +48,30 @@ class LuongService
      */
     public static function tinhLuong($nhanVien, int $thang, int $nam): array
     {
-        $loai = $nhanVien->ttCongViec?->LoaiNhanVien ?? 1; // mặc định văn phòng
+        $salaryCalculationType = \App\Models\SystemConfig::getValue('salary_calculation_type', 'contract');
+        
+        // Theo chấm công cho tất cả hoặc nếu là Công nhân (trong chế độ mặc định)
+        $isAttendanceMode = ($salaryCalculationType === 'attendance');
+        $isWorker = ($nhanVien->ttCongViec?->LoaiNhanVien === 0);
 
-        if ($loai === 0) {
-            return self::tinhLuongCongNhan($nhanVien, $thang, $nam);
+        if ($isAttendanceMode || ($salaryCalculationType === 'contract' && $isWorker)) {
+            return self::tinhLuongCongNhan($nhanVien, $thang, $nam, $isAttendanceMode);
         }
 
-        return self::tinhLuongVanPhong($nhanVien, $thang, $nam);
+        // Mặc định hoặc theo hợp đồng: Lương văn phòng (không pro-rate)
+        return self::tinhLuongVanPhong($nhanVien, $thang, $nam, ($salaryCalculationType === 'contract'));
     }
 
-    // =========================================================
-    // CÔNG NHÂN — dựa trên chấm công thực tế
-    // =========================================================
-
-    public static function tinhLuongCongNhan($nhanVien, int $thang, int $nam): array
+    /**
+     * CÔNG NHÂN — dựa trên chấm công thực tế.
+     * @param bool $forcedAttendance Nếu true, ghi chú loai_nhan_vien_text là dựa trên cấu hình hệ thống
+     */
+    public static function tinhLuongCongNhan($nhanVien, int $thang, int $nam, bool $forcedAttendance = false): array
     {
         $hopDong = $nhanVien->hopDongs ? $nhanVien->hopDongs->first() : null;
         $luongCoBan = (float) ($hopDong?->LuongCoBan ?? 0);
 
-        // --- Ngày công chuẩn (từ cấu hình lịch làm việc) ---
+        // --- Ngày công chuẩn (ưu tiên config hệ thống, sau đó đến calendar) ---
         $ngayCongChuan = self::tinhNgayCongChuan($thang, $nam);
 
         // --- Ngày công thực tế (chấm công có giờ Ra) ---
@@ -80,18 +85,17 @@ class LuongService
         $luongNgayCong = round($donGiaNgay * $ngayCongThucTe, 2);
 
         // --- Phụ cấp tỉ lệ theo ngày công ---
-        // Công nhân không đi làm → phụ cấp = 0; đi đủ → hưởng 100%
         $tongPhuCapHD = self::tinhTongPhuCap($hopDong);
         $tongPhuCap = round($tongPhuCapHD * $tiLeNgayCong, 2);
 
         // --- Tăng ca đã duyệt ---
-        $tongTangCaTien = self::tinhTienTangCa($nhanVien->id, $thang, $nam, $luongCoBan);
+        $tongTangCaTien = self::tinhTienTangCa($nhanVien->id, $thang, $nam, $luongCoBan, $ngayCongChuan);
 
         // --- Tổng thu nhập ---
         $tongThuNhap = $luongNgayCong + $tongPhuCap + $tongTangCaTien;
 
-        // --- Bảo hiểm (tính trên LuongCoBan, đúng quy định BHXH) ---
-        $baoHiems = CauHinhBaoHiem::getHieuLucHienTai();
+        // --- Bảo hiểm ---
+        $baoHiems = \App\Models\CauHinhBaoHiem::getHieuLucHienTai();
         $tongKhauTruBH = 0;
         foreach ($baoHiems as $bh) {
             $tongKhauTruBH += ($luongCoBan * $bh->TiLeNhanVien) / 100;
@@ -112,7 +116,7 @@ class LuongService
 
         return [
             'loai_nhan_vien' => 0,
-            'loai_nhan_vien_text' => 'Công nhân',
+            'loai_nhan_vien_text' => $forcedAttendance ? 'Theo chấm công (Hệ thống)' : 'Theo chấm công',
             // Thu nhập
             'luong_co_ban' => $luongCoBan,
             'ngay_cong_chuan' => $ngayCongChuan,
@@ -140,11 +144,11 @@ class LuongService
         ];
     }
 
-    // =========================================================
-    // VĂN PHÒNG — lương cứng theo hợp đồng
-    // =========================================================
-
-    public static function tinhLuongVanPhong($nhanVien, int $thang, int $nam): array
+    /**
+     * VĂN PHÒNG — lương cứng theo hợp đồng.
+     * @param bool $forcedContract Nếu true, ghi chú loai_nhan_vien_text là dựa trên cấu hình hệ thống
+     */
+    public static function tinhLuongVanPhong($nhanVien, int $thang, int $nam, bool $forcedContract = false): array
     {
         $hopDong = $nhanVien->hopDongs ? $nhanVien->hopDongs->first() : null;
         $luongCoBan = (float) ($hopDong?->LuongCoBan ?? 0);
@@ -153,13 +157,14 @@ class LuongService
         $tongPhuCap = self::tinhTongPhuCap($hopDong);
 
         // --- Tăng ca đã duyệt ---
-        $tongTangCaTien = self::tinhTienTangCa($nhanVien->id, $thang, $nam, $luongCoBan);
+        $ngayCongChuan = self::tinhNgayCongChuan($thang, $nam);
+        $tongTangCaTien = self::tinhTienTangCa($nhanVien->id, $thang, $nam, $luongCoBan, $ngayCongChuan);
 
         // --- Tổng thu nhập ---
         $tongThuNhap = $luongCoBan + $tongPhuCap + $tongTangCaTien;
 
         // --- Bảo hiểm ---
-        $baoHiems = CauHinhBaoHiem::getHieuLucHienTai();
+        $baoHiems = \App\Models\CauHinhBaoHiem::getHieuLucHienTai();
         $tongKhauTruBH = 0;
         foreach ($baoHiems as $bh) {
             $tongKhauTruBH += ($luongCoBan * $bh->TiLeNhanVien) / 100;
@@ -180,13 +185,13 @@ class LuongService
 
         return [
             'loai_nhan_vien' => 1,
-            'loai_nhan_vien_text' => 'Văn phòng',
+            'loai_nhan_vien_text' => $forcedContract ? 'Theo hợp đồng (Hệ thống)' : 'Theo hợp đồng',
             // Thu nhập
             'luong_co_ban' => $luongCoBan,
-            'ngay_cong_chuan' => null,
-            'ngay_cong_thuc_te' => null,
+            'ngay_cong_chuan' => $ngayCongChuan,
+            'ngay_cong_thuc_te' => self::tinhNgayCongThucTe($nhanVien->id, $thang, $nam),
             'don_gia_ngay' => null,
-            'luong_ngay_cong' => null,
+            'luong_ngay_cong' => $luongCoBan,
             'tong_phu_cap' => $tongPhuCap,
             'tong_tang_ca' => $tongTangCaTien,
             'tong_thu_nhap' => $tongThuNhap,
@@ -220,9 +225,14 @@ class LuongService
      */
     public static function tinhNgayCongChuan(int $thang, int $nam): int
     {
-        // Lấy config lịch làm việc, key = Thu (ISO: 1=T2..7=CN)
-        $lichLamViec = CauHinhLichLamViec::all()->keyBy('Thu');
+        // Ưu tiên config hệ thống
+        $standardWorkDays = (int) \App\Models\SystemConfig::getValue('standard_work_days', 0);
+        if ($standardWorkDays > 0) {
+            return $standardWorkDays;
+        }
 
+        // Nếu không có, tính theo calendar config
+        $lichLamViec = \App\Models\CauHinhLichLamViec::all()->keyBy('Thu');
         $soNgay = Carbon::createFromDate($nam, $thang, 1)->daysInMonth;
         $demNgay = 0;
 
@@ -236,7 +246,7 @@ class LuongService
             }
         }
 
-        return $demNgay ?: 26; // fallback an toàn nếu chưa cấu hình
+        return $demNgay ?: 26; // fallback
     }
 
     /**
@@ -283,9 +293,8 @@ class LuongService
      * Lương giờ = LuongCoBan / (ngày chuẩn × giờ/ngày)
      * Tiền TC   = Tổng giờ × Lương giờ × Hệ số loại TC
      */
-    public static function tinhTienTangCa(int $nhanVienId, int $thang, int $nam, float $luongCoBan): float
+    public static function tinhTienTangCa(int $nhanVienId, int $thang, int $nam, float $luongCoBan, int $ngayCongChuan = 26): float
     {
-        $ngayCongChuan = 26;
         $gioMoiNgay = 8;
         $luongGio = $luongCoBan / ($ngayCongChuan * $gioMoiNgay);
 

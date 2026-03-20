@@ -44,7 +44,8 @@ class PhongBanController extends Controller
             }
 
             $validated['Ma'] = $ma;
-            DmPhongBan::create($validated);
+            $phongBan = DmPhongBan::create($validated);
+            \App\Services\SystemLogService::log('Tạo mới', 'DmPhongBan', $phongBan->id, "Thêm phòng ban mới: {$phongBan->Ten}");
 
             DB::commit();
 
@@ -87,7 +88,11 @@ class PhongBanController extends Controller
         ]);
 
         try {
+            $oldData = $phongBan->toArray();
             $phongBan->update($validated);
+            $newData = $phongBan->fresh()->toArray();
+            \App\Services\SystemLogService::log('Cập nhật', 'DmPhongBan', $phongBan->id, "Cập nhật phòng ban: {$phongBan->Ten}", $oldData, $newData);
+
             return redirect()->route('phong-ban.danh-sach')
                 ->with('success', 'Cập nhật phòng ban thành công!');
         } catch (\Exception $e) {
@@ -110,7 +115,10 @@ class PhongBanController extends Controller
             // Kiểm tra xem có tổ đội nào thuộc phòng ban này không (nếu có model ToDoi)
             // if ($phongBan->toDois()->count() > 0) ... 
 
+            $tenPB = $phongBan->Ten;
+            $idPB = $phongBan->id;
             $phongBan->delete();
+            \App\Services\SystemLogService::log('Xóa', 'DmPhongBan', $idPB, "Xóa phòng ban: {$tenPB}");
 
             return redirect()->route('phong-ban.danh-sach')
                 ->with('success', 'Xóa phòng ban thành công!');

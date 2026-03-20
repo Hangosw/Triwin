@@ -9,7 +9,6 @@ class LichLamViec extends Model
 
     protected $fillable = [
         'NhanVienId',
-        'ToDoiId',
         'CaId',
         'NgayLamViec',
         'IsLocked',
@@ -26,11 +25,5 @@ class LichLamViec extends Model
     public function caLamViec()
     {
         return $this->belongsTo(DmCaLamViec::class, 'CaId');
-    }
-
-    // Quan hệ với Tổ đội
-    public function toDoi()
-    {
-        return $this->belongsTo(DmToDoi::class, 'ToDoiId');
     }
 }

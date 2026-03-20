@@ -108,8 +108,8 @@
                 <p style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 4px;">- Cột A: STT</p>
                 <p style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 4px;">- Cột B-H: Thông tin cá
                     nhân (Mã, Tên, Căn cước, ...)</p>
-                <p style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 4px;">- Cột I-L: Thông tin công
-                    tác (Đơn vị, Phòng ban, Chức vụ, Ngày vào làm)</p>
+                <p style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 4px;">- Cột I-K: Thông tin công
+                    tác (Phòng ban, Chức vụ, Ngày vào làm)</p>
                 <p style="font-size: 13px; color: #4b5563; line-height: 1.5;">- Dòng đầu tiên cần được sử dụng làm Tiêu đề
                     (Header). Import sẽ tự động bỏ qua dòng này.</p>
             </div>

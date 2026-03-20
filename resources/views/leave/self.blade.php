@@ -449,17 +449,15 @@
                     </div>
                     <!-- Split Leave Warning & Type Selection -->
                     <div id="splitLeaveSection" style="display: none; background: #fff7ed; padding: 16px; border-radius: 12px; border: 1px solid #ffedd5; margin-bottom: 24px;">
-                        <p style="color: #9a3412; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <p id="splitMessage" style="color: #9a3412; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                             <i class="bi bi-exclamation-triangle-fill"></i>
-                            Quỹ phép năm của bạn không đủ. Phần dư sẽ được tính vào loại nghỉ thay thế.
+                            Quỹ phép năm của bạn không đủ hoặc vượt quá giới hạn mỗi lần sử dụng của hệ thống. Phần dư sẽ được tính vào loại nghỉ thay thế.
                         </p>
                         <label class="form-label">Loại nghỉ thay thế cho phần dư <span style="color: #ef4444;">*</span></label>
                         <select class="form-control no-select2" name="SplitLoaiNghiPhepId" id="splitTypeSelect">
                             <option value="">-- Chọn loại nghỉ --</option>
                             @foreach($loaiNghiPheps as $type)
-                                @if($type->Ten != 'Nghỉ phép năm')
-                                    <option value="{{ $type->id }}">{{ $type->Ten }}</option>
-                                @endif
+                                <option value="{{ $type->id }}">{{ $type->Ten }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -480,7 +478,8 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <script>
         const workingSchedule = @json($workingSchedule->keyBy('Thu'));
-        const remainingLeaveDays = {{ $phepNam->ConLai ?? 0 }};
+        const leaveLimitsMap = @json($leaveLimitsMap);
+        const annualLeaveLimit = {{ \App\Models\SystemConfig::getValue('annual_leave_limit_per_request', 5) }};
         const annualLeaveId = {{ $loaiNghiPheps->firstWhere('Ten', 'Nghỉ phép năm')->id ?? 'null' }};
         let startPicker, endPicker;
 
@@ -538,24 +537,55 @@
                 }
                 document.getElementById('leaveDaysDisplay').value = count + ' ngày';
                 
-                // Kiểm tra tách đơn
+                // Kiểm tra tách đơn (Dựa trên hạn mức của từng loại nghỉ)
                 const typeSelect = document.getElementsByName('LoaiNghiPhepId')[0];
                 const splitSection = document.getElementById('splitLeaveSection');
+                const splitMessage = document.getElementById('splitMessage');
+                const splitTypeSelect = document.getElementById('splitTypeSelect');
                 
-                if (typeSelect.value == annualLeaveId && count > remainingLeaveDays) {
+                const selectedTypeId = typeSelect.value;
+                const remainingBalance = leaveLimitsMap[selectedTypeId] !== undefined ? parseFloat(leaveLimitsMap[selectedTypeId]) : 999;
+                
+                let message = "";
+                if (selectedTypeId == annualLeaveId) {
+                    const effectiveLimit = Math.min(remainingBalance, annualLeaveLimit);
+                    if (count > effectiveLimit) {
+                        message = count > remainingBalance 
+                            ? 'Quỹ phép năm của bạn không đủ. Phần dư sẽ được tính vào loại nghỉ thay thế.' 
+                            : `Số ngày đăng ký vượt quá giới hạn mỗi lần sử dụng của hệ thống (${annualLeaveLimit} ngày). Phần dư sẽ được tính vào loại nghỉ thay thế.`;
+                    }
+                } else if (remainingBalance < count && remainingBalance !== 999) {
+                    message = 'Số ngày đăng ký vượt quá hạn mức tối đa còn lại của loại nghỉ này. Phần dư sẽ được tính vào loại nghỉ thay thế.';
+                }
+                
+                if (message) {
+                    splitMessage.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + message;
                     splitSection.style.display = 'block';
+                    splitTypeSelect.required = true;
+
+                    // Cập nhật danh sách loại nghỉ thay thế (loại bỏ loại hiện tại và loại hết hạn mức)
+                    Array.from(splitTypeSelect.options).forEach(opt => {
+                        if (!opt.value) return;
+                        const optBalance = leaveLimitsMap[opt.value] !== undefined ? parseFloat(leaveLimitsMap[opt.value]) : 999;
+                        if (opt.value == selectedTypeId || (optBalance <= 0)) {
+                            opt.style.display = 'none';
+                            if (splitTypeSelect.value == opt.value) splitTypeSelect.value = "";
+                        } else {
+                            opt.style.display = 'block';
+                        }
+                    });
                 } else {
                     splitSection.style.display = 'none';
+                    splitTypeSelect.required = false;
                 }
             }
         }
 
-        // Thêm listener cho select loại nghỉ chính
-        document.addEventListener('DOMContentLoaded', function() {
-            const typeSelect = document.getElementsByName('LoaiNghiPhepId')[0];
-            if (typeSelect) {
-                typeSelect.addEventListener('change', calculateDays);
-            }
+        // Thêm listener cho select loại nghỉ chính (hỗ trợ cả Select2)
+        $(document).ready(function() {
+            $('select[name="LoaiNghiPhepId"]').on('change select2:select', function() {
+                calculateDays();
+            });
         });
 
         function openLeaveModal() {

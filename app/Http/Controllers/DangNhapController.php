@@ -53,6 +53,8 @@ class DangNhapController extends Controller
 
         Auth::login($user, $request->has('remember'));
 
+        \App\Services\SystemLogService::log('Đăng nhập', 'Hệ thống', null, 'Người dùng đăng nhập thành công');
+
         $request->session()->regenerate();
 
         return redirect()->intended('/dashboard');
@@ -63,6 +65,7 @@ class DangNhapController extends Controller
      */
     public function DangXuat(Request $request)
     {
+        \App\Services\SystemLogService::log('Đăng xuất', 'Hệ thống', null, 'Người dùng đăng xuất khỏi hệ thống');
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
