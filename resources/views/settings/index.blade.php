@@ -122,6 +122,14 @@
     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Giao diện</h3>
     
     <div class="form-group">
+        <label class="form-label">Màu sắc giao diện</label>
+        <select class="form-control" id="theme-selector">
+            <option value="light" selected>Sáng</option>
+            <option value="dark">Tối</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
         <label class="form-label">Ngôn ngữ</label>
         <select class="form-control">
             <option value="vi" selected>Tiếng Việt</option>
@@ -170,3 +178,28 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeSelector = document.getElementById('theme-selector');
+        
+        // Cập nhật giá trị hiển thị ban đầu từ localStorage
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        themeSelector.value = currentTheme;
+        
+        // Lắng nghe sự kiện thay đổi select
+        themeSelector.addEventListener('change', function(e) {
+            const selectedTheme = e.target.value;
+            
+            if (selectedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    });
+</script>
+@endpush

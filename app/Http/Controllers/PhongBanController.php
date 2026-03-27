@@ -44,7 +44,8 @@ class PhongBanController extends Controller
             }
 
             $validated['Ma'] = $ma;
-            DmPhongBan::create($validated);
+            $phongBan = DmPhongBan::create($validated);
+            \App\Services\SystemLogService::log('Tạo mới', 'DmPhongBan', $phongBan->id, "Thêm phòng ban mới: {$phongBan->Ten}");
 
             DB::commit();
 
@@ -87,7 +88,11 @@ class PhongBanController extends Controller
         ]);
 
         try {
+            $oldData = $phongBan->toArray();
             $phongBan->update($validated);
+            $newData = $phongBan->fresh()->toArray();
+            \App\Services\SystemLogService::log('Cập nhật', 'DmPhongBan', $phongBan->id, "Cập nhật phòng ban: {$phongBan->Ten}", $oldData, $newData);
+
             return redirect()->route('phong-ban.danh-sach')
                 ->with('success', 'Cập nhật phòng ban thành công!');
         } catch (\Exception $e) {
@@ -104,19 +109,64 @@ class PhongBanController extends Controller
 
             // Kiểm tra xem phòng ban có nhân viên hay không trước khi xóa
             if ($phongBan->nhanViens()->count() > 0) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Không thể xóa phòng ban "' . $phongBan->Ten . '" do đang có nhân viên.']);
+                }
                 return redirect()->back()->with('error', 'Không thể xóa phòng ban đang có nhân viên.');
             }
 
-            // Kiểm tra xem có tổ đội nào thuộc phòng ban này không (nếu có model ToDoi)
-            // if ($phongBan->toDois()->count() > 0) ... 
-
+            $tenPB = $phongBan->Ten;
+            $idPB = $phongBan->id;
             $phongBan->delete();
+            \App\Services\SystemLogService::log('Xóa', 'DmPhongBan', $idPB, "Xóa phòng ban: {$tenPB}");
+
+            if (request()->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Xóa phòng ban thành công!']);
+            }
 
             return redirect()->route('phong-ban.danh-sach')
                 ->with('success', 'Xóa phòng ban thành công!');
         } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()], 500);
+            }
             return redirect()->back()
                 ->with('error', 'Có lỗi xảy ra khi xóa phòng ban: ' . $e->getMessage());
+        }
+    }
+
+    public function XoaNhieu(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'Vui lòng chọn phòng ban cần xóa.'], 400);
+        }
+
+        try {
+            $phongBans = DmPhongBan::whereIn('id', $ids)->get();
+            $inUseNames = [];
+
+            foreach ($phongBans as $pb) {
+                if ($pb->nhanViens()->count() > 0) {
+                    $inUseNames[] = $pb->Ten;
+                }
+            }
+
+            if (!empty($inUseNames)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa các phòng ban sau do đang có nhân viên: ' . implode(', ', $inUseNames)
+                ]);
+            }
+
+            $tenPBs = $phongBans->pluck('Ten')->implode(', ');
+            DmPhongBan::whereIn('id', $ids)->delete();
+
+            \App\Services\SystemLogService::log('Xóa', 'DmPhongBan', null, "Xóa nhiều phòng ban: {$tenPBs}");
+
+            return response()->json(['success' => true, 'message' => 'Xóa ' . count($ids) . ' phòng ban thành công.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);
         }
     }
 }

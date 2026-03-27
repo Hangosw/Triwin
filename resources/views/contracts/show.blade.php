@@ -359,10 +359,6 @@
                     <div class="detail-label">Người ký</div>
                     <div class="detail-value">{{ $hopDong->nguoiKy->Ten ?? 'Lãnh đạo đơn vị' }}</div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label">Đơn vị công tác</div>
-                    <div class="detail-value">{{ $hopDong->donVi->Ten ?? 'N/A' }}</div>
-                </div>
             </div>
         </div>
 

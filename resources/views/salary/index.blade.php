@@ -50,6 +50,11 @@
                     <i class="bi bi-lightning-charge-fill"></i>
                     Tính lương tự động
                 </button>
+                <button id="btnGuiMailLuong" class="btn btn-info"
+                    style="background:#3b82f6; color:white; display:flex; align-items:center; gap:6px; border:none;">
+                    <i class="bi bi-envelope-fill"></i>
+                    Gửi Email
+                </button>
                 <button class="btn btn-secondary" style="display:flex; align-items:center; gap:6px;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -99,7 +104,7 @@
     @else
         <div class="card">
             <div class="table-container">
-                <table class="table" id="salaryTable">
+                <table class="table" id="salaryTable" style="width: 100%;">
                     <thead>
                         <tr>
                             <th style="width: 50px;"><strong>STT</strong></th>
@@ -259,16 +264,35 @@
 
     @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Tìm kiếm inline
-                const searchInput = document.getElementById('salarySearch');
-                const rows = document.querySelectorAll('.salary-row');
-                searchInput.addEventListener('keyup', function () {
-                    const term = searchInput.value.toLowerCase();
-                    rows.forEach(row => {
-                        const text = row.innerText.toLowerCase();
-                        row.style.display = text.includes(term) ? '' : 'none';
-                    });
+            $(document).ready(function () {
+                const table = $('#salaryTable').DataTable({
+                    language: {
+                        "sProcessing": "Đang xử lý...",
+                        "sLengthMenu": "Hiển thị _MENU_ mục",
+                        "sZeroRecords": "Không tìm thấy dữ liệu",
+                        "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                        "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                        "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                        "sSearch": "Tìm kiếm:",
+                        "oPaginate": {
+                            "sFirst": "Đầu",
+                            "sPrevious": "Trước",
+                            "sNext": "Tiếp",
+                            "sLast": "Cuối"
+                        }
+                    },
+                    responsive: true,
+                    autoWidth: false,
+                    pageLength: 25,
+                    dom: 'rtip',
+                    columnDefs: [
+                        { orderable: false, targets: [8] }
+                    ]
+                });
+
+                // Custom Search
+                $('#salarySearch').on('keyup', function () {
+                    table.search(this.value).draw();
                 });
 
                 // Nút tính lương hàng loạt
@@ -328,6 +352,66 @@
                                         html: `<b>${data.message}</b><br><ul style="text-align:left;margin-top:8px;color:#dc2626;">${errList}</ul>`,
                                         icon: 'error',
                                         confirmButtonColor: '#0BAA4B',
+                                    });
+                                } else {
+                                    Swal.fire('Lỗi', data.message ?? 'Có lỗi xảy ra.', 'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('Lỗi kết nối', 'Không thể kết nối đến máy chủ.', 'error');
+                            });
+                    });
+                });
+
+                // Nút gửi mail lương hàng loạt
+                document.getElementById('btnGuiMailLuong').addEventListener('click', function () {
+                    const thang = document.querySelector('select[name="thang"]').value;
+                    const nam = document.querySelector('select[name="nam"]').value;
+
+                    Swal.fire({
+                        title: `Gửi email phiếu lương tháng ${thang}/${nam}?`,
+                        text: `Hệ thống sẽ gửi email phiếu lương chi tiết cho toàn bộ nhân viên có dữ liệu lương trong tháng ${thang}/${nam}.`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3b82f6',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: '<i class="bi bi-envelope-fill"></i> Xác nhận gửi mail',
+                        cancelButtonText: 'Hủy',
+                    }).then((result) => {
+                        if (!result.isConfirmed) return;
+
+                        Swal.fire({
+                            title: 'Đang gửi email...',
+                            html: `Đang xử lý gửi phiếu lương tháng ${thang}/${nam}, vui lòng chờ.`,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading(),
+                        });
+
+                        fetch('{{ route('salary.gui-mail') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                            body: JSON.stringify({ thang, nam }),
+                        })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    let html = data.message;
+                                    if (data.gui_loi > 0 && data.errors?.length) {
+                                        html += '<br><br><details style="text-align:left;font-size:12px;color:#dc2626;">'
+                                            + '<summary style="cursor:pointer;">Xem chi tiết lỗi</summary><ul style="margin-top:6px;">'
+                                            + data.errors.map(e => `<li>${e}</li>`).join('')
+                                            + '</ul></details>';
+                                    }
+                                    Swal.fire({
+                                        title: 'Hoàn thành!',
+                                        html,
+                                        icon: 'success',
+                                        confirmButtonColor: '#0BAA4B',
+                                        confirmButtonText: 'OK',
                                     });
                                 } else {
                                     Swal.fire('Lỗi', data.message ?? 'Có lỗi xảy ra.', 'error');

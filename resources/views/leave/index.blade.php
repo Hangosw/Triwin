@@ -217,32 +217,41 @@
     <!-- Filter and Action Bar -->
     <div class="card">
         <form action="{{ route('nghi-phep.danh-sach') }}" method="GET" class="action-bar" id="filterForm">
-            <div style="display: flex; gap: 12px;">
-                <select name="phong_ban_id" class="form-control" style="width: auto; margin-bottom: 0;"
-                    onchange="this.form.submit()">
-                    <option value="">Tất cả phòng ban</option>
-                    @foreach($phongBans as $pb)
-                        <option value="{{ $pb->id }}" {{ request('phong_ban_id') == $pb->id ? 'selected' : '' }}>
-                            {{ $pb->Ten }}
-                        </option>
-                    @endforeach
-                </select>
-                <select name="loai_phep_id" class="form-control" style="width: auto; margin-bottom: 0;"
-                    onchange="this.form.submit()">
-                    <option value="">Tất cả loại phép</option>
-                    @foreach($loaiNghiPheps as $lp)
-                        <option value="{{ $lp->id }}" {{ request('loai_phep_id') == $lp->id ? 'selected' : '' }}>
-                            {{ $lp->Ten }}
-                        </option>
-                    @endforeach
-                </select>
-                <select name="trang_thai" class="form-control" style="width: auto; margin-bottom: 0;"
-                    onchange="this.form.submit()">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="2" {{ request('trang_thai') == '2' ? 'selected' : '' }}>Chờ duyệt</option>
-                    <option value="1" {{ request('trang_thai') == '1' ? 'selected' : '' }}>Đã duyệt</option>
-                    <option value="0" {{ request('trang_thai') == '0' ? 'selected' : '' }}>Từ chối</option>
-                </select>
+            <div style="display: flex; gap: 12px; align-items: flex-end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Phòng ban</label>
+                    <select name="phong_ban_id" class="form-control" style="width: auto; margin-bottom: 0;"
+                        onchange="this.form.submit()">
+                        <option value="">Tất cả phòng ban</option>
+                        @foreach($phongBans as $pb)
+                            <option value="{{ $pb->id }}" {{ request('phong_ban_id') == $pb->id ? 'selected' : '' }}>
+                                {{ $pb->Ten }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Loại phép</label>
+                    <select name="loai_phep_id" class="form-control" style="width: auto; margin-bottom: 0;"
+                        onchange="this.form.submit()">
+                        <option value="">Tất cả loại phép</option>
+                        @foreach($loaiNghiPheps as $lp)
+                            <option value="{{ $lp->id }}" {{ request('loai_phep_id') == $lp->id ? 'selected' : '' }}>
+                                {{ $lp->Ten }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Trạng thái</label>
+                    <select name="trang_thai" class="form-control" style="width: auto; margin-bottom: 0;"
+                        onchange="this.form.submit()">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="2" {{ request('trang_thai') == '2' ? 'selected' : '' }}>Chờ duyệt</option>
+                        <option value="1" {{ request('trang_thai') == '1' ? 'selected' : '' }}>Đã duyệt</option>
+                        <option value="0" {{ request('trang_thai') == '0' ? 'selected' : '' }}>Từ chối</option>
+                    </select>
+                </div>
             </div>
             <div class="action-buttons">
                 <button type="button" class="btn btn-secondary">
@@ -278,7 +287,7 @@
         <!-- All Tab -->
         <div class="tab-content active" id="all-tab">
             <div class="table-container">
-                <table class="table" id="leaveTable">
+                <table class="table" id="leaveTable" style="width: 100%;">
                     <thead>
                         <tr>
                             <th style="width: 50px; text-align: center;">
@@ -432,6 +441,20 @@
                             Giấy xác nhận bác sĩ, đơn xin nghỉ... (Tối đa 5MB)
                         </small>
                     </div>
+                    <!-- Split Leave Warning & Type Selection -->
+                    <div id="splitLeaveSection" style="display: none; background: #fff7ed; padding: 16px; border-radius: 12px; border: 1px solid #ffedd5; margin-bottom: 24px;">
+                        <p id="splitMessage" style="color: #9a3412; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Quỹ nghỉ phép của nhân viên không đủ hoặc vượt quá giới hạn mỗi lần sử dụng. Bạn có thể chọn loại nghỉ thay thế cho phần dư.
+                        </p>
+                        <label class="form-label">Loại nghỉ thay thế cho phần dư</label>
+                        <select class="form-control no-select2" id="splitTypeSelect">
+                            <option value="">-- Chọn loại nghỉ --</option>
+                            @foreach($loaiNghiPheps as $type)
+                                <option value="{{ $type->id }}">{{ $type->Ten }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeLeaveModal()">Hủy</button>
@@ -448,6 +471,9 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <script>
         const workingSchedule = @json($workingSchedule->keyBy('Thu'));
+        const annualLeaveLimit = {{ \App\Models\SystemConfig::getValue('annual_leave_limit_per_request', 5) }};
+        const annualLeaveId = {{ $loaiNghiPheps->firstWhere('Ten', 'Nghỉ phép năm')->id ?? 'null' }};
+        let leaveLimitsMap = {};
         let startPicker, endPicker;
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -470,6 +496,24 @@
                 altFormat: "d/m/Y",
                 minDate: "today",
                 onChange: function () {
+                    calculateDays();
+                }
+            });
+
+            document.getElementById('leaveType').addEventListener('change', calculateDays);
+            
+            // Lấy hạn mức khi chọn nhân viên
+            $('#leaveEmployee').on('change', function() {
+                const nhanVienId = $(this).val();
+                if (nhanVienId) {
+                    fetch(`{{ route('nghi-phep.api.limits') }}?nhanVienId=${nhanVienId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            leaveLimitsMap = data;
+                            calculateDays();
+                        });
+                } else {
+                    leaveLimitsMap = {};
                     calculateDays();
                 }
             });
@@ -496,6 +540,8 @@
                     }
                 },
                 "order": [[4, "desc"]], // Sort by Thời gian (index 4) by default
+                "responsive": true,
+                "autoWidth": false,
                 "columnDefs": [
                     { "orderable": false, "targets": [0, 7] } // Disable sorting for checkbox (0) and actions (7)
                 ]
@@ -602,19 +648,122 @@
                     cur.setDate(cur.getDate() + 1);
                 }
                 document.getElementById('leaveDays').value = count + ' ngày';
+
+                // Kiểm tra hạn mức (Cảnh báo cho Admin & Split)
+                const typeSelect = document.getElementById('leaveType');
+                const selectedTypeId = typeSelect.value;
+                const remainingBalance = leaveLimitsMap[selectedTypeId] !== undefined ? parseFloat(leaveLimitsMap[selectedTypeId]) : 999;
+                
+                const splitSection = document.getElementById('splitLeaveSection');
+                const splitMessage = document.getElementById('splitMessage');
+                const splitTypeSelect = document.getElementById('splitTypeSelect');
+                let message = "";
+
+                if (selectedTypeId == annualLeaveId) {
+                    const effectiveLimit = Math.min(remainingBalance, annualLeaveLimit);
+                    if (count > effectiveLimit) {
+                         message = count > remainingBalance ? 'Quỹ phép năm còn lại không đủ.' : 'Vượt quá giới hạn mỗi lần dùng của hệ thống.';
+                    }
+                } else if (remainingBalance < count && remainingBalance !== 999) {
+                    message = `Số ngày đăng ký vượt quá hạn mức tối đa còn lại (${remainingBalance} ngày).`;
+                }
+
+                if (message) {
+                    splitMessage.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + message + ' Bạn có thể chọn loại nghỉ thay thế hoặc tiếp tục (Admin).';
+                    splitSection.style.display = 'block';
+
+                    // Dynamic filtering
+                    Array.from(splitTypeSelect.options).forEach(opt => {
+                        if (!opt.value) return;
+                        const optBalance = leaveLimitsMap[opt.value] !== undefined ? parseFloat(leaveLimitsMap[opt.value]) : 999;
+                        if (opt.value == selectedTypeId || (optBalance <= 0)) {
+                            opt.style.display = 'none';
+                            if (splitTypeSelect.value == opt.value) splitTypeSelect.value = "";
+                        } else {
+                            opt.style.display = 'block';
+                        }
+                    });
+                } else {
+                    splitSection.style.display = 'none';
+                }
             }
         }
 
         // Submit leave
         function submitLeave(event) {
             event.preventDefault();
+            const form = event.target;
+            const formData = new FormData();
+            
+            formData.append('NhanVienId', document.getElementById('leaveEmployee').value);
+            formData.append('LoaiNghiPhepId', document.getElementById('leaveType').value);
+            formData.append('TuNgay', document.getElementById('leaveFromDate').value);
+            formData.append('DenNgay', document.getElementById('leaveToDate').value);
+            formData.append('LyDo', document.getElementById('leaveReason').value);
+            
+            const fileInput = document.getElementById('leaveFile');
+            if (fileInput.files[0]) {
+                formData.append('FileDinhKem', fileInput.files[0]);
+            }
 
-            // Logic for admin to register for employee (current simplified as local demo)
+            const splitTypeSelect = document.getElementById('splitTypeSelect');
+            if (document.getElementById('splitLeaveSection').style.display === 'block' && splitTypeSelect.value) {
+                formData.append('SplitLoaiNghiPhepId', splitTypeSelect.value);
+            }
+
             Swal.fire({
-                icon: 'info',
-                title: 'Thông báo',
-                text: 'Chức năng admin đăng ký hộ hiện đang được phát triển nâng cao.',
-                confirmButtonColor: '#0BAA4B'
+                title: 'Đang gửi...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('{{ route("nghi-phep.tao-moi") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson ? await response.json() : null;
+                
+                if (!response.ok) {
+                    throw new Error(data?.message || 'Có lỗi xảy ra từ máy chủ (Mã lỗi: ' + response.status + ')');
+                }
+                return data;
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message,
+                        confirmButtonColor: '#0BAA4B'
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi hệ thống',
+                    text: 'Có lỗi xảy ra khi lưu đơn.',
+                    confirmButtonColor: '#0BAA4B'
+                });
             });
         }
 

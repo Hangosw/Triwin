@@ -40,7 +40,7 @@
 
     <div class="card">
         <div class="table-container">
-            <table class="table" id="transferTable">
+            <table class="table" id="transferTable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th class="stt-checkbox-col" style="width: 50px;">
@@ -171,6 +171,8 @@
                     [6, 'desc']
                 ], // Sắp xếp theo ngày tạo mới nhất
                 pageLength: 10,
+                responsive: true,
+                autoWidth: false,
                 dom: 'rtip', // Hide default search box
                 columnDefs: [{
                     orderable: false,

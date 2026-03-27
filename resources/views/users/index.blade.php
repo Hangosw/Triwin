@@ -152,6 +152,8 @@
                         "sLast": "Cuối"
                     }
                 },
+                responsive: true,
+                autoWidth: false,
                 dom: 'rtip', // Hide default search box
             });
 

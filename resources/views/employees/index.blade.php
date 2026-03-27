@@ -33,7 +33,7 @@
                     </svg>
                     Xuất Excel
                 </button>
-                @can('Thêm nhân viên')
+                @can('Thêm Nhân Viên')
                     <a href="{{ route('nhan-vien.taoView') }}" class="btn btn-primary">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -41,7 +41,7 @@
                         Thêm nhân viên
                     </a>
                 @endcan
-                @can('Thêm nhân viên')
+                @can('Thêm Nhân Viên')
                     <a href="{{ route('nhan-vien.importView') }}" class="btn btn-success"
                         style="background-color: #10b981; border-color: #10b981; color: white;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
@@ -219,6 +219,8 @@
                             "sLast": "Cuối"
                         }
                     },
+                    responsive: true,
+                    autoWidth: false,
                     pageLength: 10,
                     order: [[1, 'asc']],
                     drawCallback: function () {
@@ -236,28 +238,38 @@
                     }
                 });
 
+                let isSelectAllPages = false;
+
                 // Select all checkbox
                 $('#selectAll').on('click', function () {
                     const isChecked = $(this).prop('checked');
                     $('.employee-checkbox').prop('checked', isChecked);
-                    updateSelectedCount();
+                    isSelectAllPages = isChecked;
+                    
+                    if (isChecked) {
+                        $('#selectedCount').text('Tất cả bản ghi đang lọc');
+                        $('#deleteSelected').show();
+                    } else {
+                        updateSelectedCount();
+                    }
                 });
 
                 // Individual checkbox
                 $(document).on('change', '.employee-checkbox', function () {
+                    if (!$(this).prop('checked')) {
+                        isSelectAllPages = false;
+                        $('#selectAll').prop('checked', false);
+                    }
                     updateSelectedCount();
-
-                    // Update select all checkbox
-                    const totalCheckboxes = $('.employee-checkbox').length;
-                    const checkedCheckboxes = $('.employee-checkbox:checked').length;
-                    $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
                 });
 
                 // Update selected count
                 function updateSelectedCount() {
                     const count = $('.employee-checkbox:checked').length;
-                    $('#selectedCount').text(count);
-                    $('#deleteSelected').toggle(count > 0);
+                    if (!isSelectAllPages) {
+                        $('#selectedCount').text(count);
+                        $('#deleteSelected').toggle(count > 0);
+                    }
                 }
 
                 // Delete selected
@@ -266,40 +278,71 @@
                         return $(this).val();
                     }).get();
 
-                    if (selectedIds.length === 0) return;
+                    const executeDelete = (ids) => {
+                        if (ids.length === 0) return;
 
-                    Swal.fire({
-                        title: 'Xác nhận xóa?',
-                        text: `Bạn có chắc muốn xóa ${selectedIds.length} nhân viên đã chọn?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Xóa',
-                        cancelButtonText: 'Hủy'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Call delete API
-                            fetch('{{ route('nhan-vien.xoa-nhieu') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                },
-                                body: JSON.stringify({ ids: selectedIds })
-                            })
+                        Swal.fire({
+                            title: 'Xác nhận xóa?',
+                            text: `Bạn có chắc muốn xóa ${ids.length} nhân viên đã chọn? Hành động này sẽ áp dụng cho tất cả dữ liệu được chọn trên mọi trang.`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Xóa',
+                            cancelButtonText: 'Hủy'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Call delete API
+                                fetch('{{ route('nhan-vien.xoa-nhieu') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    body: JSON.stringify({ ids: ids })
+                                })
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
                                         Swal.fire('Đã xóa!', data.message, 'success');
                                         table.ajax.reload();
                                         $('#selectAll').prop('checked', false);
+                                        isSelectAllPages = false;
+                                        $('#deleteSelected').hide();
                                     } else {
                                         Swal.fire('Lỗi!', data.message, 'error');
                                     }
                                 });
-                        }
-                    });
+                            }
+                        });
+                    };
+
+                    if (isSelectAllPages) {
+                        Swal.fire({
+                            title: 'Đang tải dữ liệu...',
+                            text: 'Hệ thống đang thu thập danh sách nhân viên cần xóa',
+                            allowOutsideClick: false,
+                            didOpen: () => { Swal.showLoading(); }
+                        });
+                        
+                        let params = table.ajax.params();
+                        params.length = -1;
+                        
+                        $.ajax({
+                            url: '{{ route('nhan-vien.data') }}',
+                            data: params,
+                            success: function(res) {
+                                Swal.close();
+                                const allIds = res.data.map(item => item.id);
+                                executeDelete(allIds);
+                            },
+                            error: function() {
+                                Swal.fire('Lỗi', 'Không thể lấy dữ liệu', 'error');
+                            }
+                        });
+                    } else {
+                        executeDelete(selectedIds);
+                    }
                 });
             });
         </script>

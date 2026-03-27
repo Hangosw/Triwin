@@ -18,46 +18,44 @@
             </a>
         </div>
 
-        <div class="table-responsive">
-            <table id="departmentsTable" class="table table-hover">
-                <thead>
+        <table id="departmentsTable" class="table table-hover" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th width="50">#</th>
+                    <th>Mã phòng ban</th>
+                    <th>Tên phòng ban</th>
+                    <th>Số nhân viên</th>
+                    <th width="100">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($phongBans ?? [] as $index => $phongBan)
                     <tr>
-                        <th width="50">#</th>
-                        <th>Mã phòng ban</th>
-                        <th>Tên phòng ban</th>
-                        <th>Số nhân viên</th>
-                        <th width="100">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($phongBans ?? [] as $index => $phongBan)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td><span class="font-medium" style="color: #0BAA4B;">{{ $phongBan->Ma }}</span></td>
-                            <td>{{ $phongBan->Ten }}</td>
-                            <td>{{ $phongBan->nhanViens->count() ?? 0 }}</td>
-                            <td>
-                                <div style="display: flex; gap: 8px;">
-                                    <a href="{{ route('phong-ban.suaView', $phongBan->id) }}" class="btn-icon" title="Chỉnh sửa" style="color: #0BAA4B;">
+                        <td>{{ $index + 1 }}</td>
+                        <td><span class="font-medium" style="color: #0BAA4B;">{{ $phongBan->Ma }}</span></td>
+                        <td>{{ $phongBan->Ten }}</td>
+                        <td>{{ $phongBan->nhanViens->count() ?? 0 }}</td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{{ route('phong-ban.suaView', $phongBan->id) }}" class="btn-icon" title="Chỉnh sửa" style="color: #0BAA4B;">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                <form action="{{ route('phong-ban.xoa', $phongBan->id) }}" method="POST" style="display: inline;" class="delete-dept-form">
+                                    @csrf
+                                    <button type="button" class="btn-icon btn-delete-dept" title="Xóa" style="color: #ef4444; background: none; border: 1px solid #e2e8f0; cursor: pointer;">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
-                                    </a>
-                                    <form action="{{ route('phong-ban.xoa', $phongBan->id) }}" method="POST" style="display: inline;" class="delete-dept-form">
-                                        @csrf
-                                        <button type="button" class="btn-icon btn-delete-dept" title="Xóa" style="color: #ef4444; background: none; border: 1px solid #e2e8f0; cursor: pointer;">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 @endsection
 
@@ -112,6 +110,8 @@
                     "sLast": "Cuối"
                 }
             },
+            responsive: true,
+            autoWidth: false,
             pageLength: 10,
             columnDefs: [
                 { orderable: false, targets: [4] }
@@ -121,6 +121,8 @@
         // Confirm delete with Swal.fire
         $(document).on('click', '.btn-delete-dept', function() {
             const form = $(this).closest('form');
+            const url = form.attr('action');
+            
             Swal.fire({
                 title: 'Xác nhận xóa?',
                 text: "Bạn có chắc chắn muốn xóa phòng ban này? (Lưu ý: Chỉ xóa được khi phòng ban không có nhân viên)",
@@ -132,7 +134,44 @@
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công!',
+                                    text: response.message,
+                                    confirmButtonColor: '#0BAA4B'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Không thể xóa!',
+                                    text: response.message,
+                                    confirmButtonColor: '#ef4444'
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMessage = 'Có lỗi xảy ra trong quá trình xử lý.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: errorMessage,
+                                confirmButtonColor: '#ef4444'
+                            });
+                        }
+                    });
                 }
             });
         });

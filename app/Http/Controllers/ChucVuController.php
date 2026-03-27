@@ -52,7 +52,8 @@ class ChucVuController extends Controller
 
                 $validated['Ma'] = $ma;
 
-                DmChucVu::create($validated);
+                $chucVu = DmChucVu::create($validated);
+                \App\Services\SystemLogService::log('Tạo mới', 'DmChucVu', $chucVu->id, "Thêm chức vụ mới: {$chucVu->Ten}");
 
                 return redirect()->route('chuc-vu.danh-sach')
                     ->with('success', 'Thêm chức vụ thành công! Mã chức vụ mới: ' . $ma);
@@ -97,7 +98,11 @@ class ChucVuController extends Controller
         ]);
 
         try {
+            $oldData = $chucVu->toArray();
             $chucVu->update($validated);
+            $newData = $chucVu->fresh()->toArray();
+            \App\Services\SystemLogService::log('Cập nhật', 'DmChucVu', $chucVu->id, "Cập nhật chức vụ: {$chucVu->Ten}", $oldData, $newData);
+
             return redirect()->route('chuc-vu.info', $id)
                 ->with('success', 'Cập nhật chức vụ thành công!');
         } catch (\Exception $e) {
@@ -110,7 +115,17 @@ class ChucVuController extends Controller
     public function Xoa($id)
     {
         try {
-            DmChucVu::destroy($id);
+            $chucVu = DmChucVu::findOrFail($id);
+
+            // Kiểm tra xem chức vụ có nhân viên hay không trước khi xóa
+            if ($chucVu->nhanViens()->count() > 0) {
+                return response()->json(['success' => false, 'message' => 'Không thể xóa chức vụ "' . $chucVu->Ten . '" do đang có nhân viên.']);
+            }
+
+            $tenCV = $chucVu->Ten;
+            $chucVu->delete();
+            \App\Services\SystemLogService::log('Xóa', 'DmChucVu', $id, "Xóa chức vụ: {$tenCV}");
+
             return response()->json(['success' => true, 'message' => 'Xóa chức vụ thành công.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);
@@ -125,7 +140,27 @@ class ChucVuController extends Controller
         }
 
         try {
+            $chucVus = DmChucVu::whereIn('id', $ids)->get();
+            $inUseNames = [];
+
+            foreach ($chucVus as $cv) {
+                if ($cv->nhanViens()->count() > 0) {
+                    $inUseNames[] = $cv->Ten;
+                }
+            }
+
+            if (!empty($inUseNames)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa các chức vụ sau do đang có nhân viên: ' . implode(', ', $inUseNames)
+                ]);
+            }
+
+            $tenChucVus = $chucVus->pluck('Ten')->implode(', ');
             DmChucVu::whereIn('id', $ids)->delete();
+
+            \App\Services\SystemLogService::log('Xóa', 'DmChucVu', null, "Xóa nhiều chức vụ: {$tenChucVus}");
+
             return response()->json(['success' => true, 'message' => 'Xóa ' . count($ids) . ' chức vụ thành công.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);

@@ -203,7 +203,113 @@
         .select2-container {
             width: 100% !important;
         }
+
+        /* Cropper Custom Styling */
+        .img-container {
+            max-height: 500px;
+            overflow: hidden;
+        }
+        
+        .cropper-view-box,
+        .cropper-face {
+            border-radius: 50%;
+        }
+
+        /* Modal Custom Styling (since project doesn't have global Bootstrap CSS) */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1055;
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            outline: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.show {
+            display: flex !important;
+        }
+
+        .modal-dialog {
+            position: relative;
+            width: auto;
+            margin: 0.5rem;
+            pointer-events: none;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .modal-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            outline: 0;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .modal-title {
+            margin-bottom: 0;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            position: relative;
+            flex: 1 1 auto;
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            gap: 10px;
+        }
+
+        .btn-close {
+            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+            border: 0;
+            padding: 0.5rem;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 @endpush
 
 @section('content')
@@ -246,8 +352,9 @@
                         Click để tải ảnh lên
                     </div>
                     <div class="help-text">PNG, JPG hoặc GIF (MAX. 2MB)</div>
-                    <input type="file" id="avatar" name="AnhDaiDien" accept="image/*" style="display: none;"
-                        onchange="previewImage(event)">
+                    <input type="file" id="avatar" accept="image/*" style="display: none;"
+                        onchange="initCropper(this)">
+                    <input type="hidden" name="cropped_avatar" id="croppedAvatarInput">
                     <img id="preview" class="preview-image">
                 </div>
             </div>
@@ -612,22 +719,85 @@
         </div>
     </form>
 
-    @push('scripts')
-        <script>
-            // Preview image before upload (global function for onclick)
-            function previewImage(event) {
-                const preview = document.getElementById('preview');
-                const file = event.target.files[0];
+    <!-- Cropper Modal -->
+    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true" data-bs-backdrop="static" style="display: none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropperModalLabel">Cắt ảnh đại diện</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <img id="imageToCrop" src="" style="max-width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="cropAndSave">Cắt và Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                if (file) {
+    @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+        <script>
+            let cropper;
+            const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
+            const imageToCrop = document.getElementById('imageToCrop');
+
+            function initCropper(input) {
+                if (input.files && input.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = function (e) {
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
+                    reader.onload = function(e) {
+                        imageToCrop.src = e.target.result;
+                        cropperModal.show();
                     }
-                    reader.readAsDataURL(file);
+                    reader.readAsDataURL(input.files[0]);
                 }
             }
+
+            document.getElementById('cropperModal').addEventListener('shown.bs.modal', function() {
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    guides: false,
+                    autoCropArea: 1,
+                    dragMode: 'move',
+                    background: false,
+                    ready: function() {
+                        // Success callback
+                    }
+                });
+            });
+
+            document.getElementById('cropperModal').addEventListener('hidden.bs.modal', function() {
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+                // Clear input to allow re-selecting the same file
+                document.getElementById('avatar').value = '';
+            });
+
+            document.getElementById('cropAndSave').addEventListener('click', function() {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 400,
+                        height: 400,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high',
+                    });
+
+                    const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    const preview = document.getElementById('preview');
+                    preview.src = croppedDataUrl;
+                    preview.style.display = 'block';
+                    document.getElementById('croppedAvatarInput').value = croppedDataUrl;
+                    cropperModal.hide();
+                }
+            });
 
             // Wait for DOM to be fully loaded
             document.addEventListener('DOMContentLoaded', function () {

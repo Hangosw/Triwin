@@ -12,6 +12,7 @@ class HopDong extends Model
 
     protected $fillable = [
         'NhanVienId',
+        'TenNhanVien',
         'NguoiKyId',
 
         'PhongBanId',

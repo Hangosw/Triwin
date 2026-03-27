@@ -18,6 +18,8 @@ class ChamCong extends Model
         'Vao',
         'Ra',
         'TrangThai', // tre, dung_gio, ve_som
+        'Cong',
+        'AnhChamCong',
     ];
 
     protected $casts = [
@@ -27,6 +29,7 @@ class ChamCong extends Model
         'Vao' => 'datetime',
         'Ra' => 'datetime',
         'TrangThai' => 'string',
+        'Cong' => 'decimal:2',
     ];
 
     /**

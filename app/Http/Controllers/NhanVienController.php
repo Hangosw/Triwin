@@ -55,7 +55,12 @@ class NhanVienController extends Controller
         // Pagination
         $start = $request->start ?? 0;
         $length = $request->length ?? 10;
-        $data = $query->skip($start)->take($length)->get();
+        
+        if ($length != -1) {
+            $data = $query->skip($start)->take($length)->get();
+        } else {
+            $data = $query->get();
+        }
 
         return response()->json([
             'draw' => intval($request->draw),
@@ -160,6 +165,7 @@ class NhanVienController extends Controller
             'Nhom' => 'required|string',
             'NgayTuyenDung' => 'required|date',
             'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cropped_avatar' => 'nullable|string',
         ], [
             // Thông tin cá nhân
             'Ten.required' => 'Vui lòng nhập họ và tên nhân viên.',
@@ -220,7 +226,18 @@ class NhanVienController extends Controller
 
                 // 2. Xử lý upload ảnh đại diện
                 $avatarPath = null;
-                if ($request->hasFile('AnhDaiDien')) {
+                if ($request->filled('cropped_avatar')) {
+                    $imageData = $request->cropped_avatar;
+                    if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                        $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                        $imageData = base64_decode($imageData);
+                        $extension = strtolower($type[1]); // png, jpg, etc.
+                        
+                        $filename = 'avatar_' . $Ma . '_' . time() . '.' . $extension;
+                        file_put_contents(public_path('AnhDaiDien/' . $filename), $imageData);
+                        $avatarPath = 'AnhDaiDien/' . $filename;
+                    }
+                } elseif ($request->hasFile('AnhDaiDien')) {
                     $file = $request->file('AnhDaiDien');
                     $filename = 'avatar_' . $Ma . '_' . time() . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('AnhDaiDien'), $filename);
@@ -312,11 +329,24 @@ class NhanVienController extends Controller
                     'NgoaiNgu' => $request->NgoaiNgu,
                 ]);
 
+                // Khởi tạo phép năm tự động
+                \App\Models\QuanLyPhepNam::khoiTaoPhepNam($nhanVien->id, date('Y'));
+
                 // Re-enable foreign key checks
                 \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
                 return $Ma;
             });
+
+            $nvCreated = NhanVien::where('Ma', $Ma)->first();
+            if ($nvCreated) {
+                \App\Services\SystemLogService::log(
+                    'Tạo mới', 
+                    'NhanVien', 
+                    $nvCreated->id, 
+                    "Thêm mới nhân viên: {$nvCreated->Ten} ({$nvCreated->Ma})"
+                );
+            }
 
             return response()->json([
                 'success' => true,
@@ -356,22 +386,52 @@ class NhanVienController extends Controller
                 'GioiTinh' => 'required|in:0,1',
                 'Email' => 'nullable|email|max:255',
                 'SoDienThoai' => 'nullable|string|max:15',
-                'LoaiNhanVien' => 'nullable|in:0,1',
-                'PhongBanId' => 'nullable|exists:dm_phong_bans,id',
-                'ChucVuId' => 'nullable|exists:dm_chuc_vus,id',
+                'LoaiNhanVien' => 'required|in:0,1',
+                'PhongBanId' => 'required|exists:dm_phong_bans,id',
+                'ChucVuId' => 'required|exists:dm_chuc_vus,id',
+                'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'cropped_avatar' => 'nullable|string',
             ];
 
             $messages = [
                 'Ten.required' => 'Vui lòng nhập tên nhân viên',
                 'GioiTinh.required' => 'Vui lòng chọn giới tính',
                 'Email.email' => 'Email không đúng định dạng',
+                'PhongBanId.required' => 'Vui lòng chọn phòng ban',
                 'PhongBanId.exists' => 'Phòng ban không tồn tại',
+                'ChucVuId.required' => 'Vui lòng chọn chức vụ',
                 'ChucVuId.exists' => 'Chức vụ không tồn tại',
+                'LoaiNhanVien.required' => 'Vui lòng chọn loại nhân viên',
             ];
 
             $validated = $request->validate($rules, $messages);
 
             $employee = NhanVien::findOrFail($id);
+            $oldData = $employee->toArray();
+
+            // Handle Avatar Upload
+            // Handle Avatar Upload
+            if ($request->filled('cropped_avatar')) {
+                $imageData = $request->cropped_avatar;
+                if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                    $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                    $imageData = base64_decode($imageData);
+                    $extension = strtolower($type[1]);
+                    
+                    $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
+                    $filename = 'avatar_' . $ma . '_' . time() . '.' . $extension;
+                    file_put_contents(public_path('AnhDaiDien/' . $filename), $imageData);
+                    $employee->AnhDaiDien = 'AnhDaiDien/' . $filename;
+                }
+            } elseif ($request->hasFile('AnhDaiDien')) {
+                $file = $request->file('AnhDaiDien');
+                $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
+                $filename = 'avatar_' . $ma . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('AnhDaiDien'), $filename);
+                
+                // Update the attribute in the model instance
+                $employee->AnhDaiDien = 'AnhDaiDien/' . $filename;
+            }
 
             // Update NhanVien table
             $employee->update([
@@ -397,6 +457,7 @@ class NhanVienController extends Controller
                 'BHYT' => $request->BHYT,
                 'NoiCapBHYT' => $request->NoiCapBHYT,
                 'Note' => $request->Note,
+                'AnhDaiDien' => $employee->AnhDaiDien,
             ]);
 
             // Update or create TtNhanVienCongViec
@@ -414,6 +475,16 @@ class NhanVienController extends Controller
                     'TrinhDoChuyenMon' => $request->TrinhDoChuyenMon,
                     'NgoaiNgu' => $request->NgoaiNgu,
                 ]
+            );
+
+            $newData = $employee->fresh()->toArray();
+            \App\Services\SystemLogService::log(
+                'Cập nhật', 
+                'NhanVien', 
+                $employee->id, 
+                "Cập nhật thông tin nhân viên: {$employee->Ten}",
+                $oldData,
+                $newData
             );
 
             return response()->json([
@@ -557,5 +628,148 @@ class NhanVienController extends Controller
             'exists' => false,
             'message' => ''
         ]);
+    }
+
+    /**
+     * Xóa một nhân viên và các dữ liệu liên quan
+     */
+    public function Xoa($id)
+    {
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+            $nhanVien = NhanVien::findOrFail($id);
+            $nguoiDungId = $nhanVien->NguoiDungId;
+
+            // Xóa dữ liệu liên quan
+            \App\Models\TtNhanVienCongViec::where('NhanVienId', $id)->delete();
+            \App\Models\ThanNhan::where('NhanVienId', $id)->delete();
+            \App\Models\DienBienLuong::where('NhanVienId', $id)->delete();
+            \App\Models\Luong::where('NhanVienId', $id)->delete();
+            \App\Models\ChamCong::where('NhanVienId', $id)->delete();
+            \App\Models\TangCa::where('NhanVienId', $id)->delete();
+            \App\Models\QuanLyPhepNam::where('NhanVienId', $id)->delete();
+            \App\Models\DangKyNghiPhep::where('NhanVienId', $id)->delete();
+            \App\Models\QuaTrinhCongTac::where('NhanVienId', $id)->delete();
+
+            // Xử lý giữ lại hợp đồng khi nhân viên nghỉ việc: Đánh dấu hết hạn, lưu Tên + Mã nhân viên, và gỡ foreign key NhanVienId
+            \App\Models\HopDong::where('NhanVienId', $id)->update([
+                'TenNhanVien' => $nhanVien->Ten . ' - ' . $nhanVien->Ma,
+                'TrangThai' => 0, // 0 = Hết hạn
+                'NhanVienId' => null
+            ]);
+
+            // Set các ID tham chiếu sang null để bảo toàn dữ liệu lịch sử
+            \App\Models\HopDong::where('NguoiKyId', $id)->update(['NguoiKyId' => null]);
+            \App\Models\TangCa::where('NguoiDuyetId', $id)->update(['NguoiDuyetId' => null]);
+            \App\Models\DangKyNghiPhep::where('NguoiDuyetId', $id)->update(['NguoiDuyetId' => null]);
+
+            // Xóa file ảnh đại diện nếu có
+            if ($nhanVien->AnhDaiDien && file_exists(public_path($nhanVien->AnhDaiDien))) {
+                unlink(public_path($nhanVien->AnhDaiDien));
+            }
+
+            // Xóa nhân viên
+            $nhanVien->delete();
+
+            // Xóa người dùng tương ứng
+            if ($nguoiDungId) {
+                \App\Models\NguoiDung::where('id', $nguoiDungId)->delete();
+            }
+
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            \Illuminate\Support\Facades\DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa nhân viên và các dữ liệu liên quan thành công!'
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi xóa nhân viên: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Xóa nhiều nhân viên và các dữ liệu liên quan
+     */
+    public function XoaNhieu(Request $request)
+    {
+        try {
+            if (!$request->has('ids') || !is_array($request->ids) || count($request->ids) === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vui lòng chọn ít nhất một nhân viên để xóa.'
+                ], 400);
+            }
+
+            $ids = $request->ids;
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+            $nhanViens = NhanVien::whereIn('id', $ids)->get();
+            $nguoiDungIds = $nhanViens->pluck('NguoiDungId')->filter()->toArray();
+
+            // Xóa dữ liệu liên quan cho tất cả nhân viên được chọn
+            \App\Models\TtNhanVienCongViec::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\ThanNhan::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\DienBienLuong::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\Luong::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\ChamCong::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\TangCa::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\QuanLyPhepNam::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\DangKyNghiPhep::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\QuaTrinhCongTac::whereIn('NhanVienId', $ids)->delete();
+
+            // Xử lý giữ lại hợp đồng khi nhân viên nghỉ việc: Đánh dấu hết hạn, lưu Tên + Mã nhân viên, và gỡ foreign key NhanVienId
+            foreach ($nhanViens as $nv) {
+                \App\Models\HopDong::where('NhanVienId', $nv->id)->update([
+                    'TenNhanVien' => $nv->Ten . ' - ' . $nv->Ma,
+                    'TrangThai' => 0, // 0 = Hết hạn
+                    'NhanVienId' => null
+                ]);
+            }
+
+            // Cập nhật tham chiếu
+            \App\Models\HopDong::whereIn('NguoiKyId', $ids)->update(['NguoiKyId' => null]);
+            \App\Models\TangCa::whereIn('NguoiDuyetId', $ids)->update(['NguoiDuyetId' => null]);
+            \App\Models\DangKyNghiPhep::whereIn('NguoiDuyetId', $ids)->update(['NguoiDuyetId' => null]);
+
+            // Xóa ảnh đại diện
+            foreach ($nhanViens as $nv) {
+                if ($nv->AnhDaiDien && file_exists(public_path($nv->AnhDaiDien))) {
+                    unlink(public_path($nv->AnhDaiDien));
+                }
+            }
+
+            // Xóa nhân viên
+            NhanVien::whereIn('id', $ids)->delete();
+
+            // Xóa người dùng tương ứng
+            if (!empty($nguoiDungIds)) {
+                \App\Models\NguoiDung::whereIn('id', $nguoiDungIds)->delete();
+            }
+
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            \Illuminate\Support\Facades\DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa ' . count($ids) . ' nhân viên và các dữ liệu liên quan thành công!'
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi xóa nhân viên: ' . $e->getMessage()
+            ], 422);
+        }
     }
 }

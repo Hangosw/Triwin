@@ -325,7 +325,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Có giới hạn số ngày trong năm?</label>
-                        <select class="form-control" name="CoHanMuc" id="inputCoHanMuc">
+                        <select class="form-control no-select2" name="CoHanMuc" id="inputCoHanMuc">
                             <option value="1">Có giới hạn (VD: Phép năm có 12 ngày)</option>
                             <option value="0">Không giới hạn (VD: Nghỉ thai sản, công tác...)</option>
                         </select>
@@ -362,7 +362,10 @@
             }
         }
 
-        document.getElementById('inputCoHanMuc').addEventListener('change', toggleHanMucField);
+        // Sử dụng jQuery để bắt sự kiện change cho đồng bộ
+        $(document).ready(function() {
+            $('#inputCoHanMuc').on('change', toggleHanMucField);
+        });
 
         function openModal() {
             document.getElementById('modalTitle').innerText = 'Thêm loại nghỉ phép';
