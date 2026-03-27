@@ -94,7 +94,7 @@ class HanetCheckinService
             if ($ca) {
                 $dateStr = $vao->toDateString();
                 $gioVao = Carbon::parse($dateStr . ' ' . $ca->GioVao);
-                $gioRa  = Carbon::parse($dateStr . ' ' . $ca->GioRa);
+                $gioRa = Carbon::parse($dateStr . ' ' . $ca->GioRa);
 
                 // Bản ghi cuối cùng có thời gian TRƯỚC GioRa → giờ RA
                 // (bỏ qua những lần quét sau GioRa vì chưa đến giờ checkout thực sự)

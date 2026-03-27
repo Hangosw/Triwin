@@ -35,14 +35,14 @@ class HanetWebhookController extends Controller
             $aliasID = $data['data']['aliasID'] ?? null;
             $checkinTime = $data['data']['checkinTime'] ?? null;
             $personName = $data['data']['personName'] ?? null;
-        } 
+        }
         // Nếu là format Log/Event chuẩn của Hanet bắt người lạ
         elseif ($dataType === 'log') {
             $aliasID = $data['aliasID'] ?? null;
             $checkinTime = $data['time'] ?? null;
             $imageUrl = $data['detected_image_url'] ?? null;
             $personName = $data['personName'] ?? null;
-        }  
+        }
         else {
             return response()->json(['message' => 'Payload format not supported'], 422);
         }
@@ -56,7 +56,7 @@ class HanetWebhookController extends Controller
             $nhanVien = NhanVien::where('Ma', $aliasID)->first();
         }
 
-        // Fallback: Xử lý trường hợp có nhân viên nhưng Hanet không gửi rỗng aliasID
+        // Fallback: Xử lý trường hợp có nhân viên nhưng Hanet không gửi aliasID
         if (!$nhanVien && $personName) {
             $nhanVien = NhanVien::where('Ten', $personName)->first();
             if ($nhanVien) {
@@ -86,10 +86,8 @@ class HanetWebhookController extends Controller
         }
 
         $date = $time->toDateString();
-
         $gioVao = Carbon::parse($date . ' ' . $ca->GioVao);
-        $gioRa = Carbon::parse($date . ' ' . $ca->GioRa);
-        $trangThai = $this->tinhTrangThai($time, $gioVao, $gioRa);
+        $gioRa  = Carbon::parse($date . ' ' . $ca->GioRa);
 
         $chamCong = ChamCong::where('NhanVienId', $nhanVien->id)
             ->where('Loai', 0)
@@ -97,9 +95,7 @@ class HanetWebhookController extends Controller
             ->first();
 
         if (!$chamCong) {
-            // Lần quét đầu tiên → lưu giờ Vào
-            // Chỉ cập nhật Ra nếu thời gian quét nằm trước GioRa của ca
-            $isBeforeGioRa = $time->lessThanOrEqualTo($gioRa);
+            // Lần quét đầu tiên trong ngày → lưu giờ Vào
             ChamCong::create([
                 'NhanVienId' => $nhanVien->id,
                 'Loai' => 0,
@@ -110,35 +106,34 @@ class HanetWebhookController extends Controller
             ]);
         } else {
             $oldVao = Carbon::parse($chamCong->Vao);
-            $oldRa = $chamCong->Ra ? Carbon::parse($chamCong->Ra) : null;
+            $oldRa  = $chamCong->Ra ? Carbon::parse($chamCong->Ra) : null;
             $updateData = [];
 
             if ($time->lessThan($oldVao)) {
                 // Quét sớm hơn VÀO cũ → cập nhật lại VÀO (giờ vào sớm nhất)
                 $updateData['Vao'] = $time;
 
-                // VÀO cũ trở thành RA nếu nó nằm TRƯỚC GioRa và chưa có RA
-                if (!$oldRa && $oldVao->lessThanOrEqualTo($gioRa)) {
+                // VÀO cũ có thể trở thành RA nếu nó nằm SAU GioRa (tức là lần check-out)
+                // Nhưng nếu VÀO cũ vẫn trong ca thì không set Ra
+                if (!$oldRa && $oldVao->greaterThan($gioRa)) {
                     $updateData['Ra'] = $oldVao;
                 }
             } else {
-                // Quét trễ hơn VÀO cũ → chỉ cập nhật RA nếu thời gian TRƯỚC GioRa
-                // (các lần quét sau GioRa là checkout thực, không phải quét thêm trong ca)
-                if ($time->lessThanOrEqualTo($gioRa)) {
-                    // Trong khoảng ca: KHÔNG cập nhật Ra (đây là lần quét giữa ca, không phải check-out)
-                    // Ra chỉ được cập nhật khi thời gian > GioRa (check-out thực sự)
-                    // Do đó: bỏ qua các lần quét nằm trong ca sau VÀO
-                } else {
+                // Quét trễ hơn VÀO cũ
+                // Chỉ cập nhật Ra nếu thời gian quét SAU GioRa (check-out thực sự)
+                // Các lần quét trong ca (≤ GioRa) bị bỏ qua cho trường Ra
+                if ($time->greaterThan($gioRa)) {
                     // Sau GioRa: đây là lần check-out thực sự → lưu Ra
                     if (!$oldRa || $time->greaterThan($oldRa)) {
                         $updateData['Ra'] = $time;
                     }
                 }
+                // Trong ca (≤ GioRa): bỏ qua, không cập nhật Ra
             }
 
             if (!empty($updateData)) {
-                $finalRa = isset($updateData['Ra']) ? $updateData['Ra'] : $oldRa;
                 $finalVao = isset($updateData['Vao']) ? $updateData['Vao'] : $oldVao;
+                $finalRa  = isset($updateData['Ra'])  ? $updateData['Ra']  : $oldRa;
 
                 $lateDueToCheckin = $finalVao->greaterThan($gioVao);
 
@@ -165,13 +160,11 @@ class HanetWebhookController extends Controller
     private function tinhTrangThai(Carbon $time, Carbon $gioVao, Carbon $gioRa): string
     {
         if ($time->greaterThan($gioRa)) {
-            return 've_som'; // check-out sớm
+            return 've_som';
         }
-
         if ($time->greaterThan($gioVao)) {
             return 'tre';
         }
-
         return 'dung_gio';
     }
 }
