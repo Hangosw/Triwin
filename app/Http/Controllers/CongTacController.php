@@ -56,7 +56,7 @@ class CongTacController extends Controller
             $nhanVienId = null;
             if ($request->type === 'top_down') {
                 // Kiểm tra User có quyển phân công (Top-down) không
-                if (!Auth::user()->can('Quản lý công tác')) {
+                if (!Auth::user()->can('Tạo Yêu Cầu Công Tác')) {
                     abort(403, 'Bạn không có quyền phân công công tác cho người khác.');
                 }
                 $nhanVienId = $request->NhanVienId;

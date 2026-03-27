@@ -12,19 +12,59 @@ use App\Imports\ChamCongImport;
 
 class ChamCongController extends Controller
 {
-    public function DanhSachView(Request $request)
+    public function ChamCongData(Request $request, $id)
     {
         $month = $request->month ?? Carbon::now()->month;
-        $year = $request->year ?? Carbon::now()->year;
+        $year  = $request->year  ?? Carbon::now()->year;
+
+        $attendances = ChamCong::where('NhanVienId', $id)
+            ->whereYear('Vao', $year)
+            ->whereMonth('Vao', $month)
+            ->orderBy('Vao', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'attendances' => $attendances
+        ]);
+    }
+
+    public function DanhSachView(Request $request)
+    {
+        $month  = $request->month  ?? Carbon::now()->month;
+        $year   = $request->year   ?? Carbon::now()->year;
+        $day    = $request->day    ?? '';      // '' = tất cả ngày
+        $status = $request->status ?? '';      // '' = tất cả trạng thái
         $user = auth()->user();
         $isEmployeeOnly = $user->hasAnyRole(['Employee', 'Nhân viên']) && !$user->hasAnyRole(['Super Admin', 'Admin Đơn Vị', 'CEO', 'Supervisor', 'HR Manager', 'System Admin', 'Factory Supervisor', 'Line Manager']);
         $nhanVienId = $user->nhanVien?->id;
 
-        // Stats for the month
+        // Stats for the month (luôn theo tháng/năm, không lọc thêm ngày/trạng thái)
         $totalEmployeesQuery = NhanVien::query();
         $onTimeQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'dung_gio');
-        $lateQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
-        $attendancesQuery = ChamCong::with('nhanVien.ttCongViec.phongBan')->whereYear('Vao', $year)->whereMonth('Vao', $month)->orderBy('Vao', 'desc');
+        $lateQuery   = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
+
+        // Main query
+        $attendancesQuery = ChamCong::with('nhanVien.ttCongViec.phongBan')
+            ->whereYear('Vao', $year)
+            ->whereMonth('Vao', $month);
+
+        // Lọc theo ngày cụ thể
+        if ($day !== '' && $day > 0) {
+            $attendancesQuery->whereDay('Vao', $day);
+        }
+
+        // Lọc theo trạng thái
+        if ($status !== '') {
+            if ($status === 'la') {
+                // Khách / Lạ: bản ghi không có NhanVienId
+                $attendancesQuery->whereNull('NhanVienId');
+            } else {
+                $attendancesQuery->whereNotNull('NhanVienId')->where('TrangThai', $status);
+            }
+        }
+
+        $attendancesQuery->orderBy('Vao', 'desc');
 
         if ($isEmployeeOnly && $nhanVienId) {
             $totalEmployeesQuery->where('id', $nhanVienId);
@@ -34,11 +74,14 @@ class ChamCongController extends Controller
         }
 
         $totalEmployees = $totalEmployeesQuery->count();
-        $onTimeCount = $onTimeQuery->count();
-        $lateCount = $lateQuery->count();
-        $attendances = $attendancesQuery->get();
+        $onTimeCount    = $onTimeQuery->count();
+        $lateCount      = $lateQuery->count();
+        $attendances    = $attendancesQuery->get();
 
-        return view('attendance.index', compact('attendances', 'totalEmployees', 'onTimeCount', 'lateCount', 'month', 'year'));
+        return view('attendance.index', compact(
+            'attendances', 'totalEmployees', 'onTimeCount', 'lateCount',
+            'month', 'year', 'day', 'status'
+        ));
     }
 
     /**
@@ -304,5 +347,65 @@ class ChamCongController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Lỗi khi import file: ' . $e->getMessage());
         }
+    }
+
+    public function TongQuanNgayView(Request $request)
+    {
+        $date = $request->date ?? Carbon::today()->toDateString();
+        $dateObj = Carbon::parse($date);
+        
+        $user = auth()->user();
+        $isEmployeeOnly = $user->hasAnyRole(['Employee', 'Nhân viên']) && !$user->hasAnyRole(['Super Admin', 'Admin Đơn Vị', 'CEO', 'Supervisor', 'HR Manager', 'System Admin', 'Factory Supervisor', 'Line Manager']);
+
+        // 1. Lấy ca làm việc chuẩn để tính đi sớm/trễ (08:30 - 17:30)
+        $caLamViec = \App\Models\DmCaLamViec::first();
+        $gioVaoChuan = $caLamViec ? $caLamViec->GioVao : '08:30:00';
+        $gioRaChuan = $caLamViec ? $caLamViec->GioRa : '17:30:00';
+
+        // 2. Lấy toàn bộ nhân viên (hoặc theo quyền hạn)
+        $nhanVienQuery = NhanVien::query();
+        if ($isEmployeeOnly) {
+            $nhanVienQuery->where('id', $user->nhanVien?->id);
+        }
+        $allEmployees = $nhanVienQuery->get();
+        $totalEmployeeCount = $allEmployees->count();
+
+        // 3. Lấy dữ liệu chấm công của ngày chọn
+        $attendances = ChamCong::with('nhanVien')
+            ->whereDate('Vao', $date)
+            ->get();
+
+        // 4. Phân loại nhân viên
+        $checkedInIds = $attendances->pluck('NhanVienId')->filter()->unique()->toArray();
+        
+        // - Đi sớm: Vao < giờ vào chuẩn
+        $diSom = $attendances->filter(function($att) use ($gioVaoChuan) {
+            return $att->Vao && $att->Vao->toTimeString() < $gioVaoChuan && $att->NhanVienId;
+        })->unique('NhanVienId');
+
+        // - Đi trễ: Vao > giờ vào chuẩn
+        $diTre = $attendances->filter(function($att) use ($gioVaoChuan) {
+            return $att->Vao && $att->Vao->toTimeString() > $gioVaoChuan && $att->NhanVienId;
+        })->unique('NhanVienId');
+
+        // - Chưa Checkin: Nhân viên không có trong bản ghi chấm công ngày đó
+        $chuaCheckin = $allEmployees->whereNotIn('id', $checkedInIds);
+
+        // - Về trễ: Ra > giờ ra chuẩn
+        $veTre = $attendances->filter(function($att) use ($gioRaChuan) {
+            return $att->Ra && $att->Ra->toTimeString() > $gioRaChuan && $att->NhanVienId;
+        })->unique('NhanVienId');
+
+        // - Khách / Lạ (không có NhanVienId)
+        $khachLa = $attendances->whereNull('NhanVienId');
+
+        // Thống kê thẻ tóm tắt
+        $checkedInCount = count($checkedInIds);
+        
+        return view('attendance.daily_overview', compact(
+            'date', 'dateObj', 'totalEmployeeCount', 'checkedInCount',
+            'diSom', 'diTre', 'chuaCheckin', 'veTre', 'khachLa',
+            'gioVaoChuan', 'gioRaChuan'
+        ));
     }
 }

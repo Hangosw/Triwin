@@ -15,6 +15,25 @@
         </div>
     @endif
 
+    <!-- Appearance Settings -->
+    <div class="card" style="margin-bottom: 24px;">
+        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Giao diện hệ thống</h3>
+        <div class="form-group">
+            <label class="form-label" style="margin-bottom: 12px;">Màu sắc giao diện</label>
+            <div style="display: flex; gap: 24px; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; padding: 10px 20px; border: 1px solid #d1d5db; border-radius: 8px; background: white;" id="label-theme-light">
+                    <input type="radio" name="theme_option" value="light" style="width: 18px; height: 18px; cursor: pointer;">
+                    Chế độ Sáng
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; padding: 10px 20px; border: 1px solid #d1d5db; border-radius: 8px; background: white;" id="label-theme-dark">
+                    <input type="radio" name="theme_option" value="dark" style="width: 18px; height: 18px; cursor: pointer;">
+                    Chế độ Tối
+                </label>
+            </div>
+            <small class="text-gray" style="display: block; margin-top: 8px;">* Giao diện sẽ thay đổi ngay lập tức sau khi bạn chọn.</small>
+        </div>
+    </div>
+
     <form action="{{ route('config.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
@@ -376,6 +395,40 @@
             info: false,
             ordering: false
         });
+    });
+
+    $(document).ready(function() {
+        // Theme selector logic
+        $('input[name="theme_option"]').on('change', function() {
+            var selectedTheme = $(this).val();
+            
+            // Xoá style cũ
+            $('#label-theme-light, #label-theme-dark').css({
+                'border-color': '#d1d5db',
+                'background-color': 'transparent'
+            });
+            
+            // Thêm style mới
+            if (selectedTheme === 'dark') {
+                $('#label-theme-dark').css({
+                    'border-color': '#0BAA4B',
+                    'background-color': 'rgba(11, 170, 75, 0.1)'
+                });
+                $('body').addClass('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                $('#label-theme-light').css({
+                    'border-color': '#0BAA4B',
+                    'background-color': '#f0fdf4'
+                });
+                $('body').removeClass('dark-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Init
+        var currentTheme = localStorage.getItem('theme') || 'light';
+        $('input[name="theme_option"][value="' + currentTheme + '"]').prop('checked', true).trigger('change');
     });
 </script>
 @endpush

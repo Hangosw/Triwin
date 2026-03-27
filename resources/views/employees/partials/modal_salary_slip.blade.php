@@ -4,17 +4,17 @@
     overflow-y:auto; padding:24px 16px;
 ">
     <div style="
-        background:#fff; border-radius:12px; width:100%; max-width:860px;
+        border-radius:12px; width:100%; max-width:860px;
         margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3);
         display:flex; flex-direction:column; max-height:90vh;
-    ">
+    " class="modal-slip-container">
         {{-- Modal Header --}}
         <div style="
             display:flex; justify-content:space-between; align-items:center;
-            padding:16px 20px; border-bottom:1px solid #e5e7eb;
+            padding:16px 20px;
             background:linear-gradient(135deg,#0BAA4B,#088c3d);
             border-radius:12px 12px 0 0;
-        ">
+        " class="modal-slip-header">
             <div style="color:#fff; font-size:16px; font-weight:700;">
                 <i class="bi bi-file-earmark-text"></i>
                 &nbsp;Phiếu Lương
@@ -40,7 +40,7 @@
         </div>
 
         {{-- Modal Body --}}
-        <div id="slipContent" style="padding:20px; overflow-y:auto; flex:1;">
+        <div id="slipContent" style="padding:20px; overflow-y:auto; flex:1;" class="modal-slip-body">
             <div style="text-align:center; padding:40px; color:#6b7280;">
                 <div style="font-size:32px; margin-bottom:8px;">⏳</div>
                 <div>Đang tải phiếu lương...</div>

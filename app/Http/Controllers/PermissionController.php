@@ -27,7 +27,8 @@ class PermissionController extends Controller
             'name.unique' => 'Tên Quyền đã tồn tại.'
         ]);
 
-        Permission::create(['name' => $request->name]);
+        $name = mb_convert_case(trim($request->name), MB_CASE_TITLE, 'UTF-8');
+        Permission::create(['name' => $name]);
 
         return redirect()->route('permissions.index')->with('success', 'Tạo Quyền thành công!');
     }
@@ -48,7 +49,7 @@ class PermissionController extends Controller
         ]);
 
         $permission = Permission::findOrFail($id);
-        $permission->name = $request->name;
+        $permission->name = mb_convert_case(trim($request->name), MB_CASE_TITLE, 'UTF-8');
         $permission->save();
 
         return redirect()->route('permissions.index')->with('success', 'Cập nhật Quyền thành công!');

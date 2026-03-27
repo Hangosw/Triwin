@@ -43,14 +43,14 @@
                             };
                         @endphp
                         <tr>
-                            <td style="font-weight: 500; color: #111827;">{{ $tn->HoTen }}</td>
+                            <td style="font-weight: 500;">{{ $tn->HoTen }}</td>
                             <td>
                                 <span class="badge-relationship {{ $relClass }}">
                                     {{ $relText }}
                                 </span>
                             </td>
                             <td>{{ $tn->NgaySinh ? \Carbon\Carbon::parse($tn->NgaySinh)->format('d/m/Y') : '-' }}</td>
-                            <td style="font-family: monospace; color: #4b5563;">{{ $tn->CCCD ?? '-' }}</td>
+                            <td style="font-family: monospace;">{{ $tn->CCCD ?? '-' }}</td>
                             <td>{{ $tn->SoDienThoai ?? '-' }}</td>
                             <td>
                                 @if($tn->LaGiamTruGiaCanh)
@@ -59,8 +59,7 @@
                                         <i class="bi bi-check-circle-fill"></i> Có giảm trừ
                                     </span>
                                 @else
-                                    <span class="badge badge-secondary"
-                                        style="background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB;">
+                                    <span class="badge badge-secondary">
                                         Không
                                     </span>
                                 @endif
@@ -73,7 +72,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 48px; background: #fafafa;">
+                            <td colspan="7" style="text-align: center; padding: 48px;" class="empty-state-cell">
                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                                     <i class="bi bi-people" style="font-size: 48px; color: #d1d5db;"></i>
                                     <div style="color: #6b7280; font-size: 15px;">Chưa có thông tin thân nhân trong hồ sơ

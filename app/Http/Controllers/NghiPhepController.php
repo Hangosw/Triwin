@@ -308,7 +308,7 @@ class NghiPhepController extends Controller
                 if ($soNgay > $maxAllowed) {
                     if (!$request->SplitLoaiNghiPhepId) {
                         // Admin/Manager can override limits without splitting
-                        if (auth()->user()->can('Quản lý tăng ca nghỉ phép')) {
+                        if (auth()->user()->can('Xem Danh Sách Nghỉ Phép')) {
                             $isLongVacation = false;
                         } else {
                             $reason = $soNgay > $conLai ? "vượt quá hạn mức còn lại ($conLai ngày)" : "vượt quá giới hạn mỗi lần dùng ($limitConfig ngày)";

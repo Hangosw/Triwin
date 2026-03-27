@@ -70,9 +70,20 @@ class NguoiDungController extends Controller
     public function SuaView($id)
     {
         $user = NguoiDung::where('id', $id)->firstOrFail();
-        $roles = \Spatie\Permission\Models\Role::all();
+        $roles = \Spatie\Permission\Models\Role::with('permissions')->get();
         $userRoles = $user->roles->pluck('name')->toArray();
-        return view('users.edit', compact('id', 'user', 'roles', 'userRoles'));
+        $permissions = \Spatie\Permission\Models\Permission::orderBy('name')->get();
+        
+        // Lấy tất cả quyền (trực tiếp + từ vai trò)
+        $userPermissions = $user->getAllPermissions()->pluck('name')->toArray();
+        
+        // Tạo mapping Role -> Quyền để dùng trong JS
+        $rolePermissions = [];
+        foreach ($roles as $role) {
+            $rolePermissions[$role->name] = $role->permissions->pluck('name')->toArray();
+        }
+
+        return view('users.edit', compact('id', 'user', 'roles', 'userRoles', 'permissions', 'userPermissions', 'rolePermissions'));
     }
 
     public function DataNguoiDung()
@@ -175,6 +186,13 @@ class NguoiDungController extends Controller
                 $user->syncRoles($request->roles);
             } else {
                 $user->syncRoles([]);
+            }
+
+            // Sync direct permissions (ngoài role)
+            if ($request->has('permissions')) {
+                $user->syncPermissions($request->input('permissions'));
+            } else {
+                $user->syncPermissions([]);
             }
 
             $newData = $user->fresh()->toArray();

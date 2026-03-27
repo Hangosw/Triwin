@@ -121,6 +121,8 @@
         // Confirm delete with Swal.fire
         $(document).on('click', '.btn-delete-dept', function() {
             const form = $(this).closest('form');
+            const url = form.attr('action');
+            
             Swal.fire({
                 title: 'Xác nhận xóa?',
                 text: "Bạn có chắc chắn muốn xóa phòng ban này? (Lưu ý: Chỉ xóa được khi phòng ban không có nhân viên)",
@@ -132,7 +134,44 @@
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thành công!',
+                                    text: response.message,
+                                    confirmButtonColor: '#0BAA4B'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Không thể xóa!',
+                                    text: response.message,
+                                    confirmButtonColor: '#ef4444'
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMessage = 'Có lỗi xảy ra trong quá trình xử lý.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi!',
+                                text: errorMessage,
+                                confirmButtonColor: '#ef4444'
+                            });
+                        }
+                    });
                 }
             });
         });

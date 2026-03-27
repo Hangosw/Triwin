@@ -156,12 +156,18 @@
                 <div class="activity-item">
                     <div class="employee-info">
                         <div class="avatar"
-                            style="width: 36px; height: 36px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #0BAA4B; font-weight: bold;">
-                            {{ substr($att->nhanVien->Ten, 0, 1) }}
+                            style="width: 36px; height: 36px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #0BAA4B; font-weight: bold; overflow: hidden;">
+                            @if($att->nhanVien)
+                                {{ substr($att->nhanVien->Ten, 0, 1) }}
+                            @elseif($att->AnhChamCong)
+                                <img src="{{ $att->AnhChamCong }}" alt="Stranger" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                L
+                            @endif
                         </div>
                         <div>
-                            <div class="font-medium">{{ $att->nhanVien->Ten }}</div>
-                            <div class="text-gray" style="font-size: 12px;">{{ $att->nhanVien->Ma }}</div>
+                            <div class="font-medium">{{ $att->nhanVien ? $att->nhanVien->Ten : 'Người lạ' }}</div>
+                            <div class="text-gray" style="font-size: 12px;">{{ $att->nhanVien ? $att->nhanVien->Ma : '-' }}</div>
                         </div>
                     </div>
                     <div style="text-align: right;">
@@ -172,7 +178,9 @@
                             @endif
                         </div>
                         <div>
-                            @if($att->TrangThai === 'dung_gio')
+                            @if(!$att->nhanVien)
+                                <span class="badge badge-danger" style="background-color: #ef4444; color: white;">Khách / Lạ</span>
+                            @elseif($att->TrangThai === 'dung_gio')
                                 <span class="badge badge-success">Đúng giờ</span>
                             @elseif($att->TrangThai === 'tre')
                                 <span class="badge badge-warning">Đi muộn</span>

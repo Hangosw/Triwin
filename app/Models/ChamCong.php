@@ -19,6 +19,7 @@ class ChamCong extends Model
         'Ra',
         'TrangThai', // tre, dung_gio, ve_som
         'Cong',
+        'AnhChamCong',
     ];
 
     protected $casts = [

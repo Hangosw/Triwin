@@ -54,12 +54,45 @@ class NhanVienImport implements ToCollection, WithStartRow
             $hoTen = trim($row[2]);
             $email = isset($row[3]) ? trim($row[3]) : null;
             $sdt = isset($row[4]) ? trim($row[4]) : null;
+
+            if ($sdt) {
+                // Loại bỏ khoảng trắng, dấu gạch ngang, dấu chấm
+                $sdt = preg_replace('/[\s\-\.]/', '', $sdt);
+                
+                // Đổi +84 hoặc 84 ở đầu thành số 0
+                if (preg_match('/^(?:\+?84)(.*)$/', $sdt, $matches)) {
+                    $sdt = '0' . $matches[1];
+                }
+                
+                // Loại bỏ mọi ký tự không phải là số
+                $sdt = preg_replace('/[^0-9]/', '', $sdt);
+                
+                // Thêm số 0 ở đầu nếu Excel tự xóa (độ dài 9 chữ số)
+                if (strlen($sdt) === 9 && substr($sdt, 0, 1) !== '0') {
+                    $sdt = '0' . $sdt;
+                }
+            }
+
             $ngaySinhRaw = isset($row[5]) ? trim($row[5]) : null;
             $gioiTinhRaw = isset($row[6]) ? trim($row[6]) : null;
             $cccd = isset($row[7]) ? trim($row[7]) : null;
+            
+            if ($cccd) {
+                // Loại bỏ khoảng trắng và ký tự không phải số
+                $cccd = preg_replace('/[^0-9]/', '', $cccd);
+                
+                // Thêm số 0 ở đầu nếu Excel tự động xóa
+                if (strlen($cccd) > 0 && strlen($cccd) <= 9) {
+                    $cccd = str_pad($cccd, 9, '0', STR_PAD_LEFT);
+                } elseif (strlen($cccd) > 9 && strlen($cccd) <= 12) {
+                    $cccd = str_pad($cccd, 12, '0', STR_PAD_LEFT);
+                }
+            }
+
             $tenPhongBan = isset($row[8]) ? trim($row[8]) : null;
             $tenChucVu = isset($row[9]) ? trim($row[9]) : null;
             $ngayTuyenDungRaw = isset($row[10]) ? trim($row[10]) : null;
+            $diaChi = isset($row[11]) ? trim($row[11]) : null;
 
             // Tự động tạo mã nếu thiếu
             if (empty($maNV)) {
@@ -109,6 +142,7 @@ class NhanVienImport implements ToCollection, WithStartRow
                 $matKhau = $sdt ?: $maNV;
 
                 $user = NguoiDung::create([
+                    'Ten' => $hoTen,
                     'TaiKhoan' => $taiKhoan,
                     'Email' => $email,
                     'SoDienThoai' => $sdt,
@@ -126,6 +160,7 @@ class NhanVienImport implements ToCollection, WithStartRow
                     'NgaySinh' => $ngaySinh,
                     'GioiTinh' => $gioiTinh,
                     'SoCCCD' => $cccd,
+                    'DiaChi' => $diaChi,
                 ]);
 
                 // Tạo thông tin công tác

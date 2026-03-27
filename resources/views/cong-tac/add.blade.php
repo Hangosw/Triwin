@@ -114,19 +114,19 @@
     <div class="card" style="max-width: 900px;">
         <!-- Tabs Header -->
         <div class="custom-tabs">
-            @can('Quản lý công tác')
+            @can('Tạo Yêu Cầu Công Tác')
                 <button class="custom-tab-btn active" onclick="switchTab('top-down', this)">
                     <i class="bi bi-diagram-3" style="margin-right:8px;"></i> Quản lý Phân công (Top-down)
                 </button>
             @endcan
-            <button class="custom-tab-btn {{ !auth()->user()->can('create cong-tac') ? 'active' : '' }}"
+            <button class="custom-tab-btn {{ !auth()->user()->can('Tạo Yêu Cầu Công Tác') ? 'active' : '' }}"
                 onclick="switchTab('bottom-up', this)">
                 <i class="bi bi-person-lines-fill" style="margin-right:8px;"></i> Cá nhân Đăng ký (Bottom-up)
             </button>
         </div>
 
         <!-- Tab 1: Top-down (Phân công) -->
-        @can('Quản lý công tác')
+        @can('Tạo Yêu Cầu Công Tác')
             <div id="tab-top-down" class="tab-pane active">
                 <form action="{{ route('cong-tac.store') }}" method="POST">
                     @csrf

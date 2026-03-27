@@ -104,7 +104,15 @@
 
             <div
                 style="margin-top: 24px; padding: 16px; background-color: #f3f4f6; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                <h4 style="font-size: 14px; font-weight: 600; color: #1e3a8a; margin-bottom: 8px;">Lưu ý cấu trúc file:</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: #1e3a8a; margin: 0;">Lưu ý cấu trúc file:</h4>
+                    <a href="{{ asset('Folder/Template Import Employee 3W.xlsx') }}" download class="btn btn-primary" style="padding: 6px 12px; font-size: 13px; height: auto;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Tải file mẫu Excel
+                    </a>
+                </div>
                 <p style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 4px;">- Cột A: STT</p>
                 <p style="font-size: 13px; color: #4b5563; line-height: 1.5; margin-bottom: 4px;">- Cột B-H: Thông tin cá
                     nhân (Mã, Tên, Căn cước, ...)</p>

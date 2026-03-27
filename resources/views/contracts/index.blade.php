@@ -266,11 +266,11 @@
                         }
                     },
                     {
-                        data: 'nhan_vien.Ten',
+                        data: null, // Change to null to access the whole row
                         render: function (data, type, row) {
-                            const name = data || 'N/A';
+                            const name = row.nhan_vien?.Ten || row.TenNhanVien || 'N/A';
                             const no = row.SoHopDong || 'N/A';
-                            const avatar = row.nhan_vien?.AnhDaiDien ? `/${row.nhan_vien.AnhDaiDien}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F5132&color=fff&size=128`;
+                            const avatar = row.nhan_vien?.AnhDaiDien ? `/${row.nhan_vien.AnhDaiDien}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(name.split(' - ')[0])}&background=0F5132&color=fff&size=128`;
                             return `
                                     <div style="display: flex; align-items: center; gap: 16px;">
                                         <img src="${avatar}" alt="${name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">

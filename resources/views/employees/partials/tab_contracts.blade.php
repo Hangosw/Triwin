@@ -27,7 +27,7 @@
                 <tbody>
                     @forelse($employee->hopDongs as $hd)
                         <tr>
-                            <td style="font-weight: 600; color: #0BAA4B;">{{ $hd->SoHopDong }}</td>
+                            <td style="font-weight: 600;" class="text-primary-hr">{{ $hd->SoHopDong }}</td>
                             <td>{{ $hd->loaiHopDong->TenLoai ?? 'Hợp đồng mới' }}</td>
                             <td>{{ $hd->chucVu->Ten ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($hd->NgayBatDau)->format('d/m/Y') }}</td>
@@ -36,7 +36,7 @@
                                 @if($hd->TrangThai == 1)
                                     <span class="badge badge-success">Đang hiệu lực</span>
                                 @elseif($hd->TrangThai == 0)
-                                    <span class="badge badge-secondary" style="background: #f3f4f6; color: #6b7280;">Hết hiệu lực</span>
+                                    <span class="badge badge-secondary">Hết hiệu lực</span>
                                 @else
                                     <span class="badge badge-danger">Đã hủy</span>
                                 @endif
@@ -57,7 +57,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 48px; background: #fafafa;">
+                            <td colspan="7" style="text-align: center; padding: 48px;" class="empty-state-cell">
                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                                     <i class="bi bi-file-earmark-x" style="font-size: 48px; color: #d1d5db;"></i>
                                     <div style="color: #6b7280; font-size: 15px;">Dữ liệu hợp đồng đang trống</div>

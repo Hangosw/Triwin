@@ -8,13 +8,12 @@
     <title>@yield('title', 'Vietnam Rubber Group HRM')</title>
     <link rel="icon" href="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}">
     <style>
-        * {
+        html, body {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
+            height: 100%;
+            overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: #f9fafb;
             color: #1f2937;
@@ -23,7 +22,9 @@
         .app-container {
             display: flex;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
+            position: relative;
         }
 
         /* Mobile Header */
@@ -257,6 +258,9 @@
         .main-content {
             flex: 1;
             overflow-y: auto;
+            height: 100%;
+            overscroll-behavior-y: contain;
+            position: relative;
         }
 
         .page-header {
@@ -597,7 +601,8 @@
                 left: 0;
             }
 
-            .mobile-header, .mobile-toggle {
+            .mobile-header,
+            .mobile-toggle {
                 display: flex;
             }
 
@@ -625,22 +630,31 @@
             }
 
             .action-buttons {
-                flex-direction: column;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                justify-content: space-between;
                 width: 100%;
+                gap: 8px;
             }
 
             .btn {
-                width: auto;
+                flex: 1;
+                min-width: 0;
                 padding: 10px !important;
                 justify-content: center;
                 gap: 0 !important;
                 font-size: 0 !important;
             }
 
-            .btn svg {
+            .btn svg,
+            .btn i {
                 margin: 0 !important;
                 width: 20px !important;
                 height: 20px !important;
+                font-size: 18px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
 
             .btn-secondary {
@@ -923,6 +937,282 @@
                 text-align: center;
             }
         }
+
+        /* ========================================
+           DARK THEME — Modern Deep Dark
+           Background : #0f1117  (near-black)
+           Surface L1 : #1a1d27  (cards, sidebar)
+           Surface L2 : #21263a  (table header, modal header/footer)
+           Border     : #2e3349
+           Text prim  : #e8eaf0
+           Text sec   : #8b93a8
+           Accent     : #0BAA4B / hover #09933f
+           ======================================== */
+        body.dark-theme {
+            background-color: #0f1117;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .app-container {
+            background-color: #0f1117;
+        }
+
+        /* Cards & main surfaces */
+        body.dark-theme .card,
+        body.dark-theme .stat-card,
+        body.dark-theme .dataTables_wrapper .dataTables_processing {
+            background-color: #1a1d27;
+            border-color: #2e3349;
+            color: #e8eaf0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+        }
+
+        /* Sidebar & mobile header */
+        body.dark-theme .sidebar,
+        body.dark-theme .sidebar-header,
+        body.dark-theme .sidebar-footer,
+        body.dark-theme .mobile-header {
+            background-color: #13161f;
+            border-color: #2e3349;
+            color: #e8eaf0;
+            box-shadow: 2px 0 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Page text */
+        body.dark-theme .page-header h1,
+        body.dark-theme .page-header p,
+        body.dark-theme .stat-card .value,
+        body.dark-theme .stat-card .label,
+        body.dark-theme .form-label,
+        body.dark-theme .text-gray {
+            color: #e8eaf0;
+        }
+
+        /* Navigation items */
+        body.dark-theme .nav-item {
+            color: #8b93a8;
+            border-radius: 8px;
+            transition: all 0.18s ease;
+        }
+
+        body.dark-theme .nav-item:hover {
+            background-color: rgba(11, 170, 75, 0.1);
+            color: #0BAA4B;
+        }
+
+        body.dark-theme .nav-item.active {
+            background-color: rgba(11, 170, 75, 0.15);
+            color: #0BAA4B;
+            border-left-color: #0BAA4B;
+        }
+
+        /* Submenu */
+        body.dark-theme .submenu {
+            background-color: #0f1117;
+        }
+
+        body.dark-theme .submenu-item {
+            color: #6b7492;
+        }
+
+        body.dark-theme .submenu-item:hover {
+            background-color: rgba(11, 170, 75, 0.08);
+            color: #0BAA4B;
+        }
+
+        body.dark-theme .submenu-item.active {
+            background-color: rgba(11, 170, 75, 0.12);
+            color: #0BAA4B;
+        }
+
+        /* Tables */
+        body.dark-theme .table thead,
+        body.dark-theme table.dataTable thead,
+        body.dark-theme .table thead th,
+        body.dark-theme table.dataTable thead th {
+            background-color: #21263a;
+            color: #c3c8da;
+            border-color: #2e3349 !important;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        body.dark-theme .table tbody tr,
+        body.dark-theme table.dataTable tbody tr {
+            background-color: #1a1d27;
+            color: #e8eaf0;
+            border-color: #2e3349 !important;
+            transition: background 0.15s;
+        }
+
+        body.dark-theme .table tbody tr:hover,
+        body.dark-theme table.dataTable tbody tr:hover {
+            background-color: #21263a;
+        }
+
+        body.dark-theme .table td,
+        body.dark-theme table.dataTable tbody td {
+            border-color: #2e3349 !important;
+        }
+
+        /* Form controls & DataTable inputs */
+        body.dark-theme .dataTables_wrapper .dataTables_length select,
+        body.dark-theme .dataTables_wrapper .dataTables_filter input,
+        body.dark-theme .form-control,
+        body.dark-theme .form-select {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        body.dark-theme .dataTables_wrapper .dataTables_length select:focus,
+        body.dark-theme .dataTables_wrapper .dataTables_filter input:focus,
+        body.dark-theme .form-control:focus {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.15) !important;
+        }
+
+        body.dark-theme .dataTables_wrapper .dataTables_length label,
+        body.dark-theme .dataTables_wrapper .dataTables_filter label {
+            color: #8b93a8;
+        }
+
+        /* Buttons */
+        body.dark-theme .btn-secondary {
+            background-color: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da;
+        }
+
+        body.dark-theme .btn-secondary:hover {
+            background-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        /* Pagination */
+        body.dark-theme .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background-color: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da !important;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        body.dark-theme .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: #2e3349;
+            border-color: #0BAA4B;
+            color: #0BAA4B !important;
+        }
+
+        body.dark-theme .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        body.dark-theme .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background-color: #0BAA4B !important;
+            border-color: #0BAA4B !important;
+            color: #fff !important;
+        }
+
+        /* DataTables info text */
+        body.dark-theme .dataTables_wrapper .dataTables_info {
+            color: #6b7492;
+        }
+
+        /* Misc text */
+        body.dark-theme .stt-text {
+            color: #c3c8da;
+        }
+
+        body.dark-theme .action-bar {
+            color: #e8eaf0;
+        }
+
+        /* Select2 */
+        body.dark-theme .select2-container--default .select2-selection--single {
+            background-color: #21263a;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--multiple {
+            background-color: #21263a;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #2e3349;
+            border-color: #3d445e;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .select2-dropdown {
+            background-color: #1a1d27;
+            border-color: #2e3349;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-theme .select2-container--default .select2-results__option {
+            color: #c3c8da;
+        }
+
+        body.dark-theme .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #2e3349;
+        }
+
+        body.dark-theme .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #0BAA4B;
+            color: #fff;
+        }
+
+        body.dark-theme .select2-search--dropdown .select2-search__field {
+            background-color: #21263a;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        /* Modals */
+        body.dark-theme .modal-content {
+            background-color: #1a1d27;
+            border-color: #2e3349;
+            color: #e8eaf0;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+        }
+
+        body.dark-theme .modal-header {
+            background-color: #21263a;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .modal-footer {
+            background-color: #21263a;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .close {
+            color: #8b93a8;
+            opacity: 0.8;
+        }
+
+        body.dark-theme .close:hover {
+            color: #e8eaf0;
+            opacity: 1;
+        }
+
+        /* Badges & misc */
+        body.dark-theme .badge {
+            opacity: 0.9;
+        }
+
+        body.dark-theme hr {
+            border-color: #2e3349;
+        }
+
+        body.dark-theme small,
+        body.dark-theme .text-muted {
+            color: #6b7492 !important;
+        }
     </style>
 
     <!-- DataTables CSS -->
@@ -952,47 +1242,117 @@
         }
     @endphp
     @if($isUserBirthday)
-    <style>
-        /* Birthday Theme Overrides */
-        .nav-item:hover, .submenu-item:hover { background-color: #fdf2f8 !important; color: #db2777 !important; border-left-color: #db2777 !important; }
-        .nav-item.active, .submenu-item.active { background-color: #fce7f3 !important; border-left-color: #db2777 !important; color: #db2777 !important; }
-        .btn-primary { background-color: #f472b6 !important; }
-        .btn-primary:hover { background-color: #db2777 !important; }
-        .user-avatar { background-color: #fce7f3 !important; color: #db2777 !important; }
-        .badge-success { background-color: #fce7f3 !important; color: #be185d !important; }
-        .text-primary { color: #db2777 !important; }
-        .mobile-header span { color: #db2777 !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background-color: #f472b6 !important; border-color: #f472b6 !important; color: white !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover { background-color: #db2777 !important; border-color: #db2777 !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover { border-color: #f472b6 !important; color: #f472b6 !important; }
-        .form-control:focus, .dataTables_wrapper .dataTables_length select:focus, .dataTables_wrapper .dataTables_filter input:focus { border-color: #f472b6 !important; box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.2) !important; }
-        .stat-card:hover { border-color: #f472b6 !important; }
-    </style>
+        <style>
+            /* Birthday Theme Overrides */
+            .nav-item:hover,
+            .submenu-item:hover {
+                background-color: #fdf2f8 !important;
+                color: #db2777 !important;
+                border-left-color: #db2777 !important;
+            }
+
+            .nav-item.active,
+            .submenu-item.active {
+                background-color: #fce7f3 !important;
+                border-left-color: #db2777 !important;
+                color: #db2777 !important;
+            }
+
+            .btn-primary {
+                background-color: #f472b6 !important;
+            }
+
+            .btn-primary:hover {
+                background-color: #db2777 !important;
+            }
+
+            .user-avatar {
+                background-color: #fce7f3 !important;
+                color: #db2777 !important;
+            }
+
+            .badge-success {
+                background-color: #fce7f3 !important;
+                color: #be185d !important;
+            }
+
+            .text-primary {
+                color: #db2777 !important;
+            }
+
+            .mobile-header span {
+                color: #db2777 !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background-color: #f472b6 !important;
+                border-color: #f472b6 !important;
+                color: white !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+                background-color: #db2777 !important;
+                border-color: #db2777 !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                border-color: #f472b6 !important;
+                color: #f472b6 !important;
+            }
+
+            .form-control:focus,
+            .dataTables_wrapper .dataTables_length select:focus,
+            .dataTables_wrapper .dataTables_filter input:focus {
+                border-color: #f472b6 !important;
+                box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.2) !important;
+            }
+
+            .stat-card:hover {
+                border-color: #f472b6 !important;
+            }
+        </style>
     @endif
 </head>
 
 <body>
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.body.classList.add('dark-theme');
+                }
+            } catch (e) { }
+        })();
+    </script>
     @if($isUserBirthday)
-    <div style="background: linear-gradient(90deg, #fbcfe8, #f472b6, #db2777, #f472b6, #fbcfe8); background-size: 200% 100%; animation: gradientShine 3s ease infinite; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; z-index: 9999; position: relative; box-shadow: 0 4px 15px rgba(244,114,182,0.4);">
-        <span style="font-size: 24px;">🎂</span>
-        <span>Chúc mừng sinh nhật {{ auth()->user()->nhanVien->Ten }}! Chúc bạn một ngày ngập tràn niềm vui và hạnh phúc! 🎀 💝</span>
-        <span style="font-size: 24px;">🎈</span>
-    </div>
-    <style>
-        @keyframes gradientShine {
-            0% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-    </style>
+        <div
+            style="background: linear-gradient(90deg, #fbcfe8, #f472b6, #db2777, #f472b6, #fbcfe8); background-size: 200% 100%; animation: gradientShine 3s ease infinite; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; z-index: 9999; position: relative; box-shadow: 0 4px 15px rgba(244,114,182,0.4);">
+            <span style="font-size: 24px;">🎂</span>
+            <span>Chúc mừng sinh nhật {{ auth()->user()->nhanVien->Ten }}! Chúc bạn một ngày ngập tràn niềm vui và hạnh
+                phúc! 🎀 💝</span>
+            <span style="font-size: 24px;">🎈</span>
+        </div>
+        <style>
+            @keyframes gradientShine {
+                0% {
+                    background-position: 100% 50%;
+                }
+
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+        </style>
     @endif
     <div class="app-container">
         <div class="sidebar-overlay" onclick="toggleMobileMenu()"></div>
 
         <!-- Mobile Header -->
         <header class="mobile-header">
-            <a href="{{ route('dashboard') }}" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                <img src="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}" 
-                     alt="Logo" style="height: 32px; width: auto;">
+            <a href="{{ route('dashboard') }}"
+                style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}" alt="Logo"
+                    style="height: 32px; width: auto;">
                 <span style="font-weight: 700; font-size: 18px; color: #0BAA4B;">TRIWIN</span>
             </a>
             <button class="mobile-toggle" onclick="toggleMobileMenu()">
@@ -1006,8 +1366,8 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <a href="{{ route('dashboard') }}">
-                    <img src="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}" alt="Logo"
-                        class="sidebar-logo"
+                    <img src="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}"
+                        alt="Logo" class="sidebar-logo"
                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27120%27 height=%27120%27%3E%3Ccircle cx=%2760%27 cy=%2760%27 r=%2750%27 fill=%27%230BAA4B%27/%3E%3Ctext x=%2760%27 y=%2770%27 font-size=%2724%27 fill=%27white%27 text-anchor=%27middle%27%3ETRIWIN%3C/text%3E%3C/svg%3E'">
                 </a>
             </div>
@@ -1053,7 +1413,7 @@
                     </div>
                 </div>
                 @endhasrole
-                @can('Quản lý người dùng')
+                @can('Xem Danh Sách Người Dùng')
                     <a href="{{ route('nguoi-dung.danh-sach') }}"
                         class="nav-item {{ request()->routeIs('nguoi-dung.*') ? 'active' : '' }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1095,8 +1455,7 @@
                     </div>
                 @endcan
 
-                @unlessrole('Employee|Nhân viên')
-                @can('Xem nhân viên')
+                @canany(['Xem Nhân Viên', 'Xem Danh Sách Công Tác', 'Tạo Yêu Cầu Công Tác', 'Điều Chuyển Công Tác'])
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('nhan-vien.*') || request()->routeIs('dieu-chuyen.*') || request()->routeIs('cong-tac.*') ? 'active' : '' }}"
                             onclick="toggleSubmenu('employees-submenu')" style="cursor: pointer;">
@@ -1112,27 +1471,27 @@
                             </svg>
                         </div>
                         <div class="submenu" id="employees-submenu">
+                            @can('Xem Nhân Viên')
                             <a href="{{ route('nhan-vien.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('nhan-vien.danh-sach') ? 'active' : '' }}">
                                 <span>Danh sách nhân viên</span>
                             </a>
+                            @endcan
                             <a href="{{ route('dieu-chuyen.index') }}"
                                 class="submenu-item {{ request()->routeIs('dieu-chuyen.*') ? 'active' : '' }}">
                                 <span>Điều chuyển nội bộ</span>
                             </a>
-                            @can('Xem công tác')
+                            @canany(['Xem Danh Sách Công Tác', 'Tạo Yêu Cầu Công Tác', 'Xem Chi Tiết Công Tác', 'Điều Chuyển Công Tác'])
                                 <a href="{{ route('cong-tac.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('cong-tac.*') ? 'active' : '' }}">
                                     <span>Công tác</span>
                                 </a>
-                            @endcan
+                            @endcanany
                         </div>
                     </div>
-                @endcan
-                @endunlessrole
+                @endcanany
 
-                @unlessrole('Employee|Nhân viên')
-                @can('Xem hợp đồng')
+                @canany(['Xem Danh Sách Hợp Đồng', 'Xem Hợp Đồng Cá Nhân'])
                     <a href="{{ route('hop-dong.danh-sach') }}"
                         class="nav-item {{ request()->routeIs('hop-dong.*') ? 'active' : '' }}">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1141,13 +1500,12 @@
                         </svg>
                         <span>Hợp đồng</span>
                     </a>
-                @endcan
-                @endunlessrole
+                @endcanany
 
-                @can('Xem chấm công')
+                @canany(['Xem Danh Sách Chấm Công', 'Xem Chấm Công Cá Nhân'])
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('cham-cong.*') ? 'active' : '' }}"
-                            onclick="toggleSubmenu('attendance-submenu')" style="cursor: pointer;">
+                            onclick="toggleSubmenu('attendance-submenu')" style="pointer: cursor;">
                             <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1160,26 +1518,29 @@
                             </svg>
                         </div>
                         <div class="submenu" id="attendance-submenu">
-                            <a href="{{ route('cham-cong.danh-sach') }}"
-                                class="submenu-item {{ request()->routeIs('cham-cong.danh-sach') ? 'active' : '' }}">
-                                <span>Danh sách chấm công</span>
-                            </a>
+                            @can('Xem Danh Sách Chấm Công')
+                                <a href="{{ route('cham-cong.danh-sach') }}"
+                                    class="submenu-item {{ request()->routeIs('cham-cong.danh-sach') ? 'active' : '' }}">
+                                    <span>Danh sách chấm công</span>
+                                </a>
+                            @endcan
                             @unlessrole('Employee|Nhân viên')
-                            <a href="{{ route('cham-cong.taoView') }}"
-                                class="submenu-item {{ request()->routeIs('cham-cong.taoView') ? 'active' : '' }}">
-                                <span>Chấm công (Admin)</span>
-                            </a>
+                                <a href="{{ route('cham-cong.taoView') }}"
+                                    class="submenu-item {{ request()->routeIs('cham-cong.taoView') ? 'active' : '' }}">
+                                    <span>Chấm công (Admin)</span>
+                                </a>
                             @endunlessrole
-                            <a href="{{ route('cham-cong.ca-nhan') }}"
-                                class="submenu-item {{ request()->routeIs('cham-cong.ca-nhan') ? 'active' : '' }}">
-                                <span>Chấm công cá nhân</span>
-                            </a>
-
+                            @can('Xem Chấm Công Cá Nhân')
+                                <a href="{{ route('cham-cong.ca-nhan') }}"
+                                    class="submenu-item {{ request()->routeIs('cham-cong.ca-nhan') ? 'active' : '' }}">
+                                    <span>Chấm công cá nhân</span>
+                                </a>
+                            @endcan
                         </div>
                     </div>
-                @endcan
+                @endcanany
 
-                @can('Xem tăng ca nghỉ phép')
+                @canany(['Xem Danh Sách Tăng Ca', 'Tạo Phiếu Tăng Ca Cá Nhân', 'Xem Danh Sách Nghỉ Phép', 'Tạo Phiếu Nghỉ Phép Cá Nhân', 'Duyệt Nghỉ Phép', 'Duyệt Tăng Ca'])
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('tang-ca.*') || request()->routeIs('nghi-phep.*') || request()->routeIs('overtime-leave.*') ? 'active' : '' }}"
                             onclick="toggleSubmenu('overtime-leave-submenu')" style="cursor: pointer;">
@@ -1195,17 +1556,19 @@
                             </svg>
                         </div>
                         <div class="submenu" id="overtime-leave-submenu">
-                            @unlessrole('Employee|Nhân viên')
+                            @canany(['Xem Danh Sách Tăng Ca', 'Duyệt Tăng Ca'])
                             <a href="{{ route('tang-ca.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('tang-ca.danh-sach') ? 'active' : '' }}">
                                 <span>Tăng ca (Admin)</span>
                             </a>
-                            @endunlessrole
+                            @endcanany
+                            @can('Tạo Phiếu Tăng Ca Cá Nhân')
                             <a href="{{ route('tang-ca.ca-nhan') }}"
                                 class="submenu-item {{ request()->routeIs('tang-ca.ca-nhan') ? 'active' : '' }}">
                                 <span>Đăng ký tăng ca</span>
                             </a>
-                            @unlessrole('Employee|Nhân viên')
+                            @endcan
+                            @canany(['Xem Danh Sách Nghỉ Phép', 'Duyệt Nghỉ Phép'])
                             <a href="{{ route('nghi-phep.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('nghi-phep.danh-sach') ? 'active' : '' }}">
                                 <span>Nghỉ phép (Admin)</span>
@@ -1214,22 +1577,18 @@
                                 class="submenu-item {{ request()->routeIs('nghi-phep.con-lai') ? 'active' : '' }}">
                                 <span>Danh sách phép còn lại</span>
                             </a>
-                            @endunlessrole
+                            @endcanany
+                            @can('Tạo Phiếu Nghỉ Phép Cá Nhân')
                             <a href="{{ route('nghi-phep.ca-nhan') }}"
                                 class="submenu-item {{ request()->routeIs('nghi-phep.ca-nhan') ? 'active' : '' }}">
                                 <span>Đăng ký nghỉ phép</span>
                             </a>
-                            @unlessrole('Employee|Nhân viên')
-                            <a href="{{ route('nghi-phep.config') }}"
-                                class="submenu-item {{ request()->routeIs('nghi-phep.config') ? 'active' : '' }}">
-                                <span>Cấu hình nghỉ phép</span>
-                            </a>
-                            @endunlessrole
+                            @endcan
                         </div>
                     </div>
-                @endcan
+                @endcanany
 
-                @can('Xem lương')
+                @canany(['Xem Danh Sách Lương', 'Xem Lương Cá Nhân'])
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('salary.*') ? 'active' : '' }}"
                             onclick="toggleSubmenu('salary-submenu')" style="cursor: pointer;">
@@ -1245,23 +1604,27 @@
                             </svg>
                         </div>
                         <div class="submenu" id="salary-submenu">
+                            @can('Xem Danh Sách Lương')
                             <a href="{{ route('salary.index') }}"
                                 class="submenu-item {{ request()->routeIs('salary.index') ? 'active' : '' }}">
                                 <span>Danh sách lương</span>
                             </a>
+                            @endcan
+                            @can('Xem Lương Cá Nhân')
+                            <a href="{{ $authNV ? route('salary.detail', $authNV->id) : '#' }}"
+                                class="submenu-item {{ request()->routeIs('salary.detail') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
+                                <span>Lương cá nhân</span>
+                            </a>
+                            @endcan
+                            @can('Tính Lương Tự Động')
                             <a href="{{ route('salary.config-global') }}"
                                 class="submenu-item {{ request()->routeIs('salary.config-global') ? 'active' : '' }}">
                                 <span>Cấu hình lương</span>
                             </a>
-                            @can('Quản lý hệ thống')
-                            <a href="{{ route('salary.ngach-luong.index') }}"
-                                class="submenu-item {{ request()->routeIs('salary.ngach-luong.*') ? 'active' : '' }}">
-                                <span>Ngạch lương</span>
-                            </a>
                             @endcan
                         </div>
                     </div>
-                @endcan
+                @endcanany
 
                 @can('Quản lý hệ thống')
                     <div class="nav-item-parent">
@@ -1387,7 +1750,7 @@
             const overlay = document.querySelector('.sidebar-overlay');
             sidebar.classList.toggle('mobile-open');
             overlay.classList.toggle('active');
-            
+
             // Prevent body scroll when menu is open
             if (sidebar.classList.contains('mobile-open')) {
                 document.body.style.overflow = 'hidden';
