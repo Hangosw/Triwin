@@ -12,6 +12,7 @@ class NgachLuong extends Model
         'Ma', // sample: 01.003
         'Ten', // chuyên viên, nhân viên
         'Nhom', // A3, A2, A1
+        'TrangThai', // 1: Active, 0: Locked
     ];
 
     /**

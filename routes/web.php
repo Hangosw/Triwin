@@ -16,6 +16,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\CauHinhController;
 use App\Http\Controllers\NgachLuongController;
+use App\Http\Controllers\DmPlHopDongController;
 
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
@@ -104,14 +105,26 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/data', [HopDongController::class, 'DataHopDong'])->name('data')->middleware('permission:Xem Danh Sách Hợp Đồng');
         Route::get('/tao', [HopDongController::class, 'TaoView'])->name('taoView')->middleware('permission:Tạo Hợp Đồng');
         Route::post('/tao', [HopDongController::class, 'Tao'])->name('tao')->middleware('permission:Tạo Hợp Đồng');
-        Route::get('/info/{id}', [HopDongController::class, 'Info'])->name('info')->middleware('permission:Xem Danh Sách Hợp Đồng');
+        Route::get('/info/{id}', [HopDongController::class, 'Info'])->name('info')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
         Route::get('/sua/{id}', [HopDongController::class, 'SuaView'])->name('suaView')->middleware('permission:Sửa Hợp Đồng');
         Route::post('/sua/{id}', [HopDongController::class, 'CapNhat'])->name('cap-nhat')->middleware('permission:Sửa Hợp Đồng');
         Route::post('/xoa/{id}', [HopDongController::class, 'Xoa'])->name('xoa')->middleware('permission:Xóa Hợp Đồng');
         Route::post('/xoa-nhieu', [HopDongController::class, 'XoaNhieu'])->name('xoa-nhieu')->middleware('permission:Xóa Hợp Đồng');
-        Route::get('/{id}/download-word', [HopDongController::class, 'downloadWord'])->name('download-word')->middleware('permission:Xem Danh Sách Hợp Đồng');
-        Route::get('/{id}/print', [HopDongController::class, 'print'])->name('print')->middleware('permission:Xem Danh Sách Hợp Đồng');
+        Route::get('/{id}/download-word', [HopDongController::class, 'downloadWord'])->name('download-word')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+        Route::get('/{id}/download-nda-word', [HopDongController::class, 'downloadNDAWord'])->name('download-nda-word')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+        Route::get('/{id}/download-phu-luc-word', [HopDongController::class, 'downloadPhuLucWord'])->name('download-phu-luc-word')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+        Route::get('/{id}/print', [HopDongController::class, 'print'])->name('print')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+        Route::get('/{id}/print-phu-luc', [HopDongController::class, 'printPhuLuc'])->name('print-phu-luc')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
         Route::get('/tai-ki/{id}', [HopDongController::class, 'RenewView'])->name('renew')->middleware('permission:Sửa Hợp Đồng');
+        Route::post('/save-signature', [HopDongController::class, 'saveSignature'])->name('save-signature');
+
+        // Danh mục phụ lục
+        Route::prefix('dm-phu-luc')->name('dm-phu-luc.')->group(function () {
+            Route::get('/', [DmPlHopDongController::class, 'index'])->name('index');
+            Route::get('/data', [DmPlHopDongController::class, 'data'])->name('data');
+            Route::post('/store', [DmPlHopDongController::class, 'store'])->name('store');
+            Route::post('/update/{id}', [DmPlHopDongController::class, 'update'])->name('update');
+        });
     });
 
     Route::prefix('cham-cong')->name('cham-cong.')->group(function () {
@@ -251,6 +264,12 @@ Route::prefix('salary')->name('salary.')->group(function () {
         Route::post('/store', [NgachLuongController::class, 'store'])->name('store');
         Route::post('/update/{id}', [NgachLuongController::class, 'update'])->name('update');
         Route::post('/delete/{id}', [NgachLuongController::class, 'destroy'])->name('destroy');
+        Route::post('/toggle-status/{id}', [NgachLuongController::class, 'toggleStatus'])->name('toggle-status');
+
+        // Bac luong
+        Route::post('/bac-luong/store', [NgachLuongController::class, 'storeBacLuong'])->name('bac-luong.store');
+        Route::post('/bac-luong/update/{id}', [NgachLuongController::class, 'updateBacLuong'])->name('bac-luong.update');
+        Route::post('/bac-luong/delete/{id}', [NgachLuongController::class, 'destroyBacLuong'])->name('bac-luong.destroy');
     });
 });
 Route::get('/config', [CauHinhController::class, 'index'])->name('config.index');

@@ -7,11 +7,21 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Vietnam Rubber Group HRM')</title>
     <link rel="icon" href="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        html, body {
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             height: 100%;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -258,6 +268,7 @@
         .main-content {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             height: 100%;
             overscroll-behavior-y: contain;
             position: relative;
@@ -1386,33 +1397,39 @@
                     <span>Trang chủ</span>
                 </a>
 
-                @hasrole('Employee|Nhân viên')
-                <div class="nav-item-parent">
-                    <div class="nav-item {{ request()->routeIs('nhan-vien.info') || request()->routeIs('hop-dong.info') ? 'active' : '' }}"
-                        onclick="toggleSubmenu('profile-submenu')" style="cursor: pointer;">
-                        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                            </svg>
-                            <span>Hồ sơ cá nhân</span>
+                @canany(['Xem Thông Tin Cá Nhân', 'Xem Hợp Đồng Cá Nhân'])
+                    @unlessrole('System Admin')
+                        <div class="nav-item-parent">
+                            <div class="nav-item {{ request()->routeIs('nhan-vien.info') || request()->routeIs('hop-dong.info') ? 'active' : '' }}"
+                                onclick="toggleSubmenu('profile-submenu')" style="cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                    </svg>
+                                    <span>Hồ sơ cá nhân</span>
+                                </div>
+                                <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                            <div class="submenu" id="profile-submenu">
+                                @can('Xem Thông Tin Cá Nhân')
+                                    <a href="{{ $authNV ? route('nhan-vien.info', $authNV->id) : '#' }}"
+                                        class="submenu-item {{ request()->routeIs('nhan-vien.info') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
+                                        <span>Thông tin cá nhân</span>
+                                    </a>
+                                @endcan
+                                @can('Xem Hợp Đồng Cá Nhân')
+                                    <a href="{{ $activeContract ? route('hop-dong.info', $activeContract->id) : '#' }}"
+                                        class="submenu-item {{ request()->routeIs('hop-dong.info') && request()->route('id') == ($activeContract?->id ?? 0) ? 'active' : '' }}">
+                                        <span>Hợp đồng cá nhân</span>
+                                    </a>
+                                @endcan
+                            </div>
                         </div>
-                        <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                    <div class="submenu" id="profile-submenu">
-                        <a href="{{ $authNV ? route('nhan-vien.info', $authNV->id) : '#' }}"
-                            class="submenu-item {{ request()->routeIs('nhan-vien.info') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
-                            <span>Thông tin cá nhân</span>
-                        </a>
-                        <a href="{{ $activeContract ? route('hop-dong.info', $activeContract->id) : '#' }}"
-                            class="submenu-item {{ request()->routeIs('hop-dong.info') && request()->route('id') == ($activeContract?->id ?? 0) ? 'active' : '' }}">
-                            <span>Hợp đồng cá nhân</span>
-                        </a>
-                    </div>
-                </div>
-                @endhasrole
+                    @endunlessrole
+                @endcanany
                 @can('Xem Danh Sách Người Dùng')
                     <a href="{{ route('nguoi-dung.danh-sach') }}"
                         class="nav-item {{ request()->routeIs('nguoi-dung.*') ? 'active' : '' }}">
@@ -1472,10 +1489,10 @@
                         </div>
                         <div class="submenu" id="employees-submenu">
                             @can('Xem Nhân Viên')
-                            <a href="{{ route('nhan-vien.danh-sach') }}"
-                                class="submenu-item {{ request()->routeIs('nhan-vien.danh-sach') ? 'active' : '' }}">
-                                <span>Danh sách nhân viên</span>
-                            </a>
+                                <a href="{{ route('nhan-vien.danh-sach') }}"
+                                    class="submenu-item {{ request()->routeIs('nhan-vien.danh-sach') ? 'active' : '' }}">
+                                    <span>Danh sách nhân viên</span>
+                                </a>
                             @endcan
                             <a href="{{ route('dieu-chuyen.index') }}"
                                 class="submenu-item {{ request()->routeIs('dieu-chuyen.*') ? 'active' : '' }}">
@@ -1491,15 +1508,33 @@
                     </div>
                 @endcanany
 
-                @canany(['Xem Danh Sách Hợp Đồng', 'Xem Hợp Đồng Cá Nhân'])
-                    <a href="{{ route('hop-dong.danh-sach') }}"
-                        class="nav-item {{ request()->routeIs('hop-dong.*') ? 'active' : '' }}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span>Hợp đồng</span>
-                    </a>
+                @canany(['Xem Danh Sách Hợp Đồng'])
+                    <div class="nav-item-parent">
+                        <div class="nav-item {{ request()->routeIs('hop-dong.*') ? 'active' : '' }}"
+                            onclick="toggleSubmenu('contract-submenu')" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span>Hợp đồng</span>
+                            </div>
+                            <svg class="chevron-icon {{ request()->routeIs('hop-dong.*') ? 'rotate' : '' }}" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="submenu {{ request()->routeIs('hop-dong.*') ? 'open' : '' }}" id="contract-submenu">
+                            <a href="{{ route('hop-dong.danh-sach') }}"
+                                class="submenu-item {{ request()->routeIs('hop-dong.danh-sach') ? 'active' : '' }}">
+                                <span>Danh sách hợp đồng</span>
+                            </a>
+                            <a href="{{ route('hop-dong.dm-phu-luc.index') }}"
+                                class="submenu-item {{ request()->routeIs('hop-dong.dm-phu-luc.index') ? 'active' : '' }}">
+                                <span>Phụ lục hợp đồng</span>
+                            </a>
+                        </div>
+                    </div>
                 @endcanany
 
                 @canany(['Xem Danh Sách Chấm Công', 'Xem Chấm Công Cá Nhân'])
@@ -1525,10 +1560,10 @@
                                 </a>
                             @endcan
                             @unlessrole('Employee|Nhân viên')
-                                <a href="{{ route('cham-cong.taoView') }}"
-                                    class="submenu-item {{ request()->routeIs('cham-cong.taoView') ? 'active' : '' }}">
-                                    <span>Chấm công (Admin)</span>
-                                </a>
+                            <a href="{{ route('cham-cong.taoView') }}"
+                                class="submenu-item {{ request()->routeIs('cham-cong.taoView') ? 'active' : '' }}">
+                                <span>Chấm công (Admin)</span>
+                            </a>
                             @endunlessrole
                             @can('Xem Chấm Công Cá Nhân')
                                 <a href="{{ route('cham-cong.ca-nhan') }}"
@@ -1557,32 +1592,32 @@
                         </div>
                         <div class="submenu" id="overtime-leave-submenu">
                             @canany(['Xem Danh Sách Tăng Ca', 'Duyệt Tăng Ca'])
-                            <a href="{{ route('tang-ca.danh-sach') }}"
-                                class="submenu-item {{ request()->routeIs('tang-ca.danh-sach') ? 'active' : '' }}">
-                                <span>Tăng ca (Admin)</span>
-                            </a>
+                                <a href="{{ route('tang-ca.danh-sach') }}"
+                                    class="submenu-item {{ request()->routeIs('tang-ca.danh-sach') ? 'active' : '' }}">
+                                    <span>Tăng ca (Admin)</span>
+                                </a>
                             @endcanany
                             @can('Tạo Phiếu Tăng Ca Cá Nhân')
-                            <a href="{{ route('tang-ca.ca-nhan') }}"
-                                class="submenu-item {{ request()->routeIs('tang-ca.ca-nhan') ? 'active' : '' }}">
-                                <span>Đăng ký tăng ca</span>
-                            </a>
+                                <a href="{{ route('tang-ca.ca-nhan') }}"
+                                    class="submenu-item {{ request()->routeIs('tang-ca.ca-nhan') ? 'active' : '' }}">
+                                    <span>Đăng ký tăng ca</span>
+                                </a>
                             @endcan
                             @canany(['Xem Danh Sách Nghỉ Phép', 'Duyệt Nghỉ Phép'])
-                            <a href="{{ route('nghi-phep.danh-sach') }}"
-                                class="submenu-item {{ request()->routeIs('nghi-phep.danh-sach') ? 'active' : '' }}">
-                                <span>Nghỉ phép (Admin)</span>
-                            </a>
-                            <a href="{{ route('nghi-phep.con-lai') }}"
-                                class="submenu-item {{ request()->routeIs('nghi-phep.con-lai') ? 'active' : '' }}">
-                                <span>Danh sách phép còn lại</span>
-                            </a>
+                                <a href="{{ route('nghi-phep.danh-sach') }}"
+                                    class="submenu-item {{ request()->routeIs('nghi-phep.danh-sach') ? 'active' : '' }}">
+                                    <span>Nghỉ phép (Admin)</span>
+                                </a>
+                                <a href="{{ route('nghi-phep.con-lai') }}"
+                                    class="submenu-item {{ request()->routeIs('nghi-phep.con-lai') ? 'active' : '' }}">
+                                    <span>Danh sách phép còn lại</span>
+                                </a>
                             @endcanany
                             @can('Tạo Phiếu Nghỉ Phép Cá Nhân')
-                            <a href="{{ route('nghi-phep.ca-nhan') }}"
-                                class="submenu-item {{ request()->routeIs('nghi-phep.ca-nhan') ? 'active' : '' }}">
-                                <span>Đăng ký nghỉ phép</span>
-                            </a>
+                                <a href="{{ route('nghi-phep.ca-nhan') }}"
+                                    class="submenu-item {{ request()->routeIs('nghi-phep.ca-nhan') ? 'active' : '' }}">
+                                    <span>Đăng ký nghỉ phép</span>
+                                </a>
                             @endcan
                         </div>
                     </div>
@@ -1605,23 +1640,31 @@
                         </div>
                         <div class="submenu" id="salary-submenu">
                             @can('Xem Danh Sách Lương')
-                            <a href="{{ route('salary.index') }}"
-                                class="submenu-item {{ request()->routeIs('salary.index') ? 'active' : '' }}">
-                                <span>Danh sách lương</span>
-                            </a>
+                                <a href="{{ route('salary.index') }}"
+                                    class="submenu-item {{ request()->routeIs('salary.index') ? 'active' : '' }}">
+                                    <span>Danh sách lương</span>
+                                </a>
                             @endcan
                             @can('Xem Lương Cá Nhân')
-                            <a href="{{ $authNV ? route('salary.detail', $authNV->id) : '#' }}"
-                                class="submenu-item {{ request()->routeIs('salary.detail') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
-                                <span>Lương cá nhân</span>
-                            </a>
+                                @unlessrole('System Admin')
+                                    <a href="{{ $authNV ? route('salary.detail', $authNV->id) : '#' }}"
+                                        class="submenu-item {{ request()->routeIs('salary.detail') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
+                                        <span>Lương cá nhân</span>
+                                    </a>
+                                @endunlessrole
                             @endcan
                             @can('Tính Lương Tự Động')
-                            <a href="{{ route('salary.config-global') }}"
-                                class="submenu-item {{ request()->routeIs('salary.config-global') ? 'active' : '' }}">
-                                <span>Cấu hình lương</span>
-                            </a>
+                                <a href="{{ route('salary.config-global') }}"
+                                    class="submenu-item {{ request()->routeIs('salary.config-global') ? 'active' : '' }}">
+                                    <span>Cấu hình lương</span>
+                                </a>
                             @endcan
+                            @hasrole('System Admin')
+                                <a href="{{ route('salary.ngach-luong.index') }}"
+                                    class="submenu-item {{ request()->routeIs('salary.ngach-luong.index') ? 'active' : '' }}">
+                                    <span>Cấu hình bậc lương</span>
+                                </a>
+                            @endhasrole
                         </div>
                     </div>
                 @endcanany

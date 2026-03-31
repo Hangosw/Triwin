@@ -109,7 +109,9 @@ class NhanVienController extends Controller
             'ttCongViec.phongBan',
             'thanNhans',
             'hopDongs' => function ($q) {
-                $q->with(['loaiHopDong', 'chucVu'])->orderBy('NgayBatDau', 'desc');
+                $q->with(['loaiHopDong', 'chucVu'])
+                    ->orderByRaw('CASE WHEN TrangThai = 1 THEN 0 ELSE 1 END')
+                    ->orderBy('NgayBatDau', 'desc');
             },
             'dienBienLuongs' => function ($q) {
                 $q->with(['ngachLuong', 'bacLuong'])->orderBy('NgayHuong', 'desc');

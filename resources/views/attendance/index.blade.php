@@ -8,54 +8,151 @@
         <p>Theo dõi chấm công và giờ làm việc của nhân viên</p>
     </div>
 
+    <style>
+        /* Đồng bộ chiều cao tất cả các filter */
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: normal !important;
+            padding-left: 0.75rem !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px !important;
+            right: 4px !important;
+        }
+    </style>
+
     <!-- Filter Bar -->
     <div class="card">
         <form action="{{ route('cham-cong.danh-sach') }}" method="GET" class="action-bar" id="filterForm">
             <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
                 {{-- Ngày --}}
-                <div class="form-group" style="margin-bottom: 0; min-width: 130px;">
-                    <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Ngày</label>
-                    <select name="day" class="form-control" onchange="this.form.submit()">
-                        <option value="" {{ $day === '' ? 'selected' : '' }}>Tất cả ngày</option>
-                        @for($d = 1; $d <= 31; $d++)
-                            <option value="{{ $d }}" {{ (string)$day === (string)$d ? 'selected' : '' }}>Ngày {{ $d }}</option>
-                        @endfor
-                    </select>
+                <div class="form-group" style="margin-bottom: 0; min-width: 140px;">
+                    <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Chọn ngày</label>
+                    <div class="dropdown custom-day-picker">
+                        <input type="hidden" name="day" id="inputDay" value="{{ $day }}">
+                        <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
+                            <span id="dayDropdownText" style="color: {{ $day === '' ? '#6c757d' : '#212529' }};">{{ $day !== '' ? 'Ngày ' . sprintf('%02d', $day) : 'Tất cả ngày' }}</span>
+                            @if($day !== '')
+                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearDayFilter();" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                            @else
+                                <i class="bi bi-calendar3 ms-2 text-muted" style="font-size: 14px;"></i>
+                            @endif
+                        </div>
+                        <div class="dropdown-menu p-2 shadow" style="min-width: 260px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                                <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN NGÀY TRONG THÁNG</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
+                                <button type="button" class="btn btn-sm btn-light day-preset {{ $day === '' ? 'active fw-bold text-primary' : '' }}" onclick="selectDay('')" style="grid-column: span 7; font-size: 13px; padding: 6px 0; background-color: {{ $day === '' ? '#eff6ff' : '#f3f4f6' }}; border: none; display: flex; justify-content: center; align-items: center;">Tất cả ngày</button>
+                                @for($d = 1; $d <= 31; $d++)
+                                    <button type="button" class="btn btn-sm {{ (string)$day === (string)$d ? 'btn-primary fw-bold shadow-sm' : 'btn-light' }}" onclick="selectDay('{{ $d }}')" style="padding: 6px 0; font-size: 13px; border-radius: 6px; border: none; background-color: {{ (string)$day === (string)$d ? '#3b82f6' : '#f9fafb' }}; color: {{ (string)$day === (string)$d ? '#fff' : '#374151' }}; transition: all 0.2s; display: flex; justify-content: center; align-items: center;" onmouseover="if('{{ $day }}' != '{{ $d }}') { this.style.backgroundColor='#e5e7eb'; }" onmouseout="if('{{ $day }}' != '{{ $d }}') { this.style.backgroundColor='#f9fafb'; }">{{ $d }}</button>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 {{-- Tháng --}}
-                <div class="form-group" style="margin-bottom: 0; min-width: 120px;">
+                <div class="form-group" style="margin-bottom: 0; min-width: 140px;">
                     <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Tháng</label>
-                    <select name="month" class="form-control" onchange="this.form.submit()">
-                        @for($m = 1; $m <= 12; $m++)
-                            <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>Tháng {{ $m }}</option>
-                        @endfor
-                    </select>
+                    <div class="dropdown custom-day-picker">
+                        <input type="hidden" name="month" id="inputMonth" value="{{ $month }}">
+                        <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
+                            <span id="monthDropdownText" style="color: {{ $month == date('m') && !request()->has('month') ? '#6c757d' : '#212529' }};">{{ $month !== '' ? 'Tháng ' . $month : 'Tất cả tháng' }}</span>
+                            @if($month !== '' && request()->has('month'))
+                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearFilter('inputMonth');" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                            @else
+                                <i class="bi bi-calendar3 ms-2 text-muted" style="font-size: 14px;"></i>
+                            @endif
+                        </div>
+                        <div class="dropdown-menu p-2 shadow" style="min-width: 250px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                                <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN THÁNG</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                                <button type="button" class="btn btn-sm btn-light day-preset {{ $month === '' ? 'active fw-bold text-primary' : '' }}" onclick="selectFilter('inputMonth', '')" style="grid-column: span 3; font-size: 13px; padding: 6px 0; background-color: {{ $month === '' ? '#eff6ff' : '#f3f4f6' }}; border: none; display: flex; justify-content: center; align-items: center;">Tất cả tháng</button>
+                                @for($m = 1; $m <= 12; $m++)
+                                    <button type="button" class="btn btn-sm {{ (string)$month === (string)$m ? 'btn-primary fw-bold shadow-sm' : 'btn-light' }}" onclick="selectFilter('inputMonth', '{{ $m }}')" style="padding: 6px 0; font-size: 13px; border-radius: 6px; border: none; background-color: {{ (string)$month === (string)$m ? '#3b82f6' : '#f9fafb' }}; color: {{ (string)$month === (string)$m ? '#fff' : '#374151' }}; transition: all 0.2s; display: flex; justify-content: center; align-items: center;" onmouseover="if('{{ $month }}' != '{{ $m }}') { this.style.backgroundColor='#e5e7eb'; }" onmouseout="if('{{ $month }}' != '{{ $m }}') { this.style.backgroundColor='#f9fafb'; }">Tháng {{ $m }}</button>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 {{-- Năm --}}
-                <div class="form-group" style="margin-bottom: 0; min-width: 100px;">
+                <div class="form-group" style="margin-bottom: 0; min-width: 130px;">
                     <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Năm</label>
-                    <select name="year" class="form-control" onchange="this.form.submit()">
-                        @for($y = 2024; $y <= 2030; $y++)
-                            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>Năm {{ $y }}</option>
-                        @endfor
-                    </select>
+                    <div class="dropdown custom-day-picker">
+                        <input type="hidden" name="year" id="inputYear" value="{{ $year }}">
+                        <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
+                            <span id="yearDropdownText" style="color: {{ $year == date('Y') && !request()->has('year') ? '#6c757d' : '#212529' }};">{{ $year !== '' ? 'Năm ' . $year : 'Tất cả năm' }}</span>
+                            @if($year !== '' && request()->has('year'))
+                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearFilter('inputYear');" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                            @else
+                                <i class="bi bi-calendar3 ms-2 text-muted" style="font-size: 14px;"></i>
+                            @endif
+                        </div>
+                        <div class="dropdown-menu p-2 shadow" style="min-width: 250px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                                <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN NĂM</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                                <button type="button" class="btn btn-sm btn-light day-preset {{ $year === '' ? 'active fw-bold text-primary' : '' }}" onclick="selectFilter('inputYear', '')" style="grid-column: span 3; font-size: 13px; padding: 6px 0; background-color: {{ $year === '' ? '#eff6ff' : '#f3f4f6' }}; border: none; display: flex; justify-content: center; align-items: center;">Tất cả năm</button>
+                                @for($y = 2024; $y <= 2030; $y++)
+                                    <button type="button" class="btn btn-sm {{ (string)$year === (string)$y ? 'btn-primary fw-bold shadow-sm' : 'btn-light' }}" onclick="selectFilter('inputYear', '{{ $y }}')" style="padding: 6px 0; font-size: 13px; border-radius: 6px; border: none; background-color: {{ (string)$year === (string)$y ? '#3b82f6' : '#f9fafb' }}; color: {{ (string)$year === (string)$y ? '#fff' : '#374151' }}; transition: all 0.2s; display: flex; justify-content: center; align-items: center;" onmouseover="if('{{ $year }}' != '{{ $y }}') { this.style.backgroundColor='#e5e7eb'; }" onmouseout="if('{{ $year }}' != '{{ $y }}') { this.style.backgroundColor='#f9fafb'; }">{{ $y }}</button>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 {{-- Trạng thái --}}
-                <div class="form-group" style="margin-bottom: 0; min-width: 170px;">
+                <div class="form-group" style="margin-bottom: 0; min-width: 180px;">
                     <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Trạng thái</label>
-                    <select name="status" class="form-control" onchange="this.form.submit()">
-                        <option value=""        {{ $status === ''        ? 'selected' : '' }}>Tất cả trạng thái</option>
-                        <option value="dung_gio"{{ $status === 'dung_gio'? 'selected' : '' }}>✅ Đúng giờ</option>
-                        <option value="tre"     {{ $status === 'tre'     ? 'selected' : '' }}>⏰ Đi muộn</option>
-                        <option value="ve_som"  {{ $status === 've_som'  ? 'selected' : '' }}>🏃 Về sớm</option>
-                        <option value="la"      {{ $status === 'la'      ? 'selected' : '' }}>❓ Khách / Lạ</option>
-                    </select>
+                    <div class="dropdown custom-day-picker">
+                        <input type="hidden" name="status" id="inputStatus" value="{{ $status }}">
+                        <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
+                            <span id="statusDropdownText" style="color: {{ $status === '' ? '#6c757d' : '#212529' }};">
+                                @if($status === 'dung_gio') ✅ Đúng giờ
+                                @elseif($status === 'tre') ⏰ Đi muộn
+                                @elseif($status === 've_som') 🏃 Về sớm
+                                @elseif($status === 'la') ❓ Khách / Lạ
+                                @else Tất cả trạng thái @endif
+                            </span>
+                            @if($status !== '')
+                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearFilter('inputStatus');" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                            @else
+                                <i class="bi bi-list ms-2 text-muted" style="font-size: 16px;"></i>
+                            @endif
+                        </div>
+                        <div class="dropdown-menu p-2 shadow" style="min-width: 200px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                                <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN TRẠNG THÁI</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 4px;">
+                                @php
+                                    $statuses = [
+                                        '' => 'Tất cả trạng thái',
+                                        'dung_gio' => '✅ Đúng giờ',
+                                        'tre' => '⏰ Đi muộn',
+                                        've_som' => '🏃 Về sớm',
+                                        'la' => '❓ Khách / Lạ',
+                                    ];
+                                @endphp
+                                @foreach($statuses as $val => $label)
+                                    <button type="button" class="btn btn-sm {{ $status === $val ? 'btn-primary fw-bold shadow-sm' : 'btn-light' }}" onclick="selectFilter('inputStatus', '{{ $val }}')" style="padding: 8px 12px; font-size: 13px; border-radius: 6px; border: none; background-color: {{ $status === $val ? '#3b82f6' : '#f9fafb' }}; color: {{ $status === $val ? '#fff' : '#374151' }}; transition: all 0.2s; display: flex; justify-content: flex-start; align-items: center;" onmouseover="if('{{ $status }}' != '{{ $val }}') { this.style.backgroundColor='#e5e7eb'; }" onmouseout="if('{{ $status }}' != '{{ $val }}') { this.style.backgroundColor='#f9fafb'; }">{{ $label }}</button>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 {{-- Xóa bộ lọc nhanh --}}
-                @if($day !== '' || $status !== '')
-                    <div style="margin-bottom: 2px;">
-                        <a href="{{ route('cham-cong.danh-sach', ['month' => $month, 'year' => $year]) }}"
-                           style="font-size: 13px; color: #ef4444; text-decoration: none; white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+                @if($day !== '' || $status !== '' || request()->has('month') || request()->has('year'))
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <a href="{{ route('cham-cong.danh-sach') }}" class="btn btn-outline-danger d-flex align-items-center justify-content-center" style="height: 38px; padding: 0 16px; font-size: 13px; font-weight: 500; gap: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fee2e2'; this.style.borderColor='#ef4444';" onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#fca5a5';">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -243,4 +340,28 @@
         });
     }
 </script>
+<script>
+    function selectFilter(inputId, val) {
+        document.getElementById(inputId).value = val;
+        document.getElementById('filterForm').submit();
+    }
+    
+    function clearFilter(inputId) {
+        document.getElementById(inputId).value = '';
+        document.getElementById('filterForm').submit();
+    }
+
+    // Keep Day compat
+    function selectDay(day) { selectFilter('inputDay', day); }
+    function clearDayFilter() { clearFilter('inputDay'); }
+    
+    // Custom select2 height normalization to perfectly match the custom day picker (if any other select2 exists on page)
+    $(document).ready(function() {
+        if ($('.select2-container').length) {
+            $('.select2-selection--single').css('height', '38px');
+            $('.select2-selection__rendered').css('line-height', '36px');
+        }
+    });
+</script>
 @endpush
+

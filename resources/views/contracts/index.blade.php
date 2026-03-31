@@ -150,6 +150,50 @@
             color: white !important;
             border-color: #0BAA4B !important;
         }
+
+        /* Dark Theme Overrides */
+        body.dark-theme .page-header h1,
+        body.dark-theme .page-header p {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .table tbody td {
+            color: #e8eaf0;
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .table tbody tr:hover {
+            background-color: #21263a;
+        }
+
+        body.dark-theme .date-label {
+            color: #8b93a8;
+        }
+
+        body.dark-theme .date-value {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .action-bar {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .dataTables_wrapper .dataTables_length select,
+        body.dark-theme .dataTables_wrapper .dataTables_filter input,
+        body.dark-theme .form-control {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+        body.dark-theme .table thead th {
+            background-color: #21263a !important;
+            color: #c3c8da !important;
+            border-bottom-color: #2e3349 !important;
+        }
+
+        body.dark-theme .dataTables_wrapper .dataTables_info {
+            color: #8b93a8 !important;
+        }
     </style>
 @endpush
 
@@ -185,26 +229,79 @@
             </div>
         </div>
 
-        <div style="padding: 0 24px 20px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-            <div class="form-group mb-0">
-                <label class="form-label" style="font-size: 13px; color: #6b7280;">BỘ LỌC LOẠI HỢP ĐỒNG</label>
-                <select id="filterLoai" class="form-control" style="height: 42px;">
-                    <option value="">Tất cả loại (Mặc định)</option>
-                    <option value="thu_viec">Thử việc</option>
-                    <option value="chinh_thuc_xac_dinh_thoi_han">Xác định thời hạn</option>
-                    <option value="chinh_thuc_khong_xac_dinh_thoi_han">Không xác định thời hạn</option>
-                    <option value="khoan_viec">Khoán việc</option>
-                    <option value="thoi_vu">Thời vụ</option>
-                </select>
+        <div style="padding: 0 24px 20px 24px; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+            {{-- Lọc Loại Hợp Đồng --}}
+            <div class="form-group mb-0" style="min-width: 250px;">
+                <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Lọc Loại Hợp Đồng</label>
+                <div class="dropdown custom-filter-dropdown" data-default="Tất cả loại (Mặc định)">
+                    <input type="hidden" id="filterLoai" value="">
+                    <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
+                        <span class="dropdown-text" style="color: #6c757d; font-size: 14px;">Tất cả loại (Mặc định)</span>
+                        <span class="dropdown-icon">
+                            <i class="bi bi-chevron-down ms-2 text-muted" style="font-size: 14px;"></i>
+                        </span>
+                    </div>
+                    <div class="dropdown-menu p-2 shadow" style="min-width: 280px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                            <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN LOẠI HỢP ĐỒNG</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 4px;">
+                            @php
+                                $loaiOpts = [
+                                    '' => 'Tất cả loại (Mặc định)',
+                                    'thu_viec' => 'Thử việc',
+                                    'chinh_thuc_xac_dinh_thoi_han' => 'Xác định thời hạn',
+                                    'chinh_thuc_khong_xac_dinh_thoi_han' => 'Không xác định thời hạn',
+                                    'khoan_viec' => 'Khoán việc',
+                                    'thoi_vu' => 'Thời vụ'
+                                ];
+                            @endphp
+                            @foreach($loaiOpts as $val => $label)
+                                <button type="button" class="btn btn-sm filter-btn {{ $val === '' ? 'btn-light fw-bold text-primary active' : 'btn-light' }}" data-val="{{ $val }}" data-label="{{ $label }}" onclick="applyFilterAJAX('filterLoai', this)" style="padding: 8px 12px; font-size: 13px; border-radius: 6px; border: none; background-color: {{ $val === '' ? '#eff6ff' : '#f9fafb' }}; color: {{ $val === '' ? '#3b82f6' : '#374151' }}; display: flex; justify-content: flex-start; align-items: center; transition: all 0.2s;" onmouseover="if(!this.classList.contains('btn-primary')){ this.style.backgroundColor='#e5e7eb'; }" onmouseout="if(!this.classList.contains('btn-primary')){ this.style.backgroundColor=this.dataset.val === '' ? '#eff6ff' : '#f9fafb'; }">{{ $label }}</button>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group mb-0">
-                <label class="form-label" style="font-size: 13px; color: #6b7280;">BỘ LỌC TRẠNG THÁI</label>
-                <select id="filterTrangThai" class="form-control" style="height: 42px;">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="1" selected>Có hiệu lực (Mặc định)</option>
-                    <option value="0">Hết hiệu lực</option>
-                    <option value="2">Bị hủy/Thanh lý</option>
-                </select>
+            
+            {{-- Lọc Trạng Thái --}}
+            <div class="form-group mb-0" style="min-width: 250px;">
+                <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Lọc Trạng Thái</label>
+                <div class="dropdown custom-filter-dropdown" data-default="Tất cả trạng thái">
+                    <input type="hidden" id="filterTrangThai" value="1">
+                    <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
+                        <span class="dropdown-text" style="color: #212529; font-size: 14px;">Có hiệu lực (Mặc định)</span>
+                        <span class="dropdown-icon">
+                            <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); resetFilterAJAX('filterTrangThai');" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                        </span>
+                    </div>
+                    <div class="dropdown-menu p-2 shadow" style="min-width: 280px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                            <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN TRẠNG THÁI</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 4px;">
+                            @php
+                                $ttOpts = [
+                                    '' => 'Tất cả trạng thái',
+                                    '1' => 'Có hiệu lực (Mặc định)',
+                                    '0' => 'Hết hiệu lực',
+                                    '2' => 'Bị hủy/Thanh lý'
+                                ];
+                            @endphp
+                            @foreach($ttOpts as $val => $label)
+                                <button type="button" class="btn btn-sm filter-btn {{ $val === '1' ? 'btn-primary fw-bold shadow-sm' : 'btn-light' }}" data-val="{{ $val }}" data-label="{{ $label }}" onclick="applyFilterAJAX('filterTrangThai', this)" style="padding: 8px 12px; font-size: 13px; border-radius: 6px; border: none; background-color: {{ $val === '1' ? '#3b82f6' : '#f9fafb' }}; color: {{ $val === '1' ? '#fff' : '#374151' }}; display: flex; justify-content: flex-start; align-items: center; transition: all 0.2s;" onmouseover="if(!this.classList.contains('btn-primary')){ this.style.backgroundColor='#e5e7eb'; }" onmouseout="if(!this.classList.contains('btn-primary')){ this.style.backgroundColor=this.dataset.val === '' ? '#eff6ff' : '#f9fafb'; }">{{ $label }}</button>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {{-- Xóa bộ lọc nhanh --}}
+            <div class="form-group mb-0" id="clearAllFiltersBtn" style="display: none;">
+                <button type="button" class="btn btn-outline-danger d-flex align-items-center justify-content-center" onclick="resetAllFiltersAJAX()" style="height: 38px; padding: 0 16px; font-size: 13px; font-weight: 500; gap: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fee2e2'; this.style.borderColor='#ef4444';" onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#fca5a5';">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Xóa bộ lọc
+                </button>
             </div>
         </div>
     </div>
@@ -276,7 +373,7 @@
                                         <img src="${avatar}" alt="${name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                         <div>
                                             <div style="font-weight: 500;">${name}</div>
-                                            <div style="font-size: 12px; color: #6b7280;">Số HĐ: ${no}</div>
+                                            <div style="font-size: 12px;" class="date-label">Số HĐ: ${no}</div>
                                         </div>
                                     </div>
                                 `;
@@ -415,6 +512,85 @@
                     }
                 });
             });
+            
+            checkClearAllBtn();
         });
+
+        // Function to apply UI changes when a filter is clicked
+        window.applyFilterAJAX = function(inputId, btnEl) {
+            const val = btnEl.dataset.val;
+            const label = btnEl.dataset.label;
+            const dropdown = $(btnEl).closest('.custom-filter-dropdown');
+            const defaultText = dropdown.data('default');
+            
+            // 1. Update Hidden Input & Trigger Change (so DataTables reloads)
+            const input = document.getElementById(inputId);
+            input.value = val;
+            $(input).trigger('change');
+            
+            // 2. Update toggle text
+            const textSpan = dropdown.find('.dropdown-text');
+            textSpan.text(label);
+            textSpan.css('color', val === '' ? '#6c757d' : '#212529');
+            
+            // 3. Update toggle icon
+            const iconSpan = dropdown.find('.dropdown-icon');
+            if (val === '') {
+                iconSpan.html('<i class="bi bi-chevron-down ms-2 text-muted" style="font-size: 14px;"></i>');
+            } else {
+                iconSpan.html('<i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); resetFilterAJAX(\''+inputId+'\');" onmouseover="this.classList.replace(\'text-muted\', \'text-danger\')" onmouseout="this.classList.replace(\'text-danger\', \'text-muted\')"></i>');
+            }
+            
+            // 4. Update internal button styles
+            dropdown.find('.filter-btn').each(function() {
+                const b = $(this);
+                b.removeClass('btn-primary fw-bold shadow-sm').addClass('btn-light').css({
+                    'background-color': b.data('val') === '' ? '#eff6ff' : '#f9fafb',
+                    'color': b.data('val') === '' ? '#3b82f6' : '#374151'
+                });
+            });
+            
+            if (val !== '') {
+                $(btnEl).removeClass('btn-light').addClass('btn-primary fw-bold shadow-sm').css({
+                    'background-color': '#3b82f6',
+                    'color': '#fff'
+                });
+            } else {
+                $(btnEl).addClass('fw-bold');
+            }
+            
+            checkClearAllBtn();
+        };
+
+        // Function to clear a specific filter
+        window.resetFilterAJAX = function(inputId) {
+            const dropdown = $('#' + inputId).closest('.custom-filter-dropdown');
+            const defaultBtn = dropdown.find('.filter-btn[data-val=""]');
+            if(defaultBtn.length) {
+                applyFilterAJAX(inputId, defaultBtn[0]);
+            }
+        };
+        
+        // Function to clear ALL filters
+        window.resetAllFiltersAJAX = function() {
+            resetFilterAJAX('filterLoai');
+            // By default, Trang Thai is '1' (Có hiệu lực), wait.. if user wants to reset, do we reset to Default ('1') or All ('')? 
+            // In the original, default list shows '1'. We reset Trang Thai to '1'.
+            const filterTrangThaiBtnDefault = $('#filterTrangThai').closest('.custom-filter-dropdown').find('.filter-btn[data-val="1"]');
+            if(filterTrangThaiBtnDefault.length) {
+                applyFilterAJAX('filterTrangThai', filterTrangThaiBtnDefault[0]);
+            }
+        };
+        
+        // Function to show/hide the Clear All button depending on filter state
+        function checkClearAllBtn() {
+            const valLoai = $('#filterLoai').val();
+            const valTrangThai = $('#filterTrangThai').val();
+            if (valLoai !== '' || valTrangThai !== '1') {
+                $('#clearAllFiltersBtn').show();
+            } else {
+                $('#clearAllFiltersBtn').hide();
+            }
+        }
     </script>
 @endpush

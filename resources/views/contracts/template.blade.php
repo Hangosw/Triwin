@@ -24,10 +24,10 @@
             width: 100%;
             max-width: 210mm;
             margin: 0 auto;
-            padding: 20mm;
+            padding: 25mm;
             box-sizing: border-box;
             background: #fff;
-            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
         @media screen and (max-width: 1024px) {
@@ -49,8 +49,9 @@
 
             .container {
                 margin: 0;
-                padding: 0;
+                padding: 15mm 20mm;
                 box-shadow: none;
+                width: 100%;
             }
 
             .no-print {
@@ -167,7 +168,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.6);
-            z-index: 2000;
+            z-index: 1050;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(2px);
@@ -199,7 +200,14 @@
             display: block;
             margin: 0 auto;
         }
+
+        .swal2-container {
+            z-index: 3000 !important;
+        }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -284,26 +292,23 @@
             <span class="text-bold">Đại diện cho:</span> CÔNG TY TNHH PHẦN MỀM<br>
             <span class="text-bold">Điện thoại:</span> 0123456789<br>
             <span class="text-bold">Địa chỉ:</span> 123 Đường Công Nghệ, Phường Sáng Tạo, Quận 1, TP.HCM<br>
-        </div>
         <br>
-        <div>
-            <span class="text-bold">Và một bên là Ông/Bà:</span> <span class="text-bold"
-                style="text-transform: uppercase;">{{ $hopDong->nhanVien->Ten ?? '...' }}</span> <span
-                style="float: right;">Quốc tịch: Việt Nam</span><br>
-            <span class="text-bold">Sinh ngày:</span>
-            {{ $hopDong->nhanVien->NgaySinh ? \Carbon\Carbon::parse($hopDong->nhanVien->NgaySinh)->format('d/m/Y') : '.../.../......' }}
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="text-bold">Tại:</span> {{ $hopDong->nhanVien->QueQuan ?? '...................' }}<br>
-            <span class="text-bold">Nghề nghiệp:</span> Nhân viên<br>
-            <span class="text-bold">Địa chỉ thường trú:</span>
-            {{ $hopDong->nhanVien->DiaChi ?? '...................' }}<br>
-            <span class="text-bold">Số CCCD/CMND:</span> {{ $hopDong->nhanVien->SoCCCD ?? '...................' }}
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="text-bold">Cấp ngày:</span>
-            {{ $hopDong->nhanVien->NgayCap ? \Carbon\Carbon::parse($hopDong->nhanVien->NgayCap)->format('d/m/Y') : '.../.../......' }}
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="text-bold">Nơi cấp:</span> {{ $hopDong->nhanVien->NoiCap ?? '...................' }}<br>
-        </div>
+        <span class="text-bold">Và một bên là Ông/Bà:</span> <span class="text-bold"
+            style="text-transform: uppercase;">{{ $hopDong->nhanVien->Ten ?? '...' }}</span> <span
+            style="float: right;">Quốc tịch: Việt Nam</span><br>
+        <span class="text-bold">Sinh ngày:</span>
+        {{ $hopDong->nhanVien->NgaySinh ? \Carbon\Carbon::parse($hopDong->nhanVien->NgaySinh)->format('d/m/Y') : '.../.../......' }}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span class="text-bold">Tại:</span> {{ $hopDong->nhanVien->QueQuan ?? '...................' }}<br>
+        <span class="text-bold">Nghề nghiệp:</span> Nhân viên<br>
+        <span class="text-bold">Địa chỉ thường trú:</span>
+        {{ $hopDong->nhanVien->DiaChi ?? '...................' }}<br>
+        <span class="text-bold">Số CCCD/CMND:</span> {{ $hopDong->nhanVien->SoCCCD ?? '...................' }}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span class="text-bold">Cấp ngày:</span>
+        {{ $hopDong->nhanVien->NgayCap ? \Carbon\Carbon::parse($hopDong->nhanVien->NgayCap)->format('d/m/Y') : '.../.../......' }}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span class="text-bold">Nơi cấp:</span> {{ $hopDong->nhanVien->NoiCap ?? '...................' }}<br>
 
         <p class="text-italic" style="margin-top: 15px;">Thoả thuận ký kết hợp đồng lao động và cam kết làm đúng những
             điều khoản sau đây:</p>
@@ -403,7 +408,8 @@
     </div>
 
     <!-- Signature Pad Library -->
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         let signaturePad;
@@ -441,22 +447,74 @@
             signaturePad.clear();
         }
 
-        function saveSignature() {
+        async function saveSignature() {
             if (signaturePad.isEmpty()) {
-                alert("Vui lòng vẽ chữ ký trước khi hoàn tất.");
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thông báo',
+                    text: 'Vui lòng vẽ chữ ký trước khi hoàn tất.'
+                });
                 return;
             }
+
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Đang lưu...';
 
             const signatureData = signaturePad.toDataURL();
             const positionRadio = document.querySelector('input[name="sign_position"]:checked');
             const position = positionRadio ? positionRadio.value : (document.getElementById('sign_position')?.value || 'employee');
-            
-            const areaId = position === 'employee' ? 'employee-signature-area' : 'company-signature-area';
-            
-            const displayArea = document.querySelector(`#${areaId} .signature-display`);
-            displayArea.innerHTML = `<img src="${signatureData}" class="signature-img">`;
-            
-            closeSignatureModal();
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+            try {
+                const response = await fetch("{{ route('hop-dong.save-signature') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        id: "{{ $hopDong->id }}",
+                        type: 'hop_dong',
+                        position: position,
+                        signature: signatureData
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const areaId = position === 'employee' ? 'employee-signature-area' : 'company-signature-area';
+                    const displayArea = document.querySelector(`#${areaId} .signature-display`);
+                    displayArea.innerHTML = `<img src="${result.image_url}" class="signature-img">`;
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Đã lưu chữ ký thành công!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    closeSignatureModal();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: result.message || 'Không thể lưu chữ ký.'
+                    });
+                }
+            } catch (error) {
+                console.error('Error saving signature:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi hệ thống',
+                    text: 'Đã có lỗi xảy ra khi kết nối máy chủ.'
+                });
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         }
 
         window.addEventListener("resize", resizeCanvas);
