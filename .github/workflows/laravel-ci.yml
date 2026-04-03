@@ -1,0 +1,161 @@
+name: Laravel CI + AI Review
+
+on:
+  push:
+    branches: [ v1 ]
+  pull_request:
+    branches: [ v1 ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # =========================
+      # 📥 CHECKOUT
+      # =========================
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # =========================
+      # ⚙️ SETUP PHP
+      # =========================
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, fileinfo, pdo_sqlite
+
+      # =========================
+      # 📦 INSTALL
+      # =========================
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # =========================
+      # 🔧 PREPARE APP
+      # =========================
+      - name: Prepare app config (SQLite in-memory)
+        run: |
+          cp .env.example .env
+          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=:memory:/' .env
+          php artisan key:generate --no-interaction
+
+      # =========================
+      # 🧪 TEST (UNIT ONLY)
+      # =========================
+      - name: Clear config cache
+        run: php artisan config:clear
+
+      - name: Run unit tests
+        run: php artisan test --testsuite=Unit
+
+      # =========================
+      # 🤖 AI REVIEW (PR only)
+      # =========================
+      - name: Get and encode diff
+        if: github.event_name == 'pull_request'
+        id: diff
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$BASE_REF" --depth=1
+          python3 - <<'PY'
+import json, subprocess, os
+
+try:
+    diff = subprocess.check_output(
+        ["git", "diff", f"origin/{os.environ['BASE_REF']}...HEAD"],
+        text=True,
+        encoding="utf-8",
+    )
+except Exception:
+    diff = ""
+
+if len(diff) > 50000:
+    diff = diff[:50000] + "\n... (truncated)"
+
+# Write to GITHUB_OUTPUT using multiline delimiter
+delimiter = "EOF_DIFF"
+with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+    f.write(f"diff<<{delimiter}\n{diff}\n{delimiter}\n")
+PY
+
+      - name: AI Code Review
+        if: github.event_name == 'pull_request' && steps.diff.outputs.diff != ''
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PR_DIFF: ${{ steps.diff.outputs.diff }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+import os, json, urllib.request, urllib.error
+
+diff = os.environ.get("PR_DIFF", "")
+api_key = os.environ.get("OPENAI_API_KEY", "")
+
+if not api_key:
+    print("⚠️  OPENAI_API_KEY not set – skipping AI review.")
+    raise SystemExit(0)
+
+prompt = (
+    "You are a senior software engineer reviewing a Laravel PHP pull request.\n"
+    "Review the following git diff and provide concise, actionable feedback in Vietnamese or English.\n"
+    "Focus on: bugs, security issues, performance problems, and code style.\n"
+    "Format your response as a short markdown list.\n\n"
+    f"```diff\n{diff}\n```"
+)
+
+payload = json.dumps({
+    "model": "gpt-4o-mini",
+    "messages": [{"role": "user", "content": prompt}],
+    "max_tokens": 1024,
+    "temperature": 0.3,
+}).encode("utf-8")
+
+req = urllib.request.Request(
+    "https://api.openai.com/v1/chat/completions",
+    data=payload,
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+    },
+)
+
+try:
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.loads(resp.read())
+    review_body = data["choices"][0]["message"]["content"].strip()
+except urllib.error.HTTPError as e:
+    print(f"OpenAI API error {e.code}: {e.read().decode()}")
+    raise SystemExit(1)
+
+# Post review as PR comment via GitHub API
+comment_body = f"## 🤖 AI Code Review\n\n{review_body}"
+github_token = os.environ.get("GITHUB_TOKEN", "")
+repo = os.environ.get("REPO", "")
+pr_number = os.environ.get("PR_NUMBER", "")
+
+comment_payload = json.dumps({"body": comment_body}).encode("utf-8")
+comment_req = urllib.request.Request(
+    f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments",
+    data=comment_payload,
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {github_token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    },
+)
+
+try:
+    with urllib.request.urlopen(comment_req, timeout=30) as resp:
+        print(f"✅ AI review posted (HTTP {resp.status})")
+except urllib.error.HTTPError as e:
+    print(f"Failed to post comment: {e.code} – {e.read().decode()}")
+    raise SystemExit(1)
+PY
