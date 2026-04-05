@@ -83,7 +83,7 @@ with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
     f.write(f"diff<<{delimiter}\n{diff}\n{delimiter}\n")
 PY
 
-          - name: AI Code Review
+      - name: AI Code Review
         if: github.event_name == 'pull_request' && steps.diff.outputs.diff != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
