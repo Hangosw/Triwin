@@ -15,6 +15,25 @@
         </div>
     @endif
 
+    <!-- Appearance Settings -->
+    <div class="card" style="margin-bottom: 24px;">
+        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Giao diện hệ thống</h3>
+        <div class="form-group">
+            <label class="form-label" style="margin-bottom: 12px;">Màu sắc giao diện</label>
+            <div style="display: flex; gap: 24px; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; padding: 10px 20px; border: 1px solid #d1d5db; border-radius: 8px; background: white;" id="label-theme-light">
+                    <input type="radio" name="theme_option" value="light" style="width: 18px; height: 18px; cursor: pointer;">
+                    Chế độ Sáng
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; padding: 10px 20px; border: 1px solid #d1d5db; border-radius: 8px; background: white;" id="label-theme-dark">
+                    <input type="radio" name="theme_option" value="dark" style="width: 18px; height: 18px; cursor: pointer;">
+                    Chế độ Tối
+                </label>
+            </div>
+            <small class="text-gray" style="display: block; margin-top: 8px;">* Giao diện sẽ thay đổi ngay lập tức sau khi bạn chọn.</small>
+        </div>
+    </div>
+
     <form action="{{ route('config.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
@@ -105,6 +124,11 @@
                     <label class="form-label">Số ngày phép năm</label>
                     <input type="number" name="annual_leave_days" class="form-control"
                         value="{{ $configs['annual_leave_days'] ?? 12 }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Giới hạn ngày nghỉ phép năm / lần</label>
+                    <input type="number" name="annual_leave_limit_per_request" class="form-control"
+                        value="{{ $configs['annual_leave_limit_per_request'] ?? 5 }}">
                 </div>
             </div>
 
@@ -203,8 +227,8 @@
         <div class="card" style="margin-top: 20px;">
             <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Cấu hình ngày làm việc trong tuần</h3>
             
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover config-table">
+            <div class="table-container">
+                <table class="table table-bordered table-hover config-table" id="scheduleTable" style="width: 100%;">
                     <thead style="background-color: #f8f9fa;">
                         <tr>
                             <th style="width: 200px;">Thứ</th>
@@ -256,8 +280,8 @@
         <div class="card">
             <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Lịch trình ca làm việc</h3>
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover config-table">
+            <div class="table-container">
+                <table class="table table-bordered table-hover config-table" id="shiftTable" style="width: 100%;">
                     <thead style="background-color: #f8f9fa;">
                         <tr>
                             <th>Mã Ca</th>
@@ -344,3 +368,67 @@
 
 
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#scheduleTable, #shiftTable').DataTable({
+            language: {
+                "sProcessing": "Đang xử lý...",
+                "sLengthMenu": "Hiển thị _MENU_ mục",
+                "sZeroRecords": "Không tìm thấy dữ liệu",
+                "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                "sSearch": "Tìm kiếm:",
+                "oPaginate": {
+                    "sFirst": "Đầu",
+                    "sPrevious": "Trước",
+                    "sNext": "Tiếp",
+                    "sLast": "Cuối"
+                }
+            },
+            responsive: true,
+            autoWidth: false,
+            paging: false,
+            searching: false,
+            info: false,
+            ordering: false
+        });
+    });
+
+    $(document).ready(function() {
+        // Theme selector logic
+        $('input[name="theme_option"]').on('change', function() {
+            var selectedTheme = $(this).val();
+            
+            // Xoá style cũ
+            $('#label-theme-light, #label-theme-dark').css({
+                'border-color': '#d1d5db',
+                'background-color': 'transparent'
+            });
+            
+            // Thêm style mới
+            if (selectedTheme === 'dark') {
+                $('#label-theme-dark').css({
+                    'border-color': '#0BAA4B',
+                    'background-color': 'rgba(11, 170, 75, 0.1)'
+                });
+                $('body').addClass('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                $('#label-theme-light').css({
+                    'border-color': '#0BAA4B',
+                    'background-color': '#f0fdf4'
+                });
+                $('body').removeClass('dark-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Init
+        var currentTheme = localStorage.getItem('theme') || 'light';
+        $('input[name="theme_option"][value="' + currentTheme + '"]').prop('checked', true).trigger('change');
+    });
+</script>
+@endpush

@@ -152,7 +152,190 @@
         .select2-container {
             width: 100% !important;
         }
+
+        /* Dark Mode Overrides */
+        body.dark-theme .form-section {
+            background-color: #1a1d27;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .form-section h2 {
+            color: #e8eaf0;
+            border-bottom-color: #0BAA4B;
+        }
+
+        body.dark-theme .form-group label {
+            color: #8b93a8;
+        }
+
+        body.dark-theme .form-group input,
+        body.dark-theme .form-group select,
+        body.dark-theme .form-group textarea {
+            background-color: #21263a;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .form-group input::placeholder,
+        body.dark-theme .form-group textarea::placeholder {
+            color: #4b5563;
+        }
+
+        body.dark-theme .help-text {
+            color: #8b93a8;
+        }
+
+        body.dark-theme .form-actions {
+            border-top-color: #2e3349;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single {
+            background-color: #21263a;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme h1 {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .radio-item label {
+            color: #e8eaf0;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 120px;
+            height: 80px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Cropper Custom Styling */
+        .img-container {
+            max-height: 500px;
+            overflow: hidden;
+        }
+        
+        .cropper-view-box,
+        .cropper-face {
+            border-radius: 50%;
+        }
+
+        /* Modal Custom Styling (since project doesn't have global Bootstrap CSS) */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1055;
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            outline: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.show {
+            display: flex !important;
+        }
+
+        .modal-dialog {
+            position: relative;
+            width: auto;
+            margin: 0.5rem;
+            pointer-events: none;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .modal-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            outline: 0;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .modal-title {
+            margin-bottom: 0;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            position: relative;
+            flex: 1 1 auto;
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            gap: 10px;
+        }
+
+        .btn-close {
+            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+            border: 0;
+            padding: 0.5rem;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 @endpush
 
 @section('content')
@@ -170,7 +353,7 @@
         </a>
     </div>
 
-    <form id="editEmployeeForm" action="{{ route('nhan-vien.cap-nhat', $employee->id) }}" method="POST">
+    <form id="editEmployeeForm" action="{{ route('nhan-vien.cap-nhat', $employee->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Thông tin cá nhân -->
@@ -183,17 +366,38 @@
                 Thông tin cá nhân
             </h2>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Họ và tên <span class="required">*</span></label>
-                    <input type="text" name="Ten" value="{{ $employee->Ten }}" placeholder="Nguyễn Văn A" required>
+            <div class="form-row" style="grid-template-columns: 140px 1fr; align-items: start; gap: 30px;">
+                <!-- Avatar column -->
+                <div class="form-group" style="text-align: center;">
+                    <label>Ảnh đại diện</label>
+                    <div style="margin-top: 10px; position: relative; display: inline-block;">
+                        <img id="avatarPreview" src="{{ $employee->AnhDaiDien ? asset($employee->AnhDaiDien) : 'https://ui-avatars.com/api/?name='.urlencode($employee->Ten).'&background=f0fdf4&color=0BAA4B&size=128' }}" 
+                             alt="Avatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #0BAA4B; padding: 3px; background: white;">
+                        <label for="avatarInput" style="position: absolute; bottom: 5px; right: 5px; background: #0BAA4B; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.2s; border: 2px solid white;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Thay đổi ảnh đại diện">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </label>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="initCropper(this)">
+                        <input type="hidden" name="cropped_avatar" id="croppedAvatarInput">
+                    </div>
+                    <p class="help-text" style="font-size: 11px; margin-top: 8px;">JPEG, PNG, JPG (Max 2MB)</p>
                 </div>
 
-                <div class="form-group">
-                    <label>Ngày sinh</label>
-                    <input type="text" name="NgaySinh" class="datepicker" 
-                        value="{{ $employee->NgaySinh ? \Carbon\Carbon::parse($employee->NgaySinh)->format('d-m-Y') : '' }}" 
-                        placeholder="Chọn ngày sinh">
+                <!-- Info column -->
+                <div style="display: flex; flex-direction: column; gap: 20px; flex: 1;">
+                    <div class="form-group">
+                        <label>Họ và tên <span class="required">*</span></label>
+                        <input type="text" name="Ten" value="{{ $employee->Ten }}" placeholder="Nguyễn Văn A" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ngày sinh</label>
+                        <input type="text" name="NgaySinh" class="datepicker" 
+                            value="{{ $employee->NgaySinh ? \Carbon\Carbon::parse($employee->NgaySinh)->format('d-m-Y') : '' }}" 
+                            placeholder="Chọn ngày sinh">
+                    </div>
                 </div>
             </div>
 
@@ -227,6 +431,16 @@
                 <div class="form-group">
                     <label>Quốc tịch</label>
                     <input type="text" name="QuocTich" value="{{ $employee->QuocTich }}" placeholder="Việt Nam">
+                </div>
+
+                <div class="form-group">
+                    <label>Trạng thái nhân viên</label>
+                    <select name="TrangThai" id="TrangThai" class="select2">
+                        <option value="1" {{ ($employee->TrangThai ?? 1) == 1 ? 'selected' : '' }}>Làm tại công ty</option>
+                        <option value="0" {{ ($employee->TrangThai ?? 1) == 0 ? 'selected' : '' }}>Nghỉ làm</option>
+                        <option value="2" {{ ($employee->TrangThai ?? 1) == 2 ? 'selected' : '' }}>Làm từ xa (WFH)</option>
+                    </select>
+                    <input type="hidden" name="sync_account_status" id="syncAccountStatus" value="0">
                 </div>
             </div>
 
@@ -279,6 +493,25 @@
                     <input type="text" name="NgayCap" class="datepicker" 
                         value="{{ $employee->NgayCap ? \Carbon\Carbon::parse($employee->NgayCap)->format('d-m-Y') : '' }}" 
                         placeholder="Chọn ngày cấp">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ảnh CCCD (2 ảnh)</label>
+                    <input type="file" name="anh_cccd[]" id="anh_cccd" multiple accept="image/*" onchange="previewImages(this, 'cccd-preview', 'cccd-existing')">
+                    <div class="help-text">Chọn ảnh mới để thay thế ảnh cũ (nếu muốn). Tải lên mặt trước và mặt sau.</div>
+                    <div id="cccd-preview" class="preview-container"></div>
+                    @if($employee->anh_cccd && count($employee->anh_cccd) > 0)
+                        <div id="cccd-existing" style="margin-top: 10px;">
+                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Ảnh hiện tại:</p>
+                            <div style="display: flex; gap: 10px;">
+                                @foreach($employee->anh_cccd as $path)
+                                    <img src="{{ asset($path) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -372,6 +605,25 @@
                 <div class="form-group">
                     <label>Nơi cấp BHXH</label>
                     <input type="text" name="NoiCapBHXH" value="{{ $employee->NoiCapBHXH }}" placeholder="BHXH Hà Nội">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ảnh BHXH (Nhiều ảnh)</label>
+                    <input type="file" name="anh_bhxh[]" id="anh_bhxh" multiple accept="image/*" onchange="previewImages(this, 'bhxh-preview', 'bhxh-existing')">
+                    <div class="help-text">Chọn ảnh mới để thay thế ảnh cũ (nếu muốn).</div>
+                    <div id="bhxh-preview" class="preview-container"></div>
+                    @if($employee->anh_bhxh && count($employee->anh_bhxh) > 0)
+                        <div id="bhxh-existing" style="margin-top: 10px;">
+                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Ảnh hiện tại:</p>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                @foreach($employee->anh_bhxh as $path)
+                                    <img src="{{ asset($path) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -537,8 +789,84 @@
         </div>
     </form>
 
+    <!-- Cropper Modal -->
+    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true" data-bs-backdrop="static" style="display: none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropperModalLabel">Cắt ảnh đại diện</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <img id="imageToCrop" src="" style="max-width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="cropAndSave">Cắt và Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
         <script>
+            let cropper;
+            const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
+            const imageToCrop = document.getElementById('imageToCrop');
+
+            function initCropper(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imageToCrop.src = e.target.result;
+                        cropperModal.show();
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            document.getElementById('cropperModal').addEventListener('shown.bs.modal', function() {
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    guides: false,
+                    autoCropArea: 1,
+                    dragMode: 'move',
+                    background: false,
+                    ready: function() {
+                        // Success callback
+                    }
+                });
+            });
+
+            document.getElementById('cropperModal').addEventListener('hidden.bs.modal', function() {
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+                // Clear input to allow re-selecting the same file
+                document.getElementById('avatarInput').value = '';
+            });
+
+            document.getElementById('cropAndSave').addEventListener('click', function() {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 400,
+                        height: 400,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high',
+                    });
+
+                    const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    document.getElementById('avatarPreview').src = croppedDataUrl;
+                    document.getElementById('croppedAvatarInput').value = croppedDataUrl;
+                    cropperModal.hide();
+                }
+            });
+
             // Initialize Flatpickr for date fields
             document.addEventListener('DOMContentLoaded', function() {
                 // Initialize Select2
@@ -558,8 +886,36 @@
             });
 
             // Form submission
-            document.getElementById('editEmployeeForm').addEventListener('submit', function(e) {
+            document.getElementById('editEmployeeForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
+
+                const statusField = document.getElementById('TrangThai');
+                const initialStatus = parseInt("{{ $employee->TrangThai ?? 1 }}");
+                const currentStatus = parseInt(statusField.value);
+
+                // Group 1 & 2 together as "Working", 0 as "Off"
+                const wasWorking = (initialStatus === 1 || initialStatus === 2);
+                const isWorking = (currentStatus === 1 || currentStatus === 2);
+
+                if (wasWorking !== isWorking) {
+                    const actionText = currentStatus === 0 ? 'KHÓA' : 'MỞ KHÓA';
+                    const result = await Swal.fire({
+                        title: 'Đổi trạng thái nhân viên',
+                        text: `Bạn đã đổi trạng thái nhân viên. Bạn có muốn đồng thời ${actionText} tài khoản liên kết của nhân viên này luôn không?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#0BAA4B',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Có, thực hiện luôn',
+                        cancelButtonText: 'Không, chỉ đổi trạng thái nhân viên'
+                    });
+
+                    if (result.isConfirmed) {
+                        document.getElementById('syncAccountStatus').value = "1";
+                    } else {
+                        document.getElementById('syncAccountStatus').value = "0";
+                    }
+                }
 
                 const formData = new FormData(this);
 
@@ -629,6 +985,29 @@
                     submitBtn.innerHTML = originalBtnText;
                 });
             });
+
+            function previewImages(input, containerId, existingContainerId) {
+                const container = document.getElementById(containerId);
+                const existingContainer = document.getElementById(existingContainerId);
+                container.innerHTML = '';
+                
+                if (input.files && input.files.length > 0) {
+                    if (existingContainer) existingContainer.style.display = 'none';
+                    
+                    Array.from(input.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'preview-item';
+                            div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                            container.appendChild(div);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                } else {
+                    if (existingContainer) existingContainer.style.display = 'block';
+                }
+            }
         </script>
     @endpush
 @endsection

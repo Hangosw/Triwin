@@ -62,13 +62,18 @@ class QuanLyPhepNam extends Model
         }
 
         $config = CauHinhPhepNam::getCurrentConfig();
+        $soNgayCoBan = (float) \App\Models\SystemConfig::getValue('annual_leave_days', 12);
+        
         if (!$config) {
-            // Nếu chưa có cấu hình, tạo mặc định: 12 ngày cơ bản, 5 năm thâm niên cộng 1 ngày
+            // Nếu chưa có cấu hình bổ sung, tạo mặc định dựa trên SystemConfig
             $config = CauHinhPhepNam::create([
-                'SoNgayCoBan' => 12,
+                'SoNgayCoBan' => $soNgayCoBan,
                 'NamThamNien' => 5,
                 'NgayCongThem' => 1
             ]);
+        } else {
+            // Đảm bảo SoNgayCoBan trong config khớp với SystemConfig nếu muốn đồng bộ
+            $config->SoNgayCoBan = $soNgayCoBan;
         }
 
         $ngayTuyenDung = $nhanVien->ttCongViec->NgayTuyenDung;

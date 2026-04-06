@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\NhanVien;
 use App\Models\CauHinhBaoHiem;
 use App\Services\LuongService;
+use App\Mail\SalarySlipMail;
+use Illuminate\Support\Facades\Mail;
 
 class LuongController extends Controller
 {
@@ -72,6 +74,12 @@ class LuongController extends Controller
 
         $thang = (int) $request->get('thang', date('n'));
         $nam = (int) $request->get('nam', date('Y'));
+        $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-d');
+
+        // KIỂM TRA: Lấy bản ghi lương đã chốt
+        $luongRecord = \App\Models\Luong::where('NhanVienId', $id)
+            ->where('ThoiGian', $thoiGian)
+            ->first();
 
         $nhanVien = NhanVien::with([
             'ttCongViec.chucVu',
@@ -83,13 +91,18 @@ class LuongController extends Controller
             'ttCongViec',
         ])->findOrFail($id);
 
-        // Tính lương đầy đủ
-        $luong = LuongService::tinhLuong($nhanVien, $thang, $nam);
+        $luong = null;
+        $hopDong = null;
+        $baoHiems = null;
+        $thanNhans = null;
 
-        // Lấy các biến cần thiết cho view
-        $hopDong = $luong['hop_dong'];
-        $baoHiems = $luong['bao_hiems'];
-        $thanNhans = $nhanVien->thanNhans;
+        if ($luongRecord) {
+            // Chỉ tính chi tiết nếu đã có dữ liệu chốt
+            $luong = LuongService::tinhLuong($nhanVien, $thang, $nam);
+            $hopDong = $luong['hop_dong'];
+            $baoHiems = $luong['bao_hiems'];
+            $thanNhans = $nhanVien->thanNhans;
+        }
 
         return view('salary.detail', compact(
             'nhanVien',
@@ -97,9 +110,53 @@ class LuongController extends Controller
             'baoHiems',
             'thanNhans',
             'luong',
+            'luongRecord',
             'thang',
             'nam'
         ));
+    }
+
+    /**
+     * Tính lại và cập nhật lương cho một nhân viên cụ thể.
+     */
+    public function UpdateSingleSalary(Request $request, $id)
+    {
+        try {
+            $thang = (int) $request->get('thang', date('n'));
+            $nam = (int) $request->get('nam', date('Y'));
+            $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-d');
+
+            $nv = NhanVien::with([
+                'hopDongs' => fn($q) => $q->where('TrangThai', 1)->latest(),
+                'thanNhans',
+                'ttCongViec',
+            ])->findOrFail($id);
+
+            $ketQua = LuongService::tinhLuong($nv, $thang, $nam);
+
+            \App\Models\Luong::updateOrCreate(
+                [
+                    'NhanVienId' => $nv->id,
+                    'ThoiGian' => $thoiGian,
+                ],
+                [
+                    'LoaiLuong' => $ketQua['loai_nhan_vien'] ?? 0,
+                    'LuongCoBan' => $ketQua['luong_co_ban'],
+                    'PhuCap' => $ketQua['tong_phu_cap'],
+                    'LuongTangCa' => $ketQua['tong_tang_ca'],
+                    'KhauTruBaoHiem' => $ketQua['tong_khau_tru_bh'],
+                    'ThueTNCN' => $ketQua['thue_tncn'],
+                    'SoNguoiPhuThuoc' => $ketQua['so_nguoi_phu_thuoc'],
+                    'SoNgayCong' => $ketQua['ngay_cong_thuc_te'],
+                    'Luong' => $ketQua['luong_thuc_nhan'],
+                    'GhiChu' => "Cập nhật thủ công ngày " . now()->format('d/m/Y H:i'),
+                ]
+            );
+
+            return redirect()->back()->with('success', "Đã cập nhật lại lương tháng {$thang}/{$nam} cho nhân viên {$nv->Ten} thành công.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', "Lỗi khi tính lại lương: " . $e->getMessage());
+        }
     }
 
     /**
@@ -203,9 +260,9 @@ class LuongController extends Controller
                         'SoNgayCong' => $ketQua['ngay_cong_thuc_te'],
                         'Luong' => $ketQua['luong_thuc_nhan'],
                         'TrangThai' => 0,
-                        'GhiChu' => ($ketQua['loai_nhan_vien'] === 0
-                            ? "Công nhân – {$ketQua['ngay_cong_thuc_te']}/{$ketQua['ngay_cong_chuan']} ngày – "
-                            : 'Văn phòng – ') . 'Tính tự động ' . now()->format('d/m/Y H:i'),
+                        'GhiChu' => ($ketQua['loai_nhan_vien_text'] ?? 'Bản ghi') . 
+                                    " – " . number_format($ketQua['ngay_cong_thuc_te'], 2) . "/" . 
+                                    $ketQua['ngay_cong_chuan'] . " ngày – Tính tự động " . now()->format('d/m/Y H:i'),
                     ]
                 );
                 $thanhCong++;
@@ -227,5 +284,110 @@ class LuongController extends Controller
             'message' => "Đã tính lương {$thang}/{$nam} cho {$thanhCong} nhân viên" .
                 ($boQua > 0 ? ", bỏ qua {$boQua} lỗi" : '') . '.',
         ]);
+    }
+
+    /**
+     * Gửi email phiếu lương hàng loạt.
+     */
+    public function GuiMailLuong(Request $request)
+    {
+        $thang = (int) $request->get('thang', date('n'));
+        $nam = (int) $request->get('nam', date('Y'));
+
+        $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-01');
+
+        $luongs = \App\Models\Luong::with(['nhanVien'])->where('ThoiGian', $thoiGian)->get();
+
+        if ($luongs->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => "Không tìm thấy dữ liệu lương tháng {$thang}/{$nam} để gửi mail."
+            ]);
+        }
+
+        $guiThanhCong = 0;
+        $guiLoi = 0;
+        $errors = [];
+
+        foreach ($luongs as $luong) {
+            /** @var \App\Models\NhanVien $nv */
+            $nv = $luong->nhanVien;
+            if (!$nv || empty($nv->Email)) {
+                $guiLoi++;
+                if ($nv) {
+                    $errors[] = "Nhân viên {$nv->Ten} không có địa chỉ email.";
+                }
+                continue;
+            }
+
+            try {
+                // Tính lại lương đầy đủ để có data cho email mailable (giống trang slip)
+                $dataLuong = LuongService::tinhLuong($nv, $thang, $nam);
+                
+                \Log::info("Sending salary email for {$nv->Ten} to {$nv->Email} (Month: {$thang}/{$nam})");
+
+                // Gửi mail (nên dùng queue để tránh timeout nếu gửi hàng loạt nhiều)
+                Mail::to($nv->Email)->queue(new SalarySlipMail($nv, $dataLuong, $thang, $nam));
+                
+                $guiThanhCong++;
+            } catch (\Exception $e) {
+                $guiLoi++;
+                $errors[] = "Lỗi khi gửi cho {$nv->Ten}: " . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'gui_thanh_cong' => $guiThanhCong,
+            'gui_loi' => $guiLoi,
+            'errors' => $errors,
+            'message' => "Đã đưa vào hàng chờ gửi {$guiThanhCong} email phiếu lương." . 
+                         ($guiLoi > 0 ? " Thất bại: {$guiLoi}." : "")
+        ]);
+    }
+
+    public function ConfigGlobalView()
+    {
+        $salaryCalculationType = \App\Models\SystemConfig::getValue('salary_calculation_type', 'contract');
+        $thamSoLuongs = \App\Models\ThamSoLuong::orderBy('NgayApDung', 'desc')->get();
+        return view('salary.config_global', compact('salaryCalculationType', 'thamSoLuongs'));
+    }
+
+    public function SaveThamSoLuong(Request $request)
+    {
+        $request->validate([
+            'NgayApDung' => 'required|date',
+            'MucLuongCoSo' => 'required|numeric|min:0',
+        ], [
+            'NgayApDung.required' => 'Ngày áp dụng không được để trống',
+            'NgayApDung.date' => 'Ngày áp dụng không hợp lệ',
+            'MucLuongCoSo.required' => 'Mức lương cơ sở không được để trống',
+            'MucLuongCoSo.numeric' => 'Mức lương cơ sở phải là số',
+        ]);
+
+        try {
+            \App\Models\ThamSoLuong::create($request->all());
+            return redirect()->back()->with('success', 'Đã thêm tham số lương mới thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+    }
+
+    public function SaveConfigGlobal(Request $request)
+    {
+        $request->validate([
+            'salary_calculation_type' => 'required|in:contract,attendance',
+        ]);
+
+        \App\Models\SystemConfig::updateOrCreate(
+            ['key' => 'salary_calculation_type'],
+            [
+                'value' => $request->salary_calculation_type,
+                'group' => 'salary',
+                'description' => 'Hình thức tính lương: contract (theo hợp đồng) hoặc attendance (theo chấm công)'
+            ]
+        );
+
+        return redirect()->back()->with('success', 'Đã lưu cấu hình lương thành công!');
     }
 }

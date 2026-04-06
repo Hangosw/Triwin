@@ -22,7 +22,7 @@
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-6">
-                            <label class="form-label" style="font-weight: 600; color: #374151;">Họ tên <span
+                            <label class="form-label" style="font-weight: 600;">Họ tên <span
                                     class="text-danger">*</span></label>
                             <div class="form-icon-group">
                                 <i class="bi bi-person-fill form-icon"></i>
@@ -31,12 +31,12 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <label class="form-label" style="font-weight: 600; color: #374151;">Quan hệ <span
+                            <label class="form-label" style="font-weight: 600;">Quan hệ <span
                                     class="text-danger">*</span></label>
                             <div class="form-icon-group">
                                 <i class="bi bi-diagram-3-fill form-icon"></i>
-                                <select name="QuanHe" class="form-select form-icon-input" required>
-                                    <option value="">-- Quan hệ --</option>
+                                <select name="QuanHe" class="form-select" data-placeholder="Chọn quan hệ" required>
+                                    <option value=""></option>
                                     <option value="bo_de">Bố đẻ</option>
                                     <option value="me_de">Mẹ đẻ</option>
                                     <option value="vo_chong">Vợ/Chồng</option>
@@ -47,14 +47,14 @@
                             </div>
                         </div>
                         <div class="col-4">
-                            <label class="form-label" style="font-weight: 600; color: #374151;">Ngày sinh</label>
+                            <label class="form-label" style="font-weight: 600;">Ngày sinh</label>
                             <div class="form-icon-group">
                                 <i class="bi bi-calendar-date-fill form-icon"></i>
-                                <input type="date" name="NgaySinh" class="form-control form-icon-input">
+                                <input type="text" name="NgaySinh" class="form-control form-icon-input datepicker" placeholder="dd/mm/yyyy">
                             </div>
                         </div>
                         <div class="col-4">
-                            <label class="form-label" style="font-weight: 600; color: #374151;">CCCD/CMND</label>
+                            <label class="form-label" style="font-weight: 600;">CCCD/CMND</label>
                             <div class="form-icon-group">
                                 <i class="bi bi-card-heading form-icon"></i>
                                 <input type="text" name="CCCD" class="form-control form-icon-input"
@@ -62,7 +62,7 @@
                             </div>
                         </div>
                         <div class="col-4">
-                            <label class="form-label" style="font-weight: 600; color: #374151;">Điện thoại</label>
+                            <label class="form-label" style="font-weight: 600;">Điện thoại</label>
                             <div class="form-icon-group">
                                 <i class="bi bi-telephone-fill form-icon"></i>
                                 <input type="text" name="SoDienThoai" class="form-control form-icon-input"
@@ -70,7 +70,7 @@
                             </div>
                         </div>
                         <div class="col-5">
-                            <label class="form-label" style="font-weight: 600; color: #374151;">Mã số thuế</label>
+                            <label class="form-label" style="font-weight: 600;">Mã số thuế</label>
                             <div class="form-icon-group">
                                 <i class="bi bi-hash form-icon"></i>
                                 <input type="text" name="MaSoThue" class="form-control form-icon-input"
@@ -78,12 +78,12 @@
                             </div>
                         </div>
                         <div class="col-7">
-                            <label class="form-label" style="font-weight: 600; color: #374151;">Giấy tờ chứng minh
+                            <label class="form-label" style="font-weight: 600;">Giấy tờ chứng minh
                                 (Ảnh/PDF)</label>
                             <div class="input-group">
                                 <span class="input-group-text"
-                                    style="background: #fff; border-right: none; border-radius: 8px 0 0 8px;">
-                                    <i class="bi bi-file-earmark-arrow-up-fill" style="color: #6b7280;"></i>
+                                    style="border-right: none; border-radius: 8px 0 0 8px;">
+                                    <i class="bi bi-file-earmark-arrow-up-fill"></i>
                                 </span>
                                 <input type="file" name="TepDinhKem" class="form-control"
                                     style="border-left: none; border-radius: 0 8px 8px 0; padding: 10px 12px;">
@@ -97,8 +97,8 @@
                                         <i class="bi bi-shield-check" style="color: #059669; font-size: 20px;"></i>
                                     </div>
                                     <div>
-                                        <div style="font-weight: 600; color: #111827;">Người phụ thuộc</div>
-                                        <div style="font-size: 13px; color: #6b7280;">Giảm trừ gia cảnh (thuế TNCN)
+                                        <div style="font-weight: 600;" class="toggle-title">Người phụ thuộc</div>
+                                        <div style="font-size: 13px;" class="toggle-subtitle">Giảm trừ gia cảnh (thuế TNCN)
                                         </div>
                                     </div>
                                 </div>
@@ -110,7 +110,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="padding: 24px; background: #f8fafc; border-top: 1px solid #e5e7eb;">
+                <div class="modal-footer" style="padding: 24px;">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                         style="border-radius: 8px; padding: 10px 24px;">Hủy bỏ</button>
                     <button type="submit" class="btn btn-primary"

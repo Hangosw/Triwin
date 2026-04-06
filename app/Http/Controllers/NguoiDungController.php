@@ -56,7 +56,7 @@ class NguoiDungController extends Controller
                 $user->assignRole($request->input('roles'));
             }
 
-
+            \App\Services\SystemLogService::log('Tạo mới', 'NguoiDung', $user->id, "Tạo mới người dùng: {$user->TaiKhoan}");
 
             return redirect()->route('nguoi-dung.danh-sach')
                 ->with('success', 'Thêm người dùng thành công!');
@@ -70,23 +70,39 @@ class NguoiDungController extends Controller
     public function SuaView($id)
     {
         $user = NguoiDung::where('id', $id)->firstOrFail();
-        $roles = \Spatie\Permission\Models\Role::all();
+        $roles = \Spatie\Permission\Models\Role::with('permissions')->get();
         $userRoles = $user->roles->pluck('name')->toArray();
-        return view('users.edit', compact('id', 'user', 'roles', 'userRoles'));
+        $permissions = \Spatie\Permission\Models\Permission::orderBy('name')->get();
+        
+        // Lấy tất cả quyền (trực tiếp + từ vai trò)
+        $userPermissions = $user->getAllPermissions()->pluck('name')->toArray();
+        
+        // Tạo mapping Role -> Quyền để dùng trong JS
+        $rolePermissions = [];
+        foreach ($roles as $role) {
+            $rolePermissions[$role->name] = $role->permissions->pluck('name')->toArray();
+        }
+
+        return view('users.edit', compact('id', 'user', 'roles', 'userRoles', 'permissions', 'userPermissions', 'rolePermissions'));
     }
 
     public function DataNguoiDung()
     {
-        $users = NguoiDung::whereHas('nhanVien', function ($q) {
-            $q;
-        })->select(['id', 'Ten', 'TaiKhoan', 'Email', 'SoDienThoai', 'TrangThai'])->get();
+        $users = NguoiDung::select(['id', 'Ten', 'TaiKhoan', 'Email', 'SoDienThoai', 'TrangThai'])
+        ->latest('id')
+        ->get();
         return response()->json(['data' => $users]);
     }
 
     public function Xoa($id)
     {
         try {
-            NguoiDung::destroy($id);
+            $user = NguoiDung::find($id);
+            if ($user) {
+                $taiKhoan = $user->TaiKhoan;
+                NguoiDung::destroy($id);
+                \App\Services\SystemLogService::log('Xóa', 'NguoiDung', $id, "Xóa người dùng: {$taiKhoan}");
+            }
             return response()->json(['success' => true, 'message' => 'Xóa người dùng thành công.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);
@@ -101,7 +117,12 @@ class NguoiDungController extends Controller
         }
 
         try {
+            $users = NguoiDung::whereIn('id', $ids)->get();
+            $tenTaiKhoans = $users->pluck('TaiKhoan')->implode(', ');
+
             NguoiDung::whereIn('id', $ids)->delete();
+            \App\Services\SystemLogService::log('Xóa', 'NguoiDung', null, "Xóa nhiều người dùng: {$tenTaiKhoans}");
+
             return response()->json(['success' => true, 'message' => 'Xóa ' . count($ids) . ' người dùng thành công.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);
@@ -147,6 +168,7 @@ class NguoiDungController extends Controller
 
         try {
             // Cập nhật thông tin cơ bản
+            $oldData = $user->toArray();
             $user->Ten = $validated['Ten'] ?? $user->Ten;
             $user->TaiKhoan = $validated['TaiKhoan'];
             $user->Email = $validated['Email'] ?? null;
@@ -166,7 +188,15 @@ class NguoiDungController extends Controller
                 $user->syncRoles([]);
             }
 
+            // Sync direct permissions (ngoài role)
+            if ($request->has('permissions')) {
+                $user->syncPermissions($request->input('permissions'));
+            } else {
+                $user->syncPermissions([]);
+            }
 
+            $newData = $user->fresh()->toArray();
+            \App\Services\SystemLogService::log('Cập nhật', 'NguoiDung', $user->id, "Cập nhật thông tin người dùng: {$user->TaiKhoan}", $oldData, $newData);
 
             return redirect()->route('nguoi-dung.suaView', $id)
                 ->with('success', 'Cập nhật thông tin người dùng thành công!');
@@ -174,6 +204,29 @@ class NguoiDungController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['error' => 'Lỗi: ' . $e->getMessage()]);
+        }
+    }
+
+    public function toggleStatus($id)
+    {
+        try {
+            $user = NguoiDung::findOrFail($id);
+            $user->TrangThai = $user->TrangThai == 1 ? 0 : 1;
+            $user->save();
+
+            $statusText = $user->TrangThai == 1 ? 'mở khóa' : 'khóa';
+            \App\Services\SystemLogService::log('Cập nhật', 'NguoiDung', $user->id, "Thay đổi trạng thái người dùng: {$user->TaiKhoan} ({$statusText})");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã ' . $statusText . ' người dùng thành công.',
+                'new_status' => $user->TrangThai
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

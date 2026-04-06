@@ -52,6 +52,14 @@ class DienBienLuong extends Model
     }
 
     /**
+     * Relationship: Diễn biến lương thuộc hợp đồng nào
+     */
+    public function hopDong()
+    {
+        return $this->belongsTo(HopDong::class, 'HopDongId');
+    }
+
+    /**
      * Get current salary progression for employee
      */
     public static function getCurrentForEmployee($nhanVienId)

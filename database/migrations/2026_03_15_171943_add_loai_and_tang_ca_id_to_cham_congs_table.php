@@ -13,8 +13,12 @@ return new class extends Migration
     {
         error_log('Migrating cham_congs table...');
         Schema::table('cham_congs', function (Blueprint $table) {
-            $table->tinyInteger('Loai')->default(0)->after('NhanVienId')->comment('0: Hành chính, 1: Tăng ca');
-            $table->unsignedBigInteger('TangCaId')->nullable()->after('Loai');
+            if (!Schema::hasColumn('cham_congs', 'Loai')) {
+                $table->tinyInteger('Loai')->default(0)->after('NhanVienId')->comment('0: Hành chính, 1: Tăng ca');
+            }
+            if (!Schema::hasColumn('cham_congs', 'TangCaId')) {
+                $table->unsignedBigInteger('TangCaId')->nullable()->after('Loai');
+            }
             
             // $table->foreign('TangCaId')->references('id')->on('tang_cas')->onDelete('set null');
         });

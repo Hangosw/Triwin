@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class DangKyNghiPhep extends Model
 {
-    
+
     protected $table = 'dang_ky_nghi_pheps';
 
     protected $fillable = [
@@ -16,11 +16,16 @@ class DangKyNghiPhep extends Model
         'NguoiDuyetId',
         'LoaiNghiPhepId',
         'TuNgay',
+        'TuBuoi',
         'DenNgay',
+        'DenBuoi',
         'SoNgayNghi',
         'LyDo',
+        'lm',
+        'om',
         'TrangThai', // 0 là từ chối, 1 là đã duyệt, 2 là đang chờ
         'Dem', // cái này đếm số lần submit, trường hợp người dùng gửi đơn bị từ chối nhiều lần
+        'ChiTietBuoi',
     ];
 
     protected $casts = [
@@ -32,6 +37,7 @@ class DangKyNghiPhep extends Model
         'SoNgayNghi' => 'decimal:1',
         'TrangThai' => 'integer',
         'Dem' => 'integer',
+        'ChiTietBuoi' => 'array',
     ];
 
     /**

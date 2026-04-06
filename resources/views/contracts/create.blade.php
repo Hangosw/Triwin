@@ -11,6 +11,54 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             padding: 24px;
             margin-bottom: 24px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-theme .form-section {
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .form-section h2 {
+            color: #e8eaf0 !important;
+            border-bottom-color: #2e3349 !important;
+        }
+
+        body.dark-theme .form-group label {
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme .employee-info-card {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* Final Dark Mode Polish for inline styles */
+        body.dark-theme strong[style*="color: #1f2937"],
+        body.dark-theme span[style*="color: #1f2937"],
+        body.dark-theme div[style*="color: #1f2937"] {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme input[readonly] {
+            background-color: #21263a !important;
+            color: #8b93a8 !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme #salaryCard {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%) !important;
+            border-color: #0BAA4B !important;
+        }
+
+        body.dark-theme #salaryCard span[style*="color: #1f2937"] {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme #salaryCard span[style*="color: #6b7280"] {
+            color: #a0aec0 !important;
         }
 
         .form-section h2 {
@@ -27,7 +75,7 @@
 
         .form-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-bottom: 20px;
         }
@@ -171,6 +219,49 @@
             line-height: 28px;
             color: #1f2937;
         }
+
+        body.dark-theme .select2-container--default .select2-selection--single {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e8eaf0 !important;
+        }
+
+        /* Select2 Dropdown Dark Mode */
+        body.dark-theme .select2-dropdown {
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-theme .select2-results__option {
+            color: #c3c8da !important;
+            padding: 8px 12px !important;
+        }
+
+        body.dark-theme .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #0BAA4B !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #2e3349 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .select2-search--dropdown {
+            background-color: #1a1d27 !important;
+            padding: 8px !important;
+        }
+
+        body.dark-theme .select2-search--dropdown .select2-search__field {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+            border-radius: 6px !important;
+        }
     </style>
 @endpush
 
@@ -197,13 +288,14 @@
         @csrf
         <input type="hidden" name="phieu_dieu_chuyen_id" id="phieuDieuChuyenId">
 
-        <!-- Thông tin nhân viên -->
+        <!-- Thông tin cơ bản & Vị trí & Loại HĐ -->
         <div class="form-section">
             <h2>
-                <i class="bi bi-person-circle" style="font-size: 24px;"></i>
-                Thông tin nhân viên
+                <i class="bi bi-file-earmark-text" style="font-size: 24px;"></i>
+                Thông tin chi tiết hợp đồng
             </h2>
 
+            <!-- Hàng 1 -->
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Nhân viên <span class="required">*</span></label>
@@ -223,54 +315,43 @@
                     @if(isset($isRenew))
                         <input type="hidden" name="nhan_vien_id" value="{{ $oldContract->NhanVienId }}">
                     @endif
-                    <div class="help-text">Chọn nhân viên để tạo hợp đồng</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Người ký hợp đồng <span class="required">*</span></label>
-                    <select name="NguoiKyId" id="nguoiKySelect" class="form-control select2" required disabled>
-                        <option value="">-- Vui lòng chọn nhân viên trước --</option>
-                        @foreach($nhanvien as $nv)
-                            <option value="{{ $nv->id }}">{{ $nv->Ma }} - {{ $nv->Ten }}</option>
+                    <select id="nguoiKySelect" class="form-control select2" required disabled>
+                        @foreach($nguoiKyList as $nv)
+                            <option value="{{ $nv->id }}" @if($nv->id == $defaultNguoiKyId) selected @endif>
+                                {{ $nv->Ma }} - {{ $nv->Ten }}
+                            </option>
                         @endforeach
                     </select>
-                    <div class="help-text">Người đại diện công ty ký hợp đồng</div>
+                    <input type="hidden" name="NguoiKyId" value="{{ $defaultNguoiKyId }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số hợp đồng <span class="required">*</span></label>
+                    <input type="text" name="so_hop_dong" id="soHopDong" class="form-control" placeholder="Tự động tạo"
+                        readonly style="background: #f9fafb;">
                 </div>
             </div>
 
-            <!-- Employee Info Card -->
-            <div class="employee-info-card" id="employeeInfoCard">
-                <div style="display: flex; gap: 16px; align-items: start;">
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px;">Thông tin nhân viên</div>
-                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px;">
-                            <span style="color: #6b7280;">Mã NV:</span>
-                            <span id="empMa" style="font-weight: 500;">-</span>
-
-                            <span style="color: #6b7280;">Họ tên:</span>
-                            <span id="empTen" style="font-weight: 500;">-</span>
-
-                            <span style="color: #6b7280;">Phòng ban:</span>
-                            <span id="empPhongBan">-</span>
-
-                            <span style="color: #6b7280;">Chức vụ:</span>
-                            <span id="empChucVu">-</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Thông tin vị trí công việc -->
-        <div class="form-section">
-            <h2>
-                <i class="bi bi-briefcase" style="font-size: 24px;"></i>
-                Vị trí công việc
-            </h2>
-
-
-
+            <!-- Hàng 2 -->
             <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Loại hợp đồng <span class="required">*</span></label>
+                    <select name="loai_hop_dong_id" id="loaiHopDongSelect" class="form-control select2" required>
+                        <option value="">-- Chọn loại hợp đồng --</option>
+                        <option value="1" @if(isset($isRenew) && $oldContract->Loai == 'thu_viec') selected @endif data-ma="HDTV" data-loai="thu_viec">Hợp đồng thử việc</option>
+                        <option value="2" @if(isset($isRenew) && $oldContract->Loai == 'chinh_thuc_xac_dinh_thoi_han') selected @endif data-ma="HDLD" data-loai="chinh_thuc_xac_dinh_thoi_han">Hợp đồng lao động xác định thời hạn</option>
+                        <option value="3" @if(isset($isRenew) && $oldContract->Loai == 'chinh_thuc_khong_xac_dinh_thoi_han') selected @endif data-ma="HDLD" data-loai="chinh_thuc_khong_xac_dinh_thoi_han">Hợp đồng lao động không xác định thời hạn</option>
+                        <option value="4" @if(isset($isRenew) && $oldContract->Loai == 'khoan_viec') selected @endif data-ma="HDKV" data-loai="khoan_viec">Hợp đồng khoán việc</option>
+                        <option value="5" @if(isset($isRenew) && $oldContract->Loai == 'thoi_vu') selected @endif data-ma="HDTV" data-loai="thoi_vu">Hợp đồng thời vụ</option>
+                        <option value="7" @if(isset($isRenew) && str_starts_with($oldContract->Loai ?? '', 'nda')) selected @endif data-ma="NDA" data-loai="nda">Thỏa thuận bảo mật (NDA)</option>
+                    </select>
+                    <input type="hidden" name="loai" id="loaiInput" value="{{ isset($isRenew) ? ($oldContract->Loai ?? '') : '' }}">
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Phòng ban <span class="required">*</span></label>
                     <select name="phong_ban_id" id="phongBanSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
@@ -287,188 +368,133 @@
                 <div class="form-group">
                     <label class="form-label">Chức vụ <span class="required">*</span></label>
                     <select name="chuc_vu_id" id="chucVuSelect" class="form-control select2" required @if(isset($isRenew)) disabled @endif>
-                    <option value="">-- Chọn chức vụ --</option>
-                    @foreach ($chucvu as $cv)
-                        <option value="{{ $cv->id }}" @if(isset($isRenew) && $oldContract->ChucVuId == $cv->id) selected @endif data-phucap="{{ $cv->PhuCapChucVu }}" data-loai="{{ $cv->Loai }}">
-                            {{ $cv->Ten }}
-                        </option>
-                    @endforeach
-                </select>
-                @if(isset($isRenew))
-                    <input type="hidden" name="chuc_vu_id" value="{{ $oldContract->ChucVuId }}">
-                @endif
-
-                <!-- Thông báo lỗi validation -->
-                <div id="chuc-vu-error" class="validation-error" style="display: none;">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <span id="chuc-vu-error-message"></span>
+                        <option value="">-- Chọn chức vụ --</option>
+                        @foreach ($chucvu as $cv)
+                            <option value="{{ $cv->id }}" @if(isset($isRenew) && $oldContract->ChucVuId == $cv->id) selected @endif data-phucap="{{ $cv->PhuCapChucVu }}" data-loai="{{ $cv->Loai }}">
+                                {{ $cv->Ten }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(isset($isRenew))
+                        <input type="hidden" name="chuc_vu_id" value="{{ $oldContract->ChucVuId }}">
+                    @endif
                 </div>
             </div>
-        </div>
 
-        <!-- Thông tin hợp đồng -->
-        <div class="form-section">
-            <h2>
-                <i class="bi bi-file-earmark-text" style="font-size: 24px;"></i>
-                Thông tin hợp đồng
-            </h2>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Số hợp đồng <span class="required">*</span></label>
-                    <input type="text" name="so_hop_dong" id="soHopDong" class="form-control" placeholder="Tự động tạo"
-                        readonly style="background: #f9fafb;">
-                    <div class="help-text">Format: [STT]/[Năm]/[Mã Loại]</div>
-
-                    <div class="contract-number-preview" id="contractPreview" style="display: none;">
-                        <div style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">Số hợp đồng sẽ là:</div>
-                        <strong id="contractNumberDisplay">-</strong>
+            <!-- Employee Info Card (Dưới hàng 2) -->
+            <div class="employee-info-card" id="employeeInfoCard">
+                <div style="display: flex; gap: 16px; align-items: start;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px;">Thông tin nhân viên</div>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px;">
+                            <span style="color: #6b7280;">Mã NV:</span>
+                            <span id="empMa" style="font-weight: 500;">-</span>
+                            <span style="color: #6b7280;">Họ tên:</span>
+                            <span id="empTen" style="font-weight: 500;">-</span>
+                            <span style="color: #6b7280;">Phòng ban:</span>
+                            <span id="empPhongBan">-</span>
+                            <span style="color: #6b7280;">Chức vụ:</span>
+                            <span id="empChucVu">-</span>
+                        </div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">Loại hợp đồng <span class="required">*</span></label>
-                    <select name="loai_hop_dong_id" id="loaiHopDongSelect" class="form-control select2" required>
-                        <option value="">-- Chọn loại hợp đồng --</option>
-                        <option value="1" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 1) selected @endif data-ma="HDTV" data-loai="thu_viec">Hợp đồng thử việc</option>
-                        <option value="2" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 2) selected @endif data-ma="HDLD" data-loai="chinh_thuc_xac_dinh_thoi_han">Hợp đồng lao động xác định
-                            thời hạn</option>
-                        <option value="3" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 3) selected @endif data-ma="HDLD" data-loai="chinh_thuc_khong_xac_dinh_thoi_han">Hợp đồng lao động
-                            không xác định thời hạn
-                        </option>
-                        <option value="4" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 4) selected @endif data-ma="HDKV" data-loai="khoan_viec">Hợp đồng khoán việc</option>
-                        <option value="5" @if(isset($isRenew) && $oldContract->loai_hop_dong_id == 5) selected @endif data-ma="HDTV" data-loai="thoi_vu">Hợp đồng thời vụ</option>
-                    </select>
-                </div>
             </div>
 
-            <div class="form-group" style="display: none;">
-                <label>Phân loại hợp đồng</label>
-                <input type="text" name="loai" id="loaiInput" class="form-control" readonly>
-            </div>
-        </div>
-
-        <!-- Thời hạn & Lương -->
-        <div class="form-section">
             <h2>
                 <i class="bi bi-clock-history" style="font-size: 24px;"></i>
-                Thời hạn hợp đồng
+                Thời hạn & Trạng thái
             </h2>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Ngày bắt đầu <span class="required">*</span></label>
+                    <label class="form-label">Ngày bắt đầu <span class="required">*</span></label>
                     <input type="text" name="NgayBatDau" id="ngayBatDau" class="form-control datepicker"
                         placeholder="dd/mm/yyyy" required readonly>
                 </div>
 
                 <div class="form-group">
-                    <label>Ngày kết thúc</label>
+                    <label class="form-label">Ngày kết thúc</label>
                     <input type="text" name="NgayKetThuc" id="ngayKetThuc" class="form-control datepicker"
                         placeholder="dd/mm/yyyy" readonly>
-                    <div class="help-text">Để trống nếu là hợp đồng không xác định thời hạn</div>
+                    <div class="help-text">Để trống nếu là "Không xác định thời hạn"</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Trạng thái <span class="required">*</span></label>
+                    <select name="trang_thai" class="form-control select2" required>
+                        <option value="1" selected>Còn hiệu lực</option>
+                        <option value="0">Hết hạn</option>
+                        <option value="2">Bị hủy/Thanh lý</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Trạng thái <span class="required">*</span></label>
-                <select name="trang_thai" class="form-control select2" required>
-                    <option value="1" selected>Còn hiệu lực</option>
-                    <option value="0">Hết hạn</option>
-                    <option value="2">Bị hủy/Thanh lý</option>
-                </select>
-            </div>
-
-            <div id="durationInfo" class="help-text"
-                style="padding: 12px; background: #f0fdf4; border-radius: 6px; display: none;">
+            <div id="durationInfo" class="help-text" style="padding: 12px; background: rgba(11, 170, 75, 0.1); border-radius: 6px; display: none; margin-top: 15px; color: #0BAA4B;">
                 <strong>Thời hạn hợp đồng:</strong> <span id="durationText">-</span>
             </div>
-        </div>
 
-        <!-- Cấu trúc lương -->
-        <div class="form-section">
             <h2>
                 <i class="bi bi-cash-coin" style="font-size: 24px;"></i>
-                Cấu trúc lương
+                Cấu trúc lương cơ bản
             </h2>
 
-            {{-- Ngạch lương & Bậc lương --}}
-            <div class="form-row" style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px dashed #d1d5db;">
+            <div class="form-row">
                 <div class="form-group">
-                    <label for="ngachLuongSelect">
-                        Ngạch lương
-                        <span style="font-size: 12px; color: #6b7280; font-weight: 400;">(tuỳ chọn)</span>
-                    </label>
+                    <label class="form-label" for="ngachLuongSelect">Ngạch lương <span style="font-size: 12px; color: #6b7280;">(tuỳ chọn)</span></label>
                     <select name="ngach_luong_id" id="ngachLuongSelect" class="form-control select2">
                         <option value="">-- Chọn ngạch lương --</option>
                         @foreach($ngachLuongs as $nl)
-                            <option value="{{ $nl->id }}" @if(isset($isRenew) && $oldDienBien && $oldDienBien->NgachLuongId == $nl->id) selected @endif data-ma="{{ $nl->Ma }}" data-ten="{{ $nl->Ten }}"
-                                data-nhom="{{ $nl->Nhom }}">
+                            <option value="{{ $nl->id }}" @if(isset($isRenew) && $oldDienBien && $oldDienBien->NgachLuongId == $nl->id) selected @endif data-ma="{{ $nl->Ma }}" data-ten="{{ $nl->Ten }}" data-nhom="{{ $nl->Nhom }}">
                                 {{ $nl->Ma }} – {{ $nl->Ten }}
-                                @if($nl->Nhom) (Nhóm {{ $nl->Nhom }}) @endif
                             </option>
                         @endforeach
                     </select>
-
-                    {{-- Data bậc lương ẩn dạng JSON để JS dùng --}}
-                    @php
-                        $ngachBacJson = [];
-                        foreach ($ngachLuongs as $nl) {
-                            $bacs = [];
-                            foreach ($nl->bacLuongs->sortBy('Bac') as $b) {
-                                $bacs[] = [
-                                    'id' => $b->id,
-                                    'bac' => $b->Bac,
-                                    'heso' => (float) $b->HeSo,
-                                ];
-                            }
-                            $ngachBacJson[] = [
-                                'id' => $nl->id,
-                                'ma' => $nl->Ma,
-                                'ten' => $nl->Ten,
-                                'nhom' => $nl->Nhom,
-                                'bacs' => $bacs,
-                            ];
-                        }
-                    @endphp
-                    <script id="ngachBacData" type="application/json">
-                                    {!! json_encode($ngachBacJson) !!}
-                                </script>
                 </div>
 
                 <div class="form-group">
-                    <label for="bacLuongSelect">
-                        Bậc lương
-                        <span style="font-size: 12px; color: #6b7280; font-weight: 400;">(chọn ngạch trước)</span>
-                    </label>
+                    <label class="form-label" for="bacLuongSelect">Bậc lương <span style="font-size: 12px; color: #6b7280;">(chọn ngạch trước)</span></label>
                     <select name="bac_luong_id" id="bacLuongSelect" class="form-control select2" disabled>
                         <option value="">-- Chọn bậc lương --</option>
                     </select>
-                    <div class="help-text" id="bacLuongHint">
-                        Khi chọn bậc lương, lương cơ bản sẽ được tính tự động:
-                        <strong>Hệ số × Mức lương cơ sở ({{ number_format($mucLuongCoSo, 0, ',', '.') }} đ)</strong>
-                    </div>
-
-                    {{-- Badge hiển thị hệ số sau khi chọn --}}
-                    <div id="heSoBadge" style="display:none; margin-top: 8px; padding: 8px 12px;
-                                             background: #f0fdf4; border: 1px solid #0BAA4B; border-radius: 6px;
-                                             font-size: 13px; color: #0BAA4B;">
+                    
+                    <div id="heSoBadge" style="display:none; margin-top: 8px; padding: 6px 12px; background: rgba(11, 170, 75, 0.1); border: 1px solid #0BAA4B; border-radius: 6px; font-size: 13px; color: #0BAA4B;">
                         <strong id="heSoValue">–</strong>
-                        <span style="color: #6b7280;"> × {{ number_format($mucLuongCoSo, 0, ',', '.') }} đ
-                            = </span>
+                        <span style="color: #6b7280;"> × {{ number_format($mucLuongCoSo, 0, ',', '.') }} đ = </span>
                         <strong id="luongTinhTu">–</strong>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="form-label">Lương cơ bản (VNĐ) <span class="required">*</span></label>
+                    <input type="text" name="luong_co_ban" id="luongCoBan" class="form-control salary-input formatted-number"
+                        placeholder="15.000.000" required value="{{ isset($isRenew) ? number_format($oldContract->LuongCoBan, 0, ',', '.') : '' }}" @if(isset($isRenew)) readonly @endif>
+                    <div class="help-text">Tối thiểu 5.310.000 VNĐ</div>
+                </div>
             </div>
 
-            <!-- Lương cơ bản -->
-            <div class="form-group">
-                <label>Lương cơ bản (VNĐ) <span class="required">*</span></label>
-
-                <input type="text" name="luong_co_ban" id="luongCoBan" class="form-control salary-input formatted-number"
-                    placeholder="15.000.000" min="5310000" required value="{{ isset($isRenew) ? number_format($oldContract->LuongCoBan, 0, ',', '.') : '' }}" @if(isset($isRenew)) readonly @endif>
-                <div class="help-text">Lương cơ bản (tính BHXH) - Tối thiểu 5.310.000 VNĐ (Vùng I năm 2026)</div>
-            </div>
+            @php
+                $ngachBacJson = [];
+                foreach ($ngachLuongs as $nl) {
+                    $bacs = [];
+                    foreach ($nl->bacLuongs->sortBy('Bac') as $b) {
+                        $bacs[] = [
+                            'id' => $b->id,
+                            'bac' => $b->Bac,
+                            'heso' => (float) $b->HeSo,
+                        ];
+                    }
+                    $ngachBacJson[] = [
+                        'id' => $nl->id,
+                        'ma' => $nl->Ma,
+                        'ten' => $nl->Ten,
+                        'nhom' => $nl->Nhom,
+                        'bacs' => $bacs,
+                    ];
+                }
+            @endphp
+            <script id="ngachBacData" type="application/json">
+                {!! json_encode($ngachBacJson) !!}
+            </script>
 
             <!-- Phụ cấp tính BHXH -->
             <div style="margin-top: 24px; margin-bottom: 12px;">
@@ -480,36 +506,20 @@
                 <div class="form-group">
                     <label>Phụ cấp chức vụ (VNĐ)</label>
                     <input type="text" name="phu_cap_chuc_vu" id="phuCapChucVu"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0" readonly
-                        style="background: #f9fafb;">
+                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0" readonly>
                     <div class="help-text">Tự động lấy từ chức vụ đã chọn</div>
                 </div>
 
-                <div class="form-group">
-                    <label>Phụ cấp trách nhiệm (VNĐ)</label>
-                    <input type="text" name="phu_cap_trach_nhiem" id="phuCapTrachNhiem"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapTrachNhiem, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Phụ cấp độc hại, nguy hiểm (VNĐ)</label>
-                    <input type="text" name="phu_cap_doc_hai" id="phuCapDocHai"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapDocHai, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
-                </div>
-
-                <div class="form-group">
-                    <label>Phụ cấp thâm niên (VNĐ)</label>
-                    <input type="text" name="phu_cap_tham_nien" id="phuCapThamNien"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapThamNien, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Phụ cấp khu vực, thu hút (VNĐ)</label>
-                <input type="text" name="phu_cap_khu_vuc" id="phuCapKhuVuc"
-                    class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapKhuVuc, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
+                @foreach($dmAllowances->where('is_bhxh', 1) as $dm)
+                    <div class="form-group">
+                        <label>{{ $dm->noi_dung }} (VNĐ)</label>
+                        <input type="text" name="allowances[{{ $dm->id }}]" 
+                            class="form-control salary-input formatted-number allowance-bhxh" 
+                            placeholder="0" min="0" 
+                            value="{{ isset($isRenew) && $oldContract->phuCaps->contains($dm->id) ? number_format($oldContract->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}"
+                            @if(isset($isRenew)) readonly @endif>
+                    </div>
+                @endforeach
             </div>
 
             <!-- Phụ cấp KHÔNG tính BHXH -->
@@ -519,37 +529,16 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label>Phụ cấp ăn trưa (VNĐ)</label>
-                    <input type="text" name="phu_cap_an_trua" id="phuCapAnTrua"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapAnTrua, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
-                </div>
-
-                <div class="form-group">
-                    <label>Hỗ trợ xăng xe (VNĐ)</label>
-                    <input type="text" name="phu_cap_xang_xe" id="phuCapXangXe"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapXangXe, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Hỗ trợ điện thoại (VNĐ)</label>
-                    <input type="text" name="phu_cap_dien_thoai" id="phuCapDienThoai"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapDienThoai, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
-                </div>
-
-                <div class="form-group">
-                    <label>Tiền nhà ở (VNĐ)</label>
-                    <input type="text" name="phu_cap_nha_o" id="phuCapNhaO"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="{{ isset($isRenew) ? number_format(($oldContract->PhuCapKhac - 0), 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Phụ cấp khác (VNĐ)</label>
-                <input type="text" name="phu_cap_khac" id="phuCapKhac" class="form-control salary-input formatted-number"
-                    placeholder="0" min="0" value="{{ isset($isRenew) ? number_format($oldContract->PhuCapKhac, 0, ',', '.') : '0' }}" @if(isset($isRenew)) readonly @endif>
+                @foreach($dmAllowances->where('is_bhxh', 0) as $dm)
+                    <div class="form-group">
+                        <label>{{ $dm->noi_dung }} (VNĐ)</label>
+                        <input type="text" name="allowances[{{ $dm->id }}]" 
+                            class="form-control salary-input formatted-number allowance-ngoai-bhxh" 
+                            placeholder="0" min="0" 
+                            value="{{ isset($isRenew) && $oldContract->phuCaps->contains($dm->id) ? number_format($oldContract->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}"
+                            @if(isset($isRenew)) readonly @endif>
+                    </div>
+                @endforeach
             </div>
 
             <!-- Hidden input for Total Income (saved to TongLuong) -->
@@ -662,6 +651,7 @@
             // Global variables
             let contractCounter = 1;
             const allEmployees = @json($nhanvien);
+            const defaultNguoiKyId = {{ $defaultNguoiKyId ?? 'null' }};
 
             // Initialize flatpickr for date inputs
             const startDatePicker = flatpickr("#ngayBatDau", {
@@ -707,33 +697,10 @@
                     $('#phongBanSelect').val(option.data('phongban-id')).trigger('change');
                     $('#chucVuSelect').val(option.data('chucvu-id')).trigger('change');
 
-                    // Reset and populate Người ký hợp đồng dropdown
-                    nguoiKySelect.html('<option value="">-- Chọn người ký --</option>');
-
-                    // Add all employees except the selected one
-                    allEmployees.forEach(emp => {
-                        if (emp.id != selectedEmployeeId) {
-                            const opt = document.createElement('option');
-                            opt.value = emp.id;
-                            // Access chuc_vu through tt_cong_viec relationship
-                            const chucVu = emp.tt_cong_viec?.chuc_vu?.Ten || 'Chưa xác định';
-                            opt.textContent = `${emp.Ma} - ${emp.Ten} - ${chucVu}`;
-                            nguoiKySelect.append(opt); // Use append for jQuery object
-                        }
-                    });
-
-                    // Enable the dropdown and refresh Select2
-                    nguoiKySelect.prop('disabled', false).trigger('change');
-                    nguoiKySelect.select2('open'); // Open Select2 dropdown after populating
-
                     // Generate contract number
                     generateContractNumber();
                 } else {
                     card.classList.remove('show');
-
-                    // Reset and disable Người ký hợp đồng dropdown
-                    nguoiKySelect.html('<option value="">-- Vui lòng chọn nhân viên trước --</option>');
-                    nguoiKySelect.prop('disabled', true).trigger('change');
                 }
             });
 
@@ -751,11 +718,8 @@
                     const soHopDong = `${String(contractCounter).padStart(3, '0')}/${currentYear}/${maLoai}`;
 
                     document.getElementById('soHopDong').value = soHopDong;
-                    document.getElementById('contractNumberDisplay').textContent = soHopDong;
-                    document.getElementById('contractPreview').style.display = 'block';
                 } else {
                     document.getElementById('soHopDong').value = 'Tự động tạo';
-                    document.getElementById('contractPreview').style.display = 'none';
                 }
             }
 
@@ -830,8 +794,7 @@
             }
 
             // Form validation
-            // document.querySelector('form').addEventListener('submit', function (e) { // Original
-            $('#contractForm').on('submit', function (e) { // jQuery for form submission
+            $('#contractForm').on('submit', function (e) {
                 const requiredFields = this.querySelectorAll('[required]');
                 let isValid = true;
 
@@ -915,20 +878,19 @@
                 // Get all salary values (unformat first to handle dots)
                 const luongCoBan = parseFloat(unformatNumber(document.getElementById('luongCoBan').value)) || 0;
                 const phuCapChucVu = parseFloat(unformatNumber(document.getElementById('phuCapChucVu').value)) || 0;
-                const phuCapTrachNhiem = parseFloat(unformatNumber(document.getElementById('phuCapTrachNhiem').value)) || 0;
-                const phuCapDocHai = parseFloat(unformatNumber(document.getElementById('phuCapDocHai').value)) || 0;
-                const phuCapThamNien = parseFloat(unformatNumber(document.getElementById('phuCapThamNien').value)) || 0;
-                const phuCapKhuVuc = parseFloat(unformatNumber(document.getElementById('phuCapKhuVuc').value)) || 0;
+                
+                // Sum dynamic allowances (BHXH)
+                let tongPhuCapBHXH = phuCapChucVu;
+                document.querySelectorAll('.allowance-bhxh').forEach(input => {
+                    tongPhuCapBHXH += parseFloat(unformatNumber(input.value)) || 0;
+                });
 
-                const phuCapAnTrua = parseFloat(unformatNumber(document.getElementById('phuCapAnTrua').value)) || 0;
-                const phuCapXangXe = parseFloat(unformatNumber(document.getElementById('phuCapXangXe').value)) || 0;
-                const phuCapDienThoai = parseFloat(unformatNumber(document.getElementById('phuCapDienThoai').value)) || 0;
-                const phuCapNhaO = parseFloat(unformatNumber(document.getElementById('phuCapNhaO').value)) || 0;
-                const phuCapKhac = parseFloat(unformatNumber(document.getElementById('phuCapKhac').value)) || 0;
+                // Sum dynamic allowances (Non-BHXH)
+                let tongPhuCapKhongBHXH = 0;
+                document.querySelectorAll('.allowance-ngoai-bhxh').forEach(input => {
+                    tongPhuCapKhongBHXH += parseFloat(unformatNumber(input.value)) || 0;
+                });
 
-                // Calculate totals
-                const tongPhuCapBHXH = phuCapChucVu + phuCapTrachNhiem + phuCapDocHai + phuCapThamNien + phuCapKhuVuc;
-                const tongPhuCapKhongBHXH = phuCapAnTrua + phuCapXangXe + phuCapDienThoai + phuCapNhaO + phuCapKhac;
                 const luongBHXH = luongCoBan + tongPhuCapBHXH;
                 const tongThuNhap = luongBHXH + tongPhuCapKhongBHXH;
 
@@ -1325,7 +1287,7 @@
                     }
 
                     ngach.bacs.forEach(b => {
-                        const opt = `<option value="${b.id}" data-heso="${b.heso}">Bậc ${b.bac}  –  Hệ số ${b.heso.toFixed(2)}</option>`;
+                        const opt = `<option value="${b.id}" data-heso="${b.heso}">Bậc ${b.bac}  –  Hệ số ${Number(b.heso).toFixed(2)}</option>`;
                         bacSelect.append(opt); // Use append
                     });
                     bacSelect.prop('disabled', false).trigger('change'); // Enable and refresh Select2
@@ -1348,7 +1310,7 @@
                     luongCoBanInput.val(formatted); // Use val()
 
                     // Cập nhật badge
-                    heSoValue.text(heso.toFixed(2)); // Use text()
+                    heSoValue.text(heso ? heso.toFixed(2) : '0.00'); // Use text()
                     luongTinhTu.text(formatNumber(luong) + ' đ'); // Use text()
                     heSoBadge.show(); // Use show()
 

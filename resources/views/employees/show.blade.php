@@ -34,17 +34,16 @@
         }
 
         .detail-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2px;
         }
 
         .detail-value {
-            font-size: 15px;
-            color: #1f2937;
-            font-weight: 400;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
         }
 
         .profile-header {
@@ -300,6 +299,35 @@
             box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
         }
 
+        /* Select2 inside form-icon-group support */
+        .form-icon-group .select2-container--default .select2-selection--single {
+            padding-left: 32px !important;
+            height: 42px !important;
+            display: flex;
+            align-items: center;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: transparent;
+        }
+
+        .form-icon-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding-left: 0 !important;
+            color: #1f2937;
+        }
+
+        .form-icon-group .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+        }
+
+        body.dark-theme .form-icon-group .select2-container--default .select2-selection--single {
+            background-color: #13161f !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .form-icon-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e8eaf0 !important;
+        }
+
         .toggle-switch-group {
             background: #f9fafb;
             padding: 16px;
@@ -344,9 +372,272 @@
             .detail-grid {
                 grid-template-columns: 1fr;
             }
+
+            .action-buttons-header {
+                justify-content: center;
+            }
+
+            .action-buttons-header .btn {
+                font-size: 14px !important;
+                padding: 10px 20px !important;
+                gap: 8px !important;
+                width: auto !important;
+                flex: none !important;
+            }
+
+            .action-buttons-header .btn i {
+                font-size: 18px !important;
+            }
+        }
+
+        /* Dark Mode Overrides */
+        body.dark-theme .detail-section {
+            background: #1a1d27;
+            border: 1px solid #2e3349;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-theme .detail-section h2 {
+            border-bottom-color: #2e3349;
+            color: #0BAA4B;
+        }
+
+        body.dark-theme .detail-label {
+            color: #6b7492;
+        }
+
+        body.dark-theme .detail-value {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .tabs {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .tab {
+            color: #6b7492;
+        }
+
+        body.dark-theme .tab:hover {
+            color: #4ade80;
+        }
+
+        body.dark-theme .tab.active {
+            color: #4ade80;
+            border-bottom-color: #0BAA4B;
+        }
+
+        body.dark-theme .premium-table,
+        body.dark-theme .relatives-table {
+            border-color: #2e3349;
+            box-shadow: none;
+        }
+
+        body.dark-theme .premium-table thead,
+        body.dark-theme .relatives-table thead {
+            background-color: #21263a;
+        }
+
+        body.dark-theme .premium-table th,
+        body.dark-theme .relatives-table th {
+            color: #6b7492;
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .premium-table td,
+        body.dark-theme .relatives-table td {
+            color: #c3c8da;
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .premium-table tr:hover,
+        body.dark-theme .relatives-table tr:hover {
+            background-color: #21263a;
+        }
+
+        /* Badges in Dark Mode */
+        body.dark-theme .badge-bo-me { background: rgba(14, 165, 233, 0.15); color: #7dd3fc; }
+        body.dark-theme .badge-vo-chong { background: rgba(236, 72, 153, 0.15); color: #f9a8d4; }
+        body.dark-theme .badge-con { background: rgba(11, 170, 75, 0.15); color: #4ade80; }
+        body.dark-theme .badge-khac { background: #2e3349; color: #94a3b8; }
+
+        /* Form elements for Filters in Tab Attendance */
+        body.dark-theme #attendanceDateDisplay {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .empty-state-cell {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+        }
+
+        body.dark-theme .empty-state-cell div {
+            color: #6b7492 !important;
+        }
+
+        body.dark-theme .empty-state-cell i {
+            color: #2e3349 !important;
+        }
+
+        body.dark-theme .text-primary-hr {
+            color: #4ade80 !important;
+        }
+
+        /* Generic Badge overrides for Dark Mode */
+        body.dark-theme .badge-secondary {
+            background: #2e3349 !important;
+            color: #6b7492 !important;
+            border: 1px solid #3b4261 !important;
+        }
+
+        body.dark-theme .badge-success {
+            background: rgba(11, 170, 75, 0.15) !important;
+            color: #4ade80 !important;
+            border: 1px solid rgba(11, 170, 75, 0.3) !important;
+        }
+
+        body.dark-theme .badge-info {
+            background: rgba(14, 165, 233, 0.15) !important;
+            color: #7dd3fc !important;
+            border: 1px solid rgba(14, 165, 233, 0.3) !important;
+        }
+
+        body.dark-theme .badge-warning {
+            background: rgba(251, 146, 60, 0.15) !important;
+            color: #fb923c !important;
+            border: 1px solid rgba(251, 146, 60, 0.3) !important;
+        }
+
+        body.dark-theme button[onclick="loadAttendancePrevMonth()"] {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme #attendanceStats > div {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme #attendanceStats #statTotal,
+        body.dark-theme #attendanceStats #statOnTime {
+            color: #4ade80 !important;
+        }
+
+        body.dark-theme #attendanceStats #statLate {
+            color: #fb923c !important;
+        }
+
+        body.dark-theme #attendanceStats #statEarly {
+            color: #60a5fa !important;
+        }
+
+        body.dark-theme #attendanceTableWrap thead tr {
+            background-color: #21263a !important;
+            border-bottom-color: #2e3349 !important;
+        }
+
+        body.dark-theme #attendanceTableWrap td {
+            border-bottom-color: #13161f !important;
+        }
+
+        body.dark-theme #attendanceTableWrap tr:hover {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+        }
+
+        /* Adjust Back & Edit buttons in profile header */
+        body.dark-theme .btn-secondary {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da;
+        }
+
+        body.dark-theme .profile-info .btn-light {
+            background: #1a1d27 !important;
+            color: #4ade80 !important;
+            border: 1px solid #2e3349 !important;
+        }
+
+        /* Modal & Form Dark Mode */
+        body.dark-theme .modal-content {
+            background-color: #1a1d27;
+            color: #e8eaf0;
+            border: 1px solid #2e3349;
+        }
+
+        body.dark-theme .modal-header {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .modal-footer {
+            background-color: #21263a !important;
+            border-top-color: #2e3349 !important;
+        }
+
+        body.dark-theme .form-label {
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme .form-control,
+        body.dark-theme .form-select {
+            background-color: #13161f !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .form-control::placeholder {
+            color: #4b5563 !important;
+        }
+
+        body.dark-theme .input-group-text {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #6b7492 !important;
+        }
+
+        body.dark-theme .form-icon {
+            color: #4b5563 !important;
+        }
+
+        body.dark-theme .toggle-switch-group {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .toggle-switch-group:hover {
+            background-color: #2e3349 !important;
+        }
+
+        body.dark-theme .toggle-title {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .toggle-subtitle {
+            color: #6b7492 !important;
+        }
+
+        /* Salary Slip Modal specific */
+        body.dark-theme .modal-slip-container {
+            background-color: #1a1d27 !important;
+            border: 1px solid #2e3349 !important;
+        }
+
+        body.dark-theme .modal-slip-body {
+            background-color: #13161f !important;
+        }
+
+        body.dark-theme .modal-slip-header {
+            border-bottom: none !important;
+        }
+
+        .document-image-link:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            border-color: #0BAA4B !important;
         }
     </style>
-@endpush
+ @endpush
 
 @section('content')
     <!-- Back Button -->
@@ -370,7 +661,22 @@
             <img src="{{ $avatar }}" alt="{{ $employee->Ten }}" class="profile-avatar"
                 onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($employee->Ten) }}&background=0F5132&color=fff&size=128'">
             <div class="profile-info">
-                <h1>{{ $employee->Ten }}</h1>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h1>{{ $employee->Ten }}</h1>
+                    @php
+                        $status = $employee->TrangThai ?? 1;
+                        if ($status == 1) {
+                            $statusData = ['text' => 'Làm tại công ty', 'class' => 'bg-success'];
+                        } elseif ($status == 2) {
+                            $statusData = ['text' => 'Làm từ xa (WFH)', 'class' => 'bg-info'];
+                        } else {
+                            $statusData = ['text' => 'Nghỉ làm', 'class' => 'bg-secondary'];
+                        }
+                    @endphp
+                    <span class="badge {{ $statusData['class'] }}" style="padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        {{ $statusData['text'] }}
+                    </span>
+                </div>
                 <div style="font-size: 18px; opacity: 0.9;">
                     {{ $employee->ttCongViec->chucVu->Ten ?? 'Chưa có chức vụ' }} -
                     {{ $employee->ttCongViec->phongBan->Ten ?? 'Chưa có phòng ban' }}
@@ -430,6 +736,8 @@
                     {{ $employee->hopDongs->count() }}
                 </span>
             @endif
+        <button class="tab" onclick="switchTab(event, 'attendance')" data-tab="attendance">
+            <i class="bi bi-clock-history"></i> Chấm công
         </button>
     </div>
 
@@ -439,6 +747,7 @@
     @include('employees.partials.tab_relatives')
     @include('employees.partials.tab_salary')
     @include('employees.partials.tab_contracts')
+    @include('employees.partials.tab_attendance')
 
     {{-- Modals --}}
     @include('employees.partials.modal_add_relative')
@@ -518,6 +827,37 @@
                                         location.reload();
                                     });
                                 }
+                            });
+                    }
+                });
+            }
+
+            function approveRelative(id) {
+                Swal.fire({
+                    title: 'Duyệt thân nhân?',
+                    text: 'Xác nhận thông tin người thân này đã hợp lệ.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0BAA4B',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Duyệt ngay',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/than-nhan/duyet/${id}`, {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('Thành công!', data.message, 'success').then(() => { location.reload(); });
+                                } else {
+                                    Swal.fire('Lỗi!', data.message, 'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ', 'error');
                             });
                     }
                 });

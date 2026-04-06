@@ -42,6 +42,8 @@ class CauHinhController extends Controller
             );
         }
 
+        \App\Services\SystemLogService::log('Cập nhật', 'SystemConfig', null, 'Cập nhật cấu hình hệ thống chung');
+
         return redirect()->back()->with('success', 'Đã lưu cấu hình hệ thống thành công!');
     }
 
@@ -71,6 +73,8 @@ class CauHinhController extends Controller
             }
         }
 
+        \App\Services\SystemLogService::log('Cập nhật', 'DmCaLamViec', null, 'Cập nhật thông tin ca làm việc');
+
         return redirect()->back()->with('success', 'Đã cập nhật thông tin ca làm việc thành công!');
     }
 
@@ -99,6 +103,8 @@ class CauHinhController extends Controller
                 $lich->update($updateData);
             }
         }
+
+        \App\Services\SystemLogService::log('Cập nhật', 'CauHinhLichLamViec', null, 'Cập nhật cấu hình ngày làm việc');
 
         return redirect()->back()->with('success', 'Đã cập nhật cấu hình ngày làm việc thành công!');
     }

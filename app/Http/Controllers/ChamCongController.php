@@ -12,19 +12,59 @@ use App\Imports\ChamCongImport;
 
 class ChamCongController extends Controller
 {
-    public function DanhSachView(Request $request)
+    public function ChamCongData(Request $request, $id)
     {
         $month = $request->month ?? Carbon::now()->month;
-        $year = $request->year ?? Carbon::now()->year;
+        $year  = $request->year  ?? Carbon::now()->year;
+
+        $attendances = ChamCong::where('NhanVienId', $id)
+            ->whereYear('Vao', $year)
+            ->whereMonth('Vao', $month)
+            ->orderBy('Vao', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'attendances' => $attendances
+        ]);
+    }
+
+    public function DanhSachView(Request $request)
+    {
+        $month  = $request->month  ?? Carbon::now()->month;
+        $year   = $request->year   ?? Carbon::now()->year;
+        $day    = $request->day    ?? '';      // '' = tất cả ngày
+        $status = $request->status ?? '';      // '' = tất cả trạng thái
         $user = auth()->user();
         $isEmployeeOnly = $user->hasAnyRole(['Employee', 'Nhân viên']) && !$user->hasAnyRole(['Super Admin', 'Admin Đơn Vị', 'CEO', 'Supervisor', 'HR Manager', 'System Admin', 'Factory Supervisor', 'Line Manager']);
         $nhanVienId = $user->nhanVien?->id;
 
-        // Stats for the month
+        // Stats for the month (luôn theo tháng/năm, không lọc thêm ngày/trạng thái)
         $totalEmployeesQuery = NhanVien::query();
         $onTimeQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'dung_gio');
-        $lateQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
-        $attendancesQuery = ChamCong::with('nhanVien.ttCongViec.phongBan')->whereYear('Vao', $year)->whereMonth('Vao', $month)->orderBy('Vao', 'desc');
+        $lateQuery   = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
+
+        // Main query
+        $attendancesQuery = ChamCong::with('nhanVien.ttCongViec.phongBan')
+            ->whereYear('Vao', $year)
+            ->whereMonth('Vao', $month);
+
+        // Lọc theo ngày cụ thể
+        if ($day !== '' && $day > 0) {
+            $attendancesQuery->whereDay('Vao', $day);
+        }
+
+        // Lọc theo trạng thái
+        if ($status !== '') {
+            if ($status === 'la') {
+                // Khách / Lạ: bản ghi không có NhanVienId
+                $attendancesQuery->whereNull('NhanVienId');
+            } else {
+                $attendancesQuery->whereNotNull('NhanVienId')->where('TrangThai', $status);
+            }
+        }
+
+        $attendancesQuery->orderBy('Vao', 'desc');
 
         if ($isEmployeeOnly && $nhanVienId) {
             $totalEmployeesQuery->where('id', $nhanVienId);
@@ -34,11 +74,14 @@ class ChamCongController extends Controller
         }
 
         $totalEmployees = $totalEmployeesQuery->count();
-        $onTimeCount = $onTimeQuery->count();
-        $lateCount = $lateQuery->count();
-        $attendances = $attendancesQuery->get();
+        $onTimeCount    = $onTimeQuery->count();
+        $lateCount      = $lateQuery->count();
+        $attendances    = $attendancesQuery->get();
 
-        return view('attendance.index', compact('attendances', 'totalEmployees', 'onTimeCount', 'lateCount', 'month', 'year'));
+        return view('attendance.index', compact(
+            'attendances', 'totalEmployees', 'onTimeCount', 'lateCount',
+            'month', 'year', 'day', 'status'
+        ));
     }
 
     /**
@@ -65,11 +108,43 @@ class ChamCongController extends Controller
     {
         $request->validate([
             'nhan_vien_id' => 'required|exists:nhan_viens,id',
+            'anh_cham_cong' => 'nullable|string', // Base64 string
         ]);
 
         $now = Carbon::now();
         $today = $now->toDateString();
         $nhanVienId = $request->nhan_vien_id;
+
+        // Process Image if present
+        $imagePath = null;
+        if ($request->anh_cham_cong) {
+            $imageData = $request->anh_cham_cong;
+            if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                $type = strtolower($type[1]); // jpg, png, gif
+
+                if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                    throw new \Exception('Kiểu file ảnh không hợp lệ.');
+                }
+
+                $imageData = base64_decode($imageData);
+
+                if ($imageData === false) {
+                    throw new \Exception('Dữ liệu ảnh không hợp lệ.');
+                }
+            } else {
+                throw new \Exception('Định dạng ảnh không đúng.');
+            }
+
+            $fileName = 'attendance_' . $nhanVienId . '_' . time() . '.' . $type;
+            $imagePath = 'uploads/attendances/' . $fileName;
+            
+            if (!file_exists(public_path('uploads/attendances'))) {
+                mkdir(public_path('uploads/attendances'), 0777, true);
+            }
+            
+            file_put_contents(public_path($imagePath), $imageData);
+        }
 
         // Lấy ca làm việc từ danh mục ca làm việc (không phụ thuộc lịch làm việc)
         $caLamViec = \App\Models\DmCaLamViec::first();
@@ -93,11 +168,6 @@ class ChamCongController extends Controller
         // Setup work times based on the shift
         $startWorkTime = $caLamViec->GioVao;
         $endWorkTime = $caLamViec->GioRa;
-
-        // Check if there is already a record for today
-        $attendance = ChamCong::where('NhanVienId', $nhanVienId)
-            ->whereDate('Vao', $today)
-            ->first();
 
         // Check if there is already a record for today
         $attendance = ChamCong::where('NhanVienId', $nhanVienId)
@@ -133,7 +203,8 @@ class ChamCongController extends Controller
                 'Vao' => $now,
                 'Loai' => $loai,
                 'TangCaId' => $tangCaId,
-                'TrangThai' => $status
+                'TrangThai' => $status,
+                'AnhChamCong' => $imagePath // Lưu ảnh vào đây
             ]);
 
             $msg = $loai == 1 ? 'Vào ca TĂNG CA' : 'Vào làm';
@@ -167,7 +238,8 @@ class ChamCongController extends Controller
 
                     $attendance->update([
                         'Ra' => $otStartTime,
-                        'TrangThai' => $currentStatus
+                        'TrangThai' => $currentStatus,
+                        'AnhChamCong' => $attendance->AnhChamCong ?: $imagePath // Giữ ảnh cũ nếu có, không thì dùng ảnh mới
                     ]);
 
                     // 2. Tạo bản ghi mới cho ca Tăng ca (từ otStartTime đến bây giờ)
@@ -177,7 +249,8 @@ class ChamCongController extends Controller
                         'Ra' => $now,
                         'Loai' => 1,
                         'TangCaId' => $approvedOT->id,
-                        'TrangThai' => 'dung_gio'
+                        'TrangThai' => 'dung_gio',
+                        'AnhChamCong' => $imagePath // Lưu ảnh mới cho ca tăng ca
                     ]);
 
                     return response()->json([
@@ -204,7 +277,8 @@ class ChamCongController extends Controller
 
             $attendance->update([
                 'Ra' => $now,
-                'TrangThai' => $currentStatus
+                'TrangThai' => $currentStatus,
+                'AnhChamCong' => $imagePath // Cập nhật ảnh (thường là ghi đè hoặc giữ nguyên tùy theo logic check-out)
             ]);
 
             return response()->json([
@@ -274,82 +348,7 @@ class ChamCongController extends Controller
         return $this->Tao($request);
     }
 
-    /**
-     * View Lịch làm việc (Schedule Matrix for Teams)
-     */
-    public function schedule(Request $request)
-    {
-        $month = $request->month ?? Carbon::now()->month;
-        $year = $request->year ?? Carbon::now()->year;
 
-        // Lấy danh sách Tổ đội kèm phòng ban
-        $toDois = \App\Models\DmToDoi::with('phongBan')->orderBy('Ten')->get();
-
-        // Lấy danh sách tất cả các ca làm việc
-        $caLamViecs = \App\Models\DmCaLamViec::all();
-
-        $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
-
-        // Lấy danh sách lịch làm việc đã lưu của tháng này
-        $schedules = \App\Models\LichLamViec::with('caLamViec')
-            ->whereYear('NgayLamViec', $year)
-            ->whereMonth('NgayLamViec', $month)
-            ->get();
-
-        $scheduleMap = [];
-        foreach ($schedules as $schedule) {
-            if ($schedule->ToDoiId) {
-                // Formatting date to group by team and date
-                $dateStr = Carbon::parse($schedule->NgayLamViec)->format('Y-m-d');
-                $scheduleMap[$schedule->ToDoiId][$dateStr] = $schedule->caLamViec ? $schedule->caLamViec->MaCa : '';
-            }
-        }
-
-        return view('attendance.schedule', compact('toDois', 'caLamViecs', 'month', 'year', 'daysInMonth', 'scheduleMap'));
-    }
-
-    /**
-     * Lưu lịch làm việc via AJAX (Tổ đội mass save)
-     */
-    public function saveSchedule(Request $request)
-    {
-        $request->validate([
-            'schedules' => 'required|array',
-            'schedules.*.ToDoiId' => 'required|exists:dm_to_dois,id',
-            'schedules.*.NgayLamViec' => 'required|date',
-            'schedules.*.CaId' => 'nullable|string',
-        ]);
-
-        foreach ($request->schedules as $item) {
-            $toDoiId = $item['ToDoiId'];
-            $ngayLamViec = $item['NgayLamViec'];
-            $caId = $item['CaId'];
-
-            if (empty($caId) || strtoupper($caId) === 'OFF') {
-                // Delete records if empty selection or OFF
-                \App\Models\LichLamViec::where('ToDoiId', $toDoiId)
-                    ->whereDate('NgayLamViec', $ngayLamViec)
-                    ->delete();
-            } else {
-                $dbCaId = \App\Models\DmCaLamViec::where('MaCa', $caId)->value('id');
-                if ($dbCaId) {
-                    // Update or Create the schedule cho Tổ Đội (bỏ qua NhanVienId)
-                    \App\Models\LichLamViec::updateOrCreate(
-                        [
-                            'ToDoiId' => $toDoiId,
-                            'NgayLamViec' => $ngayLamViec,
-                        ],
-                        [
-                            'CaId' => $dbCaId,
-                            'NhanVienId' => null,
-                        ]
-                    );
-                }
-            }
-        }
-
-        return response()->json(['success' => true, 'message' => 'Đã lưu lịch làm việc thành công']);
-    }
     public function importView()
     {
         return view('attendance.import');
@@ -379,5 +378,65 @@ class ChamCongController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Lỗi khi import file: ' . $e->getMessage());
         }
+    }
+
+    public function TongQuanNgayView(Request $request)
+    {
+        $date = $request->date ?? Carbon::today()->toDateString();
+        $dateObj = Carbon::parse($date);
+        
+        $user = auth()->user();
+        $isEmployeeOnly = $user->hasAnyRole(['Employee', 'Nhân viên']) && !$user->hasAnyRole(['Super Admin', 'Admin Đơn Vị', 'CEO', 'Supervisor', 'HR Manager', 'System Admin', 'Factory Supervisor', 'Line Manager']);
+
+        // 1. Lấy ca làm việc chuẩn để tính đi sớm/trễ (08:30 - 17:30)
+        $caLamViec = \App\Models\DmCaLamViec::first();
+        $gioVaoChuan = $caLamViec ? $caLamViec->GioVao : '08:30:00';
+        $gioRaChuan = $caLamViec ? $caLamViec->GioRa : '17:30:00';
+
+        // 2. Lấy toàn bộ nhân viên (hoặc theo quyền hạn)
+        $nhanVienQuery = NhanVien::query();
+        if ($isEmployeeOnly) {
+            $nhanVienQuery->where('id', $user->nhanVien?->id);
+        }
+        $allEmployees = $nhanVienQuery->get();
+        $totalEmployeeCount = $allEmployees->count();
+
+        // 3. Lấy dữ liệu chấm công của ngày chọn
+        $attendances = ChamCong::with('nhanVien')
+            ->whereDate('Vao', $date)
+            ->get();
+
+        // 4. Phân loại nhân viên
+        $checkedInIds = $attendances->pluck('NhanVienId')->filter()->unique()->toArray();
+        
+        // - Đi sớm: Vao < giờ vào chuẩn
+        $diSom = $attendances->filter(function($att) use ($gioVaoChuan) {
+            return $att->Vao && $att->Vao->toTimeString() < $gioVaoChuan && $att->NhanVienId;
+        })->unique('NhanVienId');
+
+        // - Đi trễ: Vao > giờ vào chuẩn
+        $diTre = $attendances->filter(function($att) use ($gioVaoChuan) {
+            return $att->Vao && $att->Vao->toTimeString() > $gioVaoChuan && $att->NhanVienId;
+        })->unique('NhanVienId');
+
+        // - Chưa Checkin: Nhân viên không có trong bản ghi chấm công ngày đó
+        $chuaCheckin = $allEmployees->whereNotIn('id', $checkedInIds);
+
+        // - Về trễ: Ra > giờ ra chuẩn
+        $veTre = $attendances->filter(function($att) use ($gioRaChuan) {
+            return $att->Ra && $att->Ra->toTimeString() > $gioRaChuan && $att->NhanVienId;
+        })->unique('NhanVienId');
+
+        // - Khách / Lạ (không có NhanVienId)
+        $khachLa = $attendances->whereNull('NhanVienId');
+
+        // Thống kê thẻ tóm tắt
+        $checkedInCount = count($checkedInIds);
+        
+        return view('attendance.daily_overview', compact(
+            'date', 'dateObj', 'totalEmployeeCount', 'checkedInCount',
+            'diSom', 'diTre', 'chuaCheckin', 'veTre', 'khachLa',
+            'gioVaoChuan', 'gioRaChuan'
+        ));
     }
 }

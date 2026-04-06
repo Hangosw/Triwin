@@ -8,23 +8,53 @@
         <p>Xem chi tiết bảng lương của từng nhân viên theo tháng</p>
     </div>
 
+    {{-- Hiển thị thông báo thành công hoặc lỗi --}}
+    @if(session('success'))
+        <div class="alert alert-success" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ session('error') }}
+        </div>
+    @endif
+
     @php
         $chucVu = $nhanVien->ttCongViec?->chucVu?->Ten ?? 'Chưa có';
         $phongBan = $nhanVien->ttCongViec?->phongBan?->Ten ?? 'Chưa có';
 
-        // Dữ liệu từ LuongService
-        $luongCoBan = $luong['luong_co_ban'];
-        $tongPhuCap = $luong['tong_phu_cap'];
-        $tongTangCa = $luong['tong_tang_ca'];
-        $tongThuNhap = $luong['tong_thu_nhap'];
-        $tongKhauTruBH = $luong['tong_khau_tru_bh'];
-        $soNguoiPT = $luong['so_nguoi_phu_thuoc'];
-        $tongGiamTru = $luong['tong_giam_tru'];
-        $thuNhapChiuThue = $luong['thu_nhap_chiu_thue'];
-        $thuNhapTinhThue = $luong['thu_nhap_tinh_thue'];
-        $thueTNCN = $luong['thue_tncn'];
-        $tongKhauTru = $luong['tong_khau_tru'];
-        $luongThucNhan = $luong['luong_thuc_nhan'];
+        // Dữ liệu từ LuongService (breakdown cho view chi tiết)
+        $luongCoBan = $luong['luong_co_ban'] ?? 0;
+        $tongPhuCap = $luong['tong_phu_cap'] ?? 0;
+        $tongTangCa = $luong['tong_tang_ca'] ?? 0;
+        $tongThuNhap = $luong['tong_thu_nhap'] ?? 0;
+        $tongKhauTruBH = $luong['tong_khau_tru_bh'] ?? 0;
+        $soNguoiPT = $luong['so_nguoi_phu_thuoc'] ?? 0;
+        $tongGiamTru = $luong['tong_giam_tru'] ?? 0;
+        $thuNhapChiuThue = $luong['thu_nhap_chiu_thue'] ?? 0;
+        $thuNhapTinhThue = $luong['thu_nhap_tinh_thue'] ?? 0;
+        $thueTNCN = $luong['thue_tncn'] ?? 0;
+        $tongKhauTru = $luong['tong_khau_tru'] ?? 0;
+        $luongThucNhan = $luong['luong_thuc_nhan'] ?? 0;
+
+        // Ưu tiên hiển thị con số chính xác đã chốt trong Database (luongRecord)
+        if (isset($luongRecord)) {
+            $luongCoBan = $luongRecord->LuongCoBan ?? $luongCoBan;
+            $tongPhuCap = $luongRecord->PhuCap ?? $tongPhuCap;
+            $tongTangCa = $luongRecord->LuongTangCa ?? $tongTangCa;
+            $tongKhauTruBH = $luongRecord->KhauTruBaoHiem ?? $tongKhauTruBH;
+            $thueTNCN = $luongRecord->ThueTNCN ?? $thueTNCN;
+            $luongThucNhan = $luongRecord->Luong ?? $luongThucNhan;
+            $soNguoiPT = $luongRecord->SoNguoiPhuThuoc ?? $soNguoiPT;
+        }
 
         $giamTruBanThan = \App\Services\LuongService::GIAM_TRU_BAN_THAN;
         $giamTruMoiNguoi = \App\Services\LuongService::GIAM_TRU_MOI_NGUOI;
@@ -119,8 +149,9 @@
     </div>
 
     {{-- Salary Components --}}
-    <div class="card">
-        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Thành phần lương</h3>
+    @if($luongRecord)
+        <div class="card">
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Thành phần lương</h3>
 
         <table class="table">
             <thead>
@@ -132,20 +163,34 @@
                 </tr>
             </thead>
             <tbody>
-                {{-- A. LƯƠNG CƠ BẢN --}}
+                {{-- A. LƯƠNG CƠ BẢN / LƯƠNG HỢP ĐỒNG --}}
                 <tr style="background-color: #f9fafb;">
-                    <td colspan="4"><strong>A. LƯƠNG CƠ BẢN</strong></td>
+                    <td colspan="4">
+                        <strong>
+                            A. {{ $luong['loai_nhan_vien_text'] ?? 'LƯƠNG CƠ BẢN' }}
+                        </strong>
+                    </td>
                 </tr>
                 <tr>
-                    <td style="padding-left: 32px;">Lương cơ bản</td>
-                    <td>Hợp đồng</td>
-                    <td class="font-medium">{{ number_format($luongCoBan, 0, ',', '.') }}</td>
-                    <td>Mức lương chính</td>
+                    <td style="padding-left: 32px;">
+                        {{ str_contains($luong['loai_nhan_vien_text'] ?? '', 'hợp đồng') ? 'Tổng lương hợp đồng' : 'Lương cơ bản' }}
+                    </td>
+                    <td>
+                        {{ str_contains($luong['loai_nhan_vien_text'] ?? '', 'hợp đồng') ? 'Cố định' : 'Theo ngày công' }}
+                    </td>
+                    <td class="font-medium">{{ number_format($luong['luong_ngay_cong'] ?? $luongCoBan, 0, ',', '.') }}</td>
+                    <td>
+                        @if(str_contains($luong['loai_nhan_vien_text'] ?? '', 'hợp đồng'))
+                            Đã bao gồm phụ cấp
+                        @else
+                            {{ number_format($luong['ngay_cong_thuc_te'], 2) }}/{{ $luong['ngay_cong_chuan'] }} ngày
+                        @endif
+                    </td>
                 </tr>
                 <tr style="background-color: #f0fdf4;">
-                    <td><strong>Tổng lương cơ bản</strong></td>
+                    <td><strong>Tổng cộng (A)</strong></td>
                     <td></td>
-                    <td class="text-primary font-bold">{{ number_format($luongCoBan, 0, ',', '.') }}</td>
+                    <td class="text-primary font-bold">{{ number_format($luong['luong_ngay_cong'] ?? $luongCoBan, 0, ',', '.') }}</td>
                     <td></td>
                 </tr>
 
@@ -324,50 +369,38 @@
         </table>
     </div>
 
-    {{-- Summary --}}
-    <div class="card" style="background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%); color: white;">
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 24px;">
-            <div>
-                <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Tổng thu nhập</div>
-                <div style="font-size: 28px; font-weight: 700;">{{ number_format($tongThuNhap, 0, ',', '.') }} đ</div>
-                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Cơ bản + Phụ cấp + Tăng ca</div>
-            </div>
-            <div>
-                <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Tổng khấu trừ</div>
-                <div style="font-size: 28px; font-weight: 700;">-{{ number_format($tongKhauTru, 0, ',', '.') }} đ</div>
-                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">BHXH + BHYT + BHTN + Thuế</div>
-            </div>
-            <div style="grid-column: span 2;">
-                <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Lương thực lãnh</div>
-                <div style="font-size: 36px; font-weight: 700;">{{ number_format($luongThucNhan, 0, ',', '.') }} đ</div>
-                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">
-                    Số tiền nhận được trong tháng {{ $thang }}/{{ $nam }}
-                </div>
-            </div>
-        </div>
-
-        <div style="border-top: 1px solid rgba(255, 255, 255, 0.3); padding-top: 16px; display: flex; gap: 12px;">
-            <button class="btn btn-secondary btn-show-slip" data-nv-id="{{ $nhanVien->id }}" data-thang="{{ $thang }}"
-                data-nam="{{ $nam }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                In phiếu lương
-            </button>
-            <button class="btn btn-secondary">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Gửi email cho nhân viên
-            </button>
-            <a href="{{ route('salary.index', ['thang' => $thang, 'nam' => $nam]) }}" class="btn btn-secondary">
-                ← Quay lại danh sách
-            </a>
         </div>
     </div>
+    @else
+        <div class="card" style="text-align: center; padding: 60px 20px; border: 2px dashed #e5e7eb; background: #f9fafb;">
+            <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.5;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 80px; height: 80px; margin: 0 auto; color: #9ca3af;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 600; color: #374151; margin-bottom: 8px;">Chưa có dữ liệu kỳ lương {{ $thang }}/{{ $nam }}</h3>
+            <p style="color: #6b7280; max-width: 400px; margin: 0 auto 24px;">
+                Dữ liệu lương của nhân viên <strong>{{ $nhanVien->Ten }}</strong> trong tháng này chưa được chốt hoặc khởi tạo.
+            </p>
+            
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <form action="{{ route('salary.update-single', $nhanVien->id) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="thang" value="{{ $thang }}">
+                    <input type="hidden" name="nam" value="{{ $nam }}">
+                    <button type="submit" class="btn" style="background-color: #0BAA4B; color: white;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Khởi tạo & Tính lương ngay
+                    </button>
+                </form>
+                <a href="{{ route('salary.index', ['thang' => $thang, 'nam' => $nam]) }}" class="btn btn-secondary">
+                    Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    @endif
 
     {{-- ========== MODAL PHIẾU LƯƠNG ========== --}}
     <div id="slipModal" style="

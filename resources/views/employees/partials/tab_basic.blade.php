@@ -24,6 +24,20 @@
                     {{ $employee->NgayCap ? \Carbon\Carbon::parse($employee->NgayCap)->format('d/m/Y') : 'Chưa có' }}
                 </div>
             </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+                <div class="detail-label">Giấy tờ CCCD</div>
+                @if($employee->anh_cccd && count($employee->anh_cccd) > 0)
+                    <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+                        @foreach($employee->anh_cccd as $path)
+                            <a href="{{ asset($path) }}" target="_blank" class="document-image-link">
+                                <img src="{{ asset($path) }}" alt="CCCD" style="width: 160px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s;">
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="detail-value" style="color: #9ca3af; font-style: italic; font-size: 13px;">Chưa có ảnh CCCD</div>
+                @endif
+            </div>
             <div class="detail-item">
                 <div class="detail-label">Ngày sinh</div>
                 <div class="detail-value">
@@ -111,6 +125,20 @@
             <div class="detail-item">
                 <div class="detail-label">Nơi cấp BHYT</div>
                 <div class="detail-value">{{ $employee->NoiCapBHYT ?? 'Chưa có' }}</div>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+                <div class="detail-label">Giấy tờ BHXH</div>
+                @if($employee->anh_bhxh && count($employee->anh_bhxh) > 0)
+                    <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+                        @foreach($employee->anh_bhxh as $path)
+                            <a href="{{ asset($path) }}" target="_blank" class="document-image-link">
+                                <img src="{{ asset($path) }}" alt="BHXH" style="width: 160px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s;">
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="detail-value" style="color: #9ca3af; font-style: italic; font-size: 13px;">Chưa có ảnh BHXH</div>
+                @endif
             </div>
         </div>
     </div>

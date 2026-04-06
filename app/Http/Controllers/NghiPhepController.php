@@ -10,6 +10,8 @@ use App\Models\DmPhongBan;
 use App\Models\CauHinhLichLamViec;
 use App\Models\ChamCong;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LeaveApprovalMail;
 
 class NghiPhepController extends Controller
 {
@@ -66,6 +68,70 @@ class NghiPhepController extends Controller
         ));
     }
 
+    public function DanhSachConLaiView(Request $request)
+    {
+        $nam = $request->nam ?? date('Y');
+        $phongBanId = $request->phong_ban_id;
+
+        // Các loại phép có hạn mức (CoHanMuc = 1) hoặc Phép năm
+        $loaiNghiPheps = LoaiNghiPhep::where('TrangThai', '1')
+            ->where(function($q) {
+                $q->where('CoHanMuc', 1)
+                  ->orWhere('Ten', 'Nghỉ phép năm');
+            })->get();
+
+        $query = \App\Models\NhanVien::with(['ttCongViec.phongBan', 'dangKyNghiPheps' => function($q) use ($nam) {
+                $q->whereIn('TrangThai', [1, 2])
+                  ->where(function($qq) use ($nam) {
+                      $qq->whereYear('TuNgay', $nam)->orWhereYear('DenNgay', $nam);
+                  });
+            }, 'quanLyPhepNams' => function($q) use ($nam) {
+                $q->where('Nam', $nam);
+            }])->has('ttCongViec');
+
+        if ($phongBanId) {
+            $query->whereHas('ttCongViec', function($q) use ($phongBanId) {
+                $q->where('PhongBanId', $phongBanId);
+            });
+        }
+
+        $nhanViens = $query->get();
+        $phongBans = DmPhongBan::all();
+
+        return view('leave.con-lai', compact('nhanViens', 'loaiNghiPheps', 'phongBans', 'nam'));
+    }
+
+    /**
+     * API lấy hạn mức nghỉ phép của nhân viên
+     */
+    public function getEmployeeLeaveLimits(Request $request)
+    {
+        $nhanVienId = $request->nhanVienId;
+        $currentYear = date('Y');
+        
+        $limits = LoaiNghiPhep::where('TrangThai', '1')
+            ->get()
+            ->mapWithKeys(function($type) use ($nhanVienId, $currentYear) {
+                if ($type->Ten == 'Nghỉ phép năm') {
+                    $phepNam = QuanLyPhepNam::where('NhanVienId', $nhanVienId)->where('Nam', $currentYear)->first();
+                    return [$type->id => (float)($phepNam ? $phepNam->ConLai : 0)];
+                } else {
+                    $used = DangKyNghiPhep::where('NhanVienId', $nhanVienId)
+                        ->where('LoaiNghiPhepId', $type->id)
+                        ->whereIn('TrangThai', [1, 2])
+                        ->where(function($q) use ($currentYear) {
+                            $q->whereYear('TuNgay', $currentYear)
+                              ->orWhereYear('DenNgay', $currentYear);
+                        })
+                        ->sum('SoNgayNghi');
+                    
+                    return [$type->id => $type->CoHanMuc == 1 ? (float)max(0, $type->HanMucToiDa - $used) : 999];
+                }
+            });
+
+        return response()->json($limits);
+    }
+
     /**
      * View nghỉ phép cá nhân dành cho nhân viên
      */
@@ -115,12 +181,118 @@ class NghiPhepController extends Controller
                 ];
             });
 
+        // Thống kê hạn mức còn lại của tất cả các loại nghỉ để truyền sang JS
+        $leaveLimitsMap = LoaiNghiPhep::where('TrangThai', '1')
+            ->get()
+            ->mapWithKeys(function ($type) use ($nhanVien, $currentYear) {
+                if ($type->Ten == 'Nghỉ phép năm') {
+                    $phepNam = QuanLyPhepNam::where('NhanVienId', $nhanVien->id)->where('Nam', $currentYear)->first();
+                    return [$type->id => (float) ($phepNam ? $phepNam->ConLai : 0)];
+                } else {
+                    $used = DangKyNghiPhep::where('NhanVienId', $nhanVien->id)
+                        ->where('LoaiNghiPhepId', $type->id)
+                        ->whereIn('TrangThai', [1, 2])
+                        ->where(function ($q) use ($currentYear) {
+                            $q->whereYear('TuNgay', $currentYear)
+                                ->orWhereYear('DenNgay', $currentYear);
+                        })
+                        ->sum('SoNgayNghi');
+
+                    return [$type->id => $type->CoHanMuc == 1 ? (float) max(0, $type->HanMucToiDa - $used) : 999];
+                }
+            })->toArray();
+
         return view('leave.self', compact(
             'nghiPheps',
             'phepNam',
             'loaiNghiPheps',
             'workingSchedule',
-            'otherLeaveStats'
+            'otherLeaveStats',
+            'leaveLimitsMap'
+        ));
+    }
+
+    /**
+     * View đăng ký nghỉ phép mới dành cho Admin (đăng ký cho nhân viên khác)
+     */
+    public function AdminDangKyView()
+    {
+        $nhanViens = \App\Models\NhanVien::with('ttCongViec.phongBan')->get();
+        $loaiNghiPheps = LoaiNghiPhep::where('TrangThai', '1')->get();
+        $workingSchedule = CauHinhLichLamViec::all();
+        
+        $currentYear = now()->year;
+        $annualLeaveLimit = (float) \App\Models\SystemConfig::getValue('annual_leave_limit_per_request', 5);
+        $annualLeaveId = $loaiNghiPheps->firstWhere('Ten', 'Nghỉ phép năm')->id ?? null;
+        
+        // Initialize with empty map, will be fetched via AJAX in view
+        $leaveLimitsMap = [];
+        $isAdmin = true;
+
+        return view('leave.register', compact(
+            'nhanViens',
+            'loaiNghiPheps',
+            'workingSchedule',
+            'leaveLimitsMap',
+            'annualLeaveLimit',
+            'annualLeaveId',
+            'isAdmin'
+        ));
+    }
+
+    /**
+     * View đăng ký nghỉ phép mới (giao diện chọn buổi chi tiết)
+     */
+    public function DangKyView()
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $nhanVien = auth()->user()->nhanVien;
+        if (!$nhanVien) {
+            return redirect()->back()->with('error', 'Không tìm thấy thông tin nhân viên.');
+        }
+
+        $phepNam = QuanLyPhepNam::getCurrentForEmployee($nhanVien->id);
+        if (!$phepNam) {
+            $phepNam = QuanLyPhepNam::khoiTaoPhepNam($nhanVien->id, now()->year);
+        }
+
+        $loaiNghiPheps = LoaiNghiPhep::where('TrangThai', '1')->get();
+        $workingSchedule = CauHinhLichLamViec::all();
+
+        $currentYear = now()->year;
+        $annualLeaveLimit = (float) \App\Models\SystemConfig::getValue('annual_leave_limit_per_request', 5);
+        $annualLeaveId = $loaiNghiPheps->firstWhere('Ten', 'Nghỉ phép năm')->id ?? null;
+
+        $leaveLimitsMap = LoaiNghiPhep::where('TrangThai', '1')
+            ->get()
+            ->mapWithKeys(function ($type) use ($nhanVien, $currentYear) {
+                if ($type->Ten == 'Nghỉ phép năm') {
+                    $phepNam = QuanLyPhepNam::where('NhanVienId', $nhanVien->id)->where('Nam', $currentYear)->first();
+                    return [$type->id => (float) ($phepNam ? $phepNam->ConLai : 0)];
+                } else {
+                    $used = DangKyNghiPhep::where('NhanVienId', $nhanVien->id)
+                        ->where('LoaiNghiPhepId', $type->id)
+                        ->whereIn('TrangThai', [1, 2])
+                        ->where(function ($q) use ($currentYear) {
+                            $q->whereYear('TuNgay', $currentYear)
+                                ->orWhereYear('DenNgay', $currentYear);
+                        })
+                        ->sum('SoNgayNghi');
+
+                    return [$type->id => $type->CoHanMuc == 1 ? (float) max(0, $type->HanMucToiDa - $used) : 999];
+                }
+            })->toArray();
+
+        return view('leave.register', compact(
+            'phepNam',
+            'loaiNghiPheps',
+            'workingSchedule',
+            'leaveLimitsMap',
+            'annualLeaveLimit',
+            'annualLeaveId'
         ));
     }
 
@@ -185,23 +357,59 @@ class NghiPhepController extends Controller
 
             $tuNgay = Carbon::parse($request->TuNgay)->startOfDay();
             $denNgay = Carbon::parse($request->DenNgay)->startOfDay();
-            $soNgay = $this->calculateActualLeaveDays($tuNgay, $denNgay);
+            $tuBuoi = $request->TuBuoi ?? 'ca_ngay';
+            $denBuoi = $request->DenBuoi ?? 'ca_ngay';
+            
+            // Lấy chi tiết buổi nếu có (từ giao diện mới)
+            $chiTietBuoi = $request->ChiTietBuoi; // Expected array {date: [sang, chieu]}
+            
+            $soNgay = $this->calculateActualLeaveDays($tuNgay, $denNgay, $tuBuoi, $denBuoi, $chiTietBuoi);
 
             // Kiểm tra quỹ phép nếu là nghỉ phép năm
             $loaiNghiPhep = LoaiNghiPhep::find($request->LoaiNghiPhepId);
             $phepNam = null;
             $isLongVacation = false;
             
-            if ($loaiNghiPhep && $loaiNghiPhep->Ten == 'Nghỉ phép năm') {
-                $phepNam = QuanLyPhepNam::getCurrentForEmployee($nhanVienId);
-                if ($phepNam && $phepNam->ConLai < $soNgay) {
+            $isLongVacation = false;
+            $conLai = 999;
+            $maxAllowed = 999;
+            $limitConfig = 999;
+
+            if ($loaiNghiPhep) {
+                if ($loaiNghiPhep->Ten == 'Nghỉ phép năm') {
+                    $phepNam = QuanLyPhepNam::getCurrentForEmployee($nhanVienId);
+                    $conLai = $phepNam ? (float)$phepNam->ConLai : 0;
+                    $limitConfig = (float) \App\Models\SystemConfig::getValue('annual_leave_limit_per_request', 5);
+                    $maxAllowed = min($conLai, $limitConfig);
+                } else if ($loaiNghiPhep->CoHanMuc == 1) {
+                    $currentYear = date('Y');
+                    $used = DangKyNghiPhep::where('NhanVienId', $nhanVienId)
+                        ->where('LoaiNghiPhepId', $loaiNghiPhep->id)
+                        ->whereIn('TrangThai', [1, 2])
+                        ->where(function($q) use ($currentYear) {
+                            $q->whereYear('TuNgay', $currentYear)
+                              ->orWhereYear('DenNgay', $currentYear);
+                        })
+                        ->sum('SoNgayNghi');
+                    $conLai = (float)max(0, $loaiNghiPhep->HanMucToiDa - $used);
+                    $maxAllowed = $conLai;
+                }
+
+                if ($soNgay > $maxAllowed) {
                     if (!$request->SplitLoaiNghiPhepId) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Bạn không đủ ngày phép năm còn lại (Còn lại: ' . ($phepNam->ConLai ?? 0) . ' ngày). Vui lòng chọn loại nghỉ thay thế cho phần dư.'
-                        ]);
+                        // Admin/Manager can override limits without splitting
+                        if (auth()->user()->can('Xem Danh Sách Nghỉ Phép')) {
+                            $isLongVacation = false;
+                        } else {
+                            $reason = $soNgay > $conLai ? "vượt quá hạn mức còn lại ($conLai ngày)" : "vượt quá giới hạn mỗi lần dùng ($limitConfig ngày)";
+                            return response()->json([
+                                'success' => false,
+                                'message' => "Số ngày nghỉ $reason. Vui lòng chọn loại nghỉ thay thế cho phần dư."
+                            ]);
+                        }
+                    } else {
+                        $isLongVacation = true;
                     }
-                    $isLongVacation = true;
                 }
             }
 
@@ -221,56 +429,54 @@ class NghiPhepController extends Controller
                 ]);
             }
 
-            return \DB::transaction(function () use ($isLongVacation, $nhanVienId, $request, $tuNgay, $denNgay, $soNgay, $phepNam) {
+            return \DB::transaction(function () use ($isLongVacation, $nhanVienId, $request, $tuNgay, $denNgay, $tuBuoi, $denBuoi, $soNgay, $loaiNghiPhep, $conLai, $maxAllowed) {
                 if ($isLongVacation) {
-                    // LOGIC TÁCH ĐƠN
-                    $conLai = (float) $phepNam->ConLai;
-                    
-                    if ($conLai <= 0) {
-                        // Nếu hết sạch phép năm, chỉ tạo 1 đơn loại nghỉ khác cho toàn bộ khoảng thời gian
+                    // LOGIC TÁCH ĐƠN (Đã tính conLai và maxAllowed ở trên)
+                    if ($maxAllowed <= 0) {
+                        // Nếu hết sạch hạn mức, chỉ tạo 1 đơn loại nghỉ khác cho toàn bộ khoảng thời gian
                         DangKyNghiPhep::create([
                             'NhanVienId' => $nhanVienId,
                             'LoaiNghiPhepId' => $request->SplitLoaiNghiPhepId,
                             'TuNgay' => $tuNgay->format('Y-m-d'),
                             'DenNgay' => $denNgay->format('Y-m-d'),
                             'SoNgayNghi' => $soNgay,
-                            'LyDo' => $request->LyDo,
+                            'LyDo' => $request->LyDo . " (Cắt từ loại: " . $loaiNghiPhep->Ten . ")",
                             'TrangThai' => 2,
                             'Dem' => 1
                         ]);
 
                         return response()->json([
                             'success' => true,
-                            'message' => "Bạn đã hết phép năm. Hệ thống ghi nhận đơn nghỉ loại khác ($soNgay ngày)."
+                            'message' => "Bạn đã hết hạn mức loại nghỉ này. Hệ thống ghi nhận đơn nghỉ loại khác ($soNgay ngày)."
                         ]);
                     }
 
                     $schedule = CauHinhLichLamViec::all()->keyBy('Thu');
                     
-                    // Tìm ngày chia tách (ngày mà phép năm vừa hết)
+                    // Tìm ngày chia tách (ngày mà phép năm / giới hạn vừa hết)
                     $splitDate = $tuNgay->copy();
                     $actualDaysCount = 0;
                     
-                    while ($actualDaysCount < $conLai && $splitDate->lte($denNgay)) {
+                    while ($actualDaysCount < $maxAllowed && $splitDate->lte($denNgay)) {
                         $dayOfWeek = $splitDate->dayOfWeek;
                         $dbDayOfWeek = ($dayOfWeek === 0) ? 8 : ($dayOfWeek + 1);
                         if (isset($schedule[$dbDayOfWeek]) && $schedule[$dbDayOfWeek]->CoLamViec) {
                             $actualDaysCount += (float) $schedule[$dbDayOfWeek]->CoLamViec;
                         }
-                        // Nếu sau khi cộng mà vẫn chưa đủ phép năm còn lại, mới tiến tiếp ngày tiếp theo
-                        if ($actualDaysCount < $conLai) {
+                        // Nếu sau khi cộng mà vẫn chưa đủ số ngày phép được phép (maxAllowed), mới tiến tiếp ngày tiếp theo
+                        if ($actualDaysCount < $maxAllowed) {
                             $splitDate->addDay();
                         }
                     }
 
-                    // Đơn 1: Nghỉ phép năm (từ TuNgay đến splitDate)
+                    // Đơn 1: Loại nghỉ chính (đến splitDate)
                     DangKyNghiPhep::create([
                         'NhanVienId' => $nhanVienId,
                         'LoaiNghiPhepId' => $request->LoaiNghiPhepId,
                         'TuNgay' => $tuNgay->format('Y-m-d'),
                         'DenNgay' => $splitDate->format('Y-m-d'),
                         'SoNgayNghi' => min($conLai, $actualDaysCount),
-                        'LyDo' => $request->LyDo . " (Phần 1: Nghỉ phép năm)",
+                        'LyDo' => $request->LyDo . " (Phần 1: " . $loaiNghiPhep->Ten . ")",
                         'TrangThai' => 2,
                         'Dem' => 1
                     ]);
@@ -294,7 +500,7 @@ class NghiPhepController extends Controller
 
                     return response()->json([
                         'success' => true,
-                        'message' => "Đã tạo " . ($soNgayConLai > 0 ? "2" : "1") . " đơn nghỉ phép: " . min($conLai, $actualDaysCount) . " ngày phép năm" . ($soNgayConLai > 0 ? " và $soNgayConLai ngày loại khác." : ".")
+                        'message' => "Đã tạo " . ($soNgayConLai > 0 ? "2" : "1") . " đơn nghỉ phép: " . min($conLai, $actualDaysCount) . " ngày " . $loaiNghiPhep->Ten . ($soNgayConLai > 0 ? " và $soNgayConLai ngày loại khác." : ".")
                     ]);
                 } else {
                     // LOGIC BÌNH THƯỜNG
@@ -302,7 +508,10 @@ class NghiPhepController extends Controller
                         'NhanVienId' => $nhanVienId,
                         'LoaiNghiPhepId' => $request->LoaiNghiPhepId,
                         'TuNgay' => $tuNgay->format('Y-m-d'),
+                        'TuBuoi' => $tuBuoi,
                         'DenNgay' => $denNgay->format('Y-m-d'),
+                        'DenBuoi' => $denBuoi,
+                        'ChiTietBuoi' => $request->ChiTietBuoi,
                         'SoNgayNghi' => $soNgay,
                         'LyDo' => $request->LyDo,
                         'TrangThai' => 2,
@@ -356,6 +565,16 @@ class NghiPhepController extends Controller
 
         // Tự động đồng bộ sang bảng chấm công
         $this->syncLeaveToAttendance($leave);
+
+        // Gửi thông báo email cho nhân viên
+        if ($leave->nhanVien && !empty($leave->nhanVien->Email)) {
+            try {
+                Mail::to($leave->nhanVien->Email)->queue(new LeaveApprovalMail($leave));
+                \Log::info("Sent leave approval email to {$leave->nhanVien->Email} for Request #{$leave->id}");
+            } catch (\Exception $e) {
+                \Log::error("Failed to send leave approval email for Request #{$leave->id}: " . $e->getMessage());
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -428,6 +647,15 @@ class NghiPhepController extends Controller
             }
 
             $this->syncLeaveToAttendance($leave);
+
+            // Gửi thông báo email cho nhân viên
+            if ($leave->nhanVien && !empty($leave->nhanVien->Email)) {
+                try {
+                    Mail::to($leave->nhanVien->Email)->queue(new LeaveApprovalMail($leave));
+                } catch (\Exception $e) {
+                    \Log::error("Failed to send bulk leave approval email for Request #{$leave->id}: " . $e->getMessage());
+                }
+            }
         }
 
         return response()->json([
@@ -491,10 +719,14 @@ class NghiPhepController extends Controller
         try {
             if ($request->id) {
                 $loai = LoaiNghiPhep::findOrFail($request->id);
+                $oldData = $loai->toArray();
                 $loai->update($request->all());
+                $newData = $loai->fresh()->toArray();
+                \App\Services\SystemLogService::log('Cập nhật', 'LoaiNghiPhep', $loai->id, "Cập nhật loại nghỉ phép: {$loai->Ten}", $oldData, $newData);
                 $message = 'Đã cập nhật loại nghỉ phép thành công.';
             } else {
-                LoaiNghiPhep::create($request->all());
+                $loai = LoaiNghiPhep::create($request->all());
+                \App\Services\SystemLogService::log('Tạo mới', 'LoaiNghiPhep', $loai->id, "Thêm loại nghỉ phép mới: {$loai->Ten}");
                 $message = 'Đã thêm loại nghỉ phép mới thành công.';
             }
 
@@ -519,6 +751,7 @@ class NghiPhepController extends Controller
             $loai = LoaiNghiPhep::findOrFail($id);
 
             $loai->update(['TrangThai' => '0']);
+            \App\Services\SystemLogService::log('Xóa', 'LoaiNghiPhep', $loai->id, "Khóa loại nghỉ phép: {$loai->Ten}");
             return response()->json([
                 'success' => true,
                 'message' => 'Đã khóa loại nghỉ phép thành công.'
@@ -534,24 +767,80 @@ class NghiPhepController extends Controller
     /**
      * Tính số ngày nghỉ thực tế dựa trên cấu hình lịch làm việc
      */
-    private function calculateActualLeaveDays($tuNgay, $denNgay)
+    private function calculateActualLeaveDays($tuNgay, $denNgay, $tuBuoi = 'ca_ngay', $denBuoi = 'ca_ngay', $chiTietBuoi = null)
     {
+        // Nếu có chi tiết buổi (đăng ký từ giao diện mới)
+        if ($chiTietBuoi && is_array($chiTietBuoi)) {
+            $count = 0;
+            foreach ($chiTietBuoi as $date => $sessions) {
+                if (empty($sessions)) continue;
+                
+                $cur = Carbon::parse($date);
+                $dayOfWeek = $cur->dayOfWeek;
+                $dbDayOfWeek = ($dayOfWeek === 0) ? 8 : ($dayOfWeek + 1);
+                
+                $schedule = CauHinhLichLamViec::all()->keyBy('Thu');
+                if (isset($schedule[$dbDayOfWeek]) && $schedule[$dbDayOfWeek]->CoLamViec) {
+                    $dayWorkValue = (float) $schedule[$dbDayOfWeek]->CoLamViec;
+                    
+                    if (count($sessions) >= 2) {
+                        $count += $dayWorkValue;
+                    } else {
+                        $count += min($dayWorkValue, 0.5);
+                    }
+                }
+            }
+            return $count;
+        }
+
         $count = 0;
         $currentDate = $tuNgay->copy();
-
-        // Lấy cấu hình lịch làm việc (cache để tránh query nhiều lần)
         $schedule = CauHinhLichLamViec::all()->keyBy('Thu');
 
         while ($currentDate->lte($denNgay)) {
-            // weekDay() của Carbon trả về 0 (CN) -> 6 (T7)
-            // Trong DB Thu là 2 (T2) -> 8 (CN)
             $dayOfWeek = $currentDate->dayOfWeek;
             $dbDayOfWeek = ($dayOfWeek === 0) ? 8 : ($dayOfWeek + 1);
 
             if (isset($schedule[$dbDayOfWeek]) && $schedule[$dbDayOfWeek]->CoLamViec) {
-                $count += (float) $schedule[$dbDayOfWeek]->CoLamViec;
+                $dayWorkValue = (float) $schedule[$dbDayOfWeek]->CoLamViec;
+                
+                // Ngày hiện tại là ngày bắt đầu
+                if ($currentDate->isSameDay($tuNgay)) {
+                    if ($tuBuoi === 'sang' || $tuBuoi === 'chieu') {
+                        $count += min($dayWorkValue, 0.5);
+                    } else {
+                        $count += $dayWorkValue;
+                    }
+                } 
+                // Ngày hiện tại là ngày kết thúc (và KHÔNG phải là ngày bắt đầu - tránh tính 2 lần)
+                elseif ($currentDate->isSameDay($denNgay)) {
+                    if ($denBuoi === 'sang' || $denBuoi === 'chieu') {
+                        $count += min($dayWorkValue, 0.5);
+                    } else {
+                        $count += $dayWorkValue;
+                    }
+                }
+                // Các ngày giữa
+                else {
+                    $count += $dayWorkValue;
+                }
             }
             $currentDate->addDay();
+        }
+
+        // Trường hợp đặc biệt: Nghỉ 1 buổi của 1 ngày duy nhất
+        if ($tuNgay->isSameDay($denNgay)) {
+             // Nếu cùng 1 ngày, cần ghi đè logic loop trên để không bị sai
+             $count = 0;
+             $dayOfWeek = $tuNgay->dayOfWeek;
+             $dbDayOfWeek = ($dayOfWeek === 0) ? 8 : ($dayOfWeek + 1);
+             if (isset($schedule[$dbDayOfWeek]) && $schedule[$dbDayOfWeek]->CoLamViec) {
+                 $dayWorkValue = (float) $schedule[$dbDayOfWeek]->CoLamViec;
+                 if ($tuBuoi === 'sang' && $denBuoi === 'sang') $count = 0.5;
+                 elseif ($tuBuoi === 'chieu' && $denBuoi === 'chieu') $count = 0.5;
+                 elseif ($tuBuoi === 'sang' && $denBuoi === 'chieu') $count = 1.0;
+                 else $count = $dayWorkValue;
+             }
         }
 
         return $count;
@@ -564,29 +853,59 @@ class NghiPhepController extends Controller
     {
         $tuNgay = Carbon::parse($leave->TuNgay)->startOfDay();
         $denNgay = Carbon::parse($leave->DenNgay)->startOfDay();
-
-        // Lấy cấu hình lịch làm việc
         $schedule = CauHinhLichLamViec::all()->keyBy('Thu');
 
         $cur = $tuNgay->copy();
+        $huongLuong = $leave->loaiNghiPhep ? (float) $leave->loaiNghiPhep->HuongLuong : 0;
+        $coeff = $huongLuong / 100;
+
         while ($cur->lte($denNgay)) {
             $dayOfWeek = $cur->dayOfWeek;
             $dbDayOfWeek = ($dayOfWeek === 0) ? 8 : ($dayOfWeek + 1);
 
-            // Chỉ đồng bộ nếu là ngày làm việc
             if (isset($schedule[$dbDayOfWeek]) && $schedule[$dbDayOfWeek]->CoLamViec) {
                 $dateStr = $cur->toDateString();
+                
+                // Tính công cho ngày này
+                $ngayCong = 0;
+                
+                // Nếu có chi tiết buổi
+                if ($leave->ChiTietBuoi && isset($leave->ChiTietBuoi[$dateStr])) {
+                    $sessions = $leave->ChiTietBuoi[$dateStr];
+                    if (count($sessions) >= 2) {
+                        $ngayCong = 1.0;
+                    } elseif (count($sessions) == 1) {
+                        $ngayCong = 0.5;
+                    }
+                } else {
+                    // Logic cũ dựa trên TuBuoi/DenBuoi
+                    $ngayCong = 1.0;
+                    if ($cur->isSameDay($tuNgay) && ($leave->TuBuoi === 'sang' || $leave->TuBuoi === 'chieu')) {
+                        $ngayCong = 0.5;
+                    } elseif ($cur->isSameDay($denNgay) && ($leave->DenBuoi === 'sang' || $leave->DenBuoi === 'chieu')) {
+                        $ngayCong = 0.5;
+                    }
+                    
+                    // Trường hợp nghỉ 1 buổi của 1 ngày
+                    if ($tuNgay->isSameDay($denNgay)) {
+                        if ($leave->TuBuoi === 'sang' && $leave->DenBuoi === 'sang') $ngayCong = 0.5;
+                        elseif ($leave->TuBuoi === 'chieu' && $leave->DenBuoi === 'chieu') $ngayCong = 0.5;
+                    }
+                }
 
-                ChamCong::updateOrCreate(
-                    [
-                        'NhanVienId' => $leave->NhanVienId,
-                        'Vao' => Carbon::parse($dateStr . ' 08:00:00'),
-                    ],
-                    [
-                        'Ra' => Carbon::parse($dateStr . ' 17:00:00'),
-                        'TrangThai' => 'dung_gio'
-                    ]
-                );
+                if ($ngayCong > 0) {
+                    ChamCong::updateOrCreate(
+                        [
+                            'NhanVienId' => $leave->NhanVienId,
+                            'Vao' => Carbon::parse($dateStr . ' 08:00:00'),
+                        ],
+                        [
+                            'Ra' => Carbon::parse($dateStr . ' 17:00:00'),
+                            'TrangThai' => 'dung_gio',
+                            'Cong' => $ngayCong * $coeff
+                        ]
+                    );
+                }
             }
             $cur->addDay();
         }

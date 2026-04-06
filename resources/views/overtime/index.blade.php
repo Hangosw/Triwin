@@ -108,6 +108,12 @@
                     </svg>
                     Xuất Excel
                 </button>
+                <button type="button" class="btn btn-warning" onclick="khoiTaoPhepNam()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Cấp phép năm
+                </button>
                 <button type="button" class="btn btn-primary" onclick="openOvertimeModal()">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -134,7 +140,7 @@
         </div>
 
         <div class="table-container">
-            <table class="table" id="overtimeTable">
+            <table class="table" id="overtimeTable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th style="width: 50px; text-align: center;">
@@ -294,6 +300,8 @@
                 order: [
                     [3, 'desc']
                 ], // Sắp xếp theo ngày tăng ca
+                responsive: true,
+                autoWidth: false,
                 pageLength: 10,
                 dom: 'rtip', // Hide default search box
                 columnDefs: [{
@@ -484,6 +492,40 @@
                         data: { _token: '{{ csrf_token() }}', ids: ids },
                         success: function (res) {
                             if (res.success) Swal.fire('Đã từ chối!', res.message, 'success').then(() => location.reload());
+                        }
+                    });
+                }
+            });
+        }
+
+        function khoiTaoPhepNam() {
+            Swal.fire({
+                title: 'Khởi tạo phép năm',
+                text: 'Hệ thống sẽ quét và cấp ngày phép năm cho những nhân viên chưa có phép năm trong năm nay. Tiếp tục?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Đang xử lý...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '{{ route("tang-ca.khoi-tao-phep-nam") }}',
+                        type: 'POST',
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function (res) {
+                            Swal.fire('Thành công!', res.message, 'success');
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Lỗi!', xhr.responseJSON ? xhr.responseJSON.message : 'Có lỗi xảy ra.', 'error');
                         }
                     });
                 }

@@ -43,11 +43,8 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $permissions = Permission::all();
 
-        // Lấy danh sách ID permission của role này
-        $rolePermissions = DB::table("role_has_permissions")
-            ->where("role_has_permissions.role_id", $id)
-            ->pluck('role_has_permissions.permission_id')
-            ->toArray();
+        // Lấy danh sách tên permission của role này
+        $rolePermissions = $role->permissions->pluck('name')->toArray();
 
         return view('roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }

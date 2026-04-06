@@ -12,6 +12,7 @@ class HopDong extends Model
 
     protected $fillable = [
         'NhanVienId',
+        'TenNhanVien',
         'NguoiKyId',
 
         'PhongBanId',
@@ -33,6 +34,8 @@ class HopDong extends Model
         'PhuCapXangXe',
         'PhuCapDienThoai',
         'PhuCapKhac',
+        'phu_cap_bhxh',
+        'phu_cap_ngoai_bhxh',
         'TongLuong',
     ];
 
@@ -47,6 +50,8 @@ class HopDong extends Model
         'NgayKetThuc' => 'date',
         'TrangThai' => 'integer',
         'TongLuong' => 'decimal:2',
+        'phu_cap_bhxh' => 'decimal:2',
+        'phu_cap_ngoai_bhxh' => 'decimal:2',
     ];
 
     /**
@@ -92,6 +97,24 @@ class HopDong extends Model
     }
 
     /**
+     * Relationship: Các phụ lục hợp đồng
+     */
+    public function phuLucs()
+    {
+        return $this->hasMany(PhuLucHopDong::class, 'HopDongId');
+    }
+
+    /**
+     * Relationship: Các khoản phụ cấp động
+     */
+    public function phuCaps()
+    {
+        return $this->belongsToMany(DmPlHopDong::class, 'hop_dong_allowances', 'hop_dong_id', 'dm_pl_hop_dong_id')
+            ->withPivot('so_tien')
+            ->withTimestamps();
+    }
+
+    /**
      * Check if contract is expired
      */
     public function isExpired()
@@ -134,8 +157,19 @@ class HopDong extends Model
     /**
      * Scope: Expired contracts
      */
-    public function scopeHetHan($query)
+    /**
+     * Relationship: Chữ ký số
+     */
+    public function kySo()
     {
-        return $query->where('TrangThai', 0);
+        return $this->morphOne(HopDongKySo::class, 'signable');
+    }
+
+    /**
+     * Relationship: Diễn biến lương liên quan
+     */
+    public function dienBienLuong()
+    {
+        return $this->hasOne(DienBienLuong::class, 'HopDongId');
     }
 }

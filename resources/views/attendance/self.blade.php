@@ -248,53 +248,126 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        function submitAttendance() {
-            Swal.fire({
-                title: 'Đang xử lý...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+        let stream = null;
 
-            fetch('{{ route("cham-cong.ca-nhan.post") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công',
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
+        async function submitAttendance() {
+            try {
+                // Check for camera support
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    Swal.fire('Lỗi', 'Trình duyệt của bạn không hỗ trợ truy cập camera.', 'error');
+                    return;
+                }
+
+                // Request camera permission and show preview in Swal
+                const result = await Swal.fire({
+                    title: 'Chụp ảnh chấm công',
+                    html: `
+                        <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 4/3;">
+                            <video id="attendance-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                            <canvas id="attendance-canvas" style="display: none;"></canvas>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 14px; color: #6b7280;">Vui lòng giữ khung hình rõ mặt để chấm công</p>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Chụp ảnh & Chấm công',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#0BAA4B',
+                    didOpen: async () => {
+                        try {
+                            const video = document.getElementById('attendance-video');
+                            stream = await navigator.mediaDevices.getUserMedia({ 
+                                video: { 
+                                    facingMode: "user",
+                                    width: { ideal: 640 },
+                                    height: { ideal: 480 }
+                                } 
+                            });
+                            video.srcObject = stream;
+                        } catch (err) {
+                            console.error("Camera error:", err);
+                            Swal.showValidationMessage(`Không thể mở camera: ${err.message}`);
+                        }
+                    },
+                    willClose: () => {
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+                    },
+                    preConfirm: () => {
+                        const video = document.getElementById('attendance-video');
+                        const canvas = document.getElementById('attendance-canvas');
+                        
+                        if (!video.srcObject) {
+                            Swal.showValidationMessage('Vui lòng đợi camera sẵn sàng');
+                            return false;
+                        }
+
+                        // Capture photo
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const context = canvas.getContext('2d');
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        return canvas.toDataURL('image/jpeg', 0.8);
+                    }
+                });
+
+                if (result.isConfirmed) {
+                    const imageData = result.value;
+                    
+                    Swal.fire({
+                        title: 'Đang xử lý...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    fetch('{{ route("cham-cong.ca-nhan.post") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            anh_cham_cong: imageData
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: data.message,
+                                confirmButtonColor: '#0BAA4B'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Lỗi',
-                            text: data.message,
+                            title: 'Lỗi hệ thống',
+                            text: 'Có lỗi xảy ra, vui lòng thử lại sau!',
                             confirmButtonColor: '#0BAA4B'
                         });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi hệ thống',
-                        text: 'Có lỗi xảy ra, vui lòng thử lại sau!',
-                        confirmButtonColor: '#0BAA4B'
                     });
-                });
+                }
+            } catch (error) {
+                console.error("Attendance process error:", error);
+                Swal.fire('Lỗi', 'Có lỗi xảy ra trong quá trình chấm công.', 'error');
+            }
         }
     </script>
 @endpush

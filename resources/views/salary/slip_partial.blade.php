@@ -20,10 +20,12 @@
     $tongKhauTru = $luong['tong_khau_tru'] ?? 0;
     $luongThucNhan = $luong['luong_thuc_nhan'] ?? 0;
 
-    // Ngày công (công nhân)
-    $ngayCongThucTe = $luong['ngay_cong_thuc_te'] ?? null;
+    // Ngày công
+    $ngayCongThucTe = $luong['ngay_cong_thuc_te'] ?? 0;
     $ngayCongChuan = $luong['ngay_cong_chuan'] ?? 26;
     $isCongNhan = ($luong['loai_nhan_vien'] ?? 1) === 0;
+    $loaiNhanVienText = $luong['loai_nhan_vien_text'] ?? '';
+    $isContractMode = str_contains($loaiNhanVienText, 'hợp đồng');
 
     // Phụ cấp chi tiết từ hợp đồng
     $allowances = [
@@ -164,9 +166,7 @@
         <tr>
             <td width="34%" class="slip-bold">
                 Công chính hưởng P/C
-                @if($isCongNhan)
-                    <span style="float:right; color:#dc2626;">{{ $ngayCongThucTe }}/{{ $ngayCongChuan }}</span>
-                @endif
+                <span style="float:right; color:#dc2626;">{{ number_format($ngayCongThucTe, 2) }}/{{ $ngayCongChuan }}</span>
             </td>
             <td width="33%" style="text-align:center;" class="slip-bold">Hỗ trợ phụ cấp</td>
             <td width="33%" style="text-align:center;" class="slip-bold">Các khoản khấu trừ</td>
@@ -174,21 +174,27 @@
         <tr>
             {{-- Cột 1: Lương công --}}
             <td>
-                @if($isCongNhan)
+                @if($isContractMode)
                     <div class="slip-row-sub">
-                        <span>Công chính</span>
-                        <span class="slip-bold">{{ $ngayCongThucTe }}</span>
-                    </div>
-                    <div class="slip-row-sub">
-                        <span>Lương theo ngày công</span>
-                        <span
-                            class="slip-bold">{{ number_format($luong['luong_ngay_cong'] ?? $luongCoBan, 0, ',', '.') }}</span>
+                        <span>Tổng lương hợp đồng</span>
+                        <span class="slip-bold">{{ number_format($luong['luong_ngay_cong'] ?? 0, 0, ',', '.') }}</span>
                     </div>
                 @else
-                    <div class="slip-row-sub">
-                        <span>Lương cơ bản</span>
-                        <span class="slip-bold">{{ number_format($luongCoBan, 0, ',', '.') }}</span>
-                    </div>
+                    @if($isCongNhan)
+                        <div class="slip-row-sub">
+                            <span>Công thực tế</span>
+                            <span class="slip-bold">{{ number_format($ngayCongThucTe, 2) }}</span>
+                        </div>
+                        <div class="slip-row-sub">
+                            <span>Lương theo ngày công</span>
+                            <span class="slip-bold">{{ number_format($luong['luong_ngay_cong'] ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                    @else
+                        <div class="slip-row-sub">
+                            <span>Lương cơ bản</span>
+                            <span class="slip-bold">{{ number_format($luongCoBan, 0, ',', '.') }}</span>
+                        </div>
+                    @endif
                 @endif
                 @if($tongTangCa > 0)
                     <div class="slip-row-sub">
@@ -204,18 +210,24 @@
 
             {{-- Cột 2: Phụ cấp --}}
             <td>
-                @php $hasAllowance = false; @endphp
-                @foreach($allowances as $tenPC => $soTienPC)
-                    @if($soTienPC > 0)
-                        @php $hasAllowance = true; @endphp
-                        <div class="slip-row-sub">
-                            <span>{{ $tenPC }}</span>
-                            <span class="slip-bold">{{ number_format($soTienPC, 0, ',', '.') }}</span>
-                        </div>
+                @if($isContractMode)
+                    <div style="color:#0BAA4B; font-style:italic; font-size:12px; text-align:center; padding-top:10px;">
+                        Các khoản phụ cấp đã được gộp chung vào Lương hợp đồng
+                    </div>
+                @else
+                    @php $hasAllowance = false; @endphp
+                    @foreach($allowances as $tenPC => $soTienPC)
+                        @if($soTienPC > 0)
+                            @php $hasAllowance = true; @endphp
+                            <div class="slip-row-sub">
+                                <span>{{ $tenPC }}</span>
+                                <span class="slip-bold">{{ number_format($soTienPC, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                    @endforeach
+                    @if(!$hasAllowance)
+                        <div style="color:#9ca3af; font-style:italic;">Không có phụ cấp</div>
                     @endif
-                @endforeach
-                @if(!$hasAllowance)
-                    <div style="color:#9ca3af; font-style:italic;">Không có phụ cấp</div>
                 @endif
             </td>
 
@@ -271,12 +283,7 @@
         <tr>
             <td style="height:38px; vertical-align:middle;"><span class="slip-bold">Ghi chú</span></td>
             <td colspan="4" style="color:#6b7280; font-size:12px;">
-                @if($isCongNhan)
-                    Công nhân — {{ $ngayCongThucTe }}/{{ $ngayCongChuan }} ngày công — Tính tự động
-                    {{ now()->format('d/m/Y') }}
-                @else
-                    Nhân viên văn phòng — Lương cứng — Tính tự động {{ now()->format('d/m/Y') }}
-                @endif
+                {{ $loaiNhanVienText }} — {{ number_format($ngayCongThucTe, 2) }} ngày công — Tính tự động {{ now()->format('d/m/Y') }}
             </td>
         </tr>
     </table>

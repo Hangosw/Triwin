@@ -50,6 +50,11 @@
                     <i class="bi bi-lightning-charge-fill"></i>
                     Tính lương tự động
                 </button>
+                <button id="btnGuiMailLuong" class="btn btn-info"
+                    style="background:#3b82f6; color:white; display:flex; align-items:center; gap:6px; border:none;">
+                    <i class="bi bi-envelope-fill"></i>
+                    Gửi Email
+                </button>
                 <button class="btn btn-secondary" style="display:flex; align-items:center; gap:6px;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -99,12 +104,13 @@
     @else
         <div class="card">
             <div class="table-container">
-                <table class="table" id="salaryTable">
+                <table class="table" id="salaryTable" style="width: 100%;">
                     <thead>
                         <tr>
                             <th style="width: 50px;"><strong>STT</strong></th>
                             <th>Nhân viên</th>
                             <th>Chức vụ</th>
+                            <th style="text-align: center;">Ngày công</th>
                             <th>Lương cơ bản</th>
                             <th>Phụ cấp + Tăng ca</th>
                             <th>Khấu trừ</th>
@@ -135,14 +141,11 @@
                                     @endif
                                 </td>
                                 <td>{{ $chucVu }}</td>
+                                <td style="text-align: center; font-weight: 600; color: #374151;">
+                                    {{ number_format($luong->SoNgayCong, 2, ',', '.') }}
+                                </td>
                                 <td class="font-medium">
                                     {{ number_format($luong->LuongCoBan, 0, ',', '.') }} đ
-                                    @if($isCongNhan && $luong->SoNgayCong !== null)
-                                        <div style="font-size:12px; color:#6b7280; margin-top:2px;">
-                                            <i class="bi bi-calendar-check"></i>
-                                            {{ $luong->SoNgayCong }} ngày
-                                        </div>
-                                    @endif
                                 </td>
                                 <td>
                                     @if(($luong->PhuCap ?? 0) > 0 || ($luong->LuongTangCa ?? 0) > 0)
@@ -206,32 +209,32 @@
 
     {{-- ========== MODAL PHIẾU LƯƠNG ========== --}}
     <div id="slipModal" style="
-                        display:none; position:fixed; inset:0; z-index:9999;
-                        background:rgba(0,0,0,0.55); align-items:center; justify-content:center;
-                        overflow-y:auto; padding:24px 16px;
-                    ">
-        <div style="
-                            background:#fff; border-radius:12px; width:100%; max-width:860px;
-                            margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3);
-                            display:flex; flex-direction:column; max-height:90vh;
+                            display:none; position:fixed; inset:0; z-index:9999;
+                            background:rgba(0,0,0,0.55); align-items:center; justify-content:center;
+                            overflow-y:auto; padding:24px 16px;
                         ">
+        <div style="
+                                background:#fff; border-radius:12px; width:100%; max-width:860px;
+                                margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3);
+                                display:flex; flex-direction:column; max-height:90vh;
+                            ">
             {{-- Modal Header --}}
             <div style="
-                                display:flex; justify-content:space-between; align-items:center;
-                                padding:16px 20px; border-bottom:1px solid #e5e7eb;
-                                background:linear-gradient(135deg,#0BAA4B,#088c3d);
-                                border-radius:12px 12px 0 0;
-                            ">
+                                    display:flex; justify-content:space-between; align-items:center;
+                                    padding:16px 20px; border-bottom:1px solid #e5e7eb;
+                                    background:linear-gradient(135deg,#0BAA4B,#088c3d);
+                                    border-radius:12px 12px 0 0;
+                                ">
                 <div style="color:#fff; font-size:16px; font-weight:700;">
                     <i class="bi bi-file-earmark-text"></i>
                     &nbsp;Phiếu Lương
                 </div>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <button id="btnPrintSlip" style="
-                                        background:#fff; color:#0BAA4B; border:none; border-radius:6px;
-                                        padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
-                                        display:flex; align-items:center; gap:6px;
-                                    ">
+                                            background:#fff; color:#0BAA4B; border:none; border-radius:6px;
+                                            padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
+                                            display:flex; align-items:center; gap:6px;
+                                        ">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -239,10 +242,10 @@
                         In phiếu
                     </button>
                     <button onclick="closeSlipModal()" style="
-                                        background:rgba(255,255,255,0.2); border:none; border-radius:6px;
-                                        color:#fff; font-size:20px; cursor:pointer; width:32px; height:32px;
-                                        display:flex; align-items:center; justify-content:center; line-height:1;
-                                    ">✕</button>
+                                            background:rgba(255,255,255,0.2); border:none; border-radius:6px;
+                                            color:#fff; font-size:20px; cursor:pointer; width:32px; height:32px;
+                                            display:flex; align-items:center; justify-content:center; line-height:1;
+                                        ">✕</button>
                 </div>
             </div>
 
@@ -259,16 +262,35 @@
 
     @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Tìm kiếm inline
-                const searchInput = document.getElementById('salarySearch');
-                const rows = document.querySelectorAll('.salary-row');
-                searchInput.addEventListener('keyup', function () {
-                    const term = searchInput.value.toLowerCase();
-                    rows.forEach(row => {
-                        const text = row.innerText.toLowerCase();
-                        row.style.display = text.includes(term) ? '' : 'none';
-                    });
+            $(document).ready(function () {
+                const table = $('#salaryTable').DataTable({
+                    language: {
+                        "sProcessing": "Đang xử lý...",
+                        "sLengthMenu": "Hiển thị _MENU_ mục",
+                        "sZeroRecords": "Không tìm thấy dữ liệu",
+                        "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                        "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                        "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                        "sSearch": "Tìm kiếm:",
+                        "oPaginate": {
+                            "sFirst": "Đầu",
+                            "sPrevious": "Trước",
+                            "sNext": "Tiếp",
+                            "sLast": "Cuối"
+                        }
+                    },
+                    responsive: true,
+                    autoWidth: false,
+                    pageLength: 25,
+                    dom: 'rtip',
+                    columnDefs: [
+                        { orderable: false, targets: [8] }
+                    ]
+                });
+
+                // Custom Search
+                $('#salarySearch').on('keyup', function () {
+                    table.search(this.value).draw();
                 });
 
                 // Nút tính lương hàng loạt
@@ -278,7 +300,7 @@
 
                     Swal.fire({
                         title: `Tính lương tháng ${thang}/${nam}?`,
-                        html: `Hệ thống sẽ tính lương tự động cho <strong>toàn bộ nhân viên có hợp đồng active</strong> trong kỳ <strong>tháng ${thang}/${nam}</strong>.<br><br>Nếu đã tồn tại dữ liệu, sẽ <span style="color:#f97316;font-weight:600;">cập nhật lại</span>.`,
+                        html: `Hệ thống sẽ tính lương tự động cho <strong>toàn bộ nhân viên có hợp đồng</strong> trong kỳ <strong>tháng ${thang}/${nam}</strong>.<br><br>Nếu đã tồn tại dữ liệu, sẽ <span style="color:#f97316;font-weight:600;">cập nhật lại</span>.`,
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#0BAA4B',
@@ -339,16 +361,76 @@
                     });
                 });
 
+                // Nút gửi mail lương hàng loạt
+                document.getElementById('btnGuiMailLuong').addEventListener('click', function () {
+                    const thang = document.querySelector('select[name="thang"]').value;
+                    const nam = document.querySelector('select[name="nam"]').value;
+
+                    Swal.fire({
+                        title: `Gửi email phiếu lương tháng ${thang}/${nam}?`,
+                        text: `Hệ thống sẽ gửi email phiếu lương chi tiết cho toàn bộ nhân viên có dữ liệu lương trong tháng ${thang}/${nam}.`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3b82f6',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: '<i class="bi bi-envelope-fill"></i> Xác nhận gửi mail',
+                        cancelButtonText: 'Hủy',
+                    }).then((result) => {
+                        if (!result.isConfirmed) return;
+
+                        Swal.fire({
+                            title: 'Đang gửi email...',
+                            html: `Đang xử lý gửi phiếu lương tháng ${thang}/${nam}, vui lòng chờ.`,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading(),
+                        });
+
+                        fetch('{{ route('salary.gui-mail') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                            body: JSON.stringify({ thang, nam }),
+                        })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    let html = data.message;
+                                    if (data.gui_loi > 0 && data.errors?.length) {
+                                        html += '<br><br><details style="text-align:left;font-size:12px;color:#dc2626;">'
+                                            + '<summary style="cursor:pointer;">Xem chi tiết lỗi</summary><ul style="margin-top:6px;">'
+                                            + data.errors.map(e => `<li>${e}</li>`).join('')
+                                            + '</ul></details>';
+                                    }
+                                    Swal.fire({
+                                        title: 'Hoàn thành!',
+                                        html,
+                                        icon: 'success',
+                                        confirmButtonColor: '#0BAA4B',
+                                        confirmButtonText: 'OK',
+                                    });
+                                } else {
+                                    Swal.fire('Lỗi', data.message ?? 'Có lỗi xảy ra.', 'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('Lỗi kết nối', 'Không thể kết nối đến máy chủ.', 'error');
+                            });
+                    });
+                });
+
                 // ===== MODAL PHIẾU LƯƠNG =====
                 const slipModal = document.getElementById('slipModal');
                 const slipContent = document.getElementById('slipContent');
                 const btnPrint = document.getElementById('btnPrintSlip');
 
                 const LOADING_HTML = `
-                                            <div style="text-align:center;padding:48px;color:#6b7280;">
-                                                <div style="font-size:36px;margin-bottom:10px;">⏳</div>
-                                                <div style="font-size:14px;">Đang tải phiếu lương...</div>
-                                            </div>`;
+                                                    <div style="text-align:center;padding:48px;color:#6b7280;">
+                                                        <div style="font-size:36px;margin-bottom:10px;">⏳</div>
+                                                        <div style="font-size:14px;">Đang tải phiếu lương...</div>
+                                                    </div>`;
 
                 function openSlipModal(nvId, thang, nam) {
                     slipContent.innerHTML = LOADING_HTML;
@@ -365,10 +447,10 @@
                         .then(html => { slipContent.innerHTML = html; })
                         .catch(err => {
                             slipContent.innerHTML = `
-                                                    <div style="text-align:center;padding:48px;color:#dc2626;">
-                                                        <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
-                                                        <div>Không thể tải phiếu lương.<br><small style="color:#9ca3af;">${err.message}</small></div>
-                                                    </div>`;
+                                                            <div style="text-align:center;padding:48px;color:#dc2626;">
+                                                                <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
+                                                                <div>Không thể tải phiếu lương.<br><small style="color:#9ca3af;">${err.message}</small></div>
+                                                            </div>`;
                         });
                 }
 
@@ -405,14 +487,14 @@
                 btnPrint.addEventListener('click', function () {
                     const printWin = window.open('', '_blank', 'width=950,height=700');
                     printWin.document.write(`
-                                                <!DOCTYPE html><html><head>
-                                                <meta charset="UTF-8">
-                                                <title>Phiếu Lương</title>
-                                                <style>
-                                                    body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
-                                                    @media print { body { margin: 0; } }
-                                                </style>
-                                                <\/head><body>${slipContent.innerHTML}<\/body><\/html>`);
+                                                        <!DOCTYPE html><html><head>
+                                                        <meta charset="UTF-8">
+                                                        <title>Phiếu Lương</title>
+                                                        <style>
+                                                            body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
+                                                            @media print { body { margin: 0; } }
+                                                        </style>
+                                                        <\/head><body>${slipContent.innerHTML}<\/body><\/html>`);
                     printWin.document.close();
                     printWin.focus();
                     setTimeout(() => { printWin.print(); }, 500);
