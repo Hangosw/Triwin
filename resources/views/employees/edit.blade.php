@@ -207,6 +207,29 @@
             color: #e8eaf0;
         }
 
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 120px;
+            height: 80px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         /* Cropper Custom Styling */
         .img-container {
             max-height: 500px;
@@ -409,6 +432,16 @@
                     <label>Quốc tịch</label>
                     <input type="text" name="QuocTich" value="{{ $employee->QuocTich }}" placeholder="Việt Nam">
                 </div>
+
+                <div class="form-group">
+                    <label>Trạng thái nhân viên</label>
+                    <select name="TrangThai" id="TrangThai" class="select2">
+                        <option value="1" {{ ($employee->TrangThai ?? 1) == 1 ? 'selected' : '' }}>Làm tại công ty</option>
+                        <option value="0" {{ ($employee->TrangThai ?? 1) == 0 ? 'selected' : '' }}>Nghỉ làm</option>
+                        <option value="2" {{ ($employee->TrangThai ?? 1) == 2 ? 'selected' : '' }}>Làm từ xa (WFH)</option>
+                    </select>
+                    <input type="hidden" name="sync_account_status" id="syncAccountStatus" value="0">
+                </div>
             </div>
 
             <div class="form-row">
@@ -460,6 +493,25 @@
                     <input type="text" name="NgayCap" class="datepicker" 
                         value="{{ $employee->NgayCap ? \Carbon\Carbon::parse($employee->NgayCap)->format('d-m-Y') : '' }}" 
                         placeholder="Chọn ngày cấp">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ảnh CCCD (2 ảnh)</label>
+                    <input type="file" name="anh_cccd[]" id="anh_cccd" multiple accept="image/*" onchange="previewImages(this, 'cccd-preview', 'cccd-existing')">
+                    <div class="help-text">Chọn ảnh mới để thay thế ảnh cũ (nếu muốn). Tải lên mặt trước và mặt sau.</div>
+                    <div id="cccd-preview" class="preview-container"></div>
+                    @if($employee->anh_cccd && count($employee->anh_cccd) > 0)
+                        <div id="cccd-existing" style="margin-top: 10px;">
+                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Ảnh hiện tại:</p>
+                            <div style="display: flex; gap: 10px;">
+                                @foreach($employee->anh_cccd as $path)
+                                    <img src="{{ asset($path) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -553,6 +605,25 @@
                 <div class="form-group">
                     <label>Nơi cấp BHXH</label>
                     <input type="text" name="NoiCapBHXH" value="{{ $employee->NoiCapBHXH }}" placeholder="BHXH Hà Nội">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ảnh BHXH (Nhiều ảnh)</label>
+                    <input type="file" name="anh_bhxh[]" id="anh_bhxh" multiple accept="image/*" onchange="previewImages(this, 'bhxh-preview', 'bhxh-existing')">
+                    <div class="help-text">Chọn ảnh mới để thay thế ảnh cũ (nếu muốn).</div>
+                    <div id="bhxh-preview" class="preview-container"></div>
+                    @if($employee->anh_bhxh && count($employee->anh_bhxh) > 0)
+                        <div id="bhxh-existing" style="margin-top: 10px;">
+                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Ảnh hiện tại:</p>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                @foreach($employee->anh_bhxh as $path)
+                                    <img src="{{ asset($path) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -815,8 +886,36 @@
             });
 
             // Form submission
-            document.getElementById('editEmployeeForm').addEventListener('submit', function(e) {
+            document.getElementById('editEmployeeForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
+
+                const statusField = document.getElementById('TrangThai');
+                const initialStatus = parseInt("{{ $employee->TrangThai ?? 1 }}");
+                const currentStatus = parseInt(statusField.value);
+
+                // Group 1 & 2 together as "Working", 0 as "Off"
+                const wasWorking = (initialStatus === 1 || initialStatus === 2);
+                const isWorking = (currentStatus === 1 || currentStatus === 2);
+
+                if (wasWorking !== isWorking) {
+                    const actionText = currentStatus === 0 ? 'KHÓA' : 'MỞ KHÓA';
+                    const result = await Swal.fire({
+                        title: 'Đổi trạng thái nhân viên',
+                        text: `Bạn đã đổi trạng thái nhân viên. Bạn có muốn đồng thời ${actionText} tài khoản liên kết của nhân viên này luôn không?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#0BAA4B',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Có, thực hiện luôn',
+                        cancelButtonText: 'Không, chỉ đổi trạng thái nhân viên'
+                    });
+
+                    if (result.isConfirmed) {
+                        document.getElementById('syncAccountStatus').value = "1";
+                    } else {
+                        document.getElementById('syncAccountStatus').value = "0";
+                    }
+                }
 
                 const formData = new FormData(this);
 
@@ -886,6 +985,29 @@
                     submitBtn.innerHTML = originalBtnText;
                 });
             });
+
+            function previewImages(input, containerId, existingContainerId) {
+                const container = document.getElementById(containerId);
+                const existingContainer = document.getElementById(existingContainerId);
+                container.innerHTML = '';
+                
+                if (input.files && input.files.length > 0) {
+                    if (existingContainer) existingContainer.style.display = 'none';
+                    
+                    Array.from(input.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'preview-item';
+                            div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                            container.appendChild(div);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                } else {
+                    if (existingContainer) existingContainer.style.display = 'block';
+                }
+            }
         </script>
     @endpush
 @endsection

@@ -142,6 +142,29 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 120px;
+            height: 80px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .help-text {
             font-size: 13px;
             color: #6b7280;
@@ -391,13 +414,22 @@
                     <input type="text" name="SoCCCD" id="SoCCCD" placeholder="001234567890" required>
 
                     <!-- Thông báo lỗi validation CCCD -->
-                    <div id="cccd-error" class="validatio   error" style="display: none;">
+                    <div id="cccd-error" class="validation-error" style="display: none;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                         <span id="cccd-error-message"></span>
                     </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ảnh CCCD (2 ảnh) <span class="required">*</span></label>
+                    <input type="file" name="anh_cccd[]" id="anh_cccd" multiple accept="image/*" required onchange="previewImages(this, 'cccd-preview')">
+                    <div class="help-text">Tải lên mặt trước và mặt sau của CCCD</div>
+                    <div id="cccd-preview" class="preview-container"></div>
                 </div>
             </div>
 
@@ -443,7 +475,7 @@
                 </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row-3">
                 <div class="form-group">
                     <label>Quốc tịch</label>
                     <input type="text" name="QuocTich" placeholder="Việt Nam" value="Việt Nam">
@@ -456,6 +488,15 @@
                         <option value="1">Đã kết hôn</option>
                         <option value="2">Ly hôn</option>
                         <option value="3">Góa</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Trạng thái nhân viên</label>
+                    <select name="TrangThai" class="select2">
+                        <option value="1" selected>Làm tại công ty</option>
+                        <option value="0">Nghỉ làm</option>
+                        <option value="2">Làm từ xa (WFH)</option>
                     </select>
                 </div>
             </div>
@@ -618,6 +659,13 @@
                 <div class="form-group">
                     <label>Số BHXH</label>
                     <input type="text" name="BHXH" placeholder="1234567890">
+                </div>
+
+                <div class="form-group">
+                    <label>Ảnh BHXH (Nhiều ảnh)</label>
+                    <input type="file" name="anh_bhxh[]" id="anh_bhxh" multiple accept="image/*" onchange="previewImages(this, 'bhxh-preview')">
+                    <div class="help-text">Tải lên các ảnh liên quan đến BHXH (nếu có)</div>
+                    <div id="bhxh-preview" class="preview-container"></div>
                 </div>
 
                 <div class="form-group">
@@ -1117,6 +1165,24 @@
                     });
                 });
             });
+
+            function previewImages(input, containerId) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                
+                if (input.files) {
+                    Array.from(input.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'preview-item';
+                            div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                            container.appendChild(div);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                }
+            }
         </script>
     @endpush
 @endsection

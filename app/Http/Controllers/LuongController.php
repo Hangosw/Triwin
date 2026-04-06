@@ -74,6 +74,12 @@ class LuongController extends Controller
 
         $thang = (int) $request->get('thang', date('n'));
         $nam = (int) $request->get('nam', date('Y'));
+        $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-d');
+
+        // KIỂM TRA: Lấy bản ghi lương đã chốt
+        $luongRecord = \App\Models\Luong::where('NhanVienId', $id)
+            ->where('ThoiGian', $thoiGian)
+            ->first();
 
         $nhanVien = NhanVien::with([
             'ttCongViec.chucVu',
@@ -85,13 +91,18 @@ class LuongController extends Controller
             'ttCongViec',
         ])->findOrFail($id);
 
-        // Tính lương đầy đủ
-        $luong = LuongService::tinhLuong($nhanVien, $thang, $nam);
+        $luong = null;
+        $hopDong = null;
+        $baoHiems = null;
+        $thanNhans = null;
 
-        // Lấy các biến cần thiết cho view
-        $hopDong = $luong['hop_dong'];
-        $baoHiems = $luong['bao_hiems'];
-        $thanNhans = $nhanVien->thanNhans;
+        if ($luongRecord) {
+            // Chỉ tính chi tiết nếu đã có dữ liệu chốt
+            $luong = LuongService::tinhLuong($nhanVien, $thang, $nam);
+            $hopDong = $luong['hop_dong'];
+            $baoHiems = $luong['bao_hiems'];
+            $thanNhans = $nhanVien->thanNhans;
+        }
 
         return view('salary.detail', compact(
             'nhanVien',
@@ -99,9 +110,53 @@ class LuongController extends Controller
             'baoHiems',
             'thanNhans',
             'luong',
+            'luongRecord',
             'thang',
             'nam'
         ));
+    }
+
+    /**
+     * Tính lại và cập nhật lương cho một nhân viên cụ thể.
+     */
+    public function UpdateSingleSalary(Request $request, $id)
+    {
+        try {
+            $thang = (int) $request->get('thang', date('n'));
+            $nam = (int) $request->get('nam', date('Y'));
+            $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-d');
+
+            $nv = NhanVien::with([
+                'hopDongs' => fn($q) => $q->where('TrangThai', 1)->latest(),
+                'thanNhans',
+                'ttCongViec',
+            ])->findOrFail($id);
+
+            $ketQua = LuongService::tinhLuong($nv, $thang, $nam);
+
+            \App\Models\Luong::updateOrCreate(
+                [
+                    'NhanVienId' => $nv->id,
+                    'ThoiGian' => $thoiGian,
+                ],
+                [
+                    'LoaiLuong' => $ketQua['loai_nhan_vien'] ?? 0,
+                    'LuongCoBan' => $ketQua['luong_co_ban'],
+                    'PhuCap' => $ketQua['tong_phu_cap'],
+                    'LuongTangCa' => $ketQua['tong_tang_ca'],
+                    'KhauTruBaoHiem' => $ketQua['tong_khau_tru_bh'],
+                    'ThueTNCN' => $ketQua['thue_tncn'],
+                    'SoNguoiPhuThuoc' => $ketQua['so_nguoi_phu_thuoc'],
+                    'SoNgayCong' => $ketQua['ngay_cong_thuc_te'],
+                    'Luong' => $ketQua['luong_thuc_nhan'],
+                    'GhiChu' => "Cập nhật thủ công ngày " . now()->format('d/m/Y H:i'),
+                ]
+            );
+
+            return redirect()->back()->with('success', "Đã cập nhật lại lương tháng {$thang}/{$nam} cho nhân viên {$nv->Ten} thành công.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', "Lỗi khi tính lại lương: " . $e->getMessage());
+        }
     }
 
     /**
@@ -205,9 +260,9 @@ class LuongController extends Controller
                         'SoNgayCong' => $ketQua['ngay_cong_thuc_te'],
                         'Luong' => $ketQua['luong_thuc_nhan'],
                         'TrangThai' => 0,
-                        'GhiChu' => ($ketQua['loai_nhan_vien'] === 0
-                            ? "Công nhân – {$ketQua['ngay_cong_thuc_te']}/{$ketQua['ngay_cong_chuan']} ngày – "
-                            : 'Văn phòng – ') . 'Tính tự động ' . now()->format('d/m/Y H:i'),
+                        'GhiChu' => ($ketQua['loai_nhan_vien_text'] ?? 'Bản ghi') . 
+                                    " – " . number_format($ketQua['ngay_cong_thuc_te'], 2) . "/" . 
+                                    $ketQua['ngay_cong_chuan'] . " ngày – Tính tự động " . now()->format('d/m/Y H:i'),
                     ]
                 );
                 $thanhCong++;
@@ -255,6 +310,7 @@ class LuongController extends Controller
         $errors = [];
 
         foreach ($luongs as $luong) {
+            /** @var \App\Models\NhanVien $nv */
             $nv = $luong->nhanVien;
             if (!$nv || empty($nv->Email)) {
                 $guiLoi++;

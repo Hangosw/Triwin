@@ -199,8 +199,14 @@
                         {
                             data: null,
                             render: function (data, type, row) {
-                                // Since we don't have nguoiDung relationship, show all as active
-                                return '<span class="badge badge-success">Đang làm việc</span>';
+                                const status = row.TrangThai ?? 1;
+                                if (status == 1) {
+                                    return '<span class="badge badge-success">Làm tại công ty</span>';
+                                } else if (status == 2) {
+                                    return '<span class="badge badge-info">Làm từ xa (WFH)</span>';
+                                } else {
+                                    return '<span class="badge badge-secondary">Nghỉ làm</span>';
+                                }
                             }
                         }
                     ],

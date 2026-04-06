@@ -287,6 +287,16 @@
             background: white;
             box-shadow: 0 0 0 4px rgba(11, 170, 75, 0.1);
         }
+
+        select.form-control {
+            height: 46.5px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+            padding-right: 44px;
+        }
     </style>
 @endpush
 
@@ -352,12 +362,12 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Danh sách đơn nghỉ phép</h3>
-            <button class="btn btn-primary" onclick="openLeaveModal()">
+            <a href="{{ route('nghi-phep.dang-ky') }}" class="btn btn-primary">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 Đăng ký nghỉ phép
-            </button>
+            </a>
         </div>
         <div class="table-container">
             <table class="table">
@@ -378,9 +388,11 @@
                             <td>{{ $index + 1 }}</td>
                             <td class="font-medium">{{ $np->loaiNghiPhep->Ten }}</td>
                             <td>
-                                <div>{{ $np->TuNgay->format('d/m/Y') }} - {{ $np->DenNgay->format('d/m/Y') }}</div>
+                                <div>{{ $np->TuNgay->format('d/m/Y') }} @if($np->TuBuoi != 'ca_ngay') <span style="font-size: 11px; color: var(--text-muted);">({{ $np->TuBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</span> @endif</div>
+                                <div style="font-size: 10px; color: var(--text-muted); margin: 2px 0;">đến</div>
+                                <div>{{ $np->DenNgay->format('d/m/Y') }} @if($np->DenBuoi != 'ca_ngay') <span style="font-size: 11px; color: var(--text-muted);">({{ $np->DenBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</span> @endif</div>
                             </td>
-                            <td class="font-medium">{{ $np->SoNgayNghi }}</td>
+                            <td class="font-medium" style="text-align: center;">{{ number_format((float)$np->SoNgayNghi, 1) }}</td>
                             <td>{{ $np->LyDo }}</td>
                             <td>{{ $np->nguoiDuyet->Ten ?? '-' }}</td>
                             <td>
@@ -428,13 +440,27 @@
                         </select>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 16px;">
                             <label class="form-label">Từ ngày <span style="color: #ef4444;">*</span></label>
-                            <input type="text" class="form-control" id="startDate" name="TuNgay" readonly>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <input type="text" class="form-control" id="startDate" name="TuNgay" readonly>
+                                <select class="form-control" name="TuBuoi" onchange="calculateDays()">
+                                    <option value="ca_ngay">Cả ngày</option>
+                                    <option value="sang">Nghỉ Sáng</option>
+                                    <option value="chieu">Nghỉ Chiều</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 16px;">
                             <label class="form-label">Đến ngày <span style="color: #ef4444;">*</span></label>
-                            <input type="text" class="form-control" id="endDate" name="DenNgay" readonly>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <input type="text" class="form-control" id="endDate" name="DenNgay" readonly>
+                                <select class="form-control" name="DenBuoi" onchange="calculateDays()">
+                                    <option value="ca_ngay">Cả ngày</option>
+                                    <option value="sang">Nghỉ Sáng</option>
+                                    <option value="chieu">Nghỉ Chiều</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -526,16 +552,48 @@
                 let to = new Date(toDate);
                 to.setHours(0, 0, 0, 0);
 
+                const tuBuoi = document.getElementsByName('TuBuoi')[0].value;
+                const denBuoi = document.getElementsByName('DenBuoi')[0].value;
+
                 while (cur <= to) {
                     const dayOfWeek = cur.getDay();
                     const dbDayOfWeek = (dayOfWeek === 0) ? 8 : (dayOfWeek + 1);
 
                     if (workingSchedule[dbDayOfWeek] && workingSchedule[dbDayOfWeek].CoLamViec) {
-                        count += parseFloat(workingSchedule[dbDayOfWeek].CoLamViec);
+                        let dayVal = parseFloat(workingSchedule[dbDayOfWeek].CoLamViec);
+                        
+                        // Xử lý ngày bắt đầu
+                        if (cur.getTime() === fromDate.getTime()) {
+                            if (tuBuoi === 'sang' || tuBuoi === 'chieu') {
+                                dayVal = Math.min(dayVal, 0.5);
+                            }
+                        }
+                        // Xử lý ngày kết thúc (tránh tính 2 lần nếu là cùng 1 ngày)
+                        else if (cur.getTime() === toDate.getTime()) {
+                            if (denBuoi === 'sang' || denBuoi === 'chieu') {
+                                dayVal = Math.min(dayVal, 0.5);
+                            }
+                        }
+                        
+                        count += dayVal;
                     }
                     cur.setDate(cur.getDate() + 1);
                 }
-                document.getElementById('leaveDaysDisplay').value = count + ' ngày';
+
+                // Trường hợp đặc biệt: Cùng 1 ngày
+                if (fromDate.getTime() === toDate.getTime()) {
+                    count = 0;
+                    const dayOfWeek = fromDate.getDay();
+                    const dbDayOfWeek = (dayOfWeek === 0) ? 8 : (dayOfWeek + 1);
+                    if (workingSchedule[dbDayOfWeek] && workingSchedule[dbDayOfWeek].CoLamViec) {
+                        if (tuBuoi === 'sang' && denBuoi === 'sang') count = 0.5;
+                        else if (tuBuoi === 'chieu' && denBuoi === 'chieu') count = 0.5;
+                        else if (tuBuoi === 'sang' && denBuoi === 'chieu') count = 1.0;
+                        else count = parseFloat(workingSchedule[dbDayOfWeek].CoLamViec);
+                    }
+                }
+
+                document.getElementById('leaveDaysDisplay').value = count.toFixed(1) + ' ngày';
                 
                 // Kiểm tra tách đơn (Dựa trên hạn mức của từng loại nghỉ)
                 const typeSelect = document.getElementsByName('LoaiNghiPhepId')[0];

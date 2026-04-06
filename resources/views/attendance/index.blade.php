@@ -244,7 +244,7 @@
                                     <div class="avatar"
                                         style="width: 40px; height: 40px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #0BAA4B; font-weight: bold; overflow: hidden;">
                                         @if($att->AnhChamCong)
-                                            <img src="{{ $att->AnhChamCong }}" alt="Captured" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="showAttendanceImage('{{ $att->AnhChamCong }}')">
+                                            <img src="{{ asset($att->AnhChamCong) }}" alt="Captured" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="showAttendanceImage('{{ asset($att->AnhChamCong) }}')">
                                         @elseif($att->nhanVien && $att->nhanVien->AnhDaiDien)
                                             <img src="{{ asset($att->nhanVien->AnhDaiDien) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="showAttendanceImage('{{ asset($att->nhanVien->AnhDaiDien) }}')">
                                         @elseif($att->nhanVien)

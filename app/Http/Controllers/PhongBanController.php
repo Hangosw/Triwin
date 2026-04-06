@@ -61,7 +61,9 @@ class PhongBanController extends Controller
 
     public function InfoView($id)
     {
-        $phongBan = DmPhongBan::findOrFail($id);
+        $phongBan = DmPhongBan::with(['nhanViens' => function($query) {
+            $query->with(['ttCongViec.chucVu', 'nguoiDung']);
+        }])->findOrFail($id);
         return view('departments.info', compact('phongBan'));
     }
 

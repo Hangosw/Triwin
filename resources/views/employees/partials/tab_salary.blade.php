@@ -51,9 +51,23 @@
                                 $luongBac = $dbl->bacLuong
                                     ? $dbl->bacLuong->HeSo * $mucLuongCoSo * (1 + ($dbl->PhuCapVuotKhung ?? 0) / 100)
                                     : 0;
-                                $isFirst = $i === 0;
+                                
+                                // Current active salary check
+                                $isCurrent = false;
+
+                                if ($dbl->hopDong) {
+                                    // 1. If linked to a contract, its status must be 'Active' (1)
+                                    if ($dbl->hopDong->TrangThai == 1) {
+                                        $isCurrent = true;
+                                    }
+                                } else {
+                                    // 2. Fallback for old data: use the first record
+                                    if ($i === 0) {
+                                        $isCurrent = true;
+                                    }
+                                }
                             @endphp
-                            <tr @if($isFirst) style="background:#f0fdf4;" @endif>
+                            <tr @if($isCurrent) style="background:#f0fdf4;" @endif>
                                 <td><strong>{{ $i + 1 }}</strong></td>
                                 <td>{{ $dbl->NgayHuong ? \Carbon\Carbon::parse($dbl->NgayHuong)->format('d/m/Y') : '–' }}</td>
                                 <td>{{ $dbl->ngachLuong?->Ma ?? '–' }}</td>
@@ -61,14 +75,33 @@
                                 <td>{{ $dbl->bacLuong ? 'Bậc ' . $dbl->bacLuong->Bac : '–' }}</td>
                                 <td><strong>{{ $dbl->bacLuong ? number_format($dbl->bacLuong->HeSo, 2) : '–' }}</strong></td>
                                 <td>{{ $dbl->PhuCapVuotKhung ?? 0 }}%</td>
-                                <td style="font-weight:600; color:{{ $isFirst ? '#0BAA4B' : '#6b7280' }};">
+                                <td style="font-weight:600; color:{{ $isCurrent ? '#0BAA4B' : '#6b7280' }};">
                                     {{ number_format($luongBac, 0, ',', '.') }} đ
                                 </td>
                                 <td>
-                                    @if($isFirst)
-                                        <span class="badge badge-success">Hiện tại</span>
+                                    @php
+                                        // Current active salary check
+                                        $isCurrent = false;
+
+                                        if ($dbl->hopDong) {
+                                            // 1. If linked to a contract, its status must be 'Active' (1)
+                                            if ($dbl->hopDong->TrangThai == 1) {
+                                                $isCurrent = true;
+                                            }
+                                        } else {
+                                            // 2. Fallback for old data without HopDongId: use the first record in the sorted list
+                                            if ($isFirst) {
+                                                $isCurrent = true;
+                                            }
+                                        }
+                                    @endphp
+
+                                    @if($isCurrent)
+                                        <span class="badge badge-success">Đang áp dụng</span>
+                                    @elseif($dbl->hopDong && $dbl->hopDong->TrangThai == 2)
+                                        <span class="badge badge-danger">Đã hủy</span>
                                     @else
-                                        <span class="badge" style="background:#f3f4f6;color:#6b7280;">Đã qua</span>
+                                        <span class="badge" style="background:#f3f4f6;color:#6b7280;">Hết hiệu lực</span>
                                     @endif
                                 </td>
                             </tr>

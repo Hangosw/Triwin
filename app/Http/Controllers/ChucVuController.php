@@ -67,7 +67,9 @@ class ChucVuController extends Controller
 
     public function InfoView($id)
     {
-        $chucVu = DmChucVu::withCount('nhanViens')->findOrFail($id);
+        $chucVu = DmChucVu::with(['nhanViens' => function($query) {
+            $query->with(['ttCongViec.phongBan', 'nguoiDung']);
+        }])->withCount('nhanViens')->findOrFail($id);
         return view('positions.info', compact('chucVu'));
     }
 
@@ -103,7 +105,7 @@ class ChucVuController extends Controller
             $newData = $chucVu->fresh()->toArray();
             \App\Services\SystemLogService::log('Cập nhật', 'DmChucVu', $chucVu->id, "Cập nhật chức vụ: {$chucVu->Ten}", $oldData, $newData);
 
-            return redirect()->route('chuc-vu.info', $id)
+            return redirect()->route('chuc-vu.danh-sach')
                 ->with('success', 'Cập nhật chức vụ thành công!');
         } catch (\Exception $e) {
             return redirect()->back()

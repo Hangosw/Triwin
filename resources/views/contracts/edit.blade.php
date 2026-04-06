@@ -205,33 +205,35 @@
         @csrf
         <input type="hidden" name="phieu_dieu_chuyen_id" id="phieuDieuChuyenId">
 
-        <div class="row">
-            <div class="col-lg-8">
-                <!-- Thông tin chung & Diễn biến -->
-                <div class="form-section shadow-sm">
-                    <h2>
-                        <i class="bi bi-person-badge"></i>
-                        Thông tin chi tiết hợp đồng
-                    </h2>
+        <!-- Thông tin chi tiết hợp đồng -->
+        <div class="form-section shadow-sm">
+            <h2>
+                <i class="bi bi-person-badge"></i>
+                Thông tin chi tiết hợp đồng
+            </h2>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Nhân viên <span class="required-star">*</span></label>
-                            <select name="nhan_vien_id" id="nhanVienSelect" class="form-control select2" required>
+                            <input type="hidden" name="nhan_vien_id" value="{{ $hopDong->NhanVienId }}">
+                            <select id="nhanVienSelect" class="form-control select2" disabled>
                                 <option value="">-- Chọn nhân viên --</option>
-                                @foreach($nhanvien as $nv)
-                                    <option value="{{ $nv->id }}" {{ $hopDong->NhanVienId == $nv->id ? 'selected' : '' }}
-                                        data-ma="{{ $nv->Ma }}"
-                                        data-ten="{{ $nv->Ten }}"
-                                        data-phongban-id="{{ $nv->ttCongViec->PhongBanId ?? '' }}"
-                                        data-chucvu-id="{{ $nv->ttCongViec->ChucVuId ?? '' }}">
-                                        {{ $nv->Ma }} - {{ $nv->Ten }}
-                                    </option>
-                                @endforeach
+                        @foreach($nhanvien as $nv)
+                            <option value="{{ $nv->id }}" {{ $hopDong->NhanVienId == $nv->id ? 'selected' : '' }}
+                                data-ma="{{ $nv->Ma }}"
+                                data-ten="{{ $nv->Ten }}"
+                                data-phongban="{{ $nv->phongBan->Ten ?? '' }}"
+                                data-chucvu="{{ $nv->chucVu->Ten ?? '' }}"
+                                data-phongban-id="{{ $nv->ttCongViec->PhongBanId ?? '' }}"
+                                data-chucvu-id="{{ $nv->ttCongViec->ChucVuId ?? '' }}">
+                                {{ $nv->Ma }} - {{ $nv->Ten }}
+                            </option>
+                        @endforeach
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Người ký hợp đồng <span class="required-star">*</span></label>
-                            <select id="nguoiKySelectDisplay" class="form-control select2" required disabled>
+                            <input type="hidden" name="NguoiKyId" value="{{ $hopDong->NguoiKyId }}">
+                            <select id="nguoiKySelect" class="form-control select2" disabled>
                                 @foreach($nguoiKyList as $nv)
                                     <option value="{{ $nv->id }}" {{ $hopDong->NguoiKyId == $nv->id ? 'selected' : '' }}>
                                         {{ $nv->Ma }} - {{ $nv->Ten }}
@@ -246,80 +248,94 @@
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Loại hợp đồng <span class="required-star">*</span></label>
-                            <select name="loai_hop_dong_id" id="loaiHopDongSelect" class="form-control select2" required>
-                                <option value="">-- Chọn loại hợp đồng --</option>
-                                <option value="1" data-ma="HDTV" data-loai="thu_viec" {{ $hopDong->Loai == 'thu_viec' ? 'selected' : '' }}>Hợp đồng thử việc</option>
-                                <option value="2" data-ma="HDLD" data-loai="chinh_thuc_xac_dinh_thoi_han" {{ $hopDong->Loai == 'chinh_thuc_xac_dinh_thoi_han' ? 'selected' : '' }}>Hợp đồng lao động xác định thời hạn</option>
-                                <option value="3" data-ma="HDLD" data-loai="chinh_thuc_khong_xac_dinh_thoi_han" {{ $hopDong->Loai == 'chinh_thuc_khong_xac_dinh_thoi_han' ? 'selected' : '' }}>Hợp đồng lao động không xác định thời hạn</option>
-                                <option value="4" data-ma="HDKV" data-loai="khoan_viec" {{ $hopDong->Loai == 'khoan_viec' ? 'selected' : '' }}>Hợp đồng khoán việc</option>
-                                <option value="5" data-ma="HDTV" data-loai="thoi_vu" {{ $hopDong->Loai == 'thoi_vu' ? 'selected' : '' }}>Hợp đồng thời vụ</option>
-                                <option value="7" data-ma="NDA" data-loai="nda" {{ str_starts_with($hopDong->Loai ?? '', 'nda') ? 'selected' : '' }}>Thỏa thuật bảo mật (NDA)</option>
-                            </select>
-                            <input type="hidden" name="loai" id="loaiInput" value="{{ $hopDong->Loai }}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Phòng ban <span class="required-star">*</span></label>
-                            <select name="phong_ban_id" id="phongBanSelect" class="form-control select2" required>
-                                <option value="">-- Chọn phòng ban --</option>
-                                @foreach($phongban as $pb)
-                                    <option value="{{ $pb->id }}" {{ $hopDong->PhongBanId == $pb->id ? 'selected' : '' }}>{{ $pb->Ten }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Chức vụ <span class="required-star">*</span></label>
-                            <select name="chuc_vu_id" id="chucVuSelect" class="form-control select2" required>
-                                <option value="">-- Chọn chức vụ --</option>
-                                @foreach($chucvu as $cv)
-                                    <option value="{{ $cv->id }}" 
-                                        data-phucap="{{ $cv->HeSoPhuCap }}" 
-                                        data-loai="{{ $cv->Loai }}"
-                                        {{ $hopDong->ChucVuId == $cv->id ? 'selected' : '' }}>
-                                        {{ $cv->Ten }}
-                                    </option>
-                                @endforeach
-                            </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Loại hợp đồng <span class="required-star">*</span></label>
+                    <select name="loai_hop_dong_id" id="loaiHopDongSelect" class="form-control select2" required>
+                        <option value="">-- Chọn loại hợp đồng --</option>
+                        <option value="1" data-ma="HDTV" data-loai="thu_viec" {{ $hopDong->Loai == 'thu_viec' ? 'selected' : '' }}>Hợp đồng thử việc</option>
+                        <option value="2" data-ma="HDLD" data-loai="chinh_thuc_xac_dinh_thoi_han" {{ $hopDong->Loai == 'chinh_thuc_xac_dinh_thoi_han' ? 'selected' : '' }}>Hợp đồng lao động xác định thời hạn</option>
+                        <option value="3" data-ma="HDLD" data-loai="chinh_thuc_khong_xac_dinh_thoi_han" {{ $hopDong->Loai == 'chinh_thuc_khong_xac_dinh_thoi_han' ? 'selected' : '' }}>Hợp đồng lao động không xác định thời hạn</option>
+                        <option value="4" data-ma="HDKV" data-loai="khoan_viec" {{ $hopDong->Loai == 'khoan_viec' ? 'selected' : '' }}>Hợp đồng khoán việc</option>
+                        <option value="5" data-ma="HDTV" data-loai="thoi_vu" {{ $hopDong->Loai == 'thoi_vu' ? 'selected' : '' }}>Hợp đồng thời vụ</option>
+                        <option value="7" data-ma="NDA" data-loai="nda" {{ str_starts_with($hopDong->Loai ?? '', 'nda') ? 'selected' : '' }}>Thỏa thuật bảo mật (NDA)</option>
+                    </select>
+                    <input type="hidden" name="loai" id="loaiInput" value="{{ $hopDong->Loai }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phòng ban <span class="required-star">*</span></label>
+                    <select name="phong_ban_id" id="phongBanSelect" class="form-control select2" required>
+                        <option value="">-- Chọn phòng ban --</option>
+                        @foreach($phongban as $pb)
+                            <option value="{{ $pb->id }}" {{ $hopDong->PhongBanId == $pb->id ? 'selected' : '' }}>{{ $pb->Ten }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Chức vụ <span class="required-star">*</span></label>
+                    <select name="chuc_vu_id" id="chucVuSelect" class="form-control select2" required>
+                        <option value="">-- Chọn chức vụ --</option>
+                        @foreach($chucvu as $cv)
+                            <option value="{{ $cv->id }}" 
+                                data-phucap="{{ $cv->HeSoPhuCap }}" 
+                                data-loai="{{ $cv->Loai }}"
+                                {{ $hopDong->ChucVuId == $cv->id ? 'selected' : '' }}>
+                                {{ $cv->Ten }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <!-- Employee Info Card (Dưới hàng 2) -->
+            <div class="employee-info-card {{ $hopDong->NhanVienId ? 'show' : '' }}" id="employeeInfoCard" style="display: {{ $hopDong->NhanVienId ? 'block' : 'none' }}; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-top: 12px; margin-bottom: 24px;">
+                <div style="display: flex; gap: 16px; align-items: start;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #1f2937;">Thông tin nhân viên</div>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px;">
+                            <span style="color: #6b7280;">Mã NV:</span>
+                            <span id="empMa" style="font-weight: 500; color: #1f2937;">{{ $hopDong->nhanVien->Ma ?? '-' }}</span>
+                            <span style="color: #6b7280;">Họ tên:</span>
+                            <span id="empTen" style="font-weight: 500; color: #1f2937;">{{ $hopDong->nhanVien->Ten ?? '-' }}</span>
+                            <span style="color: #6b7280;">Phòng ban:</span>
+                            <span id="empPhongBan" style="color: #1f2937;">{{ $hopDong->nhanVien->phongBan->Ten ?? '-' }}</span>
+                            <span style="color: #6b7280;">Chức vụ:</span>
+                            <span id="empChucVu" style="color: #1f2937;">{{ $hopDong->nhanVien->chucVu->Ten ?? '-' }}</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Thời hạn & Hiệu lực -->
-                <div class="form-section shadow-sm">
-                    <h2>
-                        <i class="bi bi-clock-history"></i>
-                        Thời hạn & Trạng thái
-                    </h2>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Ngày bắt đầu <span class="required-star">*</span></label>
-                            <input type="text" name="NgayBatDau" id="ngayBatDau" class="form-control datepicker" 
-                                value="{{ \Carbon\Carbon::parse($hopDong->NgayBatDau)->format('d/m/Y') }}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Ngày kết thúc</label>
-                            <input type="text" name="NgayKetThuc" id="ngayKetThuc" class="form-control datepicker" 
-                                value="{{ $hopDong->NgayKetThuc ? \Carbon\Carbon::parse($hopDong->NgayKetThuc)->format('d/m/Y') : '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Trạng thái <span class="required-star">*</span></label>
-                            <select name="trang_thai" class="form-control select2" required>
-                                <option value="1" {{ $hopDong->TrangThai == 1 ? 'selected' : '' }}>Còn hiệu lực</option>
-                                <option value="0" {{ $hopDong->TrangThai == 0 ? 'selected' : '' }}>Hết hiệu lực</option>
-                                <option value="2" {{ $hopDong->TrangThai == 2 ? 'selected' : '' }}>Bị hủy/Thanh lý</option>
-                            </select>
-                        </div>
-                    </div>
+            <h2>
+                <i class="bi bi-clock-history"></i>
+                Thời hạn & Trạng thái
+            </h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Ngày bắt đầu <span class="required-star">*</span></label>
+                    <input type="text" name="NgayBatDau" id="ngayBatDau" class="form-control datepicker" 
+                        value="{{ \Carbon\Carbon::parse($hopDong->NgayBatDau)->format('d/m/Y') }}" required>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Ngày kết thúc</label>
+                    <input type="text" name="NgayKetThuc" id="ngayKetThuc" class="form-control datepicker" 
+                        value="{{ $hopDong->NgayKetThuc ? \Carbon\Carbon::parse($hopDong->NgayKetThuc)->format('d/m/Y') : '' }}">
+                    <div class="help-text">Để trống nếu là "Không xác định thời hạn"</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Trạng thái <span class="required-star">*</span></label>
+                    <select name="trang_thai" class="form-control select2" required>
+                        <option value="1" {{ $hopDong->TrangThai == 1 ? 'selected' : '' }}>Còn hiệu lực</option>
+                        <option value="0" {{ $hopDong->TrangThai == 0 ? 'selected' : '' }}>Hết hiệu lực</option>
+                        <option value="2" {{ $hopDong->TrangThai == 2 ? 'selected' : '' }}>Bị hủy/Thanh lý</option>
+                    </select>
+                </div>
+            </div>
 
-                <!-- Cấu trúc lương -->
-                <div class="form-section shadow-sm">
-                    <h2>
-                        <i class="bi bi-cash-coin"></i>
-                        Cấu trúc lương cơ bản
-                    </h2>
+            <h2>
+                <i class="bi bi-cash-coin"></i>
+                Cấu trúc lương cơ bản
+            </h2>
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -376,132 +392,137 @@
                     </div>
                 </div>
 
-                <!-- Phụ cấp tính BHXH -->
-                <div class="form-section shadow-sm">
-                    <h2>
-                        <i class="bi bi-shield-check"></i>
-                        Phụ cấp tính BHXH
-                    </h2>
-                    <div class="form-row">
-                        @foreach($dmAllowances->where('is_bhxh', 1) as $dm)
-                            <div class="form-group">
-                                <label class="form-label">{{ $dm->noi_dung }}</label>
-                                <div class="input-group">
-                                    <input type="text" name="allowances[{{ $dm->id }}]" 
-                                        class="form-control formatted-number salary-input allowance-bhxh" 
-                                        value="{{ $hopDong->phuCaps->contains($dm->id) ? number_format($hopDong->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}">
-                                    <span class="input-group-text">VNĐ</span>
-                                </div>
-                            </div>
-                        @endforeach
+            <div style="margin-top: 24px; margin-bottom: 12px;">
+                <strong style="color: #1f2937; font-size: 15px;">📋 Phụ cấp tính BHXH</strong>
+            </div>
+            <div class="form-row">
+                @foreach($dmAllowances->where('is_bhxh', 1) as $dm)
+                    <div class="form-group">
+                        <label class="form-label">{{ $dm->noi_dung }}</label>
+                        <div class="input-group">
+                            <input type="text" name="allowances[{{ $dm->id }}]" 
+                                class="form-control formatted-number salary-input allowance-bhxh" 
+                                value="{{ $hopDong->phuCaps->contains($dm->id) ? number_format($hopDong->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}">
+                            <span class="input-group-text">VNĐ</span>
+                        </div>
                     </div>
+                @endforeach
+            </div>
+
+            <div style="margin-top: 24px; margin-bottom: 12px;">
+                <strong style="color: #1f2937; font-size: 15px;">💼 Phụ cấp KHÔNG đóng BHXH</strong>
+            </div>
+            <div class="form-row">
+                @foreach($dmAllowances->where('is_bhxh', 0) as $dm)
+                    <div class="form-group">
+                        <label class="form-label">{{ $dm->noi_dung }}</label>
+                        <div class="input-group">
+                            <input type="text" name="allowances[{{ $dm->id }}]" 
+                                class="form-control formatted-number salary-input allowance-ngoai-bhxh" 
+                                value="{{ $hopDong->phuCaps->contains($dm->id) ? number_format($hopDong->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}">
+                            <span class="input-group-text">VNĐ</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+        <!-- Tóm tắt lương -->
+        <div id="salaryCard"
+            style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #0BAA4B; border-radius: 12px; margin-bottom: 24px;">
+            <div
+                style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-bar-chart-fill" style="font-size: 20px; color: #0BAA4B;"></i>
+                TỔNG HỢP LƯƠNG
+            </div>
+
+            <div style="display: grid; gap: 10px; font-size: 14px;">
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                    <span style="color: #6b7280;">Lương cơ bản:</span>
+                    <span id="displayLuongCoBan" style="font-weight: 600; color: #1f2937;">0 ₫</span>
                 </div>
 
-                <!-- Phụ cấp KHÔNG tính BHXH -->
-                <div class="form-section shadow-sm">
-                    <h2>
-                        <i class="bi bi-gift"></i>
-                        Phụ cấp KHÔNG đóng BHXH
-                    </h2>
-                    <div class="form-row">
-                        @foreach($dmAllowances->where('is_bhxh', 0) as $dm)
-                            <div class="form-group">
-                                <label class="form-label">{{ $dm->noi_dung }}</label>
-                                <div class="input-group">
-                                    <input type="text" name="allowances[{{ $dm->id }}]" 
-                                        class="form-control formatted-number salary-input allowance-ngoai-bhxh" 
-                                        value="{{ $hopDong->phuCaps->contains($dm->id) ? number_format($hopDong->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}">
-                                    <span class="input-group-text">VNĐ</span>
-                                </div>
-                            </div>
-                        @endforeach
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                    <span style="color: #6b7280;">Tổng phụ cấp tính BHXH:</span>
+                    <span id="displayPhuCapBHXH" style="font-weight: 600; color: #1f2937;">0 ₫</span>
+                </div>
+
+                <div style="border-top: 1px dashed #0BAA4B; margin: 4px 0;"></div>
+
+                <div
+                    style="display: flex; justify-content: space-between; padding: 8px 0; background: rgba(15, 81, 50, 0.1); margin: 0 -12px; padding-left: 12px; padding-right: 12px; border-radius: 6px;">
+                    <span style="color: #0BAA4B; font-weight: 600;">Tiền lương đóng BHXH:</span>
+                    <span id="displayLuongBHXH" style="font-weight: 700; color: #0BAA4B;">0 ₫</span>
+                </div>
+
+                <div style="border-top: 1px solid #d1d5db; margin: 8px 0;"></div>
+
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                    <span style="color: #6b7280;">Tổng phụ cấp không BHXH:</span>
+                    <span id="displayPhuCapKhongBHXH" style="font-weight: 600; color: #1f2937;">0 ₫</span>
+                </div>
+
+                <div style="border-top: 2px solid #0BAA4B; margin: 8px 0;"></div>
+
+                <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+                    <span style="font-size: 16px; font-weight: 700; color: #1f2937;">💰 TỔNG THU NHẬP:</span>
+                    <span id="displayTongThuNhap" style="font-size: 18px; font-weight: 700; color: #0BAA4B;">0 ₫</span>
+                </div>
+            </div>
+            <input type="hidden" name="tong_luong" id="tongLuongInput" value="{{ $hopDong->TongLuong }}">
+        </div>
+    </div>
+
+    <!-- File đính kèm -->
+    <div class="form-section shadow-sm">
+            <h2>
+                <i class="bi bi-paperclip"></i>
+                Hợp đồng đính kèm
+            </h2>
+            
+            @if($hopDong->File)
+                <div style="padding: 12px; background: rgba(11, 170, 75, 0.1); border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(11, 170, 75, 0.2);">
+                    <i class="bi bi-file-earmark-check" style="font-size: 24px; color: #0BAA4B;"></i>
+                    <div style="flex: 1;">
+                        <div style="font-size: 12px; color: #6b7280;">File hiện tại:</div>
+                        <a href="/{{ $hopDong->File }}" target="_blank" style="font-weight: 600; color: #0BAA4B; text-decoration: none;">Xem Hợp đồng</a>
                     </div>
+                </div>
+            @endif
+
+            <div class="file-upload-area" onclick="document.getElementById('fileUpload').click()">
+                <i class="bi bi-cloud-upload" style="font-size: 48px; color: #0BAA4B;"></i>
+                <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Click để tải file lên</div>
+                <div style="font-size: 13px; color: #6b7280;">PDF, DOC, DOCX (MAX. 10MB)</div>
+                <input type="file" name="file" id="fileUpload" class="d-none" accept=".pdf,.doc,.docx" onchange="handleFileSelect(this)">
+            </div>
+
+            <div id="fileInfo" class="mt-3" style="display: none; padding: 12px; background: #f0fdf4; border-radius: 8px; border: 1px solid #dcfce7;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-file-earmark-arrow-up" style="color: #0BAA4B;"></i>
+                    <span id="fileName" style="font-size: 13px; font-weight: 500; color: #166534; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                    <button type="button" class="btn btn-sm p-0" onclick="removeFile()" style="color: #dc2626;">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <!-- Tóm tắt lương -->
-                <div id="salaryCard" class="form-section shadow-sm" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #0BAA4B;">
-                    <h2 style="border-bottom-color: rgba(11, 170, 75, 0.2); color: #1f2937;">
-                        <i class="bi bi-bar-chart-line"></i>
-                        Tóm tắt thu nhập
-                    </h2>
+        </div>
 
-                    <div style="display: grid; gap: 12px; font-size: 15px;">
-                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                            <span style="color: #4b5563;">Lương cơ bản:</span>
-                            <span id="displayLuongCoBan" style="font-weight: 600; color: #111827;">0 ₫</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                            <span style="color: #4b5563;">P.C đóng BHXH:</span>
-                            <span id="displayPhuCapBHXH" style="font-weight: 600; color: #111827;">0 ₫</span>
-                        </div>
-                        <div style="border-top: 1px dashed #0BAA4B; margin: 4px 0;"></div>
-                        <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(11, 170, 75, 0.1); border-radius: 8px;">
-                            <span style="color: #0BAA4B; font-weight: 600;">Lương đóng BHXHi:</span>
-                            <span id="displayLuongBHXH" style="font-weight: 700; color: #0BAA4B;">0 ₫</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                            <span style="color: #4b5563;">P.C khác:</span>
-                            <span id="displayPhuCapKhongBHXH" style="font-weight: 600; color: #111827;">0 ₫</span>
-                        </div>
-                        <div style="border-top: 2px solid #0BAA4B; margin: 8px 0;"></div>
-                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                            <span style="font-size: 16px; font-weight: 700; color: #111827;">TỔNG THU NHẬP:</span>
-                            <span id="displayTongThuNhap" style="font-size: 20px; font-weight: 800; color: #0BAA4B;">0 ₫</span>
-                        </div>
-                    </div>
-                    <input type="hidden" name="tong_luong" id="tongLuongInput" value="{{ $hopDong->TongLuong }}">
-                </div>
-
-                <!-- Đính kèm file -->
-                <div class="form-section shadow-sm">
-                    <h2>
-                        <i class="bi bi-paperclip"></i>
-                        Hợp đồng đính kèm
-                    </h2>
-                    
-                    @if($hopDong->File)
-                        <div style="padding: 12px; background: rgba(11, 170, 75, 0.1); border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(11, 170, 75, 0.2);">
-                            <i class="bi bi-file-earmark-check" style="font-size: 24px; color: #0BAA4B;"></i>
-                            <div style="flex: 1;">
-                                <div style="font-size: 12px; color: #6b7280;">File hiện tại:</div>
-                                <a href="/{{ $hopDong->File }}" target="_blank" style="font-weight: 600; color: #0BAA4B; text-decoration: none;">Xem Hợp đồng</a>
-                            </div>
-                        </div>
-                    @endif
-
-                    <div class="file-upload-area" onclick="document.getElementById('fileUpload').click()">
-                        <i class="bi bi-cloud-upload" style="font-size: 40px; color: #0BAA4B;"></i>
-                        <p style="margin: 12px 0 4px; font-weight: 500;">Click để thay đổi file</p>
-                        <small style="color: #6b7280;">PDF, Word (Max 10MB)</small>
-                        <input type="file" name="file" id="fileUpload" class="d-none" accept=".pdf,.doc,.docx" onchange="handleFileSelect(this)">
-                    </div>
-
-                    <div id="fileInfo" class="mt-3" style="display: none; padding: 12px; background: #f0fdf4; border-radius: 8px; border: 1px solid #dcfce7;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <i class="bi bi-file-earmark-arrow-up" style="color: #0BAA4B;"></i>
-                            <span id="fileName" style="font-size: 13px; font-weight: 500; color: #166534; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
-                            <button type="button" class="btn btn-sm p-0" onclick="removeFile()" style="color: #dc2626;">
-                                <i class="bi bi-x-circle-fill"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="form-section shadow-sm">
-                    <div class="form-actions d-grid gap-3">
-                        <button type="submit" class="btn btn-primary shadow-sm py-3 fw-bold">
-                            <i class="bi bi-check-lg me-2"></i>
-                            Lưu thay đổi
-                        </button>
-                        <a href="{{ route('hop-dong.info', $hopDong->id) }}" class="btn btn-secondary py-3 fw-bold">
-                            <i class="bi bi-x-lg me-2"></i>
-                            Hủy bỏ
-                        </a>
-                    </div>
-                </div>
+        <!-- Form Actions -->
+        <div class="form-section shadow-sm">
+            <div class="form-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{{ route('hop-dong.info', $hopDong->id) }}" class="btn btn-secondary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Hủy bỏ
+                </a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Lưu thay đổi
+                </button>
             </div>
         </div>
     </form>
@@ -525,7 +546,7 @@
                 allowClear: true
             });
 
-            // Tự động điền phòng ban/chức vụ khi chọn nhân viên
+            // Tự động điền phòng ban/chức vụ & cập nhật thẻ thông tin khi chọn nhân viên
             $('#nhanVienSelect').on('change', function () {
                 const option = $(this).find('option:selected');
                 const phongBanId = option.data('phongban-id');
@@ -536,6 +557,16 @@
                 }
                 if (chucVuId) {
                     $('#chucVuSelect').val(chucVuId).trigger('change');
+                }
+
+                if ($(this).val()) {
+                    $('#empMa').text(option.data('ma') || '-');
+                    $('#empTen').text(option.data('ten') || '-');
+                    $('#empPhongBan').text(option.data('phongban') || '-');
+                    $('#empChucVu').text(option.data('chucvu') || '-');
+                    $('#employeeInfoCard').fadeIn().addClass('show');
+                } else {
+                    $('#employeeInfoCard').fadeOut().removeClass('show');
                 }
             });
 
@@ -767,7 +798,7 @@
                             text: data.message,
                             confirmButtonColor: '#0BAA4B'
                         }).then(() => {
-                            window.location.href = "{{ route('hop-dong.info', $hopDong->id) }}";
+                            window.location.href = data.redirect_url || "{{ route('hop-dong.info', $hopDong->id) }}";
                         });
                     })
                     .catch(error => {
@@ -816,7 +847,6 @@
                 const luong = Math.round(heso * mucLuongCoSo);
                 $('#luongCoBan').val(formatNumber(luong)).trigger('input');
                 $('#heSoValue').text(heso ? heso.toFixed(2) : '0.00');
-                $('#luongTinhTu').text(formatNumber(luong) + ' đ');
                 $('#heSoBadge').show();
                 calculateSalary();
             });

@@ -21,6 +21,7 @@
                         <th>CCCD/CMND</th>
                         <th>Số điện thoại</th>
                         <th>Giảm trừ</th>
+                        <th style="text-align: center;">Trạng thái</th>
                         <th style="width: 100px; text-align: center;">Thao tác</th>
                     </tr>
                 </thead>
@@ -65,6 +66,22 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">
+                                @if(($tn->TrangThai ?? 0) == 1)
+                                    <span class="badge badge-success" style="background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0;">
+                                        <i class="bi bi-patch-check-fill"></i> Đã duyệt
+                                    </span>
+                                @else
+                                    <span class="badge" style="background: #FFF7ED; color: #9A3412; border: 1px solid #FFEDD5;">
+                                        <i class="bi bi-hourglass-split"></i> Chờ duyệt
+                                    </span>
+                                @endif
+                            </td>
+                            <td style="text-align: center;">
+                                @if(($tn->TrangThai ?? 0) == 0 && auth()->user()->hasAnyRole(['Super Admin', 'System Admin']))
+                                    <button class="action-icon-btn text-success" onclick="approveRelative({{ $tn->id }})" title="Duyệt">
+                                        <i class="bi bi-check-lg" style="font-size: 1.2rem;"></i>
+                                    </button>
+                                @endif
                                 <button class="action-icon-btn" onclick="deleteRelative({{ $tn->id }})" title="Xóa">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
@@ -72,7 +89,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 48px;" class="empty-state-cell">
+                            <td colspan="8" style="text-align: center; padding: 48px;" class="empty-state-cell">
                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
                                     <i class="bi bi-people" style="font-size: 48px; color: #d1d5db;"></i>
                                     <div style="color: #6b7280; font-size: 15px;">Chưa có thông tin thân nhân trong hồ sơ

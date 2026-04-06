@@ -114,7 +114,7 @@ class NhanVienController extends Controller
                     ->orderBy('NgayBatDau', 'desc');
             },
             'dienBienLuongs' => function ($q) {
-                $q->with(['ngachLuong', 'bacLuong'])->orderBy('NgayHuong', 'desc');
+                $q->with(['ngachLuong', 'bacLuong', 'hopDong'])->orderBy('NgayHuong', 'desc');
             },
             'luongs' => function ($q) {
                 $q->orderBy('ThoiGian', 'desc');
@@ -168,6 +168,9 @@ class NhanVienController extends Controller
             'NgayTuyenDung' => 'required|date',
             'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cropped_avatar' => 'nullable|string',
+            'anh_cccd.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'anh_bhxh.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'TrangThai' => 'nullable|integer|in:0,1,2',
         ], [
             // Thông tin cá nhân
             'Ten.required' => 'Vui lòng nhập họ và tên nhân viên.',
@@ -200,6 +203,11 @@ class NhanVienController extends Controller
             'AnhDaiDien.image' => 'File tải lên phải là hình ảnh.',
             'AnhDaiDien.mimes' => 'Ảnh phải có định dạng: jpeg, png, jpg, hoặc gif.',
             'AnhDaiDien.max' => 'Kích thước ảnh không được vượt quá 2MB.',
+
+            'anh_cccd.*.image' => 'File tải lên CCCD phải là hình ảnh.',
+            'anh_cccd.*.max' => 'Kích thước mỗi ảnh CCCD không được vượt quá 5MB.',
+            'anh_bhxh.*.image' => 'File tải lên BHXH phải là hình ảnh.',
+            'anh_bhxh.*.max' => 'Kích thước mỗi ảnh BHXH không được vượt quá 5MB.',
         ]);
 
         try {
@@ -246,6 +254,26 @@ class NhanVienController extends Controller
                     $avatarPath = 'AnhDaiDien/' . $filename;
                 }
 
+                // Handle multiple CCCD images
+                $anhCccdPaths = [];
+                if ($request->hasFile('anh_cccd')) {
+                    foreach ($request->file('anh_cccd') as $file) {
+                        $filename = 'cccd_' . $Ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('uploads/cccd'), $filename);
+                        $anhCccdPaths[] = 'uploads/cccd/' . $filename;
+                    }
+                }
+
+                // Handle multiple BHXH images
+                $anhBhxhPaths = [];
+                if ($request->hasFile('anh_bhxh')) {
+                    foreach ($request->file('anh_bhxh') as $file) {
+                        $filename = 'bhxh_' . $Ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('uploads/bhxh'), $filename);
+                        $anhBhxhPaths[] = 'uploads/bhxh/' . $filename;
+                    }
+                }
+
                 // 3. Convert date formats from dd-mm-yyyy to yyyy-mm-dd
                 $ngaySinh = $this->convertDateFormat($request->NgaySinh);
                 $ngayCap = $this->convertDateFormat($request->NgayCap);
@@ -280,11 +308,14 @@ class NhanVienController extends Controller
                     'SoTaiKhoan' => $request->SoTaiKhoan,
                     'ChiNhanhNganHang' => $request->ChiNhanhNganHang,
                     'BHXH' => $request->BHXH,
+                    'anh_bhxh' => $anhBhxhPaths,
                     'NoiCapBHXH' => $request->NoiCapBHXH,
                     'BHYT' => $request->BHYT,
                     'NoiCapBHYT' => $request->NoiCapBHYT,
                     'Note' => $request->Note,
                     'AnhDaiDien' => $avatarPath,
+                    'anh_cccd' => $anhCccdPaths,
+                    'TrangThai' => $request->TrangThai ?? 1,
                 ]);
 
                 // Verify NhanVien was created successfully
@@ -393,6 +424,7 @@ class NhanVienController extends Controller
                 'ChucVuId' => 'required|exists:dm_chuc_vus,id',
                 'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'cropped_avatar' => 'nullable|string',
+                'TrangThai' => 'required|integer|in:0,1,2',
             ];
 
             $messages = [
@@ -404,7 +436,14 @@ class NhanVienController extends Controller
                 'ChucVuId.required' => 'Vui lòng chọn chức vụ',
                 'ChucVuId.exists' => 'Chức vụ không tồn tại',
                 'LoaiNhanVien.required' => 'Vui lòng chọn loại nhân viên',
+                'anh_cccd.*.image' => 'File tải lên CCCD phải là hình ảnh.',
+                'anh_cccd.*.max' => 'Kích thước mỗi ảnh CCCD không được vượt quá 5MB.',
+                'anh_bhxh.*.image' => 'File tải lên BHXH phải là hình ảnh.',
+                'anh_bhxh.*.max' => 'Kích thước mỗi ảnh BHXH không được vượt quá 5MB.',
             ];
+
+            $rules['anh_cccd.*'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120';
+            $rules['anh_bhxh.*'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120';
 
             $validated = $request->validate($rules, $messages);
 
@@ -435,6 +474,30 @@ class NhanVienController extends Controller
                 $employee->AnhDaiDien = 'AnhDaiDien/' . $filename;
             }
 
+            // Handle multiple CCCD images
+            if ($request->hasFile('anh_cccd')) {
+                $anhCccdPaths = [];
+                $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
+                foreach ($request->file('anh_cccd') as $file) {
+                    $filename = 'cccd_' . $ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/cccd'), $filename);
+                    $anhCccdPaths[] = 'uploads/cccd/' . $filename;
+                }
+                $employee->anh_cccd = $anhCccdPaths;
+            }
+
+            // Handle multiple BHXH images
+            if ($request->hasFile('anh_bhxh')) {
+                $anhBhxhPaths = [];
+                $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
+                foreach ($request->file('anh_bhxh') as $file) {
+                    $filename = 'bhxh_' . $ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/bhxh'), $filename);
+                    $anhBhxhPaths[] = 'uploads/bhxh/' . $filename;
+                }
+                $employee->anh_bhxh = $anhBhxhPaths;
+            }
+
             // Update NhanVien table
             $employee->update([
                 'Ten' => $request->Ten,
@@ -455,12 +518,22 @@ class NhanVienController extends Controller
                 'SoTaiKhoan' => $request->SoTaiKhoan,
                 'ChiNhanhNganHang' => $request->ChiNhanhNganHang,
                 'BHXH' => $request->BHXH,
+                'anh_bhxh' => $employee->anh_bhxh,
                 'NoiCapBHXH' => $request->NoiCapBHXH,
                 'BHYT' => $request->BHYT,
                 'NoiCapBHYT' => $request->NoiCapBHYT,
                 'Note' => $request->Note,
                 'AnhDaiDien' => $employee->AnhDaiDien,
+                'anh_cccd' => $employee->anh_cccd,
+                'TrangThai' => $request->TrangThai,
             ]);
+
+            // Sync account status if checked
+            if ($request->sync_account_status == "1" && $employee->nguoiDung) {
+                $employee->nguoiDung->update([
+                    'TrangThai' => $request->TrangThai
+                ]);
+            }
 
             // Update or create TtNhanVienCongViec
             TtNhanVienCongViec::updateOrCreate(

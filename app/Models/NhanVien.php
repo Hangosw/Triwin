@@ -39,6 +39,7 @@ class NhanVien extends Model
         'SoDienThoai',
 
         'SoCCCD', //
+        'anh_cccd',
         'NoiCap',
         'NgayCap',
         'NgaySinh',
@@ -55,15 +56,20 @@ class NhanVien extends Model
         'SoTaiKhoan',
         'ChiNhanhNganHang',
         'BHXH',
+        'anh_bhxh',
         'NoiCapBHXH',
         'BHYT',
         'NoiCapBHYT',
         'Note',
+        'TrangThai',
     ];
 
     protected $casts = [
         'NgaySinh' => 'date',
         'GioiTinh' => 'integer',
+        'anh_cccd' => 'array',
+        'anh_bhxh' => 'array',
+        'TrangThai' => 'integer',
     ];
 
     /**

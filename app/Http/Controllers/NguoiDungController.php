@@ -88,9 +88,9 @@ class NguoiDungController extends Controller
 
     public function DataNguoiDung()
     {
-        $users = NguoiDung::whereHas('nhanVien', function ($q) {
-            $q;
-        })->select(['id', 'Ten', 'TaiKhoan', 'Email', 'SoDienThoai', 'TrangThai'])->get();
+        $users = NguoiDung::select(['id', 'Ten', 'TaiKhoan', 'Email', 'SoDienThoai', 'TrangThai'])
+        ->latest('id')
+        ->get();
         return response()->json(['data' => $users]);
     }
 
@@ -204,6 +204,29 @@ class NguoiDungController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['error' => 'Lỗi: ' . $e->getMessage()]);
+        }
+    }
+
+    public function toggleStatus($id)
+    {
+        try {
+            $user = NguoiDung::findOrFail($id);
+            $user->TrangThai = $user->TrangThai == 1 ? 0 : 1;
+            $user->save();
+
+            $statusText = $user->TrangThai == 1 ? 'mở khóa' : 'khóa';
+            \App\Services\SystemLogService::log('Cập nhật', 'NguoiDung', $user->id, "Thay đổi trạng thái người dùng: {$user->TaiKhoan} ({$statusText})");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã ' . $statusText . ' người dùng thành công.',
+                'new_status' => $user->TrangThai
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

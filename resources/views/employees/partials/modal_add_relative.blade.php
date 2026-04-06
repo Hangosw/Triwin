@@ -35,8 +35,8 @@
                                     class="text-danger">*</span></label>
                             <div class="form-icon-group">
                                 <i class="bi bi-diagram-3-fill form-icon"></i>
-                                <select name="QuanHe" class="form-select form-icon-input" required>
-                                    <option value="">-- Quan hệ --</option>
+                                <select name="QuanHe" class="form-select" data-placeholder="Chọn quan hệ" required>
+                                    <option value=""></option>
                                     <option value="bo_de">Bố đẻ</option>
                                     <option value="me_de">Mẹ đẻ</option>
                                     <option value="vo_chong">Vợ/Chồng</option>
@@ -50,7 +50,7 @@
                             <label class="form-label" style="font-weight: 600;">Ngày sinh</label>
                             <div class="form-icon-group">
                                 <i class="bi bi-calendar-date-fill form-icon"></i>
-                                <input type="date" name="NgaySinh" class="form-control form-icon-input">
+                                <input type="text" name="NgaySinh" class="form-control form-icon-input datepicker" placeholder="dd/mm/yyyy">
                             </div>
                         </div>
                         <div class="col-4">

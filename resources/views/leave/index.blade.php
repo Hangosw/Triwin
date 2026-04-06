@@ -166,6 +166,16 @@
             color: white !important;
             border-color: #0BAA4B !important;
         }
+
+        select.form-control {
+            height: 42px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
     </style>
 @endpush
 
@@ -261,12 +271,12 @@
                     </svg>
                     Xuất Excel
                 </button>
-                <button type="button" class="btn btn-primary" onclick="openLeaveModal()">
+                <a href="{{ route('nghi-phep.admin-dang-ky') }}" class="btn btn-primary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Đăng ký nghỉ phép
-                </button>
+                </a>
             </div>
         </form>
     </div>
@@ -329,11 +339,9 @@
                                 </td>
                                 <td>
                                     <div style="font-size: 13px;">
-                                        <div style="color: #6b7280;">Từ: <span class="font-medium"
-                                                style="color: #1f2937;">{{ $leave->TuNgay->format('d/m/Y') }}</span></div>
-                                        <div style="color: #6b7280;">Đến: <span class="font-medium"
-                                                style="color: #1f2937;">{{ $leave->DenNgay->format('d/m/Y') }}</span></div>
-                                        <div style="color: #0BAA4B; font-weight: 600;">Tổng: {{ $leave->SoNgayNghi }} ngày</div>
+                                        <div style="color: #6b7280;">Từ: <span class="font-medium" style="color: #1f2937;">{{ $leave->TuNgay->format('d/m/Y') }}</span> @if($leave->TuBuoi != 'ca_ngay') <small>({{ $leave->TuBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</small> @endif </div>
+                                        <div style="color: #6b7280;">Đến: <span class="font-medium" style="color: #1f2937;">{{ $leave->DenNgay->format('d/m/Y') }}</span> @if($leave->DenBuoi != 'ca_ngay') <small>({{ $leave->DenBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</small> @endif </div>
+                                        <div style="color: #0BAA4B; font-weight: 600;">Tổng: {{ number_format((float)$leave->SoNgayNghi, 1) }} ngày</div>
                                     </div>
                                 </td>
                                 <td>{{ $leave->LyDo }}</td>
@@ -376,93 +384,7 @@
         </div>
     </div>
 
-    <!-- Leave Modal -->
-    <div class="modal" id="leaveModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Đăng ký nghỉ phép</h2>
-                <button class="close-modal" onclick="closeLeaveModal()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <form id="leaveForm" onsubmit="submitLeave(event)">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="form-label">Nhân viên <span style="color: #ef4444;">*</span></label>
-                        <select class="form-control" id="leaveEmployee" required>
-                            <option value="">Chọn nhân viên</option>
-                            {{-- Admin can pick any employee - In a real app we'd fetch this dynamically --}}
-                            @foreach(\App\Models\NhanVien::all() as $nv)
-                                <option value="{{ $nv->id }}">{{ $nv->Ten }} - {{ $nv->ttCongViec->phongBan->Ten ?? 'N/A' }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Loại phép <span style="color: #ef4444;">*</span></label>
-                        <select class="form-control" id="leaveType" required>
-                            <option value="">Chọn loại phép</option>
-                            @foreach($loaiNghiPheps as $lp)
-                                <option value="{{ $lp->id }}">{{ $lp->Ten }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div class="form-group">
-                            <label class="form-label">Từ ngày <span style="color: #ef4444;">*</span></label>
-                            <input type="text" class="form-control" id="leaveFromDate" required readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Đến ngày <span style="color: #ef4444;">*</span></label>
-                            <input type="text" class="form-control" id="leaveToDate" required readonly>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Số ngày nghỉ</label>
-                        <input type="text" class="form-control" id="leaveDays" readonly style="background-color: #f9fafb;">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Lý do nghỉ phép <span style="color: #ef4444;">*</span></label>
-                        <textarea class="form-control" id="leaveReason" required placeholder="Nhập lý do nghỉ phép..."
-                            style="min-height: 100px;"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">File đính kèm (nếu có)</label>
-                        <input type="file" class="form-control" id="leaveFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                        <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">
-                            Giấy xác nhận bác sĩ, đơn xin nghỉ... (Tối đa 5MB)
-                        </small>
-                    </div>
-                    <!-- Split Leave Warning & Type Selection -->
-                    <div id="splitLeaveSection" style="display: none; background: #fff7ed; padding: 16px; border-radius: 12px; border: 1px solid #ffedd5; margin-bottom: 24px;">
-                        <p id="splitMessage" style="color: #9a3412; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            Quỹ nghỉ phép của nhân viên không đủ hoặc vượt quá giới hạn mỗi lần sử dụng. Bạn có thể chọn loại nghỉ thay thế cho phần dư.
-                        </p>
-                        <label class="form-label">Loại nghỉ thay thế cho phần dư</label>
-                        <select class="form-control no-select2" id="splitTypeSelect">
-                            <option value="">-- Chọn loại nghỉ --</option>
-                            @foreach($loaiNghiPheps as $type)
-                                <option value="{{ $type->id }}">{{ $type->Ten }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeLeaveModal()">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Gửi đơn</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    {{-- Old Leave Modal removed as we now use a dedicated page --}}
 
 @endsection
 
@@ -598,37 +520,11 @@
             window.location.href = url.toString();
         }
 
-        // Open leave modal
-        function openLeaveModal() {
-            document.getElementById('leaveModal').classList.add('show');
-        }
-
-        // Close leave modal
-        function closeLeaveModal() {
-            document.getElementById('leaveModal').classList.remove('show');
-            document.getElementById('leaveForm').reset();
-            document.getElementById('leaveDays').value = '';
-        }
-
-        // Calculate days
-        function calculateDays() {
-            if (!startPicker || !endPicker) return;
-
-            const fromDate = startPicker.selectedDates[0];
-            const toDate = endPicker.selectedDates[0];
-
-            if (fromDate && toDate) {
-                if (toDate < fromDate) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: 'Ngày kết thúc phải sau ngày bắt đầu!',
-                        confirmButtonColor: '#0BAA4B'
-                    });
-                    endPicker.clear();
                     document.getElementById('leaveDays').value = '';
                     return;
                 }
+            }
+        }
 
                 // Calculate actual working days
                 let count = 0;
@@ -638,16 +534,38 @@
                 let to = new Date(toDate);
                 to.setHours(0, 0, 0, 0);
 
+                const tuBuoi = document.getElementById('leaveFromShift').value;
+                const denBuoi = document.getElementById('leaveToShift').value;
+
                 while (cur <= to) {
                     const dayOfWeek = cur.getDay();
                     const dbDayOfWeek = (dayOfWeek === 0) ? 8 : (dayOfWeek + 1);
 
                     if (workingSchedule[dbDayOfWeek] && workingSchedule[dbDayOfWeek].CoLamViec) {
-                        count++;
+                        let dayVal = 1;
+                        if (cur.getTime() === fromDate.getTime() && (tuBuoi === 'sang' || tuBuoi === 'chieu')) {
+                            dayVal = 0.5;
+                        } else if (cur.getTime() === toDate.getTime() && (denBuoi === 'sang' || denBuoi === 'chieu')) {
+                            dayVal = 0.5;
+                        }
+                        count += dayVal;
                     }
                     cur.setDate(cur.getDate() + 1);
                 }
-                document.getElementById('leaveDays').value = count + ' ngày';
+                
+                // Trường hợp cùng ngày
+                if (fromDate.getTime() === toDate.getTime()) {
+                    count = 0;
+                    const dayOfWeek = fromDate.getDay();
+                    const dbDayOfWeek = (dayOfWeek === 0) ? 8 : (dayOfWeek + 1);
+                    if (workingSchedule[dbDayOfWeek] && workingSchedule[dbDayOfWeek].CoLamViec) {
+                        if (tuBuoi === 'sang' && denBuoi === 'sang') count = 0.5;
+                        else if (tuBuoi === 'chieu' && denBuoi === 'chieu') count = 0.5;
+                        else if (tuBuoi === 'sang' && denBuoi === 'chieu') count = 1.0;
+                        else count = 1.0;
+                    }
+                }
+                document.getElementById('leaveDays').value = count.toFixed(1) + ' ngày';
 
                 // Kiểm tra hạn mức (Cảnh báo cho Admin & Split)
                 const typeSelect = document.getElementById('leaveType');
@@ -689,325 +607,13 @@
             }
         }
 
-        // Submit leave
-        function submitLeave(event) {
-            event.preventDefault();
-            const form = event.target;
-            const formData = new FormData();
-            
-            formData.append('NhanVienId', document.getElementById('leaveEmployee').value);
-            formData.append('LoaiNghiPhepId', document.getElementById('leaveType').value);
-            formData.append('TuNgay', document.getElementById('leaveFromDate').value);
-            formData.append('DenNgay', document.getElementById('leaveToDate').value);
-            formData.append('LyDo', document.getElementById('leaveReason').value);
-            
-            const fileInput = document.getElementById('leaveFile');
-            if (fileInput.files[0]) {
-                formData.append('FileDinhKem', fileInput.files[0]);
-            }
-
-            const splitTypeSelect = document.getElementById('splitTypeSelect');
-            if (document.getElementById('splitLeaveSection').style.display === 'block' && splitTypeSelect.value) {
-                formData.append('SplitLoaiNghiPhepId', splitTypeSelect.value);
-            }
-
-            Swal.fire({
-                title: 'Đang gửi...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            fetch('{{ route("nghi-phep.tao-moi") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(async response => {
-                const isJson = response.headers.get('content-type')?.includes('application/json');
-                const data = isJson ? await response.json() : null;
-                
-                if (!response.ok) {
-                    throw new Error(data?.message || 'Có lỗi xảy ra từ máy chủ (Mã lỗi: ' + response.status + ')');
-                }
-                return data;
-            })
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công',
-                        text: data.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi',
-                        text: data.message,
-                        confirmButtonColor: '#0BAA4B'
-                    });
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi hệ thống',
-                    text: 'Có lỗi xảy ra khi lưu đơn.',
-                    confirmButtonColor: '#0BAA4B'
-                });
-            });
-        }
-
-        // Approve leave
-        function approveLeave(id) {
-            Swal.fire({
-                title: 'Xác nhận',
-                text: 'Bạn có chắc chắn muốn phê duyệt đơn nghỉ phép này?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#0BAA4B',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Duyệt',
-                cancelButtonText: 'Hủy'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/nghi-phep/duyet/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi',
-                                    text: data.message,
-                                    confirmButtonColor: '#0BAA4B'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi',
-                                text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0BAA4B'
-                            });
-                        });
-                }
-            });
-        }
-
-        // Reject leave
-        function rejectLeave(id) {
-            Swal.fire({
-                title: 'Từ chối đơn nghỉ phép',
-                input: 'textarea',
-                inputLabel: 'Lý do từ chối',
-                inputPlaceholder: 'Nhập lý do từ chối...',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Từ chối',
-                cancelButtonText: 'Hủy',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'Vui lòng nhập lý do từ chối!'
-                    }
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const reason = result.value;
-                    fetch(`/nghi-phep/tu-choi/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ LyDo: reason })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi',
-                                    text: data.message,
-                                    confirmButtonColor: '#0BAA4B'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi',
-                                text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0BAA4B'
-                            });
-                        });
-                }
-            });
-        }
-
-        // Bulk Approve
-        function bulkApprove() {
-            const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
-            if (selectedIds.length === 0) return;
-
-            Swal.fire({
-                title: 'Xác nhận',
-                text: `Bạn có chắc chắn muốn phê duyệt ${selectedIds.length} đơn nghỉ phép đã chọn?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#0BAA4B',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Đồng ý',
-                cancelButtonText: 'Hủy'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch('{{ route("nghi-phep.bulk-duyet") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ ids: selectedIds })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi',
-                                    text: data.message,
-                                    confirmButtonColor: '#0BAA4B'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi',
-                                text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0BAA4B'
-                            });
-                        });
-                }
-            });
-        }
-
-        // Bulk Reject
-        function bulkReject() {
-            const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
-            if (selectedIds.length === 0) return;
-
-            Swal.fire({
-                title: 'Xác nhận',
-                text: `Bạn có chắc chắn muốn từ chối ${selectedIds.length} đơn nghỉ phép đã chọn?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Đồng ý từ chối',
-                cancelButtonText: 'Hủy'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch('{{ route("nghi-phep.bulk-tu-choi") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ ids: selectedIds })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Thành công',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Lỗi',
-                                    text: data.message,
-                                    confirmButtonColor: '#0BAA4B'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lỗi',
-                                text: 'Có lỗi xảy ra khi kết nối với máy chủ.',
-                                confirmButtonColor: '#0BAA4B'
-                            });
-                        });
-                }
-            });
-        }
-
         // Close modal on outside click
         window.addEventListener('click', function (e) {
             const modal = document.getElementById('leaveModal');
             if (e.target === modal) {
-                closeLeaveModal();
+                if (typeof closeLeaveModal === 'function') closeLeaveModal();
             }
         });
+    </script>
     </script>
 @endpush

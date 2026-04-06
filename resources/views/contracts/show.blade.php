@@ -343,6 +343,101 @@
             color: #ffffff;
             opacity: 0.03;
         }
+
+        /* Timeline Styling */
+        .history-timeline {
+            position: relative;
+            padding: 20px 0;
+            margin-left: 20px;
+        }
+
+        .history-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        body.dark-theme .history-timeline::before {
+            background: #2e3349;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 32px;
+            margin-bottom: 24px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #0BAA4B;
+            z-index: 1;
+        }
+
+        .timeline-badge {
+            display: inline-flex;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .timeline-content {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        body.dark-theme .timeline-content {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        .timeline-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #4b5563;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .timeline-user {
+            color: #8b93a8;
+            border-top-color: #2e3349;
+        }
+
+        .diff-added { color: #059669; font-weight: 500; }
+        .diff-removed { color: #dc2626; text-decoration: line-through; }
     </style>
 @endpush
 
@@ -709,52 +804,189 @@
 
     <!-- Tab Content: History -->
     <div class="tab-content" id="tab-history">
-        @if($hopDong->phuLucs->isEmpty())
-            <div class="detail-section" style="text-align: center; padding: 48px;">
-                <div style="font-size: 48px; color: #e5e7eb; margin-bottom: 16px;">
-                    <i class="bi bi-clock-history"></i>
-                </div>
-                <div class="secondary-text">Chưa có lịch sử thay đổi nào được ghi nhận cho hợp đồng này.</div>
-            </div>
-        @else
-            @foreach($hopDong->phuLucs as $pl)
-                <div class="detail-section">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div>
-                            <h2 style="margin-bottom: 4px; border-bottom: none; padding-bottom: 0;">
-                                <i class="bi bi-file-earmark-diff"></i>
-                                {{ $pl->ten_phu_luc }}
-                            </h2>
-                            <div class="secondary-text" style="font-size: 13px;">
-                                <i class="bi bi-calendar3"></i> Ngày cập nhật:
-                                {{ \Carbon\Carbon::parse($pl->created_at)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
-                        @if($pl->TrangThai == 1)
-                            <span class="badge"
-                                style="background: #ecfdf5; color: #065f46; border: 1px solid #10b981; padding: 6px 12px; border-radius: 6px;">
-                                <i class="bi bi-check-circle-fill"></i> Mới nhất (Đang hiệu lực)
-                            </span>
-                        @else
-                            <span class="badge"
-                                style="background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; padding: 6px 12px; border-radius: 6px;">
-                                <i class="bi bi-archive"></i> Lịch sử
-                            </span>
-                        @endif
-                    </div>
+        <div class="history-timeline">
+            @php
+                $timeline = collect();
+                
+                $typeMapping = [
+                    'thu_viec' => 'Hợp đồng thử việc',
+                    'chinh_thuc_xac_dinh_thoi_han' => 'Hợp đồng lao động xác định thời hạn',
+                    'chinh_thuc_khong_xac_dinh_thoi_han' => 'Hợp đồng lao động không xác định thời hạn',
+                    'khoan_viec' => 'Hợp đồng khoán việc',
+                    'thoi_vu' => 'Hợp đồng thời vụ',
+                    'nda' => 'Thỏa thuận bảo mật (NDA)'
+                ];
 
-                    <div class="detail-grid">
-                        @foreach($pl->dieuKhoans as $dk)
-                            <div class="detail-item">
-                                <div class="detail-label">{{ $dk->noi_dung }}</div>
-                                <div class="detail-value" style="font-weight: 500;">
-                                    {{ number_format($dk->pivot->so_tien, 0, ',', '.') }} VNĐ</div>
-                            </div>
-                        @endforeach
+                $statusMapping = [
+                    '0' => 'Hết hạn',
+                    '1' => 'Còn hiệu lực',
+                    '2' => 'Bị hủy/Thanh lý'
+                ];
+
+                // 1. Add Contract Versions
+                foreach($historyContracts as $hc) {
+                    $timeline->push([
+                        'type' => 'contract',
+                        'date' => $hc->created_at,
+                        'data' => $hc,
+                        'title' => 'Phiên bản hợp đồng: ' . $hc->SoHopDong,
+                        'badge' => $hc->TrangThai == 1 ? 'Mới nhất' : 'Dữ liệu cũ',
+                        'badge_class' => $hc->TrangThai == 1 ? 'badge-success' : 'badge-secondary'
+                    ]);
+                    
+                    // 2. Add Annexes (if not already handled separately)
+                    foreach($hc->phuLucs as $pl) {
+                        $timeline->push([
+                            'type' => 'annex',
+                            'date' => $pl->created_at,
+                            'data' => $pl,
+                            'title' => 'Phụ lục: ' . $pl->ten_phu_luc,
+                            'badge' => 'Phụ lục',
+                            'badge_class' => 'badge-info'
+                        ]);
+                    }
+                }
+                
+                // 3. Add Activity Logs
+                foreach($activityLogs as $log) {
+                    $timeline->push([
+                        'type' => 'log',
+                        'date' => $log->CreatedAt,
+                        'data' => $log,
+                        'title' => $log->MoTa ?? $log->HanhDong,
+                        'badge' => 'Nhật ký',
+                        'badge_class' => 'badge-warning'
+                    ]);
+                }
+                
+                // Sort unified timeline by date desc
+                $sortedTimeline = $timeline->sortByDesc('date');
+            @endphp
+
+            @if($sortedTimeline->isEmpty())
+                <div class="detail-section" style="text-align: center; padding: 48px;">
+                    <div style="font-size: 48px; color: #e5e7eb; margin-bottom: 16px;">
+                        <i class="bi bi-clock-history"></i>
                     </div>
+                    <div class="secondary-text">Chưa có lịch sử thay đổi nào được ghi nhận cho hợp đồng này.</div>
                 </div>
-            @endforeach
-        @endif
+            @else
+                @foreach($sortedTimeline as $item)
+                    <div class="timeline-item">
+                        <div class="timeline-date">{{ \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') }}</div>
+                        <div class="timeline-title">
+                            <span class="badge {{ $item['badge_class'] }}" style="margin-right: 8px;">{{ $item['badge'] }}</span>
+                            {{ $item['title'] }}
+                        </div>
+                        
+                        <div class="timeline-content">
+                            @if($item['type'] === 'contract')
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Loại HĐ</div>
+                                        <div class="detail-value">{{ $item['data']->loaiHopDong->TenLoai ?? ($typeMapping[$item['data']->Loai] ?? $item['data']->Loai) }}</div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Lương cơ bản</div>
+                                        <div class="detail-value">{{ number_format($item['data']->LuongCoBan, 0, ',', '.') }} VNĐ</div>
+                                    </div>
+                                    <div class="detail-item" style="grid-column: span 2; display: flex; gap: 12px; margin-top: 8px;">
+                                        <a href="{{ route('hop-dong.download-word', $item['data']->id) }}" class="btn btn-sm btn-outline-info" title="Tải Word">
+                                            <i class="bi bi-file-earmark-word"></i> Word
+                                        </a>
+                                        @if(str_starts_with($item['data']->Loai ?? '', 'nda'))
+                                            <a href="{{ route('hop-dong.download-nda-pdf', $item['data']->id) }}" class="btn btn-sm btn-outline-danger" title="Tải PDF">
+                                                <i class="bi bi-file-earmark-pdf"></i> PDF
+                                            </a>
+                                        @else
+                                            <a href="{{ route('hop-dong.download-pdf', $item['data']->id) }}" class="btn btn-sm btn-outline-danger" title="Tải PDF">
+                                                <i class="bi bi-file-earmark-pdf"></i> PDF
+                                            </a>
+                                        @endif
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Thời hạn</div>
+                                        <div class="detail-value">
+                                            {{ \Carbon\Carbon::parse($item['data']->NgayBatDau)->format('d/m/Y') }} - 
+                                            {{ $item['data']->NgayKetThuc ? \Carbon\Carbon::parse($item['data']->NgayKetThuc)->format('d/m/Y') : 'Không thời hạn' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            @elseif($item['type'] === 'annex')
+                                <div class="detail-grid">
+                                    @foreach($item['data']->dieuKhoans as $dk)
+                                        <div class="detail-item">
+                                            <div class="detail-label">{{ $dk->noi_dung }}</div>
+                                            <div class="detail-value">{{ number_format($dk->pivot->so_tien, 0, ',', '.') }} VNĐ</div>
+                                        </div>
+                                    @endforeach
+                                    <div class="detail-item" style="grid-column: span 2; display: flex; gap: 12px; margin-top: 8px;">
+                                        <a href="{{ route('hop-dong.download-phu-luc-word', $item['data']->HopDongId) }}" class="btn btn-sm btn-outline-info" title="Tải Word">
+                                            <i class="bi bi-file-earmark-word"></i> Word
+                                        </a>
+                                        <a href="{{ route('hop-dong.download-phu-luc-pdf', $item['data']->HopDongId) }}" class="btn btn-sm btn-outline-danger" title="Tải PDF">
+                                            <i class="bi bi-file-earmark-pdf"></i> PDF
+                                        </a>
+                                    </div>
+                                </div>
+                            @elseif($item['type'] === 'log')
+                                <div>
+                                    @if(!empty($item['data']->DuLieuCu) && !empty($item['data']->DuLieuMoi))
+                                        @php
+                                            $diffs = [];
+                                            $old = $item['data']->DuLieuCu;
+                                            $new = $item['data']->DuLieuMoi;
+                                            $labels = [
+                                                'SoHopDong' => 'Số hợp đồng',
+                                                'LuongCoBan' => 'Lương cơ bản',
+                                                'NgayKetThuc' => 'Ngày kết thúc',
+                                                'TrangThai' => 'Trạng thái',
+                                                'Loai' => 'Loại',
+                                            ];
+                                            foreach($labels as $field => $label) {
+                                                if(isset($old[$field]) && isset($new[$field]) && $old[$field] != $new[$field]) {
+                                                    $oldVal = $old[$field];
+                                                    $newVal = $new[$field];
+
+                                                    // Map values for better display
+                                                    if ($field === 'Loai') {
+                                                        $oldVal = $typeMapping[$oldVal] ?? $oldVal;
+                                                        $newVal = $typeMapping[$newVal] ?? $newVal;
+                                                    } elseif ($field === 'TrangThai') {
+                                                        $oldVal = $statusMapping[$oldVal] ?? $oldVal;
+                                                        $newVal = $statusMapping[$newVal] ?? $newVal;
+                                                    } elseif ($field === 'LuongCoBan') {
+                                                        $oldVal = number_format((float)$oldVal, 0, ',', '.') . ' VNĐ';
+                                                        $newVal = number_format((float)$newVal, 0, ',', '.') . ' VNĐ';
+                                                    }
+
+                                                    $diffs[] = "$label: <span class='diff-removed'>".($oldVal ?? 'Trống')."</span> &rarr; <span class='diff-added'>".($newVal ?? 'Trống')."</span>";
+                                                }
+                                            }
+                                        @endphp
+                                        @if(empty($diffs))
+                                            <div class="secondary-text">Cập nhật thông tin chi tiết</div>
+                                        @else
+                                            <ul style="margin: 0; padding-left: 20px;">
+                                                @foreach($diffs as $diff)
+                                                    <li style="margin-bottom: 4px;">{!! $diff !!}</li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    @else
+                                        <div class="secondary-text">Hành động: {{ $item['data']->HanhDong }}</div>
+                                    @endif
+                                </div>
+                                <div class="timeline-user">
+                                    <i class="bi bi-person-circle"></i>
+                                    Thực hiện bởi: {{ $item['data']->nguoiDung->Ten ?? 'Hệ thống' }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+        </div>
     </div>
 
     @push('scripts')

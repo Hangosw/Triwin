@@ -17,7 +17,8 @@ class ThanNhan extends Model
         'SoDienThoai',
         'LaGiamTruGiaCanh',
         'MaSoThue',
-        'TepDinhKem'
+        'TepDinhKem',
+        'TrangThai'
     ];
 
     protected $casts = [

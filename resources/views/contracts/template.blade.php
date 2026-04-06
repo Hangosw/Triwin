@@ -27,7 +27,7 @@
             padding: 25mm;
             box-sizing: border-box;
             background: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         @media screen and (max-width: 1024px) {
@@ -36,6 +36,7 @@
                 max-width: 100%;
                 overflow-x: hidden;
             }
+
             body {
                 font-size: 12pt;
             }
@@ -123,7 +124,7 @@
             padding: 10px;
             word-wrap: break-word;
         }
-        
+
         @media screen and (max-width: 600px) {
             table.signature td {
                 display: block;
@@ -167,12 +168,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 1050;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(2px);
         }
+
         .signature-modal-content {
             background: white;
             padding: 24px;
@@ -182,6 +184,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             text-align: left;
         }
+
         .signature-pad-wrapper {
             border: 2px dashed #d1d5db;
             border-radius: 8px;
@@ -189,11 +192,13 @@
             margin: 15px 0;
             touch-action: none;
         }
+
         #signature-pad {
             width: 100%;
             height: 200px;
             cursor: crosshair;
         }
+
         .signature-img {
             max-height: 100px;
             max-width: 200px;
@@ -213,7 +218,8 @@
 <body>
 
     <div class="print-btn-container no-print">
-        <button class="print-btn" onclick="window.print()" style="background-color: #6b7280; margin-right: 10px;">In Hợp Đồng</button>
+        <button class="print-btn" onclick="window.print()" style="background-color: #6b7280; margin-right: 10px;">In Hợp
+            Đồng</button>
         @php
             $currentUser = auth()->user();
             $currentNhanVienId = $currentUser?->nhanVien?->id ?? null;
@@ -235,7 +241,7 @@
     <div id="signatureModal" class="signature-modal no-print">
         <div class="signature-modal-content">
             <h3 style="margin-top: 0; color: #0BAA4B;">Kí số hợp đồng</h3>
-            
+
             @if($isAdmin)
                 <div style="margin-bottom: 15px;">
                     <label style="font-weight: 600; display: block; margin-bottom: 8px;">Chọn vị trí ký:</label>
@@ -250,18 +256,24 @@
                 </div>
             @else
                 <input type="hidden" id="sign_position" value="employee">
-                <p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">Bạn đang kí tên với tư cách <strong>Người lao động</strong>.</p>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">Bạn đang kí tên với tư cách <strong>Người
+                        lao động</strong>.</p>
             @endif
 
             <div class="signature-pad-wrapper">
                 <canvas id="signature-pad"></canvas>
             </div>
-            
+
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <button onclick="closeSignatureModal()" style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Hủy</button>
+                <button onclick="closeSignatureModal()"
+                    style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Hủy</button>
                 <div>
-                    <button onclick="clearSignature()" style="background: white; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-right: 8px;">Xóa trắng</button>
-                    <button onclick="saveSignature()" style="background: #0BAA4B; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Hoàn tất</button>
+                    <button onclick="clearSignature()"
+                        style="background: white; border: 1px solid #d1d5db; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-right: 8px;">Xóa
+                        trắng</button>
+                    <button onclick="saveSignature()"
+                        style="background: #0BAA4B; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Hoàn
+                        tất</button>
                 </div>
             </div>
         </div>
@@ -272,7 +284,7 @@
         <table class="header-table">
             <tr>
                 <td style="width: 40%; text-align: center;">
-                    <span class="text-bold">CÔNG TY TNHH PHẦN MỀM</span><br>
+                    <span class="text-bold">CÔNG TY TNHH TRIWIN</span><br>
                     <span>Số: {{ $hopDong->SoHopDong ?? '..... /HĐLĐ' }}</span>
                 </td>
                 <td style="width: 60%; text-align: center;">
@@ -286,12 +298,12 @@
         <h1>HỢP ĐỒNG LAO ĐỘNG</h1>
         <br>
 
-            <span class="text-bold">Chúng tôi, một bên là Ông/Bà:</span> {{ $hopDong->nguoiKy->Ten ?? '...' }} <span
-                style="float: right;">Quốc tịch: Việt Nam</span><br>
-            <span class="text-bold">Chức vụ:</span> Giám đốc<br>
-            <span class="text-bold">Đại diện cho:</span> CÔNG TY TNHH PHẦN MỀM<br>
-            <span class="text-bold">Điện thoại:</span> 0123456789<br>
-            <span class="text-bold">Địa chỉ:</span> 123 Đường Công Nghệ, Phường Sáng Tạo, Quận 1, TP.HCM<br>
+        <span class="text-bold">Chúng tôi, một bên là Ông/Bà:</span> {{ $hopDong->nguoiKy->Ten ?? '...' }} <span
+            style="float: right;">Quốc tịch: Việt Nam</span><br>
+        <span class="text-bold">Chức vụ:</span> Giám đốc<br>
+        <span class="text-bold">Đại diện cho:</span> CÔNG TY TNHH PHẦN MỀM<br>
+        <span class="text-bold">Điện thoại:</span> 0123456789<br>
+        <span class="text-bold">Địa chỉ:</span> 123 Đường Công Nghệ, Phường Sáng Tạo, Quận 1, TP.HCM<br>
         <br>
         <span class="text-bold">Và một bên là Ông/Bà:</span> <span class="text-bold"
             style="text-transform: uppercase;">{{ $hopDong->nhanVien->Ten ?? '...' }}</span> <span
@@ -390,7 +402,8 @@
                 <td id="employee-signature-area">
                     <span class="text-bold">NGƯỜI LAO ĐỘNG</span><br>
                     <span class="text-italic">(Ký, ghi rõ họ tên)</span>
-                    <div class="signature-display" style="height: 120px; display: flex; align-items: center; justify-content: center;">
+                    <div class="signature-display"
+                        style="height: 120px; display: flex; align-items: center; justify-content: center;">
                         <!-- Signature will be inserted here -->
                     </div>
                     <span class="text-bold">{{ $hopDong->nhanVien->Ten ?? '...................' }}</span>
@@ -398,7 +411,8 @@
                 <td id="company-signature-area">
                     <span class="text-bold">ĐẠI DIỆN CÔNG TY</span><br>
                     <span class="text-italic">(Ký, đóng dấu, ghi rõ họ tên)</span>
-                    <div class="signature-display" style="height: 120px; display: flex; align-items: center; justify-content: center;">
+                    <div class="signature-display"
+                        style="height: 120px; display: flex; align-items: center; justify-content: center;">
                         <!-- Signature will be inserted here -->
                     </div>
                     <span class="text-bold">{{ $hopDong->nguoiKy->Ten ?? '...................' }}</span>
@@ -410,20 +424,20 @@
     <!-- Signature Pad Library -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <script>
         let signaturePad;
         const canvas = document.getElementById('signature-pad');
 
         function openSignatureModal() {
             document.getElementById('signatureModal').style.display = 'flex';
-            
+
             if (!signaturePad) {
                 signaturePad = new SignaturePad(canvas, {
                     backgroundColor: 'rgba(255, 255, 255, 0)',
                     penColor: 'rgb(0, 0, 0)'
                 });
-                
+
                 // Adjust canvas size
                 resizeCanvas();
             } else {
@@ -488,7 +502,7 @@
                     const areaId = position === 'employee' ? 'employee-signature-area' : 'company-signature-area';
                     const displayArea = document.querySelector(`#${areaId} .signature-display`);
                     displayArea.innerHTML = `<img src="${result.image_url}" class="signature-img">`;
-                    
+
                     Swal.fire({
                         icon: 'success',
                         title: 'Thành công',

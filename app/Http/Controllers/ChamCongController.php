@@ -108,11 +108,43 @@ class ChamCongController extends Controller
     {
         $request->validate([
             'nhan_vien_id' => 'required|exists:nhan_viens,id',
+            'anh_cham_cong' => 'nullable|string', // Base64 string
         ]);
 
         $now = Carbon::now();
         $today = $now->toDateString();
         $nhanVienId = $request->nhan_vien_id;
+
+        // Process Image if present
+        $imagePath = null;
+        if ($request->anh_cham_cong) {
+            $imageData = $request->anh_cham_cong;
+            if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+                $type = strtolower($type[1]); // jpg, png, gif
+
+                if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                    throw new \Exception('Kiểu file ảnh không hợp lệ.');
+                }
+
+                $imageData = base64_decode($imageData);
+
+                if ($imageData === false) {
+                    throw new \Exception('Dữ liệu ảnh không hợp lệ.');
+                }
+            } else {
+                throw new \Exception('Định dạng ảnh không đúng.');
+            }
+
+            $fileName = 'attendance_' . $nhanVienId . '_' . time() . '.' . $type;
+            $imagePath = 'uploads/attendances/' . $fileName;
+            
+            if (!file_exists(public_path('uploads/attendances'))) {
+                mkdir(public_path('uploads/attendances'), 0777, true);
+            }
+            
+            file_put_contents(public_path($imagePath), $imageData);
+        }
 
         // Lấy ca làm việc từ danh mục ca làm việc (không phụ thuộc lịch làm việc)
         $caLamViec = \App\Models\DmCaLamViec::first();
@@ -136,11 +168,6 @@ class ChamCongController extends Controller
         // Setup work times based on the shift
         $startWorkTime = $caLamViec->GioVao;
         $endWorkTime = $caLamViec->GioRa;
-
-        // Check if there is already a record for today
-        $attendance = ChamCong::where('NhanVienId', $nhanVienId)
-            ->whereDate('Vao', $today)
-            ->first();
 
         // Check if there is already a record for today
         $attendance = ChamCong::where('NhanVienId', $nhanVienId)
@@ -176,7 +203,8 @@ class ChamCongController extends Controller
                 'Vao' => $now,
                 'Loai' => $loai,
                 'TangCaId' => $tangCaId,
-                'TrangThai' => $status
+                'TrangThai' => $status,
+                'AnhChamCong' => $imagePath // Lưu ảnh vào đây
             ]);
 
             $msg = $loai == 1 ? 'Vào ca TĂNG CA' : 'Vào làm';
@@ -210,7 +238,8 @@ class ChamCongController extends Controller
 
                     $attendance->update([
                         'Ra' => $otStartTime,
-                        'TrangThai' => $currentStatus
+                        'TrangThai' => $currentStatus,
+                        'AnhChamCong' => $attendance->AnhChamCong ?: $imagePath // Giữ ảnh cũ nếu có, không thì dùng ảnh mới
                     ]);
 
                     // 2. Tạo bản ghi mới cho ca Tăng ca (từ otStartTime đến bây giờ)
@@ -220,7 +249,8 @@ class ChamCongController extends Controller
                         'Ra' => $now,
                         'Loai' => 1,
                         'TangCaId' => $approvedOT->id,
-                        'TrangThai' => 'dung_gio'
+                        'TrangThai' => 'dung_gio',
+                        'AnhChamCong' => $imagePath // Lưu ảnh mới cho ca tăng ca
                     ]);
 
                     return response()->json([
@@ -247,7 +277,8 @@ class ChamCongController extends Controller
 
             $attendance->update([
                 'Ra' => $now,
-                'TrangThai' => $currentStatus
+                'TrangThai' => $currentStatus,
+                'AnhChamCong' => $imagePath // Cập nhật ảnh (thường là ghi đè hoặc giữ nguyên tùy theo logic check-out)
             ]);
 
             return response()->json([

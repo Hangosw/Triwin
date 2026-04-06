@@ -40,10 +40,10 @@ class LichSu extends Model
     ];
 
     /**
-     * Relationship with NhanVien
+     * Relationship with NguoiDung (User)
      */
-    public function nhanVien()
+    public function nguoiDung()
     {
-        return $this->belongsTo(NhanVien::class, 'NhanVienId', 'id');
+        return $this->belongsTo(NguoiDung::class, 'NhanVienId', 'id');
     }
 }

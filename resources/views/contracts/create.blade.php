@@ -349,6 +349,7 @@
                         <option value="5" @if(isset($isRenew) && $oldContract->Loai == 'thoi_vu') selected @endif data-ma="HDTV" data-loai="thoi_vu">Hợp đồng thời vụ</option>
                         <option value="7" @if(isset($isRenew) && str_starts_with($oldContract->Loai ?? '', 'nda')) selected @endif data-ma="NDA" data-loai="nda">Thỏa thuận bảo mật (NDA)</option>
                     </select>
+                    <input type="hidden" name="loai" id="loaiInput" value="{{ isset($isRenew) ? ($oldContract->Loai ?? '') : '' }}">
                 </div>
 
                 <div class="form-group">
@@ -717,11 +718,8 @@
                     const soHopDong = `${String(contractCounter).padStart(3, '0')}/${currentYear}/${maLoai}`;
 
                     document.getElementById('soHopDong').value = soHopDong;
-                    document.getElementById('contractNumberDisplay').textContent = soHopDong;
-                    document.getElementById('contractPreview').style.display = 'block';
                 } else {
                     document.getElementById('soHopDong').value = 'Tự động tạo';
-                    document.getElementById('contractPreview').style.display = 'none';
                 }
             }
 
@@ -796,8 +794,7 @@
             }
 
             // Form validation
-            // document.querySelector('form').addEventListener('submit', function (e) { // Original
-            $('#contractForm').on('submit', function (e) { // jQuery for form submission
+            $('#contractForm').on('submit', function (e) {
                 const requiredFields = this.querySelectorAll('[required]');
                 let isValid = true;
 

@@ -333,7 +333,9 @@
         }
 
         .btn-secondary:hover {
-            background-color: #f9fafb;
+            background-color: #f3f4f6;
+            color: #111827;
+            border-color: #9ca3af;
         }
 
         /* Input Styles */
@@ -949,6 +951,53 @@
             }
         }
 
+        /* Global Select2 Custom Styling to match Form Control */
+        .select2-container--default .select2-selection--single {
+            height: 42px !important;
+            padding: 6px 12px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            background-color: white !important;
+            transition: all 0.2s !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: normal !important;
+            padding-left: 4px !important;
+            color: #374151 !important;
+            font-size: 14px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+            right: 12px !important;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.1) !important;
+            outline: none !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__clear {
+            margin-right: 12px !important;
+            color: #ef4444 !important;
+            font-size: 18px !important;
+        }
+
+        .select2-dropdown {
+            border-color: #d1d5db !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            z-index: 9999 !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #0BAA4B !important;
+        }
+
         /* ========================================
            DARK THEME — Modern Deep Dark
            Background : #0f1117  (near-black)
@@ -1220,9 +1269,12 @@
             border-color: #2e3349;
         }
 
-        body.dark-theme small,
-        body.dark-theme .text-muted {
-            color: #6b7492 !important;
+        /* Disable Select2 in restricted areas */
+        .no-select2-parent .select2-container,
+        .dataTables_length .select2-container,
+        .swal2-container .select2-container,
+        .swal2-container select {
+            display: none !important;
         }
     </style>
 
@@ -1848,7 +1900,14 @@
         // Global Select2 Initialization
         $(document).ready(function () {
             function initSelect2(container) {
-                $(container).find('select:not(.no-select2):not(.select2-hidden-accessible):not(.flatpickr-monthDropdown-months)').each(function () {
+                $(container).find('select').filter(function() {
+                    const $select = $(this);
+                    return !$select.hasClass('no-select2') && 
+                           !$select.hasClass('select2-hidden-accessible') && 
+                           !$select.hasClass('flatpickr-monthDropdown-months') && 
+                           $select.closest('.no-select2, .no-select2-parent, .dataTables_length, .swal2-container, .swal2-popup').length === 0 &&
+                           !($select.attr('name') && $select.attr('name').endsWith('_length'));
+                }).each(function () {
                     const dropdownParent = $(this).closest('.modal').length ? $(this).closest('.modal') : null;
                     $(this).select2({
                         width: '100%',

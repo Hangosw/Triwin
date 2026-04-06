@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/sua/{id}', [NguoiDungController::class, 'CapNhat'])->name('cap-nhat')->middleware('permission:Chỉnh Sửa Người Dùng');
         Route::post('/xoa/{id}', [NguoiDungController::class, 'Xoa'])->name('xoa')->middleware('permission:Xóa Người Dùng');
         Route::post('/xoa-nhieu', [NguoiDungController::class, 'XoaNhieu'])->name('xoa-nhieu')->middleware('permission:Xóa Người Dùng');
+        Route::post('/toggle-status/{id}', [NguoiDungController::class, 'toggleStatus'])->name('toggle-status')->middleware('permission:Chỉnh Sửa Người Dùng');
     });
 
 
@@ -113,6 +114,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/download-word', [HopDongController::class, 'downloadWord'])->name('download-word')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
         Route::get('/{id}/download-nda-word', [HopDongController::class, 'downloadNDAWord'])->name('download-nda-word')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
         Route::get('/{id}/download-phu-luc-word', [HopDongController::class, 'downloadPhuLucWord'])->name('download-phu-luc-word')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+        
+        // PDF Downloads
+        Route::get('/{id}/download-pdf', [HopDongController::class, 'downloadPDF'])->name('download-pdf')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+        Route::get('/{id}/download-nda-pdf', [HopDongController::class, 'downloadNDAPDF'])->name('download-nda-pdf')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+        Route::get('/{id}/download-phu-luc-pdf', [HopDongController::class, 'downloadPhuLucPDF'])->name('download-phu-luc-pdf')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
+
         Route::get('/{id}/print', [HopDongController::class, 'print'])->name('print')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
         Route::get('/{id}/print-phu-luc', [HopDongController::class, 'printPhuLuc'])->name('print-phu-luc')->middleware('permission:Xem Danh Sách Hợp Đồng|Xem Hợp Đồng Cá Nhân');
         Route::get('/tai-ki/{id}', [HopDongController::class, 'RenewView'])->name('renew')->middleware('permission:Sửa Hợp Đồng');
@@ -164,8 +171,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('nghi-phep')->name('nghi-phep.')->group(function () {
         Route::get('/ca-nhan', [NghiPhepController::class, 'CaNhanView'])->name('ca-nhan');
+        Route::get('/dang-ky', [NghiPhepController::class, 'DangKyView'])->name('dang-ky');
         Route::post('/tao-moi', [NghiPhepController::class, 'TaoMoi'])->name('tao-moi');
         Route::get('/danh-sach', [NghiPhepController::class, 'DanhSachView'])->name('danh-sach')->middleware('permission:Xem Danh Sách Nghỉ Phép');
+        Route::get('/admin-dang-ky', [NghiPhepController::class, 'AdminDangKyView'])->name('admin-dang-ky')->middleware('permission:Xem Danh Sách Nghỉ Phép');
         Route::get('/con-lai', [NghiPhepController::class, 'DanhSachConLaiView'])->name('con-lai')->middleware('permission:Xem Danh Sách Nghỉ Phép');
         Route::post('/duyet/{id}', [NghiPhepController::class, 'Duyet'])->name('duyet')->middleware('permission:Duyệt Nghỉ Phép');
         Route::post('/tu-choi/{id}', [NghiPhepController::class, 'TuChoi'])->name('tu-choi')->middleware('permission:Duyệt Nghỉ Phép');
@@ -188,6 +197,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Thân nhân
     Route::post('/than-nhan/tao', [\App\Http\Controllers\ThanNhanController::class, 'store'])->name('than-nhan.tao');
+    Route::post('/than-nhan/duyet/{id}', [\App\Http\Controllers\ThanNhanController::class, 'approve'])->name('than-nhan.duyet');
     Route::post('/than-nhan/xoa/{id}', [\App\Http\Controllers\ThanNhanController::class, 'destroy'])->name('than-nhan.xoa');
 
     // Công tác
@@ -252,6 +262,7 @@ Route::prefix('salary')->name('salary.')->group(function () {
     Route::get('/detail/{id?}', [LuongController::class, 'DetailView'])->name('detail');
     Route::get('/slip/{id}', [LuongController::class, 'SlipView'])->name('slip');
     Route::get('/tinh-luong/{id}', [LuongController::class, 'TinhLuong'])->name('tinh-luong');
+    Route::post('/tinh-luong-update/{id}', [LuongController::class, 'UpdateSingleSalary'])->name('update-single');
     Route::post('/tinh-luong-hang-loat', [LuongController::class, 'TinhLuongHangLoat'])->name('tinh-luong-hang-loat');
     Route::get('/config-global', [LuongController::class, 'ConfigGlobalView'])->name('config-global');
     Route::post('/config-global', [LuongController::class, 'SaveConfigGlobal'])->name('config-global.save');

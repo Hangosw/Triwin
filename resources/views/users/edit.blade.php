@@ -113,90 +113,8 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // Simplified: all roles enabled as Unit scoping is removed
-            $('.role-checkbox').prop('disabled', false);
-            $('#roles-container').css({
-                'background-color': 'transparent',
-                'opacity': '1'
-            });
-            $('.role-label').css('cursor', 'pointer');
-            $('#role-hint').hide();
-
-            // Toggle permissions container
-            $('#togglePermissions').on('click', function () {
-                const $container = $('#permissions-container');
-                const $icon = $('#toggleIcon');
-                const $label = $('#toggleLabel');
-                if ($container.is(':hidden')) {
-                    $container.slideDown(200);
-                    $icon.css('transform', 'rotate(180deg)');
-                    $label.text('Ẩn danh sách quyền');
-                } else {
-                    $container.slideUp(200);
-                    $icon.css('transform', 'rotate(0deg)');
-                    $label.text('Hiển thị danh sách quyền');
-                }
-            });
-
-            // Select all permissions
-            $('#selectAllPermissions').on('change', function () {
-                $('.perm-checkbox').prop('checked', this.checked);
-                updatePermCount();
-            });
-
-            // Khi thay đổi từng checkbox quyền
-            $(document).on('change', '.perm-checkbox', function () {
-                const gi = $(this).data('group');
-                updateGroupCheckbox(gi);
-                updateGlobalCheckbox();
-                updatePermCount();
-            });
-
-            // Checkbox chọn cả nhóm
-            $(document).on('change', '.group-select-all', function () {
-                const gi = $(this).data('group');
-                const checked = this.checked;
-                $(`.perm-checkbox[data-group="${gi}"]`).prop('checked', checked);
-                updateGlobalCheckbox();
-                updatePermCount();
-            });
-
-            function updateGroupCheckbox(gi) {
-                const $groupBoxes = $(`.perm-checkbox[data-group="${gi}"]`);
-                const total = $groupBoxes.length;
-                const checked = $groupBoxes.filter(':checked').length;
-                const $groupAll = $(`.group-select-all[data-group="${gi}"]`);
-                $groupAll.prop('checked', checked === total)
-                         .prop('indeterminate', checked > 0 && checked < total);
-            }
-
-            function updateGlobalCheckbox() {
-                const total = $('.perm-checkbox').length;
-                const checked = $('.perm-checkbox:checked').length;
-                $('#selectAllPermissions').prop('checked', total === checked)
-                    .prop('indeterminate', checked > 0 && checked < total);
-            }
-
-            function updatePermCount() {
-                const checked = $('.perm-checkbox:checked').length;
-                const total = $('.perm-checkbox').length;
-                $('#permSelectedCount').text(checked + ' / ' + total + ' được chọn');
-            }
-
-            // Init trạng thái ban đầu của tất cả group checkboxes
-            $('.group-select-all').each(function() {
-                updateGroupCheckbox($(this).data('group'));
-            });
-
-            // Auto-expand if user already has some direct permissions
-            const initialChecked = $('.perm-checkbox:checked').length;
-            if (initialChecked > 0) {
-                $('#permissions-container').show();
-                $('#toggleIcon').css('transform', 'rotate(180deg)');
-                $('#toggleLabel').text('Ẩn danh sách quyền');
-                updateGlobalCheckbox();
-                updatePermCount();
-            }
+            // All script logic is consolidated in the push('scripts') block at the bottom of the file
+            // to prevent duplication and toggle conflicts.
         });
     </script>
 @endpush
@@ -432,90 +350,121 @@
 <script>
     const rolePermissions = @json($rolePermissions);
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.getElementById('togglePermissions');
-        const container = document.getElementById('permissions-container');
-        const toggleIcon = document.getElementById('toggleIcon');
-        const toggleLabel = document.getElementById('toggleLabel');
-        const selectAllChk = document.getElementById('selectAllPermissions');
-        const permCheckboxes = document.querySelectorAll('.perm-checkbox');
-        const roleCheckboxes = document.querySelectorAll('.role-checkbox');
-        const counter = document.getElementById('permSelectedCount');
+    $(document).ready(function() {
+        const $toggleBtn = $('#togglePermissions');
+        const $container = $('#permissions-container');
+        const $toggleIcon = $('#toggleIcon');
+        const $toggleLabel = $('#toggleLabel');
+        const $selectAllChk = $('#selectAllPermissions');
+        const $permCheckboxes = $('.perm-checkbox');
+        const $roleCheckboxes = $('.role-checkbox');
+        const $counter = $('#permSelectedCount');
 
-        // 1. Toggle show/hide permissions
-        toggleBtn?.addEventListener('click', function() {
-            const isHidden = container.style.display === 'none';
-            container.style.display = isHidden ? 'block' : 'none';
-            toggleIcon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-            toggleLabel.textContent = isHidden ? 'Thu gọn danh sách quyền' : 'Hiển thị danh sách quyền';
+        // 1. Toggle show/hide permissions with slide effect
+        $toggleBtn.on('click', function() {
+            $container.slideToggle(200, function() {
+                const isVisible = $container.is(':visible');
+                $toggleIcon.css('transform', isVisible ? 'rotate(180deg)' : 'rotate(0deg)');
+                $toggleLabel.text(isVisible ? 'Thu gọn danh sách quyền' : 'Hiển thị danh sách quyền');
+            });
         });
 
         // 2. Select All permissions
-        selectAllChk?.addEventListener('change', function() {
-            permCheckboxes.forEach(cb => {
-                cb.checked = this.checked;
-            });
+        $selectAllChk.on('change', function() {
+            $permCheckboxes.prop('checked', this.checked);
+            updateAllGroupCheckboxes();
             updateCounter();
         });
 
         // 3. Select by Group
-        document.querySelectorAll('.group-select-all').forEach(groupChk => {
-            groupChk.addEventListener('change', function() {
-                const groupId = this.dataset.group;
-                document.querySelectorAll(`.perm-checkbox[data-group="${groupId}"]`).forEach(cb => {
-                    cb.checked = this.checked;
-                });
-                updateCounter();
-            });
+        $(document).on('change', '.group-select-all', function() {
+            const groupId = $(this).data('group');
+            $(`.perm-checkbox[data-group="${groupId}"]`).prop('checked', this.checked);
+            updateGlobalCheckbox();
+            updateCounter();
         });
 
-        // 4. Update counter
-        function updateCounter() {
-            const total = permCheckboxes.length;
-            const checked = document.querySelectorAll('.perm-checkbox:checked').length;
-            if (counter) counter.textContent = `${checked} / ${total} được chọn`;
-            if (selectAllChk) selectAllChk.checked = (checked === total && total > 0);
+        // 4. Update individual permission change
+        $(document).on('change', '.perm-checkbox', function() {
+            const groupId = $(this).data('group');
+            updateGroupCheckbox(groupId);
+            updateGlobalCheckbox();
+            updateCounter();
+        });
+
+        function updateGroupCheckbox(gi) {
+            const $groupBoxes = $(`.perm-checkbox[data-group="${gi}"]`);
+            const total = $groupBoxes.length;
+            const checked = $groupBoxes.filter(':checked').length;
+            $(`.group-select-all[data-group="${gi}"]`)
+                .prop('checked', checked === total)
+                .prop('indeterminate', checked > 0 && checked < total);
         }
 
-        permCheckboxes.forEach(cb => {
-            cb.addEventListener('change', updateCounter);
-        });
+        function updateAllGroupCheckboxes() {
+            $('.group-select-all').each(function() {
+                updateGroupCheckbox($(this).data('group'));
+            });
+        }
+
+        function updateGlobalCheckbox() {
+            const total = $permCheckboxes.length;
+            const checked = $permCheckboxes.filter(':checked').length;
+            $selectAllChk.prop('checked', total === checked && total > 0)
+                         .prop('indeterminate', checked > 0 && checked < total);
+        }
+
+        function updateCounter() {
+            const total = $permCheckboxes.length;
+            const checked = $permCheckboxes.filter(':checked').length;
+            $counter.text(`${checked} / ${total} được chọn`);
+        }
 
         // 5. Sync Roles -> Permissions
-        roleCheckboxes.forEach(roleCb => {
-            roleCb.addEventListener('change', function() {
-                const roleName = this.value;
-                const perms = rolePermissions[roleName] || [];
+        $roleCheckboxes.on('change', function() {
+            const roleName = $(this).val();
+            const perms = rolePermissions[roleName] || [];
+            
+            if (this.checked) {
+                // Check all permissions of this role
+                perms.forEach(pName => {
+                    $(`.perm-checkbox[value="${pName}"]`).prop('checked', true);
+                });
+            } else {
+                // Uncheck only if not granted by other selected roles
+                const otherSelectedRoles = $roleCheckboxes.filter(':checked').map(function() {
+                    return $(this).val();
+                }).get();
                 
-                if (this.checked) {
-                    // Check all permissions of this role
-                    perms.forEach(pName => {
-                        const cb = document.querySelector(`.perm-checkbox[value="${pName}"]`);
-                        if (cb) cb.checked = true;
-                    });
-                } else {
-                    // Uncheck only if not granted by other selected roles
-                    const otherSelectedRoles = Array.from(roleCheckboxes)
-                        .filter(cb => cb.checked)
-                        .map(cb => cb.value);
-                    
-                    const permsFromOtherRoles = [];
-                    otherSelectedRoles.forEach(r => {
-                        if (rolePermissions[r]) {
-                            permsFromOtherRoles.push(...rolePermissions[r]);
-                        }
-                    });
+                const permsFromOtherRoles = [];
+                otherSelectedRoles.forEach(r => {
+                    if (rolePermissions[r]) {
+                        permsFromOtherRoles.push(...rolePermissions[r]);
+                    }
+                });
 
-                    perms.forEach(pName => {
-                        if (!permsFromOtherRoles.includes(pName)) {
-                            const cb = document.querySelector(`.perm-checkbox[value="${pName}"]`);
-                            if (cb) cb.checked = false;
-                        }
-                    });
-                }
-                updateCounter();
-            });
+                perms.forEach(pName => {
+                    if (!permsFromOtherRoles.includes(pName)) {
+                        $(`.perm-checkbox[value="${pName}"]`).prop('checked', false);
+                    }
+                });
+            }
+            updateAllGroupCheckboxes();
+            updateGlobalCheckbox();
+            updateCounter();
         });
+
+        // Initial setup
+        updateAllGroupCheckboxes();
+        updateGlobalCheckbox();
+        updateCounter();
+
+        // Auto-expand if permissions exist
+        if ($permCheckboxes.filter(':checked').length > 0) {
+            $container.show();
+            $toggleIcon.css('transform', 'rotate(180deg)');
+            $toggleLabel.text('Thu gọn danh sách quyền');
+        }
     });
 </script>
 

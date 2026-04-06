@@ -10,6 +10,7 @@ use App\Models\NhanVien;
 use App\Models\NgachLuong;
 use App\Models\PhuLucHopDong;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HopDongController extends Controller
 {
@@ -95,11 +96,36 @@ class HopDongController extends Controller
             'phongBan',
             'chucVu',
             'loaiHopDong',
-            'phuCaps', // Load dynamic allowances
-            'phuLucs' => function($query) {
-                $query->with('dieuKhoans')->orderBy('created_at', 'desc');
-            }
+            'phuCaps',
+            'phuLucs.dieuKhoans'
         ])->findOrFail($id);
+
+        $this->checkAuthority($hopDong);
+
+        // Determine category (Labor vs NDA)
+        $isNDA = str_starts_with($hopDong->Loai ?? '', 'nda');
+        
+        // Fetch ALL related historical contracts for this employee of the same category
+        $historyContracts = \App\Models\HopDong::where('NhanVienId', $hopDong->NhanVienId)
+            ->where(function($q) use ($isNDA) {
+                if ($isNDA) {
+                    $q->where('Loai', 'like', 'nda%');
+                } else {
+                    $q->where('Loai', 'not like', 'nda%');
+                }
+            })
+            ->with(['phuLucs.dieuKhoans', 'loaiHopDong'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $allContractIds = $historyContracts->pluck('id')->toArray();
+
+        // Fetch activity logs related to these contracts
+        $activityLogs = \App\Models\LichSu::where('DoiTuongLoai', 'HopDong')
+            ->whereIn('DoiTuongId', $allContractIds)
+            ->with('nguoiDung')
+            ->orderBy('CreatedAt', 'desc')
+            ->get();
 
         // Tìm tài liệu liên quan của nhân viên này
         $laborContract = \App\Models\HopDong::where('NhanVienId', $hopDong->NhanVienId)
@@ -117,7 +143,14 @@ class HopDongController extends Controller
 
         $this->checkAuthority($hopDong);
 
-        return view('contracts.show', compact('hopDong', 'allAllowances', 'laborContract', 'ndaContract'));
+        return view('contracts.show', compact(
+            'hopDong', 
+            'allAllowances', 
+            'laborContract', 
+            'ndaContract',
+            'historyContracts',
+            'activityLogs'
+        ));
     }
 
     public function XoaNhieu(Request $request)
@@ -803,6 +836,70 @@ class HopDongController extends Controller
         return view('contracts.template.pluc', compact('hopDong', 'phuLuc', 'kySo', 'isAdmin', 'canSign'));
     }
 
+    public function downloadPDF($id)
+    {
+        $hopDong = \App\Models\HopDong::with(['nhanVien', 'chucVu', 'phongBan', 'loaiHopDong', 'nguoiKy', 'kySo'])->findOrFail($id);
+        $this->checkAuthority($hopDong);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('contracts.template', compact('hopDong'));
+        $fileName = 'HDLD_' . str_replace(['/', '\\'], '-', $hopDong->SoHopDong) . '.pdf';
+        
+        return $pdf->download($fileName);
+    }
+
+    public function downloadNDAPDF($id)
+    {
+        $hopDong = \App\Models\HopDong::with(['nhanVien', 'chucVu', 'phongBan', 'loaiHopDong', 'nguoiKy', 'kySo'])->findOrFail($id);
+        $this->checkAuthority($hopDong);
+
+        $nv = $hopDong->nhanVien;
+        $ngayBatDau = \Carbon\Carbon::parse($hopDong->NgayBatDau);
+        $now = \Carbon\Carbon::now();
+
+        $data = [
+            'hopDong' => $hopDong,
+            'employee_name' => $nv ? strtoupper($nv->Ten) : '',
+            'employee_dob' => $nv && $nv->NgaySinh ? \Carbon\Carbon::parse($nv->NgaySinh)->format('d/m/Y') : '',
+            'employee_permanent_address' => $nv ? ($nv->DiaChi ?? '') : '',
+            'employee_current_address' => $nv ? ($nv->DiaChi ?? '') : '',
+            'employee_cccd' => $nv ? ($nv->SoCCCD ?? '') : '',
+            'employee_cccd_date' => $nv && $nv->NgayCap ? \Carbon\Carbon::parse($nv->NgayCap)->format('d/m/Y') : '',
+            'contract_number' => $hopDong->SoHopDong ?? '',
+            'contract_date' => $ngayBatDau->format('d/m/Y'),
+            'sign_day' => $now->day,
+            'sign_month' => $now->month,
+            'sign_year' => $now->year,
+            'employee_position' => $hopDong->chucVu ? $hopDong->chucVu->TenChucVu : ($nv->ttCongViec?->chucVu?->TenChucVu ?? ''),
+            'employee_department' => $hopDong->phongBan ? $hopDong->phongBan->TenPhongBan : ($nv->ttCongViec?->phongBan?->TenPhongBan ?? ''),
+            'kySo' => $hopDong->kySo,
+            'isAdmin' => auth()->user() && (auth()->user()->hasRole('Admin') || auth()->user()->id == $hopDong->NguoiKyId),
+            'canSign' => true,
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('contracts.template.nda', $data);
+        $fileName = 'NDA_' . str_replace(['/', '\\'], '-', $hopDong->SoHopDong) . '.pdf';
+        
+        return $pdf->download($fileName);
+    }
+
+    public function downloadPhuLucPDF($id)
+    {
+        $hopDong = \App\Models\HopDong::with(['nhanVien', 'chucVu', 'phongBan', 'nguoiKy', 'phuLucs.dieuKhoans', 'phuLucs.kySo'])->findOrFail($id);
+        $this->checkAuthority($hopDong);
+
+        $phuLuc = $hopDong->phuLucs()->latest()->first();
+        if (!$phuLuc) return redirect()->back()->with('error', 'Hợp đồng này chưa có phụ lục.');
+
+        $kySo = $phuLuc->kySo;
+        $isAdmin = auth()->user() && (auth()->user()->hasRole('Admin') || auth()->user()->id == $hopDong->NguoiKyId);
+        $canSign = true;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('contracts.template.pluc', compact('hopDong', 'phuLuc', 'kySo', 'isAdmin', 'canSign'));
+        $fileName = 'PLHD_' . str_replace(['/', '\\'], '-', $hopDong->SoHopDong) . '.pdf';
+        
+        return $pdf->download($fileName);
+    }
+
 
     public function SuaView($id)
     {
@@ -943,64 +1040,147 @@ class HopDongController extends Controller
                 $data['File'] = 'uploads/contracts/' . $filename;
             }
 
-            \DB::transaction(function () use ($hopDong, $data, $request, $allowanceData) {
-                // 1. Detect financial changes
-                $oldLuongCoBan = (float) $hopDong->LuongCoBan;
-                $newLuongCoBan = (float) $data['LuongCoBan'];
-                
-                $oldAllowances = $hopDong->phuCaps->pluck('pivot.so_tien', 'id')->toArray();
-                $newAllowances = collect($allowanceData)->map(fn($item) => (float) $item['so_tien'])->toArray();
+            \DB::transaction(function () use (&$hopDong, $data, $request, $allowanceData) {
+                // 1. Detect core and financial changes for Versioning
+                $fieldsToReview = [
+                    'SoHopDong', 'Loai', 'loai_hop_dong_id', 'PhongBanId', 'ChucVuId', 
+                    'NgayBatDau', 'NgayKetThuc', 'TrangThai', 'LuongCoBan'
+                ];
 
-                // Sort keys to ensure consistent comparison
-                ksort($oldAllowances);
-                ksort($newAllowances);
+                $hasVersioningChanges = false;
+                foreach ($fieldsToReview as $field) {
+                    $oldVal = $hopDong->{$field};
+                    $newVal = $data[$field] ?? null;
 
-                $financialChanged = ($oldLuongCoBan !== $newLuongCoBan) || ($oldAllowances != $newAllowances);
+                    // Handle date comparison (Carbon objects vs strings)
+                    if (($field === 'NgayBatDau' || $field === 'NgayKetThuc') && $oldVal instanceof \Carbon\Carbon) {
+                        $oldVal = $oldVal->toDateString();
+                    }
 
-                // 2. Update current state (always update the main contract's allowances)
-                $hopDong->update($data);
-                $hopDong->phuCaps()->sync($allowanceData);
-
-                // 3. Handle Addendum History
-                if ($financialChanged) {
-                    // Deactivate old addendums for this contract
-                    \App\Models\PhuLucHopDong::where('HopDongId', $hopDong->id)
-                        ->update(['TrangThai' => 0]);
-
-                    // Create a NEW addendum as the active one
-                    $phuLuc = \App\Models\PhuLucHopDong::create([
-                        'HopDongId' => $hopDong->id,
-                        'ten_phu_luc' => 'Phụ lục điều chỉnh tiền lương & phụ cấp',
-                        'ngay_ky' => $data['NgayBatDau'],
-                        'TrangThai' => 1
-                    ]);
-                    
-                    // Link the new allowances to this specific addendum
-                    $phuLuc->dieuKhoans()->sync($allowanceData);
+                    if ($oldVal != $newVal) {
+                        $hasVersioningChanges = true;
+                        break;
+                    }
                 }
 
-                // Update DienBienLuong if ngach/bac changed
-                if ($request->filled('ngach_luong_id') && $request->filled('bac_luong_id')) {
-                    \App\Models\DienBienLuong::updateOrCreate(
-                        ['HopDongId' => $hopDong->id],
-                        [
-                            'NhanVienId' => $hopDong->NhanVienId,
-                            'NgachLuongId' => (int) $request->ngach_luong_id,
-                            'BacLuongId' => (int) $request->bac_luong_id,
-                            'NgayHuong' => $data['NgayBatDau'],
-                        ]
+                // Check also Ngach/Bac changes in DienBienLuong
+                $oldDienBien = $hopDong->dienBienLuong;
+                $newNgachId = $request->filled('ngach_luong_id') ? (int) $request->ngach_luong_id : null;
+                $newBacId = $request->filled('bac_luong_id') ? (int) $request->bac_luong_id : null;
+                
+                if (!$hasVersioningChanges) {
+                    if ($oldDienBien) {
+                        if ($oldDienBien->NgachLuongId != $newNgachId || $oldDienBien->BacLuongId != $newBacId) {
+                            $hasVersioningChanges = true;
+                        }
+                    } elseif ($newNgachId || $newBacId) {
+                        $hasVersioningChanges = true;
+                    }
+                }
+
+                if ($hasVersioningChanges) {
+                    // VERSIONING LOGIC: Retire old, Create new
+                    
+                    // B. Create NEW contract data (Successor)
+                    $newData = array_merge($data, [
+                        'NhanVienId' => $hopDong->NhanVienId, // Safety: ensure it doesn't change
+                        'NguoiKyId' => $hopDong->NguoiKyId,   // Safety: ensure it doesn't change
+                        'File' => $data['File'] ?? $hopDong->File // Carry over old file if new one isn't provided
+                    ]);
+
+                    // Log the versioning event
+                    \App\Services\SystemLogService::log(
+                        'Phiên bản mới',
+                        'HopDong',
+                        $hopDong->id,
+                        'Hợp đồng được cập nhật và tạo phiên bản mới (Successor)',
+                        $hopDong->toArray(),
+                        $newData
                     );
+
+                    // A. Update current (old) contract
+                    $hopDong->update([
+                        'TrangThai' => 0,
+                        'NgayKetThuc' => now()->format('Y-m-d')
+                    ]);
+
+                    $newHopDong = \App\Models\HopDong::create($newData);
+
+                    // C. Sync allowances to new contract
+                    if (!empty($allowanceData)) {
+                        $newHopDong->phuCaps()->sync($allowanceData);
+                    }
+
+                    // D. Create Phụ lục hợp đồng for the new version (if financial change)
+                    $oldAllowances = $hopDong->phuCaps->pluck('pivot.so_tien', 'id')->toArray();
+                    $newAllowances = collect($allowanceData)->map(fn($item) => (float) $item['so_tien'])->toArray();
+                    ksort($oldAllowances);
+                    ksort($newAllowances);
+                    
+                    $financialChanged = ((float)$hopDong->LuongCoBan !== (float)$newHopDong->LuongCoBan) || ($oldAllowances != $newAllowances);
+
+                    if ($financialChanged) {
+                        $phuLuc = \App\Models\PhuLucHopDong::create([
+                            'HopDongId' => $newHopDong->id,
+                            'ten_phu_luc' => 'Phụ lục điều chỉnh tiền lương & phụ cấp',
+                            'ngay_ky' => $data['NgayBatDau'],
+                            'TrangThai' => 1
+                        ]);
+                        $phuLuc->dieuKhoans()->sync($allowanceData);
+                    }
+
+                    // E. Create NEW DienBienLuong for the new contract
+                    if ($newNgachId && $newBacId) {
+                        \App\Models\DienBienLuong::create([
+                            'NhanVienId' => $newHopDong->NhanVienId,
+                            'HopDongId' => $newHopDong->id,
+                            'NgachLuongId' => $newNgachId,
+                            'BacLuongId' => $newBacId,
+                            'NgayHuong' => $data['NgayBatDau'],
+                        ]);
+                    }
+
+                    // For the response/routing
+                    $hopDong = $newHopDong;
+
+                } else {
+                    // STANDARD UPDATE LOGIC (No versioning changes)
+                    $oldData = $hopDong->toArray();
+                    $hopDong->update($data);
+                    $hopDong->phuCaps()->sync($allowanceData);
+
+                    \App\Services\SystemLogService::log(
+                        'Cập nhật',
+                        'HopDong',
+                        $hopDong->id,
+                        'Cập nhật thông tin hợp đồng',
+                        $oldData,
+                        $hopDong->fresh()->toArray()
+                    );
+
+                    if ($newNgachId && $newBacId) {
+                        \App\Models\DienBienLuong::updateOrCreate(
+                            ['HopDongId' => $hopDong->id],
+                            [
+                                'NhanVienId' => $hopDong->NhanVienId,
+                                'NgachLuongId' => $newNgachId,
+                                'BacLuongId' => $newBacId,
+                                'NgayHuong' => $data['NgayBatDau'],
+                            ]
+                        );
+                    }
                 }
             });
 
             if (request()->wantsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Hợp đồng đã được cập nhật thành công!'
+                    'message' => 'Hợp đồng đã được cập nhật thành công!',
+                    'redirect_url' => route('hop-dong.info', $hopDong->id)
                 ]);
             }
 
-            return redirect()->route('hop-dong.info', $id)->with('success', 'Hợp đồng đã được cập nhật thành công!');
+            return redirect()->route('hop-dong.info', $hopDong->id)->with('success', 'Hợp đồng đã được cập nhật thành công!');
 
         } catch (\Exception $e) {
             if (request()->wantsJson() || request()->ajax()) {

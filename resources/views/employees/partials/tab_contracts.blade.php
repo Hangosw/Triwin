@@ -21,6 +21,16 @@
                 grid-template-columns: 1fr;
             }
         }
+        .badge-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
         .contract-card {
             background: #ffffff;
             border: 1px solid #e5e7eb;
@@ -73,7 +83,7 @@
                     <a href="{{ route('hop-dong.download-word', $latestLabor->id) }}" title="Tải file Word" style="color: #2563eb; font-size: 18px;">
                         <i class="bi bi-file-earmark-word"></i>
                     </a>
-                    <a href="{{ route('hop-dong.print', $latestLabor->id) }}" target="_blank" title="In PDF" style="color: #dc2626; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-pdf', $latestLabor->id) }}" title="Tải file PDF" style="color: #dc2626; font-size: 18px;">
                         <i class="bi bi-file-earmark-pdf"></i>
                     </a>
                 @else
@@ -116,7 +126,7 @@
                     <a href="{{ route('hop-dong.download-nda-word', $latestNDA->id) }}" title="Tải file Word" style="color: #2563eb; font-size: 18px;">
                         <i class="bi bi-file-earmark-word"></i>
                     </a>
-                    <a href="{{ route('hop-dong.print', $latestNDA->id) }}" target="_blank" title="In PDF" style="color: #dc2626; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-nda-pdf', $latestNDA->id) }}" title="Tải file PDF" style="color: #dc2626; font-size: 18px;">
                         <i class="bi bi-file-earmark-pdf"></i>
                     </a>
                 @else
@@ -161,7 +171,7 @@
                     <a href="{{ route('hop-dong.download-phu-luc-word', $latestLabor->id) }}" title="Tải file Word" style="color: #2563eb; font-size: 18px;">
                         <i class="bi bi-file-earmark-word"></i>
                     </a>
-                    <a href="{{ route('hop-dong.print-phu-luc', $latestLabor->id) }}" target="_blank" title="In PDF" style="color: #dc2626; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-phu-luc-pdf', $latestLabor->id) }}" title="Tải file PDF" style="color: #dc2626; font-size: 18px;">
                         <i class="bi bi-file-earmark-pdf"></i>
                     </a>
                 @else
@@ -208,7 +218,7 @@
                             <td style="text-align: center;">
                                 @if($hd->TrangThai == 1)
                                     <span class="badge badge-success">Đang hiệu lực</span>
-                                @elseif($hd->TrangThai == 0)
+                                @elseif($hd->TrangThai == 0 || $hd->TrangThai === null)
                                     <span class="badge badge-secondary">Hết hiệu lực</span>
                                 @else
                                     <span class="badge badge-danger">Đã hủy</span>

@@ -161,7 +161,13 @@ class LuongService
         $tongTangCaTien = self::tinhTienTangCa($nhanVien->id, $thang, $nam, $luongCoBan, $ngayCongChuan);
 
         // --- Tổng thu nhập ---
-        $tongThuNhap = $luongCoBan + $tongPhuCap + $tongTangCaTien;
+        // Nếu ở chế độ "Theo hợp đồng", sử dụng cột TongLuong trực tiếp
+        // TongLuong thường đã bao gồm Lương cơ bản + Phụ cấp cố định
+        if ($forcedContract) {
+            $tongThuNhap = ($hopDong?->TongLuong ?? 0) + $tongTangCaTien;
+        } else {
+            $tongThuNhap = $luongCoBan + $tongPhuCap + $tongTangCaTien;
+        }
 
         // --- Bảo hiểm ---
         $baoHiems = \App\Models\CauHinhBaoHiem::getHieuLucHienTai();
@@ -191,7 +197,7 @@ class LuongService
             'ngay_cong_chuan' => $ngayCongChuan,
             'ngay_cong_thuc_te' => self::tinhNgayCongThucTe($nhanVien->id, $thang, $nam),
             'don_gia_ngay' => null,
-            'luong_ngay_cong' => $luongCoBan,
+            'luong_ngay_cong' => $forcedContract ? ($hopDong?->TongLuong ?? 0) : $luongCoBan,
             'tong_phu_cap' => $tongPhuCap,
             'tong_tang_ca' => $tongTangCaTien,
             'tong_thu_nhap' => $tongThuNhap,
@@ -253,13 +259,13 @@ class LuongService
      * Đếm số ngày chấm công thực tế của nhân viên trong tháng
      * (chỉ tính bản ghi có Ra IS NOT NULL — đã check-out).
      */
-    public static function tinhNgayCongThucTe(int $nhanVienId, int $thang, int $nam): int
+    public static function tinhNgayCongThucTe(int $nhanVienId, int $thang, int $nam): float
     {
-        return ChamCong::where('NhanVienId', $nhanVienId)
+        return (float) ChamCong::where('NhanVienId', $nhanVienId)
             ->whereYear('Vao', $nam)
             ->whereMonth('Vao', $thang)
             ->whereNotNull('Ra')
-            ->count();
+            ->sum('Cong');
     }
 
     /**

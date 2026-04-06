@@ -110,6 +110,7 @@
                             <th style="width: 50px;"><strong>STT</strong></th>
                             <th>Nhân viên</th>
                             <th>Chức vụ</th>
+                            <th style="text-align: center;">Ngày công</th>
                             <th>Lương cơ bản</th>
                             <th>Phụ cấp + Tăng ca</th>
                             <th>Khấu trừ</th>
@@ -140,14 +141,11 @@
                                     @endif
                                 </td>
                                 <td>{{ $chucVu }}</td>
+                                <td style="text-align: center; font-weight: 600; color: #374151;">
+                                    {{ number_format($luong->SoNgayCong, 2, ',', '.') }}
+                                </td>
                                 <td class="font-medium">
                                     {{ number_format($luong->LuongCoBan, 0, ',', '.') }} đ
-                                    @if($isCongNhan && $luong->SoNgayCong !== null)
-                                        <div style="font-size:12px; color:#6b7280; margin-top:2px;">
-                                            <i class="bi bi-calendar-check"></i>
-                                            {{ $luong->SoNgayCong }} ngày
-                                        </div>
-                                    @endif
                                 </td>
                                 <td>
                                     @if(($luong->PhuCap ?? 0) > 0 || ($luong->LuongTangCa ?? 0) > 0)
@@ -211,32 +209,32 @@
 
     {{-- ========== MODAL PHIẾU LƯƠNG ========== --}}
     <div id="slipModal" style="
-                        display:none; position:fixed; inset:0; z-index:9999;
-                        background:rgba(0,0,0,0.55); align-items:center; justify-content:center;
-                        overflow-y:auto; padding:24px 16px;
-                    ">
-        <div style="
-                            background:#fff; border-radius:12px; width:100%; max-width:860px;
-                            margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3);
-                            display:flex; flex-direction:column; max-height:90vh;
+                            display:none; position:fixed; inset:0; z-index:9999;
+                            background:rgba(0,0,0,0.55); align-items:center; justify-content:center;
+                            overflow-y:auto; padding:24px 16px;
                         ">
+        <div style="
+                                background:#fff; border-radius:12px; width:100%; max-width:860px;
+                                margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3);
+                                display:flex; flex-direction:column; max-height:90vh;
+                            ">
             {{-- Modal Header --}}
             <div style="
-                                display:flex; justify-content:space-between; align-items:center;
-                                padding:16px 20px; border-bottom:1px solid #e5e7eb;
-                                background:linear-gradient(135deg,#0BAA4B,#088c3d);
-                                border-radius:12px 12px 0 0;
-                            ">
+                                    display:flex; justify-content:space-between; align-items:center;
+                                    padding:16px 20px; border-bottom:1px solid #e5e7eb;
+                                    background:linear-gradient(135deg,#0BAA4B,#088c3d);
+                                    border-radius:12px 12px 0 0;
+                                ">
                 <div style="color:#fff; font-size:16px; font-weight:700;">
                     <i class="bi bi-file-earmark-text"></i>
                     &nbsp;Phiếu Lương
                 </div>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <button id="btnPrintSlip" style="
-                                        background:#fff; color:#0BAA4B; border:none; border-radius:6px;
-                                        padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
-                                        display:flex; align-items:center; gap:6px;
-                                    ">
+                                            background:#fff; color:#0BAA4B; border:none; border-radius:6px;
+                                            padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
+                                            display:flex; align-items:center; gap:6px;
+                                        ">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -244,10 +242,10 @@
                         In phiếu
                     </button>
                     <button onclick="closeSlipModal()" style="
-                                        background:rgba(255,255,255,0.2); border:none; border-radius:6px;
-                                        color:#fff; font-size:20px; cursor:pointer; width:32px; height:32px;
-                                        display:flex; align-items:center; justify-content:center; line-height:1;
-                                    ">✕</button>
+                                            background:rgba(255,255,255,0.2); border:none; border-radius:6px;
+                                            color:#fff; font-size:20px; cursor:pointer; width:32px; height:32px;
+                                            display:flex; align-items:center; justify-content:center; line-height:1;
+                                        ">✕</button>
                 </div>
             </div>
 
@@ -302,7 +300,7 @@
 
                     Swal.fire({
                         title: `Tính lương tháng ${thang}/${nam}?`,
-                        html: `Hệ thống sẽ tính lương tự động cho <strong>toàn bộ nhân viên có hợp đồng active</strong> trong kỳ <strong>tháng ${thang}/${nam}</strong>.<br><br>Nếu đã tồn tại dữ liệu, sẽ <span style="color:#f97316;font-weight:600;">cập nhật lại</span>.`,
+                        html: `Hệ thống sẽ tính lương tự động cho <strong>toàn bộ nhân viên có hợp đồng</strong> trong kỳ <strong>tháng ${thang}/${nam}</strong>.<br><br>Nếu đã tồn tại dữ liệu, sẽ <span style="color:#f97316;font-weight:600;">cập nhật lại</span>.`,
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#0BAA4B',
@@ -429,10 +427,10 @@
                 const btnPrint = document.getElementById('btnPrintSlip');
 
                 const LOADING_HTML = `
-                                            <div style="text-align:center;padding:48px;color:#6b7280;">
-                                                <div style="font-size:36px;margin-bottom:10px;">⏳</div>
-                                                <div style="font-size:14px;">Đang tải phiếu lương...</div>
-                                            </div>`;
+                                                    <div style="text-align:center;padding:48px;color:#6b7280;">
+                                                        <div style="font-size:36px;margin-bottom:10px;">⏳</div>
+                                                        <div style="font-size:14px;">Đang tải phiếu lương...</div>
+                                                    </div>`;
 
                 function openSlipModal(nvId, thang, nam) {
                     slipContent.innerHTML = LOADING_HTML;
@@ -449,10 +447,10 @@
                         .then(html => { slipContent.innerHTML = html; })
                         .catch(err => {
                             slipContent.innerHTML = `
-                                                    <div style="text-align:center;padding:48px;color:#dc2626;">
-                                                        <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
-                                                        <div>Không thể tải phiếu lương.<br><small style="color:#9ca3af;">${err.message}</small></div>
-                                                    </div>`;
+                                                            <div style="text-align:center;padding:48px;color:#dc2626;">
+                                                                <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
+                                                                <div>Không thể tải phiếu lương.<br><small style="color:#9ca3af;">${err.message}</small></div>
+                                                            </div>`;
                         });
                 }
 
@@ -489,14 +487,14 @@
                 btnPrint.addEventListener('click', function () {
                     const printWin = window.open('', '_blank', 'width=950,height=700');
                     printWin.document.write(`
-                                                <!DOCTYPE html><html><head>
-                                                <meta charset="UTF-8">
-                                                <title>Phiếu Lương</title>
-                                                <style>
-                                                    body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
-                                                    @media print { body { margin: 0; } }
-                                                </style>
-                                                <\/head><body>${slipContent.innerHTML}<\/body><\/html>`);
+                                                        <!DOCTYPE html><html><head>
+                                                        <meta charset="UTF-8">
+                                                        <title>Phiếu Lương</title>
+                                                        <style>
+                                                            body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
+                                                            @media print { body { margin: 0; } }
+                                                        </style>
+                                                        <\/head><body>${slipContent.innerHTML}<\/body><\/html>`);
                     printWin.document.close();
                     printWin.focus();
                     setTimeout(() => { printWin.print(); }, 500);

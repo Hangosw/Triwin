@@ -34,17 +34,16 @@
         }
 
         .detail-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2px;
         }
 
         .detail-value {
-            font-size: 15px;
-            color: #1f2937;
-            font-weight: 400;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
         }
 
         .profile-header {
@@ -298,6 +297,35 @@
         .form-icon-input:focus {
             border-color: #0BAA4B;
             box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+        }
+
+        /* Select2 inside form-icon-group support */
+        .form-icon-group .select2-container--default .select2-selection--single {
+            padding-left: 32px !important;
+            height: 42px !important;
+            display: flex;
+            align-items: center;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: transparent;
+        }
+
+        .form-icon-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding-left: 0 !important;
+            color: #1f2937;
+        }
+
+        .form-icon-group .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+        }
+
+        body.dark-theme .form-icon-group .select2-container--default .select2-selection--single {
+            background-color: #13161f !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .form-icon-group .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e8eaf0 !important;
         }
 
         .toggle-switch-group {
@@ -602,6 +630,12 @@
         body.dark-theme .modal-slip-header {
             border-bottom: none !important;
         }
+
+        .document-image-link:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            border-color: #0BAA4B !important;
+        }
     </style>
  @endpush
 
@@ -627,7 +661,22 @@
             <img src="{{ $avatar }}" alt="{{ $employee->Ten }}" class="profile-avatar"
                 onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($employee->Ten) }}&background=0F5132&color=fff&size=128'">
             <div class="profile-info">
-                <h1>{{ $employee->Ten }}</h1>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h1>{{ $employee->Ten }}</h1>
+                    @php
+                        $status = $employee->TrangThai ?? 1;
+                        if ($status == 1) {
+                            $statusData = ['text' => 'Làm tại công ty', 'class' => 'bg-success'];
+                        } elseif ($status == 2) {
+                            $statusData = ['text' => 'Làm từ xa (WFH)', 'class' => 'bg-info'];
+                        } else {
+                            $statusData = ['text' => 'Nghỉ làm', 'class' => 'bg-secondary'];
+                        }
+                    @endphp
+                    <span class="badge {{ $statusData['class'] }}" style="padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        {{ $statusData['text'] }}
+                    </span>
+                </div>
                 <div style="font-size: 18px; opacity: 0.9;">
                     {{ $employee->ttCongViec->chucVu->Ten ?? 'Chưa có chức vụ' }} -
                     {{ $employee->ttCongViec->phongBan->Ten ?? 'Chưa có phòng ban' }}
@@ -778,6 +827,37 @@
                                         location.reload();
                                     });
                                 }
+                            });
+                    }
+                });
+            }
+
+            function approveRelative(id) {
+                Swal.fire({
+                    title: 'Duyệt thân nhân?',
+                    text: 'Xác nhận thông tin người thân này đã hợp lệ.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0BAA4B',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Duyệt ngay',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/than-nhan/duyet/${id}`, {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('Thành công!', data.message, 'success').then(() => { location.reload(); });
+                                } else {
+                                    Swal.fire('Lỗi!', data.message, 'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ', 'error');
                             });
                     }
                 });

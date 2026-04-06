@@ -57,8 +57,11 @@
                 @forelse($diSom as $att)
                     <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid #F9FAFB;">
                         <span style="color: #6B7280; font-size: 13px; width: 65px;">{{ $att->Vao->format('H:i:s') }}</span>
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; overflow: hidden;">
-                            @if($att->nhanVien && $att->nhanVien->AnhDaiDien)
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; overflow: hidden; cursor: pointer;" 
+                             onclick="showAttendanceImage('{{ asset($att->AnhChamCong ?: ($att->nhanVien->AnhDaiDien ?? '')) }}')">
+                            @if($att->AnhChamCong)
+                                <img src="{{ asset($att->AnhChamCong) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @elseif($att->nhanVien && $att->nhanVien->AnhDaiDien)
                                 <img src="{{ asset($att->nhanVien->AnhDaiDien) }}" style="width: 100%; height: 100%; object-fit: cover;">
                             @else
                                 <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#9CA3AF; font-size:12px;">?</div>
@@ -82,8 +85,11 @@
                 @forelse($diTre as $att)
                     <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid #F9FAFB;">
                         <span style="color: #EF4444; font-size: 13px; width: 65px;">{{ $att->Vao->format('H:i:s') }}</span>
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; overflow: hidden;">
-                            @if($att->nhanVien && $att->nhanVien->AnhDaiDien)
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; overflow: hidden; cursor: pointer;"
+                             onclick="showAttendanceImage('{{ asset($att->AnhChamCong ?: ($att->nhanVien->AnhDaiDien ?? '')) }}')">
+                            @if($att->AnhChamCong)
+                                <img src="{{ asset($att->AnhChamCong) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @elseif($att->nhanVien && $att->nhanVien->AnhDaiDien)
                                 <img src="{{ asset($att->nhanVien->AnhDaiDien) }}" style="width: 100%; height: 100%; object-fit: cover;">
                             @else
                                 <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#9CA3AF; font-size:12px;">?</div>
@@ -136,8 +142,11 @@
                 @forelse($veTre as $att)
                     <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid #F9FAFB;">
                         <span style="color: #6366F1; font-size: 13px; width: 65px;">{{ $att->Ra->format('H:i:s') }}</span>
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; overflow: hidden;">
-                            @if($att->nhanVien && $att->nhanVien->AnhDaiDien)
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; overflow: hidden; cursor: pointer;"
+                             onclick="showAttendanceImage('{{ asset($att->AnhChamCong ?: ($att->nhanVien->AnhDaiDien ?? '')) }}')">
+                            @if($att->AnhChamCong)
+                                <img src="{{ asset($att->AnhChamCong) }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @elseif($att->nhanVien && $att->nhanVien->AnhDaiDien)
                                 <img src="{{ asset($att->nhanVien->AnhDaiDien) }}" style="width: 100%; height: 100%; object-fit: cover;">
                             @else
                                 <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#9CA3AF; font-size:12px;">?</div>
@@ -173,5 +182,25 @@
             }
         });
     });
+
+    function showAttendanceImage(url) {
+        if (!url || url.includes('?')) {
+            // Check if it's just the placeholder or empty
+            if (url.endsWith('/') || url.endsWith('?')) return;
+        }
+        Swal.fire({
+            imageUrl: url,
+            imageAlt: 'Ảnh minh chứng chấm công',
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: '600px',
+            background: 'transparent',
+            backdrop: 'rgba(0,0,0,0.85)',
+            customClass: {
+                image: 'rounded-lg max-w-full',
+                popup: 'p-0 bg-transparent'
+            }
+        });
+    }
 </script>
 @endpush

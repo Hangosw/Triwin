@@ -66,15 +66,95 @@
         </div>
     </div>
 
-    <!-- Placeholder for future content -->
+    <!-- Employee List Card -->
     <div class="card" style="margin-top: 24px;">
-        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">Danh sách nhân viên</h3>
-        <p style="color: #6b7280; text-align: center; padding: 48px;">Nội dung sẽ được bổ sung sau...</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="font-size: 18px; font-weight: 600;">Danh sách nhân viên thuộc phòng</h3>
+            <div class="search-bar" style="width: 300px;">
+                <input type="text" class="form-control" placeholder="Tìm kiếm nhân viên..." id="empSearch">
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="employeeTable" class="table table-hover" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th width="50">STT</th>
+                        <th>Mã NV</th>
+                        <th>Họ tên</th>
+                        <th>Chức vụ</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($phongBan->nhanViens as $index => $nv)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><span class="font-medium" style="color: #0BAA4B;">{{ $nv->Ma }}</span></td>
+                            <td>{{ $nv->Ten }}</td>
+                            <td>{{ $nv->chucVu->Ten ?? 'Chưa cập nhật' }}</td>
+                            <td>
+                                @if(($nv->nguoiDung->TrangThai ?? 1) == 1)
+                                    <span class="badge badge-success">Đang hoạt động</span>
+                                @else
+                                    <span class="badge badge-danger">Ngưng hoạt động</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection
 
+@push('styles')
+<style>
+    .badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    .badge-success {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    .badge-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+</style>
+@endpush
+
 @push('scripts')
     <script>
+        $(document).ready(function() {
+            const empTable = $('#employeeTable').DataTable({
+                language: {
+                    "sProcessing": "Đang xử lý...",
+                    "sLengthMenu": "Hiển thị _MENU_ dòng",
+                    "sZeroRecords": "Không tìm thấy nhân viên nào",
+                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                    "sSearch": "Tìm kiếm:",
+                    "oPaginate": {
+                        "sFirst": "Đầu",
+                        "sPrevious": "Trước",
+                        "sNext": "Tiếp",
+                        "sLast": "Cuối"
+                    }
+                },
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                dom: 'rtip',
+            });
+
+            $('#empSearch').on('keyup', function () {
+                empTable.search(this.value).draw();
+            });
+        });
+
         function confirmDelete(id, name, employeeCount) {
             if (employeeCount > 0) {
                 Swal.fire({
