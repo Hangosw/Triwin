@@ -951,51 +951,194 @@
             }
         }
 
-        /* Global Select2 Custom Styling to match Form Control */
+        /* ========================================
+           GLOBAL SELECT2 STYLING
+           Matches form-control look & fixes clear
+           icon vertical alignment everywhere.
+           ======================================== */
+
+        /* --- Single selection box ---
+           align-items: stretch → rendered child fills full 42px height
+           so the inner flex can truly center × and text. */
         .select2-container--default .select2-selection--single {
             height: 42px !important;
-            padding: 6px 12px !important;
+            padding: 0 12px !important;
             border: 1px solid #d1d5db !important;
             border-radius: 8px !important;
             display: flex !important;
-            align-items: center !important;
+            align-items: stretch !important;   /* KEY: stretch, not center */
             background-color: white !important;
-            transition: all 0.2s !important;
+            position: relative !important;
+            transition: border-color 0.2s, box-shadow 0.2s !important;
+            box-sizing: border-box !important;
         }
 
+        /* Rendered text area — fills full 42px then centers content inside */
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: normal !important;
-            padding-left: 4px !important;
+            display: flex !important;
+            align-items: center !important;    /* centers × and text within 42px */
+            flex: 1 !important;
+            min-width: 0 !important;
+            padding: 0 28px 0 0 !important;   /* right-pad for arrow */
+            line-height: 1 !important;
             color: #374151 !important;
             font-size: 14px !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            text-overflow: ellipsis !important;
         }
 
+        /* Clear (×) icon — in-flow flex child, perfectly centered in circle */
+        .select2-container--default .select2-selection--single .select2-selection__clear {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            align-self: center !important;
+            float: none !important;
+            position: static !important;
+            order: -1 !important;
+            flex-shrink: 0 !important;
+            margin: 0 8px 0 0 !important;
+            padding: 0 !important;
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            min-height: 18px !important;
+            line-height: 18px !important;     /* match height → centers baseline */
+            font-size: 13px !important;       /* smaller → breathing room in 18px circle */
+            font-weight: 900 !important;
+            font-family: Arial, sans-serif !important; /* more predictable glyph metrics */
+            text-align: center !important;
+            vertical-align: middle !important;
+            color: #ef4444 !important;
+            cursor: pointer !important;
+            border-radius: 50% !important;
+            transition: background-color 0.15s !important;
+        }
+
+        /* Select2 v4+ wraps × in an inner <span aria-hidden> — reset it */
+        .select2-container--default .select2-selection--single .select2-selection__clear span {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            line-height: 18px !important;
+            text-align: center !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__clear:hover {
+            background-color: rgba(239, 68, 68, 0.12) !important;
+            color: #dc2626 !important;
+        }
+
+        /* Arrow — absolute so it never compresses the flex row */
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 40px !important;
-            right: 12px !important;
+            position: absolute !important;
+            top: 50% !important;
+            right: 10px !important;
+            transform: translateY(-50%) !important;
+            height: auto !important;
+            width: 20px !important;
+            display: flex !important;
+            align-items: center !important;
         }
 
-        .select2-container--default.select2-container--focus .select2-selection--single {
+        /* Focus ring */
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
             border-color: #0BAA4B !important;
             box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.1) !important;
             outline: none !important;
         }
 
-        .select2-container--default .select2-selection--single .select2-selection__clear {
-            margin-right: 12px !important;
-            color: #ef4444 !important;
-            font-size: 18px !important;
+        /* Dropdown panel */
+        .select2-dropdown {
+            background-color: white !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+            z-index: 9999 !important;
+            overflow: hidden !important;
         }
 
-        .select2-dropdown {
-            border-color: #d1d5db !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-            z-index: 9999 !important;
+        /* Search field inside dropdown */
+        .select2-search--dropdown .select2-search__field {
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            padding: 7px 10px !important;
+            font-size: 14px !important;
+            color: #374151 !important;
+            background-color: #f9fafb !important;
+            outline: none !important;
+        }
+
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 0 0 2px rgba(11, 170, 75, 0.1) !important;
+        }
+
+        /* Option items */
+        .select2-container--default .select2-results__option {
+            padding: 8px 12px !important;
+            font-size: 14px !important;
+            color: #374151 !important;
+            background-color: white !important;
+            transition: background-color 0.15s !important;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #f0fdf4 !important;
+            color: #0BAA4B !important;
         }
 
         .select2-container--default .select2-results__option--highlighted[aria-selected] {
             background-color: #0BAA4B !important;
+            color: white !important;
+        }
+
+        /* --- Multiple selection --- */
+        .select2-container--default .select2-selection--multiple {
+            min-height: 42px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            background-color: white !important;
+            padding: 4px 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            margin: 2px 4px 2px 0 !important;
+            padding: 3px 8px !important;
+            border-radius: 6px !important;
+            background-color: #f0fdf4 !important;
+            border: 1px solid #bbf7d0 !important;
+            color: #065f46 !important;
+            font-size: 13px !important;
+        }
+
+        /* Clear icon inside multi-choice tag */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            float: none !important;
+            color: #ef4444 !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            line-height: 1 !important;
+            margin-right: 4px !important;
+            cursor: pointer !important;
+        }
+
+        /* Placeholder */
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #9ca3af !important;
         }
 
         /* ========================================
@@ -1186,50 +1329,133 @@
             color: #e8eaf0;
         }
 
-        /* Select2 */
+        /* ========================================
+           DARK MODE — Select2 Complete Override
+           ======================================== */
+
+        /* Single selection box */
         body.dark-theme .select2-container--default .select2-selection--single {
-            background-color: #21263a;
-            border-color: #2e3349;
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
         }
 
+        body.dark-theme .select2-container--default.select2-container--focus .select2-selection--single,
+        body.dark-theme .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.15) !important;
+        }
+
+        /* Rendered text */
         body.dark-theme .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #e8eaf0;
+            color: #e8eaf0 !important;
         }
 
+        /* Placeholder text */
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6b7492 !important;
+        }
+
+        /* Clear (×) icon in dark */
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__clear {
+            color: #f87171 !important;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__clear:hover {
+            background-color: rgba(248, 113, 113, 0.15) !important;
+            color: #ef4444 !important;
+        }
+
+        /* Arrow icon */
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #8b93a8 transparent transparent transparent !important;
+        }
+
+        body.dark-theme .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent #8b93a8 transparent !important;
+        }
+
+        /* Multiple selection box */
         body.dark-theme .select2-container--default .select2-selection--multiple {
-            background-color: #21263a;
-            border-color: #2e3349;
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
         }
 
         body.dark-theme .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: #2e3349;
-            border-color: #3d445e;
-            color: #e8eaf0;
+            background-color: #2e3349 !important;
+            border-color: #3d445e !important;
+            color: #e8eaf0 !important;
         }
 
+        body.dark-theme .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #f87171 !important;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #ef4444 !important;
+        }
+
+        /* Dropdown panel */
         body.dark-theme .select2-dropdown {
-            background-color: #1a1d27;
-            border-color: #2e3349;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
         }
 
-        body.dark-theme .select2-container--default .select2-results__option {
-            color: #c3c8da;
-        }
-
-        body.dark-theme .select2-container--default .select2-results__option[aria-selected=true] {
-            background-color: #2e3349;
-        }
-
-        body.dark-theme .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #0BAA4B;
-            color: #fff;
-        }
-
+        /* Search field inside dropdown */
         body.dark-theme .select2-search--dropdown .select2-search__field {
-            background-color: #21263a;
-            border-color: #2e3349;
-            color: #e8eaf0;
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .select2-search--dropdown .select2-search__field:focus {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 0 0 2px rgba(11, 170, 75, 0.15) !important;
+        }
+
+        body.dark-theme .select2-search--dropdown .select2-search__field::placeholder {
+            color: #6b7492 !important;
+        }
+
+        /* Option items — default state (must override the light-mode white bg) */
+        body.dark-theme .select2-container--default .select2-results__option {
+            background-color: #1a1d27 !important;
+            color: #c3c8da !important;
+        }
+
+        /* Option — hover (non-highlighted) */
+        body.dark-theme .select2-container--default .select2-results__option[aria-selected]:not([aria-selected=true]):hover {
+            background-color: #21263a !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* Option — already-selected item */
+        body.dark-theme .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #21263a !important;
+            color: #0BAA4B !important;
+        }
+
+        /* Option — keyboard/mouse highlighted */
+        body.dark-theme .select2-container--default .select2-results__option--highlighted,
+        body.dark-theme .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #0BAA4B !important;
+            color: #ffffff !important;
+        }
+
+        /* Options group label */
+        body.dark-theme .select2-container--default .select2-results__group {
+            background-color: #21263a !important;
+            color: #8b93a8 !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+        }
+
+        /* Results container scrollbar track */
+        body.dark-theme .select2-results {
+            background-color: #1a1d27 !important;
         }
 
         /* Modals */
@@ -1275,6 +1501,561 @@
         .swal2-container .select2-container,
         .swal2-container select {
             display: none !important;
+        }
+
+        /* ========================================
+           DARK MODE — Bootstrap 5 Table Override
+           Overrides --bs-table-* CSS variables so
+           ALL table variants work in dark theme.
+           ======================================== */
+
+        /* Override Bootstrap 5 CSS custom properties for .table */
+        body.dark-theme .table {
+            --bs-table-bg: #1a1d27;
+            --bs-table-color: #e8eaf0;
+            --bs-table-border-color: #2e3349;
+            --bs-table-striped-bg: #1e2231;
+            --bs-table-striped-color: #e8eaf0;
+            --bs-table-active-bg: #21263a;
+            --bs-table-active-color: #e8eaf0;
+            --bs-table-hover-bg: #21263a;
+            --bs-table-hover-color: #e8eaf0;
+            color: #e8eaf0;
+            border-color: #2e3349;
+        }
+
+        /* thead for Bootstrap tables */
+        body.dark-theme .table > thead {
+            background-color: #21263a !important;
+            color: #c3c8da !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .table > thead > tr > th,
+        body.dark-theme .table > thead > tr > td {
+            background-color: #21263a !important;
+            color: #c3c8da !important;
+            border-color: #2e3349 !important;
+            font-weight: 600;
+        }
+
+        /* tbody for Bootstrap tables */
+        body.dark-theme .table > tbody > tr > td,
+        body.dark-theme .table > tbody > tr > th {
+            background-color: #1a1d27 !important;
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .table > tbody > tr:hover > td,
+        body.dark-theme .table > tbody > tr:hover > th {
+            background-color: #21263a !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* tfoot for Bootstrap tables */
+        body.dark-theme .table > tfoot > tr > td,
+        body.dark-theme .table > tfoot > tr > th {
+            background-color: #21263a !important;
+            color: #c3c8da !important;
+            border-color: #2e3349 !important;
+        }
+
+        /* table-bordered variant */
+        body.dark-theme .table-bordered > :not(caption) > * {
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .table-bordered > :not(caption) > * > * {
+            border-color: #2e3349 !important;
+        }
+
+        /* table-hover variant (re-override hover variables) */
+        body.dark-theme .table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: #21263a;
+            background-color: #21263a !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* table-striped variant */
+        body.dark-theme .table-striped > tbody > tr:nth-of-type(odd) > * {
+            --bs-table-accent-bg: #1e2231;
+            background-color: #1e2231 !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* table-sm variant */
+        body.dark-theme .table-sm > :not(caption) > * > * {
+            background-color: inherit;
+            color: inherit;
+            border-color: #2e3349 !important;
+        }
+
+        /* Plain <table> elements (no .table class) inside cards/content */
+        body.dark-theme .card table:not(.dataTable),
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) {
+            width: 100%;
+            border-collapse: collapse;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .card table:not(.dataTable) thead tr,
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) thead tr {
+            background-color: #21263a !important;
+        }
+
+        body.dark-theme .card table:not(.dataTable) thead th,
+        body.dark-theme .card table:not(.dataTable) thead td,
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) thead th,
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) thead td {
+            background-color: #21263a !important;
+            color: #c3c8da !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .card table:not(.dataTable) tbody td,
+        body.dark-theme .card table:not(.dataTable) tbody th,
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) tbody td,
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) tbody th {
+            background-color: #1a1d27 !important;
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .card table:not(.dataTable) tbody tr:hover td,
+        body.dark-theme .card table:not(.dataTable) tbody tr:hover th,
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) tbody tr:hover td,
+        body.dark-theme .content-wrapper table:not(.dataTable):not(.table) tbody tr:hover th {
+            background-color: #21263a !important;
+        }
+
+        /* table-wrapper / table-responsive container in dark mode */
+        body.dark-theme .table-responsive {
+            border-color: #2e3349;
+        }
+
+        /* Fix Bootstrap table caption */
+        body.dark-theme .table > caption {
+            color: #8b93a8;
+        }
+
+        /* Fix any inline background-color: white on td/th */
+        body.dark-theme .table td[style*="background-color: white"],
+        body.dark-theme .table td[style*="background-color:#fff"],
+        body.dark-theme .table td[style*="background:#fff"],
+        body.dark-theme .table th[style*="background-color: white"],
+        body.dark-theme .table th[style*="background-color:#fff"],
+        body.dark-theme .table th[style*="background:#fff"] {
+            background-color: #1a1d27 !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* Modal tables */
+        body.dark-theme .modal-body .table > thead > tr > th,
+        body.dark-theme .modal-body .table > thead > tr > td {
+            background-color: #2a2f45 !important;
+            color: #c3c8da !important;
+            border-color: #3d445e !important;
+        }
+
+        body.dark-theme .modal-body .table > tbody > tr > td,
+        body.dark-theme .modal-body .table > tbody > tr > th {
+            background-color: #1a1d27 !important;
+            color: #e8eaf0 !important;
+            border-color: #3d445e !important;
+        }
+
+        body.dark-theme .modal-body .table > tbody > tr:hover > td,
+        body.dark-theme .modal-body .table > tbody > tr:hover > th {
+            background-color: #21263a !important;
+        }
+
+        /* Bootstrap table inside .card - no extra background bleed */
+        body.dark-theme .card .table-responsive,
+        body.dark-theme .card .table-container {
+            background-color: #1a1d27;
+        }
+
+        /* ========================================
+           DARK MODE — Global Sweep
+           Catches ALL common white-background
+           elements that can't be handled via class
+           overrides alone (inline styles, local
+           class redeclarations, etc.)
+           ======================================== */
+
+        /* --- Inline style catcher: background: white / #fff / #ffffff --- */
+        body.dark-theme [style*="background: white"],
+        body.dark-theme [style*="background:white"],
+        body.dark-theme [style*="background-color: white"],
+        body.dark-theme [style*="background-color:white"] {
+            background-color: #1a1d27 !important;
+            background: #1a1d27 !important;
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme [style*="background: #fff"],
+        body.dark-theme [style*="background:#fff"],
+        body.dark-theme [style*="background-color: #fff"],
+        body.dark-theme [style*="background-color:#fff"],
+        body.dark-theme [style*="background: #ffffff"],
+        body.dark-theme [style*="background:#ffffff"],
+        body.dark-theme [style*="background-color: #ffffff"],
+        body.dark-theme [style*="background-color:#ffffff"] {
+            background-color: #1a1d27 !important;
+            background: #1a1d27 !important;
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
+        }
+
+        /* --- Light background colors that should flip in dark mode --- */
+        body.dark-theme [style*="background: #f8fafc"],
+        body.dark-theme [style*="background-color: #f8fafc"],
+        body.dark-theme [style*="background: #f9fafb"],
+        body.dark-theme [style*="background-color: #f9fafb"],
+        body.dark-theme [style*="background: #f3f4f6"],
+        body.dark-theme [style*="background-color: #f3f4f6"],
+        body.dark-theme [style*="background: #f1f5f9"],
+        body.dark-theme [style*="background-color: #f1f5f9"],
+        body.dark-theme [style*="background: #f8f9fa"],
+        body.dark-theme [style*="background-color: #f8f9fa"] {
+            background-color: #21263a !important;
+            background: #21263a !important;
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
+        }
+
+        /* --- Specific named components in dark mode --- */
+
+        /* Clock container (attendance/self) */
+        body.dark-theme .clock-container {
+            background: #1a1d27 !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid #2e3349;
+        }
+
+        body.dark-theme #live-clock {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme #live-date {
+            color: #8b93a8 !important;
+        }
+
+        /* User card (attendance self) */
+        body.dark-theme .user-card {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .user-details h2 {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .user-details p {
+            color: #8b93a8 !important;
+        }
+
+        /* Recent activity (attendance self) */
+        body.dark-theme .recent-activity {
+            background: #1a1d27 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* Contract cards (employee tab_contracts) */
+        body.dark-theme .contract-card {
+            background: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .contract-card:hover {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* Local .card redeclaration (ngach-luong, etc.) */
+        body.dark-theme .card {
+            background: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* Bootstrap dropdown-menu */
+        body.dark-theme .dropdown-menu {
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .dropdown-menu .dropdown-item {
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme .dropdown-menu .dropdown-item:hover,
+        body.dark-theme .dropdown-menu .dropdown-item:focus {
+            background-color: #21263a !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .dropdown-menu .dropdown-divider {
+            border-color: #2e3349 !important;
+        }
+
+        /* Custom day/month/year picker dropdowns (attendance/index, leave/index) */
+        body.dark-theme .custom-day-picker .dropdown-menu {
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .custom-day-picker .form-control {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .custom-day-picker .dropdown-menu span.fw-bold {
+            color: #8b93a8 !important;
+        }
+
+        /* Bootstrap .btn-light in dark mode */
+        body.dark-theme .btn-light,
+        body.dark-theme .btn-outline-light {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme .btn-light:hover {
+            background-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* Bootstrap alerts */
+        body.dark-theme .alert {
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .alert:not(.alert-danger):not(.alert-warning):not(.alert-success):not(.alert-info) {
+            background-color: #21263a !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* Bootstrap .form-control override (inline bg-color: #fff on custom dropdowns) */
+        body.dark-theme .form-control {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .form-control:focus {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.15) !important;
+        }
+
+        body.dark-theme .form-control::placeholder {
+            color: #6b7492 !important;
+        }
+
+        /* Bootstrap .form-select */
+        body.dark-theme .form-select {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .form-select:focus {
+            border-color: #0BAA4B !important;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.15) !important;
+        }
+
+        /* Bootstrap input-group */
+        body.dark-theme .input-group-text {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #8b93a8 !important;
+        }
+
+        /* Text colors in various contexts */
+        body.dark-theme [style*="color: #374151"],
+        body.dark-theme [style*="color:#374151"],
+        body.dark-theme [style*="color: #1f2937"],
+        body.dark-theme [style*="color:#1f2937"],
+        body.dark-theme [style*="color: #111827"],
+        body.dark-theme [style*="color:#111827"],
+        body.dark-theme [style*="color: #212529"],
+        body.dark-theme [style*="color:#212529"] {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme [style*="color: #4b5563"],
+        body.dark-theme [style*="color:#4b5563"],
+        body.dark-theme [style*="color: #6b7280"],
+        body.dark-theme [style*="color:#6b7280"],
+        body.dark-theme [style*="color: #6c757d"],
+        body.dark-theme [style*="color:#6c757d"] {
+            color: #8b93a8 !important;
+        }
+
+        /* Border colors (light gray borders) */
+        body.dark-theme [style*="border: 1px solid #e5e7eb"],
+        body.dark-theme [style*="border: 1px solid #d1d5db"],
+        body.dark-theme [style*="border-color: #e5e7eb"],
+        body.dark-theme [style*="border-color: #d1d5db"],
+        body.dark-theme [style*="border-bottom: 1px solid #e5e7eb"],
+        body.dark-theme [style*="border-top: 1px solid #e5e7eb"] {
+            border-color: #2e3349 !important;
+        }
+
+        /* Tab navigation (BS tabs) */
+        body.dark-theme .nav-tabs {
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .nav-tabs .nav-link {
+            color: #8b93a8 !important;
+            border-color: transparent !important;
+        }
+
+        body.dark-theme .nav-tabs .nav-link:hover {
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .nav-tabs .nav-link.active {
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 #2e3349 #1a1d27 !important;
+            color: #0BAA4B !important;
+        }
+
+        body.dark-theme .tab-content {
+            color: #e8eaf0;
+        }
+
+        /* detail-section headings & borders */
+        body.dark-theme .detail-section {
+            background-color: #1a1d27;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .detail-section h2 {
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
+        }
+
+        /* Show employee page local styles */
+        body.dark-theme .info-grid-item,
+        body.dark-theme .info-section {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* Bootstrap list-group */
+        body.dark-theme .list-group-item {
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .list-group-item:hover {
+            background-color: #21263a !important;
+        }
+
+        /* Bootstrap card variants used in individual views */
+        body.dark-theme .card-header {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme .card-footer {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .card-body {
+            color: #e8eaf0 !important;
+        }
+
+        /* Daily overview cards (attendance) */
+        body.dark-theme .card[style*="background: white"],
+        body.dark-theme .card[style*="background-color: white"],
+        body.dark-theme .card[style*="background: #fff"],
+        body.dark-theme .card[style*="background-color: #fff"] {
+            background-color: #1a1d27 !important;
+            background: #1a1d27 !important;
+            border-color: #2e3349 !important;
+        }
+
+        /* Flatpickr calendar in dark mode */
+        body.dark-theme .flatpickr-calendar {
+            background: #1a1d27 !important;
+            border-color: #2e3349 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-theme .flatpickr-month,
+        body.dark-theme .flatpickr-weekdays,
+        body.dark-theme span.flatpickr-weekday {
+            background: #21263a !important;
+            color: #c3c8da !important;
+            fill: #c3c8da !important;
+        }
+
+        body.dark-theme .flatpickr-day {
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme .flatpickr-day:hover {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme .flatpickr-day.selected,
+        body.dark-theme .flatpickr-day.startRange,
+        body.dark-theme .flatpickr-day.endRange {
+            background: #0BAA4B !important;
+            border-color: #0BAA4B !important;
+            color: white !important;
+        }
+
+        body.dark-theme .flatpickr-day.flatpickr-disabled {
+            color: #3d445e !important;
+        }
+
+        body.dark-theme .numInput,
+        body.dark-theme .cur-year {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: #21263a !important;
+            color: #e8eaf0 !important;
+        }
+
+        /* action-card (attendance/self.blade check-in cards) */
+        body.dark-theme .action-card.in {
+            background-color: rgba(11, 170, 75, 0.15) !important;
+            color: #4ade80 !important;
+        }
+
+        /* Bootstrap .badge-secondary override */
+        body.dark-theme .badge-secondary,
+        body.dark-theme .badge.badge-secondary {
+            background-color: #2e3349 !important;
+            color: #c3c8da !important;
+            border-color: #3d445e !important;
+        }
+
+        /* Salary & config views' local .card redeclaration */
+        body.dark-theme .content-wrapper .card {
+            background-color: #1a1d27 !important;
+            color: #e8eaf0 !important;
+            border-color: #2e3349 !important;
         }
     </style>
 
