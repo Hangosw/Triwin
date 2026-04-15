@@ -4,7 +4,7 @@
     
     $latestLabor = $laborContracts->where('TrangThai', 1)->first() ?? $laborContracts->first();
     $latestNDA = $ndaContracts->where('TrangThai', 1)->first() ?? $ndaContracts->first();
-    $latestPhuLuc = $latestLabor ? \App\Models\PhuLucHopDong::where('HopDongId', $latestLabor->id)->latest()->first() : null;
+    $latestPhuLuc = $latestLabor ? \App\Models\PhuLucHopDong::where('HopDongGocId', $latestLabor->id)->latest()->first() : null;
 @endphp
 
 <div class="tab-content" id="tab-contracts">
@@ -188,10 +188,12 @@
                 <i class="bi bi-clock-history"></i>
                 Lịch sử hợp đồng lao động
             </h2>
-            <a href="{{ route('hop-dong.taoView') }}?nhanVienId={{ $employee->id }}" class="btn btn-primary"
-                style="border-radius: 8px; padding: 10px 20px; font-weight: 500;">
-                <i class="bi bi-plus-lg"></i> Ký hợp đồng mới
-            </a>
+            @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
+                <a href="{{ route('hop-dong.taoView') }}?nhanVienId={{ $employee->id }}" class="btn btn-primary"
+                    style="border-radius: 8px; padding: 10px 20px; font-weight: 500;">
+                    <i class="bi bi-plus-lg"></i> Ký hợp đồng mới
+                </a>
+            @endcanany
         </div>
 
         <div class="table-responsive premium-table">
@@ -229,15 +231,19 @@
                                     <a href="{{ route('hop-dong.info', $hd->id) }}" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{{ route('hop-dong.suaView', $hd->id) }}" class="btn btn-sm btn-outline-primary" title="Sửa">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    {{-- Re-sign button if expired --}}
-                                    @if($hd->TrangThai == 0 || ($hd->NgayKetThuc && \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($hd->NgayKetThuc), false) <= 25))
-                                        <a href="{{ route('hop-dong.renew', $hd->id) }}" class="btn btn-sm btn-outline-warning" title="Tái ký">
-                                            <i class="bi bi-arrow-repeat"></i>
+                                    @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
+                                        <a href="{{ route('hop-dong.suaView', $hd->id) }}" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                            <i class="bi bi-pencil"></i>
                                         </a>
-                                    @endif
+                                    @endcanany
+                                    @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
+                                        {{-- Re-sign button if expired --}}
+                                        @if($hd->TrangThai == 0 || ($hd->NgayKetThuc && \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($hd->NgayKetThuc), false) <= 25))
+                                            <a href="{{ route('hop-dong.renew', $hd->id) }}" class="btn btn-sm btn-outline-warning" title="Tái ký">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </a>
+                                        @endif
+                                    @endcanany
                                 </div>
                             </td>
                         </tr>

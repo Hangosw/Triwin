@@ -237,3 +237,112 @@ $objWriterPL = IOFactory::createWriter($phpWordPL, 'Word2007');
 $objWriterPL->save($storagePath . 'template_phu_luc.docx');
 
 echo "\nPhu Luc Template updated successfully in " . $storagePath;
+
+// 3. Generate template_hop_dong_lao_dong.docx (FULL LBR CONTRACT)
+$phpWordHD = new PhpWord();
+$sectionHD = $phpWordHD->addSection([
+    'marginTop' => 1134,
+    'marginBottom' => 1134,
+    'marginLeft' => 1417,
+    'marginRight' => 1134,
+]);
+
+$sectionHD->addText("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM", $boldStyle, $centerStyle);
+$sectionHD->addText("Độc lập – Tự do – Hạnh phúc", $boldStyle, $centerStyle);
+$sectionHD->addText("----------------------------", $normalStyle, $centerStyle);
+$sectionHD->addTextBreak(1);
+
+$sectionHD->addText("Tên đơn vị: CÔNG TY TNHH TRIWIN", $normalStyle);
+$sectionHD->addText("Số: \${SoHopDong}", $normalStyle);
+$sectionHD->addTextBreak(1);
+$sectionHD->addText("HỢP ĐỒNG LAO ĐỘNG", $headerStyle, $centerStyle);
+$sectionHD->addTextBreak(1);
+
+$sectionHD->addText("Chúng tôi, một bên là Ông/Bà: \${TenDaiDien}, Quốc tịch: Việt Nam", $normalStyle);
+$sectionHD->addText("Chức vụ: \${ChucVuDaiDien}", $normalStyle);
+$sectionHD->addText("Đại diện cho: CÔNG TY TNHH TRIWIN", $normalStyle);
+$sectionHD->addText("Điện thoại: 0283.3622.6639", $normalStyle);
+$sectionHD->addText("Địa chỉ: M2 đường số 5, KDC Cityland, Phường Tân Phú, Quận 7, TP.HCM", $normalStyle);
+$sectionHD->addTextBreak(1);
+
+$sectionHD->addText("Và một bên là Ông/Bà: \${TenNhanVien}, Quốc tịch: Việt Nam", $normalStyle);
+$sectionHD->addText("Sinh ngày: \${NgaySinh}    tại: Việt Nam", $normalStyle);
+$sectionHD->addText("Nghề nghiệp: \${ChucDanh}", $normalStyle);
+$sectionHD->addText("Địa chỉ thường trú: \${DiaChi}", $normalStyle);
+$sectionHD->addText("Số CMND/CCCD: \${SoCCCD}  Cấp ngày: \${NgayCap}   Nơi cấp: \${NoiCap}", $normalStyle);
+$sectionHD->addTextBreak(1);
+
+$sectionHD->addText("Thoả thuận ký kết hợp đồng lao động và cam kết làm đúng những điều khoản sau đây:", $italicStyle);
+$sectionHD->addTextBreak(1);
+
+// Điều 1
+$sectionHD->addText("Điều 1: THỜI HẠN VÀ CÔNG VIỆC HỢP ĐỒNG", $boldStyle);
+$sectionHD->addListItem("Loại hợp đồng lao động: \${TenLoaiHD}", 0, $normalStyle);
+$sectionHD->addListItem("Từ ngày: \${NgayBatDau}", 0, $normalStyle);
+$sectionHD->addListItem("Địa điểm làm việc: M2 đường số 5, KDC Cityland, Phường Tân Phú, Quận 7, TP.HCM", 0, $normalStyle);
+$sectionHD->addListItem("Chức danh chuyên môn: \${ChucDanhChiTiet} (nếu có)", 0, $normalStyle);
+$sectionHD->addListItem("Công việc phải làm: Liên quan đến chuyên môn và những công việc khác do Giám đốc (hoặc cá nhân được giám đốc ủy quyền) phân công theo quy định của Pháp luật.", 0, $normalStyle);
+
+// Điều 2
+$sectionHD->addText("Điều 2: CHẾ ĐỘ LÀM VIỆC", $boldStyle);
+$sectionHD->addText("1) Thời giờ làm việc:", $boldStyle);
+$sectionHD->addListItem("Trong ngày: 8h/ngày - 44h/tuần, Sáng từ 8h đến 12h, Chiều từ 1h đến 5h.", 0, $normalStyle);
+$sectionHD->addText("2) Thời gian nghỉ:", $boldStyle);
+$sectionHD->addListItem("Nghỉ hàng năm, nghỉ lễ, tết, nghỉ việc riêng. Theo quy định của luật lao động.", 0, $normalStyle);
+$sectionHD->addListItem("Tùy theo yêu cầu công việc công ty có thể điều động làm việc ngoài giờ.", 0, $normalStyle);
+$sectionHD->addListItem("Điều kiện an toàn vệ sinh lao động tại nơi làm việc theo quy định của pháp luật hiện hành.", 0, $normalStyle);
+
+// Điều 3
+$sectionHD->addText("Điều 3: NGHĨA VỤ VÀ QUYỀN LỢI CỦA NGƯỜI LAO ĐỘNG", $boldStyle);
+$sectionHD->addText("1. Quyền lợi:", $boldStyle);
+$sectionHD->addListItem("Phương tiện đi lại làm việc: tự túc", 0, $normalStyle);
+$sectionHD->addListItem("Mức lương chính: \${LuongCoBan} VNĐ/tháng (tại thời điểm ký hợp đồng).", 0, $normalStyle);
+$sectionHD->addListItem("Các hỗ trợ phúc lợi khác theo quy định của Công ty.", 0, $normalStyle);
+$sectionHD->addListItem("Hình thức trả lương: tiền mặt.", 0, $normalStyle);
+$sectionHD->addListItem("Được trang bị bảo hộ lao động: Theo công việc được phân công.", 0, $normalStyle);
+$sectionHD->addListItem("Tiền thưởng lễ, tết: được hưởng theo quy chế lương thưởng của Công ty.", 0, $normalStyle);
+$sectionHD->addListItem("Chế độ nghỉ ngơi (nghỉ hàng tuần, phép năm, lễ tết...): theo quy định của Nhà nước.", 0, $normalStyle);
+
+$sectionHD->addText("2. Nghĩa vụ:", $boldStyle);
+$sectionHD->addListItem("Hoàn thành những công việc đã cam kết trong hợp đồng lao động.", 0, $normalStyle);
+$sectionHD->addListItem("Chấp hành lệnh điều hành sản xuất - kinh doanh, nội quy kỷ luật lao động, an toàn lao động.", 0, $normalStyle);
+$sectionHD->addListItem("Thực hiện công việc theo đúng chức danh chuyên môn dưới sự quản lý của Ban Giám đốc.", 0, $normalStyle);
+$sectionHD->addListItem("Phối hợp cùng các bộ phận khác để phát huy tối đa hiệu quả công việc.", 0, $normalStyle);
+$sectionHD->addListItem("Tham dự đầy đủ các buổi huấn luyện, đào tạo do Công ty tổ chức.", 0, $normalStyle);
+$sectionHD->addListItem("Nắm rõ và chấp hành nghiêm túc kỷ luật lao động, PCCC, nội quy lao động.", 0, $normalStyle);
+$sectionHD->addListItem("Bồi thường vi phạm và vật chất: Theo qui định của Cty và Luật lao động.", 0, $normalStyle);
+
+// Điều 4
+$sectionHD->addText("Điều 4: NGHĨA VỤ VÀ QUYỀN HẠN CỦA NGƯỜI SỬ DỤNG LAO ĐỘNG", $boldStyle);
+$sectionHD->addText("1. Nghĩa vụ:", $boldStyle);
+$sectionHD->addListItem("Bảo đảm việc làm và thực hiện đầy đủ những điều đã cam kết trong hợp đồng lao động.", 0, $normalStyle);
+$sectionHD->addListItem("Thanh toán đầy đủ, đúng thời hạn các chế độ cho người lao động.", 0, $normalStyle);
+$sectionHD->addText("2. Quyền hạn:", $boldStyle);
+$sectionHD->addListItem("Điều hành người lao động hoàn thành công việc theo hợp đồng.", 0, $normalStyle);
+$sectionHD->addListItem("Tạm hoãn, chấm dứt hợp đồng, kỷ luật người lao động theo quy định của Pháp luật.", 0, $normalStyle);
+
+// Điều 5
+$sectionHD->addText("Điều 5: ĐIỀU KHOẢN THI HÀNH", $boldStyle);
+$sectionHD->addText("Những vấn đề không ghi trong hợp đồng này thì áp dụng nội quy lao động và Pháp Luật lao động. Hợp đồng lao động được làm thành 02 bản có giá trị ngang nhau, mỗi bên giữ một bản.", $normalStyle, $justifyStyle);
+$sectionHD->addTextBreak(1);
+$sectionHD->addText("Hợp đồng này làm tại văn phòng công ty ngày \${NgayKy} tháng \${ThangKy} năm \${NamKy}.", $normalStyle, ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::RIGHT]);
+$sectionHD->addTextBreak(1);
+
+$tableHD = $sectionHD->addTable();
+$tableHD->addRow();
+$cellX = $tableHD->addCell(4750);
+$cellX->addText("NGƯỜI LAO ĐỘNG", $boldStyle, $centerStyle);
+$cellX->addText("(Ký, ghi rõ họ tên)", $italicStyle, $centerStyle);
+$cellX->addTextBreak(2);
+$cellX->addText("\${TenNhanVien}", $boldStyle, $centerStyle);
+
+$cellY = $tableHD->addCell(4750);
+$cellY->addText("NGƯỜI SỬ DỤNG LAO ĐỘNG", $boldStyle, $centerStyle);
+$cellY->addText("(Ký tên, đóng dấu)", $italicStyle, $centerStyle);
+$cellY->addTextBreak(2);
+$cellY->addText("\${TenDaiDien}", $boldStyle, $centerStyle);
+
+$objWriterHD = IOFactory::createWriter($phpWordHD, 'Word2007');
+$objWriterHD->save($storagePath . 'template_hop_dong.docx');
+
+echo "\nLabor Contract Template generated successfully in " . $storagePath;

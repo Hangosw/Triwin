@@ -21,22 +21,21 @@ class NguoiDungController extends Controller
 
     public function Tao(Request $request)
     {
-        $messages = [
+        $validated = $request->validate([
+            'Ten' => 'required|string|max:255',
+            'TaiKhoan' => 'required|string|max:255|unique:nguoi_dungs,TaiKhoan',
+            'Email' => 'nullable|email|max:255|unique:nguoi_dungs,Email',
+            'SoDienThoai' => 'nullable|string|max:20',
+            'TrangThai' => 'required|in:0,1',
+        ], [
+            'Ten.required' => 'Họ và tên không được để trống.',
             'TaiKhoan.required' => 'Tài khoản không được để trống.',
             'TaiKhoan.unique' => 'Tài khoản đã tồn tại.',
             'Email.email' => 'Email phải đúng định dạng.',
             'Email.unique' => 'Email đã được sử dụng.',
             'TrangThai.required' => 'Vui lòng chọn trạng thái.',
             'TrangThai.in' => 'Trạng thái không hợp lệ.',
-        ];
-
-        $validated = $request->validate([
-            'Ten' => 'nullable|string|max:255',
-            'TaiKhoan' => 'required|string|max:255|unique:nguoi_dungs,TaiKhoan',
-            'Email' => 'nullable|email|max:255|unique:nguoi_dungs,Email',
-            'SoDienThoai' => 'nullable|string|max:20',
-            'TrangThai' => 'required|in:0,1',
-        ], $messages);
+        ]);
 
         try {
             $user = new NguoiDung();
@@ -97,14 +96,38 @@ class NguoiDungController extends Controller
     public function Xoa($id)
     {
         try {
-            $user = NguoiDung::find($id);
-            if ($user) {
-                $taiKhoan = $user->TaiKhoan;
-                NguoiDung::destroy($id);
-                \App\Services\SystemLogService::log('Xóa', 'NguoiDung', $id, "Xóa người dùng: {$taiKhoan}");
+            if ($id == \Illuminate\Support\Facades\Auth::id()) {
+                return response()->json(['success' => false, 'message' => 'Bạn không thể tự xóa tài khoản của chính mình.'], 400);
             }
+
+            $user = NguoiDung::find($id);
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Người dùng không tồn tại.'], 404);
+            }
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            // 1. Gỡ liên kết nhân viên (nếu có)
+            \App\Models\NhanVien::where('NguoiDungId', $id)->update(['NguoiDungId' => null]);
+
+            // 2. Gỡ quyền và vai trò (Spatie)
+            $user->syncRoles([]);
+            $user->syncPermissions([]);
+
+            // 3. Nullify ID trong lịch sử hệ thống (để giữ log nhưng cho phép xóa user)
+            \App\Models\LichSu::where('NhanVienId', $id)->update(['NhanVienId' => null]);
+
+            // 4. Lưu log hành động trước khi xóa user record
+            $taiKhoan = $user->TaiKhoan;
+            \App\Services\SystemLogService::log('Xóa', 'NguoiDung', $id, "Xóa người dùng: {$taiKhoan}");
+
+            // 5. Xóa record người dùng
+            $user->delete();
+
+            \Illuminate\Support\Facades\DB::commit();
             return response()->json(['success' => true, 'message' => 'Xóa người dùng thành công.']);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);
         }
     }
@@ -116,15 +139,42 @@ class NguoiDungController extends Controller
             return response()->json(['success' => false, 'message' => 'Vui lòng chọn người dùng cần xóa.'], 400);
         }
 
+        // Loại bỏ ID của chính user đang đăng nhập
+        $currentUserId = \Illuminate\Support\Facades\Auth::id();
+        $ids = array_filter($ids, fn($id) => $id != $currentUserId);
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'Bạn không thể tự xóa tài khoản của chính mình.'], 400);
+        }
+
         try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
             $users = NguoiDung::whereIn('id', $ids)->get();
             $tenTaiKhoans = $users->pluck('TaiKhoan')->implode(', ');
 
-            NguoiDung::whereIn('id', $ids)->delete();
+            // 1. Gỡ liên kết nhân viên
+            \App\Models\NhanVien::whereIn('NguoiDungId', $ids)->update(['NguoiDungId' => null]);
+
+            // 2. Gỡ quyền và vai trò
+            foreach ($users as $user) {
+                $user->syncRoles([]);
+                $user->syncPermissions([]);
+            }
+
+            // 3. Nullify ID trong lịch sử
+            \App\Models\LichSu::whereIn('NhanVienId', $ids)->update(['NhanVienId' => null]);
+
+            // 4. Log hành động
             \App\Services\SystemLogService::log('Xóa', 'NguoiDung', null, "Xóa nhiều người dùng: {$tenTaiKhoans}");
 
+            // 5. Xóa các record
+            NguoiDung::whereIn('id', $ids)->delete();
+
+            \Illuminate\Support\Facades\DB::commit();
             return response()->json(['success' => true, 'message' => 'Xóa ' . count($ids) . ' người dùng thành công.']);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);
         }
     }
@@ -136,7 +186,7 @@ class NguoiDungController extends Controller
 
         // Validation rules
         $rules = [
-            'Ten' => 'nullable|string|max:255',
+            'Ten' => 'required|string|max:255',
             'TaiKhoan' => 'required|string|max:255|unique:nguoi_dungs,TaiKhoan,' . $id,
             'Email' => 'nullable|email|max:255|unique:nguoi_dungs,Email,' . $id,
             'SoDienThoai' => 'nullable|string|max:20',
@@ -151,6 +201,7 @@ class NguoiDungController extends Controller
 
         // Custom error messages
         $messages = [
+            'Ten.required' => 'Họ và tên không được để trống.',
             'TaiKhoan.required' => 'Tài khoản không được để trống.',
             'TaiKhoan.unique' => 'Tài khoản đã tồn tại.',
             'Email.email' => 'Email phải đúng định dạng.',

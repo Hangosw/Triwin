@@ -297,6 +297,100 @@
             background-size: 20px;
             padding-right: 44px;
         }
+
+        /* Dark Mode Overrides */
+        body.dark-theme {
+            --surface: #1a1d2d;
+            --text-main: #e8eaf0;
+            --text-muted: #8b93a8;
+        }
+
+        body.dark-theme #startDate, 
+        body.dark-theme #endDate,
+        body.dark-theme #leaveDaysDisplay {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .stat-card {
+            background: #1a1d2d;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .stat-card.total .icon-box { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        body.dark-theme .stat-card.used .icon-box { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        body.dark-theme .stat-card.remaining .icon-box { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+        body.dark-theme .card {
+            background: #1a1d2d;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .leave-type-item {
+            background: #21263a;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .leave-type-item:hover {
+            background: #1a1d2d;
+            border-color: var(--primary-green);
+        }
+
+        body.dark-theme .leave-type-value .number {
+            color: #fff;
+        }
+
+        body.dark-theme .card-header,
+        body.dark-theme .modal-header {
+            background: #1a1d2d;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .modal-content {
+            background: #1a1d2d;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .table thead th {
+            background: #21263a;
+            color: #c3c8da;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .table td {
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .form-label {
+            color: #c3c8da;
+        }
+
+        body.dark-theme .form-control {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .form-control:focus {
+            background: #1a1d2d !important;
+            border-color: var(--primary-green) !important;
+        }
+
+        body.dark-theme .modal-footer,
+        body.dark-theme div[style*="background: #f9fafb"] {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+        }
+
+        body.dark-theme #splitLeaveSection {
+            background: rgba(245, 158, 11, 0.1) !important;
+            border-color: rgba(245, 158, 11, 0.2) !important;
+        }
+
+        body.dark-theme #splitMessage {
+            color: #fbbf24;
+        }
     </style>
 @endpush
 
@@ -306,32 +400,262 @@
         <p style="font-size: 16px; color: var(--text-muted);">Quản lý hạn mức và theo dõi lịch sử nghỉ phép của bạn</p>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card total">
-            <div class="icon-box">
-                <i class="bi bi-calendar-check" style="font-size: 24px;"></i>
+    <style>
+        .stats-highlight-container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Theme-aware Hero Card */
+        .hero-stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+            color: var(--text-main);
+            border-radius: 28px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #dbeafe;
+            transition: var(--transition);
+        }
+
+        .hero-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -5px rgba(37, 99, 235, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .hero-stat-card::after {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .hero-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-value-group {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-value {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #1e293b, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-unit {
+            font-size: 18px;
+            font-weight: 500;
+            color: #64748b;
+            margin-left: 8px;
+        }
+
+        .hero-footer {
+            margin-top: 24px;
+        }
+
+        .usage-progress-container {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 10px;
+            margin: 12px 0 8px;
+            overflow: hidden;
+        }
+
+        .usage-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+
+        .usage-stats-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .secondary-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .mini-stat-card {
+            background: var(--surface);
+            padding: 20px 24px;
+            border-radius: 20px;
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: var(--transition);
+        }
+
+        .mini-stat-card:hover {
+            border-color: var(--primary-green);
+            background: #f8fafc;
+            transform: translateX(8px);
+        }
+
+        .mini-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .mini-info .label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .mini-info .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Dark Mode fixes */
+        body.dark-theme .hero-stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            border-color: #2e3349;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        body.dark-theme .hero-stat-card::after {
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+        }
+        body.dark-theme .hero-label { color: #94a3b8; }
+        body.dark-theme .hero-value { background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; }
+        body.dark-theme .usage-progress-container { background: rgba(255, 255, 255, 0.1); }
+        body.dark-theme .usage-stats-row { color: #94a3b8; }
+        body.dark-theme .hero-value-group p { color: #8b93a8 !important; }
+
+        body.dark-theme .mini-stat-card {
+            background: #1a1d2d;
+            border-color: #2e3349;
+        }
+        body.dark-theme .mini-stat-card:hover {
+            background: #21263a;
+        }
+
+        @media (max-width: 992px) {
+            .stats-highlight-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    @php
+        $tongPhep = (float)($phepNam->TongPhepDuocNghi ?? 0);
+        $daNghi = (float)($phepNam->DaNghi ?? 0);
+        $khaDung = (float)($phepNam->KhaDung ?? 0);
+        $conLai = (float)($phepNam->ConLai ?? 0);
+        $totalEarned = max(0.1, $khaDung + $daNghi);
+        $usagePercent = min(100, ($daNghi / $totalEarned) * 100);
+    @endphp
+
+    <div class="stats-highlight-container">
+        <!-- Hero Card: Available Leave -->
+        <div class="hero-stat-card">
+            <div class="hero-stat-header">
+                <div class="hero-label">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    Phép khả dụng hiện tại
+                </div>
+                <div class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: none; font-size: 11px;">
+                    Tháng {{ now()->month }}/{{ now()->year }}
+                </div>
             </div>
-            <div>
-                <div class="label">Tổng phép năm ({{ now()->year }})</div>
-                <div class="value">{{ number_format($phepNam->TongPhepDuocNghi ?? 0, 1) }}<span class="unit">ngày</span></div>
+
+            <div class="hero-value-group">
+                <div class="hero-value">
+                    {{ number_format($khaDung, 1) }}<span class="hero-unit">ngày</span>
+                </div>
+                <p style="color: #64748b; font-size: 13px; margin: 0; font-weight: 500;">Số ngày phép bạn có thể sử dụng để đăng ký nghỉ ngay bây giờ.</p>
+            </div>
+
+            <div class="hero-footer">
+                <div class="usage-stats-row">
+                    <span>Tiến độ sử dụng phép đã tích lũy</span>
+                    <span>{{ round($usagePercent) }}%</span>
+                </div>
+                <div class="usage-progress-container">
+                    <div class="usage-progress-bar" style="width: {{ $usagePercent }}%"></div>
+                </div>
+                <div class="usage-stats-row" style="font-size: 11px;">
+                    <span>Đã nghỉ: {{ $daNghi }} ngày</span>
+                    <span>Tổng tích lũy: {{ number_format($totalEarned, 1) }} ngày</span>
+                </div>
             </div>
         </div>
-        <div class="stat-card used">
-            <div class="icon-box">
-                <i class="bi bi-calendar-minus" style="font-size: 24px;"></i>
+
+        <!-- Secondary Info Cards -->
+        <div class="secondary-stats-grid">
+            <div class="mini-stat-card">
+                <div class="mini-icon" style="background: #ecfdf5; color: #10b981;">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <div class="mini-info">
+                    <div class="label">Tổng quỹ phép cả năm</div>
+                    <div class="value">{{ number_format($tongPhep, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">ngày</span></div>
+                </div>
             </div>
-            <div>
-                <div class="label">Đã nghỉ</div>
-                <div class="value">{{ number_format($phepNam->DaNghi ?? 0, 1) }}<span class="unit">ngày</span></div>
+
+            <div class="mini-stat-card">
+                <div class="mini-icon" style="background: #fef2f2; color: #ef4444;">
+                    <i class="bi bi-calendar-minus"></i>
+                </div>
+                <div class="mini-info">
+                    <div class="label">Tổng số ngày đã nghỉ</div>
+                    <div class="value">{{ number_format($daNghi, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">ngày</span></div>
+                </div>
             </div>
-        </div>
-        <div class="stat-card remaining">
-            <div class="icon-box">
-                <i class="bi bi-calendar-heart" style="font-size: 24px;"></i>
-            </div>
-            <div>
-                <div class="label">Phép còn lại</div>
-                <div class="value">{{ number_format($phepNam->ConLai ?? 0, 1) }}<span class="unit">ngày</span></div>
+
+            <div class="mini-stat-card">
+                <div class="mini-icon" style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <div class="mini-info">
+                    <div class="label">Còn lại của năm (Dự kiến)</div>
+                    <div class="value">{{ number_format($conLai, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">ngày</span></div>
+                </div>
             </div>
         </div>
     </div>

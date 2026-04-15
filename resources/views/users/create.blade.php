@@ -56,8 +56,8 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                 <div class="form-group" style="grid-column: span 2;">
-                    <label class="form-label">Họ và tên</label>
-                    <input type="text" name="Ten" class="form-control" placeholder="Nhập họ và tên (Ví dụ: Nguyễn Văn A)">
+                    <label class="form-label">Họ và tên <span style="color: red;">*</span></label>
+                    <input type="text" name="Ten" class="form-control" placeholder="Nhập họ và tên (Ví dụ: Nguyễn Văn A)" required>
                 </div>
 
                 <div class="form-group">

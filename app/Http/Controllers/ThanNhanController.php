@@ -27,12 +27,12 @@ class ThanNhanController extends Controller
 
         $data = $request->all();
         $data['LaGiamTruGiaCanh'] = $request->has('LaGiamTruGiaCanh') ? 1 : 0;
-        
+
         // Approval Status Logic
         $user = auth()->user();
         $isAdmin = $user && $user->hasAnyRole(['Super Admin', 'System Admin']);
         $data['TrangThai'] = $isAdmin ? 1 : 0;
-        
+
         // Convert date format from dd/mm/yyyy to yyyy-mm-dd
         if ($request->filled('NgaySinh')) {
             $dateParts = explode('/', $request->NgaySinh);
@@ -55,14 +55,14 @@ class ThanNhanController extends Controller
             'Thêm mới',
             'ThanNhan',
             $thanNhan->id,
-            "Thêm mới thân nhân: {$thanNhan->HoTen} cho nhân viên ID: {$thanNhan->NhanVienId}",
+            "Thêm mới người phụ thuộc: {$thanNhan->HoTen} cho nhân viên ID: {$thanNhan->NhanVienId}",
             null,
             $thanNhan->toArray()
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Thêm thân nhân thành công!'
+            'message' => 'Thêm người phụ thuộc thành công!'
         ]);
     }
 
@@ -83,7 +83,7 @@ class ThanNhanController extends Controller
             'Xóa',
             'ThanNhan',
             $thanNhan->id,
-            "Xóa thân nhân: {$thanNhan->HoTen} (CCCD: {$thanNhan->CCCD})",
+            "Xóa người phụ thuộc: {$thanNhan->HoTen} (CCCD: {$thanNhan->CCCD})",
             $thanNhan->toArray(),
             null
         );
@@ -92,14 +92,14 @@ class ThanNhanController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Xóa thân nhân thành công!'
+            'message' => 'Xóa người phụ thuộc thành công!'
         ]);
     }
 
     /**
      * Approve the relative entry.
      */
-    public function approve($id)
+    public function approve(Request $request, $id)
     {
         $user = auth()->user();
         if (!$user || !$user->hasAnyRole(['Super Admin', 'System Admin'])) {
@@ -110,21 +110,65 @@ class ThanNhanController extends Controller
         }
 
         $thanNhan = ThanNhan::findOrFail($id);
-        $thanNhan->update(['TrangThai' => 1]);
+        $thanNhan->update([
+            'TrangThai' => 1,
+            'GhiChu' => $request->GhiChu
+        ]);
 
         // Ghi Log: Duyệt
         SystemLogService::log(
             'Duyệt',
             'ThanNhan',
             $thanNhan->id,
-            "Duyệt thân nhân: {$thanNhan->HoTen}",
+            "Duyệt người phụ thuộc: {$thanNhan->HoTen}. Ghi chú: {$request->GhiChu}",
             ['TrangThai' => 0],
-            ['TrangThai' => 1]
+            ['TrangThai' => 1, 'GhiChu' => $request->GhiChu]
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Đã duyệt thân nhân thành công!'
+            'message' => 'Đã duyệt người phụ thuộc thành công!'
+        ]);
+    }
+
+    /**
+     * Reject the relative entry.
+     */
+    public function reject(Request $request, $id)
+    {
+        $user = auth()->user();
+        if (!$user || !$user->hasAnyRole(['Super Admin', 'System Admin'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền thực hiện thao tác này!'
+            ], 403);
+        }
+
+        $request->validate([
+            'GhiChu' => 'required|string|max:500'
+        ], [
+            'GhiChu.required' => 'Vui lòng nhập lý do từ chối.'
+        ]);
+
+        $thanNhan = ThanNhan::findOrFail($id);
+        $thanNhan->update([
+            'TrangThai' => 2,
+            'GhiChu' => $request->GhiChu
+        ]);
+
+        // Ghi Log: Từ chối
+        SystemLogService::log(
+            'Từ chối',
+            'ThanNhan',
+            $thanNhan->id,
+            "Từ chối người phụ thuộc: {$thanNhan->HoTen}. Lý do: {$request->GhiChu}",
+            ['TrangThai' => 0],
+            ['TrangThai' => 2, 'GhiChu' => $request->GhiChu]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã từ chối người phụ thuộc thành công!'
         ]);
     }
 }

@@ -38,8 +38,21 @@
         /* Final Dark Mode Polish for inline styles */
         body.dark-theme strong[style*="color: #1f2937"],
         body.dark-theme span[style*="color: #1f2937"],
+        body.dark-theme div[style*="color: #1f2937"],
+        body.dark-theme strong[style*="color: #374151"],
+        body.dark-theme span[style*="color: #374151"],
+        body.dark-theme div[style*="color: #374151"],
         body.dark-theme div[style*="color: #1f2937"] {
             color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .upload-text {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .upload-hint,
+        body.dark-theme .help-text {
+            color: #8b93a8 !important;
         }
 
         body.dark-theme input[readonly] {
@@ -48,17 +61,76 @@
             border-color: #2e3349 !important;
         }
 
-        body.dark-theme #salaryCard {
-            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%) !important;
-            border-color: #0BAA4B !important;
-        }
-
-        body.dark-theme #salaryCard span[style*="color: #1f2937"] {
+        body.dark-theme #salaryTable span[style*="color: #1f2937"] {
             color: #e8eaf0 !important;
         }
 
-        body.dark-theme #salaryCard span[style*="color: #6b7280"] {
+        body.dark-theme #salaryTable span[style*="color: #6b7280"] {
             color: #a0aec0 !important;
+        }
+
+        .salary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .salary-table th {
+            text-align: left;
+            padding: 12px;
+            background: rgba(11, 170, 75, 0.1);
+            color: #065f46;
+            font-weight: 600;
+            border-bottom: 2px solid #0BAA4B;
+        }
+
+        .salary-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-theme .salary-table td {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .salary-row-label {
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        body.dark-theme .salary-row-label {
+            color: #c3c8da;
+        }
+
+        .salary-row-value {
+            text-align: right;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        body.dark-theme .salary-row-value {
+            color: #e8eaf0;
+        }
+
+        .salary-row-deduction {
+            color: #dc2626;
+        }
+
+        .salary-row-total {
+            background: rgba(11, 170, 75, 0.05);
+            font-size: 16px;
+        }
+
+        .salary-row-total .salary-row-label {
+            color: #065f46;
+            font-weight: 700;
+        }
+
+        .salary-row-total .salary-row-value {
+            color: #0BAA4B;
+            font-weight: 800;
+            font-size: 18px;
         }
 
         .form-section h2 {
@@ -114,11 +186,22 @@
         .file-upload-area {
             border: 2px dashed #d1d5db;
             border-radius: 8px;
-            padding: 24px;
+            padding: 16px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             background: #f9fafb;
+            color: #374151; /* Default light mode color */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        body.dark-theme .file-upload-area {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+            border-color: #3d445e !important;
+            color: #e8eaf0 !important;
         }
 
         .file-upload-area:hover {
@@ -126,11 +209,23 @@
             background-color: #f0fdf4;
         }
 
+        body.dark-theme .file-upload-area:hover {
+            background-color: rgba(11, 170, 75, 0.08) !important;
+            border-color: #0BAA4B !important;
+        }
+
         .file-upload-area svg {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 12px;
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
             color: #6b7280;
+        }
+
+        .file-upload-compact-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
 
         .file-info {
@@ -140,6 +235,13 @@
             background: #f0fdf4;
             border-radius: 6px;
             text-align: left;
+            border: 1px solid #dcfce7;
+        }
+
+        body.dark-theme .file-info {
+            background: rgba(11, 170, 75, 0.05) !important;
+            border-color: rgba(11, 170, 75, 0.2) !important;
+            color: #e8eaf0 !important;
         }
 
         .file-info.show {
@@ -286,7 +388,7 @@
 
     <form id="contractForm" action="{{ route('hop-dong.tao') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <input type="hidden" name="phieu_dieu_chuyen_id" id="phieuDieuChuyenId">
+
 
         <!-- Thông tin cơ bản & Vị trí & Loại HĐ -->
         <div class="form-section">
@@ -307,7 +409,8 @@
                                 data-ma="{{ $nv->Ma }}" data-ten="{{ $nv->Ten }}"
                                 data-phongban="{{ $nv->phongBan?->Ten }}" data-chucvu="{{ $nv->chucVu?->Ten }}"
                                 data-phongban-id="{{ $nv->ttCongViec?->PhongBanId }}"
-                                data-chucvu-id="{{ $nv->ttCongViec?->ChucVuId }}">
+                                data-chucvu-id="{{ $nv->ttCongViec?->ChucVuId }}"
+                                data-phuthuoc="{{ $nv->phu_thuoc_count }}">
                                 {{ $nv->Ma }} - {{ $nv->Ten }} - {{ $nv->phongBan?->Ten }}
                             </option>
                         @endforeach
@@ -319,14 +422,14 @@
 
                 <div class="form-group">
                     <label class="form-label">Người ký hợp đồng <span class="required">*</span></label>
-                    <select id="nguoiKySelect" class="form-control select2" required disabled>
+                    <select id="nguoiKySelect" name="NguoiKyId" class="form-control select2" required>
+                        <option value="">-- Chọn người ký --</option>
                         @foreach($nguoiKyList as $nv)
                             <option value="{{ $nv->id }}" @if($nv->id == $defaultNguoiKyId) selected @endif>
                                 {{ $nv->Ma }} - {{ $nv->Ten }}
                             </option>
                         @endforeach
                     </select>
-                    <input type="hidden" name="NguoiKyId" value="{{ $defaultNguoiKyId }}">
                 </div>
 
                 <div class="form-group">
@@ -342,12 +445,14 @@
                     <label class="form-label">Loại hợp đồng <span class="required">*</span></label>
                     <select name="loai_hop_dong_id" id="loaiHopDongSelect" class="form-control select2" required>
                         <option value="">-- Chọn loại hợp đồng --</option>
-                        <option value="1" @if(isset($isRenew) && $oldContract->Loai == 'thu_viec') selected @endif data-ma="HDTV" data-loai="thu_viec">Hợp đồng thử việc</option>
-                        <option value="2" @if(isset($isRenew) && $oldContract->Loai == 'chinh_thuc_xac_dinh_thoi_han') selected @endif data-ma="HDLD" data-loai="chinh_thuc_xac_dinh_thoi_han">Hợp đồng lao động xác định thời hạn</option>
-                        <option value="3" @if(isset($isRenew) && $oldContract->Loai == 'chinh_thuc_khong_xac_dinh_thoi_han') selected @endif data-ma="HDLD" data-loai="chinh_thuc_khong_xac_dinh_thoi_han">Hợp đồng lao động không xác định thời hạn</option>
-                        <option value="4" @if(isset($isRenew) && $oldContract->Loai == 'khoan_viec') selected @endif data-ma="HDKV" data-loai="khoan_viec">Hợp đồng khoán việc</option>
-                        <option value="5" @if(isset($isRenew) && $oldContract->Loai == 'thoi_vu') selected @endif data-ma="HDTV" data-loai="thoi_vu">Hợp đồng thời vụ</option>
-                        <option value="7" @if(isset($isRenew) && str_starts_with($oldContract->Loai ?? '', 'nda')) selected @endif data-ma="NDA" data-loai="nda">Thỏa thuận bảo mật (NDA)</option>
+                        @foreach($loaiHopDongs as $loai)
+                            <option value="{{ $loai->id }}" 
+                                @if(isset($isRenew) && $oldContract->loai_hop_dong_id == $loai->id) selected @endif
+                                data-ma="{{ $loai->MaLoai }}" 
+                                data-loai="{{ $loai->MaLoai }}">
+                                {{ $loai->TenLoai }}
+                            </option>
+                        @endforeach
                     </select>
                     <input type="hidden" name="loai" id="loaiInput" value="{{ isset($isRenew) ? ($oldContract->Loai ?? '') : '' }}">
                 </div>
@@ -412,24 +517,28 @@
                         placeholder="dd/mm/yyyy" required readonly>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Ngày kết thúc</label>
+                <div class="form-group" id="ngayKetThucGroup">
+                    <label class="form-label">Ngày kết thúc <span class="required-star" id="ngayKetThucRequired" style="display: none;">*</span></label>
                     <input type="text" name="NgayKetThuc" id="ngayKetThuc" class="form-control datepicker"
                         placeholder="dd/mm/yyyy" readonly>
-                    <div class="help-text">Để trống nếu là "Không xác định thời hạn"</div>
+                    <div class="help-text">Bắt đầu nhập cho các loại HĐ có thời hạn</div>
+                </div>
+
+                <input type="hidden" name="trang_thai" value="1">
+                <div class="form-group">
+                    <label class="form-label">Số ngày phép/năm <span class="required-star">*</span></label>
+                    <input type="number" name="ngay_phep_nam" id="ngayPhepNam" class="form-control" value="12" min="0" required>
+                    <div class="help-text">Phép chuẩn theo năm</div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Trạng thái <span class="required">*</span></label>
-                    <select name="trang_thai" class="form-control select2" required>
-                        <option value="1" selected>Còn hiệu lực</option>
-                        <option value="0">Hết hạn</option>
-                        <option value="2">Bị hủy/Thanh lý</option>
-                    </select>
+                    <label class="form-label">Phép khả dụng năm nay</label>
+                    <input type="number" name="ngay_phep_kha_dung" id="ngayPhepKhaDung" class="form-control" value="9" step="0.1" readonly style="background-color: #f9fafb;">
+                    <div class="help-text">Tính từ tháng bắt đầu đến hết năm</div>
                 </div>
             </div>
 
-            <div id="durationInfo" class="help-text" style="padding: 12px; background: rgba(11, 170, 75, 0.1); border-radius: 6px; display: none; margin-top: 15px; color: #0BAA4B;">
+            <div id="durationInfo" class="help-text" style="padding: 12px; background: rgba(11, 170, 75, 0.1); border-radius: 6px; display: none; margin-top: 15px; margin-bottom: 24px; color: #0BAA4B;">
                 <strong>Thời hạn hợp đồng:</strong> <span id="durationText">-</span>
             </div>
 
@@ -437,155 +546,109 @@
                 <i class="bi bi-cash-coin" style="font-size: 24px;"></i>
                 Cấu trúc lương cơ bản
             </h2>
-
             <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="ngachLuongSelect">Ngạch lương <span style="font-size: 12px; color: #6b7280;">(tuỳ chọn)</span></label>
-                    <select name="ngach_luong_id" id="ngachLuongSelect" class="form-control select2">
-                        <option value="">-- Chọn ngạch lương --</option>
-                        @foreach($ngachLuongs as $nl)
-                            <option value="{{ $nl->id }}" @if(isset($isRenew) && $oldDienBien && $oldDienBien->NgachLuongId == $nl->id) selected @endif data-ma="{{ $nl->Ma }}" data-ten="{{ $nl->Ten }}" data-nhom="{{ $nl->Nhom }}">
-                                {{ $nl->Ma }} – {{ $nl->Ten }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="bacLuongSelect">Bậc lương <span style="font-size: 12px; color: #6b7280;">(chọn ngạch trước)</span></label>
-                    <select name="bac_luong_id" id="bacLuongSelect" class="form-control select2" disabled>
-                        <option value="">-- Chọn bậc lương --</option>
-                    </select>
-                    
-                    <div id="heSoBadge" style="display:none; margin-top: 8px; padding: 6px 12px; background: rgba(11, 170, 75, 0.1); border: 1px solid #0BAA4B; border-radius: 6px; font-size: 13px; color: #0BAA4B;">
-                        <strong id="heSoValue">–</strong>
-                        <span style="color: #6b7280;"> × {{ number_format($mucLuongCoSo, 0, ',', '.') }} đ = </span>
-                        <strong id="luongTinhTu">–</strong>
-                    </div>
-                </div>
-
                 <div class="form-group">
                     <label class="form-label">Lương cơ bản (VNĐ) <span class="required">*</span></label>
                     <input type="text" name="luong_co_ban" id="luongCoBan" class="form-control salary-input formatted-number"
                         placeholder="15.000.000" required value="{{ isset($isRenew) ? number_format($oldContract->LuongCoBan, 0, ',', '.') : '' }}" @if(isset($isRenew)) readonly @endif>
-                    <div class="help-text">Tối thiểu 5.310.000 VNĐ</div>
                 </div>
-            </div>
-
-            @php
-                $ngachBacJson = [];
-                foreach ($ngachLuongs as $nl) {
-                    $bacs = [];
-                    foreach ($nl->bacLuongs->sortBy('Bac') as $b) {
-                        $bacs[] = [
-                            'id' => $b->id,
-                            'bac' => $b->Bac,
-                            'heso' => (float) $b->HeSo,
-                        ];
-                    }
-                    $ngachBacJson[] = [
-                        'id' => $nl->id,
-                        'ma' => $nl->Ma,
-                        'ten' => $nl->Ten,
-                        'nhom' => $nl->Nhom,
-                        'bacs' => $bacs,
-                    ];
-                }
-            @endphp
-            <script id="ngachBacData" type="application/json">
-                {!! json_encode($ngachBacJson) !!}
-            </script>
-
-            <!-- Phụ cấp tính BHXH -->
-            <div style="margin-top: 24px; margin-bottom: 12px;">
-                <strong style="color: #1f2937; font-size: 15px;">📋 Phụ cấp tính BHXH</strong>
-                <div class="help-text">Các khoản phụ cấp được tính vào tiền lương đóng bảo hiểm xã hội</div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
-                    <label>Phụ cấp chức vụ (VNĐ)</label>
-                    <input type="text" name="phu_cap_chuc_vu" id="phuCapChucVu"
-                        class="form-control salary-input formatted-number" placeholder="0" min="0" value="0" readonly>
-                    <div class="help-text">Tự động lấy từ chức vụ đã chọn</div>
+                    <label class="form-label">Số người phụ thuộc</label>
+                    <input type="number" id="soNguoiPhuThuoc" class="form-control salary-input" value="0" min="0">
+                    <div class="help-text">Dùng để tính mức giảm trừ gia cảnh</div>
                 </div>
-
-                @foreach($dmAllowances->where('is_bhxh', 1) as $dm)
-                    <div class="form-group">
-                        <label>{{ $dm->noi_dung }} (VNĐ)</label>
-                        <input type="text" name="allowances[{{ $dm->id }}]" 
-                            class="form-control salary-input formatted-number allowance-bhxh" 
-                            placeholder="0" min="0" 
-                            value="{{ isset($isRenew) && $oldContract->phuCaps->contains($dm->id) ? number_format($oldContract->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}"
-                            @if(isset($isRenew)) readonly @endif>
-                    </div>
-                @endforeach
             </div>
 
-            <!-- Phụ cấp KHÔNG tính BHXH -->
-            <div style="margin-top: 24px; margin-bottom: 12px;">
-                <strong style="color: #1f2937; font-size: 15px;">💼 Phụ cấp KHÔNG tính BHXH</strong>
-                <div class="help-text">Các khoản hỗ trợ đời sống, không tính vào tiền lương đóng bảo hiểm</div>
+
+            <!-- Các khoản phụ cấp -->
+            <div style="margin-top: 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="color: #1f2937; font-size: 15px;">Các khoản phụ cấp</strong>
+                    <div class="help-text">Nhập tên điều khoản và số tiền phụ cấp</div>
+                </div>
+                <button type="button" class="btn btn-success btn-sm" id="add-allowance-btn" style="display: flex; align-items: center; gap: 6px; padding: 6px 16px; background-color: #0BAA4B; border-color: #0BAA4B; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 500;">
+                    <i class="bi bi-plus-circle-fill"></i> Thêm hàng
+                </button>
             </div>
 
-            <div class="form-row">
-                @foreach($dmAllowances->where('is_bhxh', 0) as $dm)
-                    <div class="form-group">
-                        <label>{{ $dm->noi_dung }} (VNĐ)</label>
-                        <input type="text" name="allowances[{{ $dm->id }}]" 
-                            class="form-control salary-input formatted-number allowance-ngoai-bhxh" 
-                            placeholder="0" min="0" 
-                            value="{{ isset($isRenew) && $oldContract->phuCaps->contains($dm->id) ? number_format($oldContract->phuCaps->find($dm->id)->pivot->so_tien, 0, ',', '.') : '0' }}"
-                            @if(isset($isRenew)) readonly @endif>
-                    </div>
-                @endforeach
+            <div id="allowance-container">
+                <!-- Initial row if renewing from old dynamic data -->
+                @if(isset($isRenew) && !empty($oldContract->PhuCap))
+                    @foreach($oldContract->PhuCap as $index => $pc)
+                        <div class="form-row allowance-row" style="margin-bottom: 12px;">
+                            <div class="form-group" style="grid-column: span 2;">
+                                <input type="text" name="phu_cap[{{ $index }}][name]" class="form-control" placeholder="Tên điều khoản (VD: Phụ cấp đi lại)" value="{{ $pc['name'] }}" required>
+                            </div>
+                            <div class="form-group">
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" name="phu_cap[{{ $index }}][amount]" class="form-control salary-input formatted-number allowance-amount" placeholder="Số tiền" value="{{ number_format($pc['amount'], 0, ',', '.') }}" required>
+                                    <button type="button" class="btn btn-outline-danger btn-remove-allowance">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
             </div>
 
             <!-- Hidden input for Total Income (saved to TongLuong) -->
             <input type="hidden" name="tong_luong" id="tongLuongInput" value="0">
 
-            <!-- Tổng hợp lương -->
-            <div id="salaryCard"
-                style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #0BAA4B; border-radius: 12px; display: none;">
-                <div
-                    style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    <i class="bi bi-bar-chart-fill" style="font-size: 20px; color: #0BAA4B;"></i>
-                    TỔNG HỢP LƯƠNG
+            <!-- Diễn giải chi tiết lương (Simulation) -->
+            <div id="salaryCalculationArea" style="margin-top: 24px; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px; display: none;">
+                <div style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-calculator-fill" style="font-size: 20px; color: #0BAA4B;"></i>
+                    Diễn giải chi tiết (VND)
                 </div>
+                <div class="help-text" style="margin-bottom: 16px;">Mô phỏng thu nhập dựa trên luật hiện hành (2026)</div>
 
-                <div style="display: grid; gap: 10px; font-size: 14px;">
-                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                        <span style="color: #6b7280;">Lương cơ bản:</span>
-                        <span id="displayLuongCoBan" style="font-weight: 600; color: #1f2937;">0 ₫</span>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                        <span style="color: #6b7280;">Tổng phụ cấp tính BHXH:</span>
-                        <span id="displayPhuCapBHXH" style="font-weight: 600; color: #1f2937;">0 ₫</span>
-                    </div>
-
-                    <div style="border-top: 1px dashed #0BAA4B; margin: 4px 0;"></div>
-
-                    <div
-                        style="display: flex; justify-content: space-between; padding: 8px 0; background: rgba(15, 81, 50, 0.1); margin: 0 -12px; padding-left: 12px; padding-right: 12px; border-radius: 6px;">
-                        <span style="color: #0BAA4B; font-weight: 600;">Tiền lương đóng BHXH:</span>
-                        <span id="displayLuongBHXH" style="font-weight: 700; color: #0BAA4B;">0 ₫</span>
-                    </div>
-
-                    <div style="border-top: 1px solid #d1d5db; margin: 8px 0;"></div>
-
-                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                        <span style="color: #6b7280;">Tổng phụ cấp không BHXH:</span>
-                        <span id="displayPhuCapKhongBHXH" style="font-weight: 600; color: #1f2937;">0 ₫</span>
-                    </div>
-
-                    <div style="border-top: 2px solid #0BAA4B; margin: 8px 0;"></div>
-
-                    <div style="display: flex; justify-content: space-between; padding: 12px 0;">
-                        <span style="font-size: 16px; font-weight: 700; color: #1f2937;">💰 TỔNG THU NHẬP:</span>
-                        <span id="displayTongThuNhap" style="font-size: 18px; font-weight: 700; color: #0BAA4B;">0 ₫</span>
-                    </div>
-                </div>
+                <table class="salary-table" id="salaryTable">
+                    <thead>
+                        <tr>
+                            <th>Nội dung</th>
+                            <th style="text-align: right;">Công thức / Định mức</th>
+                            <th style="text-align: right;">Số tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="salary-row-label">Lương Gross</td>
+                            <td style="text-align: right; color: #6b7280; font-size: 13px;">Lương CB + Phụ cấp</td>
+                            <td class="salary-row-value" id="resGross">0 ₫</td>
+                        </tr>
+                        <tr>
+                            <td class="salary-row-label">Bảo hiểm (10.5%)</td>
+                            <td style="text-align: right; color: #6b7280; font-size: 13px;">BHXH, BHYT, BHTN</td>
+                            <td class="salary-row-value salary-row-deduction" id="resInsurance">-0 ₫</td>
+                        </tr>
+                        <tr>
+                            <td class="salary-row-label">Giảm trừ gia cảnh</td>
+                            <td style="text-align: right; color: #6b7280; font-size: 13px;" id="resDeductionNote">Bản thân + 0 NPT</td>
+                            <td class="salary-row-value salary-row-deduction" id="resDeduction">-0 ₫</td>
+                        </tr>
+                        <tr>
+                            <td class="salary-row-label">Thu nhập tính thuế</td>
+                            <td style="text-align: right; color: #6b7280; font-size: 13px;">Gross - BH - Giảm trừ</td>
+                            <td class="salary-row-value" id="resTaxable">0 ₫</td>
+                        </tr>
+                        <tr>
+                            <td class="salary-row-label">Thuế TNCN</td>
+                            <td style="text-align: right; color: #6b7280; font-size: 13px;">Biểu thuế lũy tiến</td>
+                            <td class="salary-row-value salary-row-deduction" id="resPIT">-0 ₫</td>
+                        </tr>
+                        <tr>
+                            <td class="salary-row-label">Đoàn phí công đoàn</td>
+                            <td style="text-align: right; color: #6b7280; font-size: 13px;">1% Lương Gross</td>
+                            <td class="salary-row-value salary-row-deduction" id="resUnion">-0 ₫</td>
+                        </tr>
+                        <tr class="salary-row-total">
+                            <td class="salary-row-label">💰 LƯƠNG NET</td>
+                            <td style="text-align: right; color: #065f46; font-weight: 500; font-size: 13px;">Thực nhận hàng tháng</td>
+                            <td class="salary-row-value" id="resNet">0 ₫</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -599,12 +662,12 @@
             <div class="form-group">
                 <label>Tải lên file hợp đồng (PDF)</label>
                 <div class="file-upload-area" onclick="document.getElementById('fileUpload').click()">
-                    <i class="bi bi-cloud-upload" style="font-size: 48px; color: #0BAA4B;"></i>
-                    <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">
-                        Click để tải file lên
-                    </div>
-                    <div style="font-size: 13px; color: #6b7280;">
-                        PDF, DOC, DOCX (MAX. 10MB)
+                    <div class="file-upload-compact-container">
+                        <i class="bi bi-cloud-upload" style="font-size: 32px; color: #0BAA4B;"></i>
+                        <div style="text-align: left;">
+                            <div style="font-weight: 600; font-size: 14px;" class="upload-text">Tải file lên (PDF, DOC, DOCX)</div>
+                            <div style="font-size: 12px;" class="upload-hint">Dung lượng tối đa 10MB</div>
+                        </div>
                     </div>
                     <input type="file" id="fileUpload" name="file" accept=".pdf,.doc,.docx" style="display: none;"
                         onchange="handleFileSelect(event)">
@@ -614,8 +677,8 @@
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <i class="bi bi-file-earmark-pdf" style="font-size: 24px; color: #0BAA4B;"></i>
                         <div style="flex: 1;">
-                            <div id="fileName" style="font-weight: 500; color: #1f2937;">-</div>
-                            <div id="fileSize" style="font-size: 13px; color: #6b7280;">-</div>
+                            <div id="fileName" style="font-weight: 500;" class="upload-text">-</div>
+                            <div id="fileSize" style="font-size: 13px;" class="upload-hint">-</div>
                         </div>
                         <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;"
                             onclick="removeFile()">
@@ -663,6 +726,7 @@
                         endDatePicker.set('minDate', selectedDates[0]);
                     }
                     calculateDuration();
+                    calculateAvailableLeave();
                 }
             });
 
@@ -724,13 +788,48 @@
             }
 
             // Update contract type
-            // document.getElementById('loaiHopDongSelect').addEventListener('change', function () { // Original
-            $('#loaiHopDongSelect').on('change', function () { // Select2 change event
+            $('#loaiHopDongSelect').on('change', function () {
                 const option = $(this).find('option:selected'); // Get selected option
                 const loai = option.data('loai') || '';
+                const maLoai = option.data('ma') || '';
+                
                 document.getElementById('loaiInput').value = loai;
 
+                // Handle KXDH vs Others visibility & validation
+                const ngayKetThucInput = document.getElementById('ngayKetThuc');
+                const ngayKetThucGroup = document.getElementById('ngayKetThucGroup');
+                const ngayKetThucRequired = document.getElementById('ngayKetThucRequired');
+
+                if (maLoai === 'KXDH') {
+                    $(ngayKetThucGroup).hide();
+                    ngayKetThucInput.value = '';
+                    ngayKetThucInput.removeAttribute('required');
+                    ngayKetThucRequired.style.display = 'none';
+                } else {
+                    $(ngayKetThucGroup).show();
+                    ngayKetThucInput.setAttribute('required', 'required');
+                    ngayKetThucRequired.style.display = 'inline';
+                }
+
+                // Auto-set dates for TV (Probation)
+                if (maLoai === 'TV') {
+                    const today = new Date();
+                    const nextTwoMonths = new Date();
+                    nextTwoMonths.setMonth(today.getMonth() + 2);
+
+                    const formatDate = (date) => {
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const year = date.getFullYear();
+                        return `${day}/${month}/${year}`;
+                    };
+
+                    $('#ngayBatDau').val(formatDate(today)).trigger('change');
+                    $('#ngayKetThuc').val(formatDate(nextTwoMonths)).trigger('change');
+                }
+
                 generateContractNumber();
+                calculateDuration();
             });
 
 
@@ -772,6 +871,29 @@
                     durationInfo.style.display = 'none';
                 }
             }
+
+            // Calculate available leave for the first year
+            function calculateAvailableLeave() {
+                const startDateStr = document.getElementById('ngayBatDau').value;
+                const annualLeave = parseFloat(document.getElementById('ngayPhepNam').value) || 0;
+                const khaDungInput = document.getElementById('ngayPhepKhaDung');
+
+                if (startDateStr) {
+                    const parts = startDateStr.split('/');
+                    if (parts.length === 3) {
+                        const startMonth = parseInt(parts[1]);
+                        const monthsRemaining = 12 - startMonth + 1;
+                        const available = (annualLeave / 12) * monthsRemaining;
+                        khaDungInput.value = Math.round(available * 10) / 10;
+                    }
+                }
+            }
+
+            // Listen for changes in annual leave
+            document.getElementById('ngayPhepNam').addEventListener('input', calculateAvailableLeave);
+            
+            // Initial calculation
+            setTimeout(calculateAvailableLeave, 500);
 
 
             // Handle file upload
@@ -875,60 +997,90 @@
 
             // Calculate and display salary breakdown
             function calculateSalary() {
-                // Get all salary values (unformat first to handle dots)
+                // Get base salary (unformat first to handle dots)
                 const luongCoBan = parseFloat(unformatNumber(document.getElementById('luongCoBan').value)) || 0;
-                const phuCapChucVu = parseFloat(unformatNumber(document.getElementById('phuCapChucVu').value)) || 0;
+                const soNguoiPhuThuoc = parseInt(document.getElementById('soNguoiPhuThuoc').value) || 0;
                 
-                // Sum dynamic allowances (BHXH)
-                let tongPhuCapBHXH = phuCapChucVu;
-                document.querySelectorAll('.allowance-bhxh').forEach(input => {
-                    tongPhuCapBHXH += parseFloat(unformatNumber(input.value)) || 0;
+                // Sum dynamic allowances
+                let tongPhuCap = 0;
+                document.querySelectorAll('.allowance-amount').forEach(input => {
+                    tongPhuCap += parseFloat(unformatNumber(input.value)) || 0;
                 });
+                
+                const grossSalary = luongCoBan + tongPhuCap;
 
-                // Sum dynamic allowances (Non-BHXH)
-                let tongPhuCapKhongBHXH = 0;
-                document.querySelectorAll('.allowance-ngoai-bhxh').forEach(input => {
-                    tongPhuCapKhongBHXH += parseFloat(unformatNumber(input.value)) || 0;
-                });
+                // 1. Insurance (Basic rule: 10.5% of Gross, capped at 20 * MucLuongCoSo)
+                const mucLuongCoBanCap = mucLuongCoSo * 20;
+                const salaryForInsurance = Math.min(grossSalary, mucLuongCoBanCap);
+                const insurance = Math.round(salaryForInsurance * 0.105);
 
-                const luongBHXH = luongCoBan + tongPhuCapBHXH;
-                const tongThuNhap = luongBHXH + tongPhuCapKhongBHXH;
+                // 2. Union Fee (1% of Gross)
+                const unionFee = Math.round(grossSalary * 0.01);
+
+                // 3. Family Deductions (2026 Rules from user mockup)
+                // Personal: 15,500,000
+                // Dependent: 4,400,000 (Assuming same increment ratio or standard)
+                const personalDeduction = 15500000;
+                const dependentDeduction = 4400000;
+                const totalDeduction = personalDeduction + (soNguoiPhuThuoc * dependentDeduction);
+
+                // 4. Taxable Income
+                const taxableIncome = Math.max(0, grossSalary - insurance - totalDeduction);
+
+                // 5. Personal Income Tax (PIT) - Progressive Brackets
+                const calculatePIT = (taxable) => {
+                    if (taxable <= 0) return 0;
+                    if (taxable <= 5000000) return taxable * 0.05;
+                    if (taxable <= 10000000) return taxable * 0.1 - 250000;
+                    if (taxable <= 18000000) return taxable * 0.15 - 750000;
+                    if (taxable <= 32000000) return taxable * 0.2 - 1650000;
+                    if (taxable <= 52000000) return taxable * 0.25 - 3250000;
+                    if (taxable <= 80000000) return taxable * 0.3 - 5850000;
+                    return taxable * 0.35 - 9850000;
+                };
+                const pit = Math.round(calculatePIT(taxableIncome));
+
+                // 6. Net Salary
+                const netSalary = grossSalary - insurance - pit - unionFee;
 
                 // Format and display
                 const formatVND = (amount) => amount.toLocaleString('vi-VN') + ' ₫';
+                const formatVNDDeduction = (amount) => '-' + amount.toLocaleString('vi-VN') + ' ₫';
 
-                document.getElementById('displayLuongCoBan').textContent = formatVND(luongCoBan);
-                document.getElementById('displayPhuCapBHXH').textContent = formatVND(tongPhuCapBHXH);
-                document.getElementById('displayLuongBHXH').textContent = formatVND(luongBHXH);
-                document.getElementById('displayPhuCapKhongBHXH').textContent = formatVND(tongPhuCapKhongBHXH);
-                document.getElementById('displayTongThuNhap').textContent = formatVND(tongThuNhap);
+                document.getElementById('resGross').textContent = formatVND(grossSalary);
+                document.getElementById('resInsurance').textContent = formatVNDDeduction(insurance);
+                document.getElementById('resDeduction').textContent = formatVNDDeduction(totalDeduction);
+                document.getElementById('resDeductionNote').textContent = `Bản thân + ${soNguoiPhuThuoc} NPT`;
+                document.getElementById('resTaxable').textContent = formatVND(taxableIncome);
+                document.getElementById('resPIT').textContent = formatVNDDeduction(pit);
+                document.getElementById('resUnion').textContent = formatVNDDeduction(unionFee);
+                document.getElementById('resNet').textContent = formatVND(netSalary);
 
                 // Sync to hidden input for database saving
-                document.getElementById('tongLuongInput').value = Math.round(tongThuNhap);
+                document.getElementById('tongLuongInput').value = Math.round(grossSalary);
 
-                // Show salary card if base salary is entered
-                const salaryCard = document.getElementById('salaryCard');
-                if (luongCoBan > 0) {
-                    salaryCard.style.display = 'block';
+                // Show calculation area if base salary is entered
+                const calculationArea = document.getElementById('salaryCalculationArea');
+                if (grossSalary > 0) {
+                    calculationArea.style.display = 'block';
                 } else {
-                    salaryCard.style.display = 'none';
-                }
-
-                // Validate minimum wage
-                const minWage = 5310000; // Lương tối thiểu vùng I năm 2026
-                const luongCoBanInput = document.getElementById('luongCoBan');
-                if (luongCoBan > 0 && luongCoBan < minWage) {
-                    luongCoBanInput.style.borderColor = '#dc2626';
-                    luongCoBanInput.setCustomValidity('Lương cơ bản phải >= 5.310.000 VNĐ (Lương tối thiểu vùng I)');
-                } else {
-                    luongCoBanInput.style.borderColor = '#d1d5db';
-                    luongCoBanInput.setCustomValidity('');
+                    calculationArea.style.display = 'none';
                 }
             }
 
             // Add event listeners to all salary inputs
             document.querySelectorAll('.salary-input').forEach(input => {
                 input.addEventListener('input', calculateSalary);
+            });
+            
+            // Auto-fill dependents when employee is selected
+            $('#nhanVienSelect').on('change', function() {
+                const selectedOption = $(this).find('option:selected');
+                if (selectedOption.val()) {
+                    const dependents = selectedOption.data('phuthuoc') || 0;
+                    document.getElementById('soNguoiPhuThuoc').value = dependents;
+                    calculateSalary();
+                }
             });
 
 
@@ -944,20 +1096,87 @@
             // Base salary from server
             const mucLuongCoSo = {{ $mucLuongCoSo }};
 
+            // Dynamic allowance row management
+            let allowanceIndex = {{ isset($isRenew) && !empty($oldContract->PhuCap) ? count($oldContract->PhuCap) : 0 }};
+            
+            document.getElementById('add-allowance-btn').addEventListener('click', function() {
+                const container = document.getElementById('allowance-container');
+                const row = document.createElement('div');
+                row.className = 'form-row allowance-row';
+                row.style.marginBottom = '12px';
+                row.innerHTML = `
+                    <div class="form-group" style="grid-column: span 2;">
+                        <input type="text" name="phu_cap[${allowanceIndex}][name]" class="form-control" placeholder="Tên điều khoản (VD: Phụ cấp đi lại)" required>
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" name="phu_cap[${allowanceIndex}][amount]" class="form-control salary-input formatted-number allowance-amount" placeholder="Số tiền" required>
+                            <button type="button" class="btn btn-outline-danger btn-remove-allowance">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+                
+                // Initialize events for new row
+                const amountInput = row.querySelector('.allowance-amount');
+                amountInput.addEventListener('input', function(e) {
+                    formatInput(this);
+                    calculateSalary();
+                });
+                
+                row.querySelector('.btn-remove-allowance').addEventListener('click', function() {
+                    row.remove();
+                    calculateSalary();
+                });
+                
+                allowanceIndex++;
+            });
+
+            // Handle removal of existing rows (for Renew)
+            document.querySelectorAll('.btn-remove-allowance').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.allowance-row').remove();
+                    calculateSalary();
+                });
+            });
+
+            function formatInput(input) {
+                let value = input.value.replace(/\D/g, '');
+                if (value) {
+                    input.value = formatNumber(value);
+                }
+            }
+
             // Auto-fill position allowance when position is selected
-            const chucVuSelect = $('#chucVuSelect'); // Use jQuery
+            const chucVuSelect = $('#chucVuSelect');
             if (chucVuSelect) {
-                chucVuSelect.on('change', function () { // Select2 change event
-                    const selectedOption = $(this).find('option:selected'); // Get selected option
-                    const heSoPhuCap = parseFloat(selectedOption.data('phucap')) || 0;
+                chucVuSelect.on('change', function () {
+                    const selectedOption = $(this).find('option:selected');
+                    const phuCapAmount = parseFloat(selectedOption.data('phucap')) || 0;
 
-                    // Calculate allowance amount = coefficient × base salary
-                    const phuCapAmount = heSoPhuCap * mucLuongCoSo;
+                    if (phuCapAmount > 0) {
+                        // Check if "Phụ cấp chức vụ" row already exists
+                        let exists = false;
+                        document.querySelectorAll('#allowance-container input[name$="[name]"]').forEach(input => {
+                            if (input.value === 'Phụ cấp chức vụ') {
+                                const amountInput = input.closest('.allowance-row').querySelector('.allowance-amount');
+                                amountInput.value = formatNumber(Math.round(phuCapAmount));
+                                exists = true;
+                            }
+                        });
 
-                    document.getElementById('phuCapChucVu').value = formatNumber(Math.round(phuCapAmount));
-                    calculateSalary(); // Recalculate salary totals
-
-                    // Check position availability for Loai 1 (manager positions)
+                        if (!exists) {
+                            // Add new row for position allowance
+                            document.getElementById('add-allowance-btn').click();
+                            const lastRow = document.querySelector('#allowance-container .allowance-row:last-child');
+                            lastRow.querySelector('input[name$="[name]"]').value = 'Phụ cấp chức vụ';
+                            lastRow.querySelector('.allowance-amount').value = formatNumber(Math.round(phuCapAmount));
+                        }
+                    }
+                    
+                    calculateSalary();
                     checkPositionAvailability();
                 });
             }
@@ -1173,15 +1392,9 @@
                 });
             }
 
-            // Auto-select employee if nhan_vien_id is in URL (for normal creation from profile/transfer)
+            // Auto-select employee if nhan_vien_id is in URL (for normal creation from profile)
             const urlParams = new URLSearchParams(window.location.search);
             const nhanVienId = urlParams.get('nhan_vien_id');
-            const phieuId = urlParams.get('phieu_dieu_chuyen_id');
-
-            if (phieuId) {
-                const phieuInput = document.getElementById('phieuDieuChuyenId');
-                if (phieuInput) phieuInput.value = phieuId;
-            }
 
             if (nhanVienId) {
                 $(document).ready(function() {
@@ -1194,20 +1407,6 @@
                             'pointer-events': 'none'
                         });
 
-                        // Lock position fields if coming from transfer
-                        if (phieuId) {
-                            const posFields = ['phongBanSelect', 'chucVuSelect'];
-                            posFields.forEach(id => {
-                                const el = $('#' + id);
-                                if (el.length) {
-                                    el.prop('disabled', true).addClass('locked-field');
-                                    el.next('.select2-container').find('.select2-selection--single').css({
-                                        'background-color': '#f3f4f6',
-                                        'pointer-events': 'none'
-                                    });
-                                }
-                            });
-                        }
                     }
                 });
             }
@@ -1250,89 +1449,6 @@
                     }
                 });
             @endif
-            // =============================================
-            // Ngạch lương & Bậc lương – cascade logic
-            // =============================================
-            $(document).ready(function () {
-                // Initialize Select2
-                $('.select2').select2({
-                    width: '100%',
-                    placeholder: 'Chọn một mục',
-                    allowClear: true
-                });
-
-                const ngachData = JSON.parse(document.getElementById('ngachBacData').textContent);
-                const ngachSelect = $('#ngachLuongSelect'); // Use jQuery
-                const bacSelect = $('#bacLuongSelect'); // Use jQuery
-                const heSoBadge = $('#heSoBadge'); // Use jQuery
-                const heSoValue = $('#heSoValue'); // Use jQuery
-                const luongTinhTu = $('#luongTinhTu'); // Use jQuery
-                const luongCoBanInput = $('#luongCoBan'); // Use jQuery
-
-                // Khi chọn Ngạch lương → load danh sách Bậc lương
-                ngachSelect.on('change', function () { // Select2 change event
-                    const ngachId = parseInt($(this).val()); // Use .val()
-                    bacSelect.html('<option value="">-- Chọn bậc lương --</option>'); // Use html()
-                    heSoBadge.hide(); // Use hide()
-
-                    if (!ngachId) {
-                        bacSelect.prop('disabled', true).trigger('change'); // Use prop and trigger
-                        return;
-                    }
-
-                    const ngach = ngachData.find(n => n.id === ngachId);
-                    if (!ngach || !ngach.bacs.length) {
-                        bacSelect.prop('disabled', true).trigger('change');
-                        return;
-                    }
-
-                    ngach.bacs.forEach(b => {
-                        const opt = `<option value="${b.id}" data-heso="${b.heso}">Bậc ${b.bac}  –  Hệ số ${Number(b.heso).toFixed(2)}</option>`;
-                        bacSelect.append(opt); // Use append
-                    });
-                    bacSelect.prop('disabled', false).trigger('change'); // Enable and refresh Select2
-                });
-
-                // Khi chọn Bậc lương → tính và điền Lương cơ bản
-                bacSelect.on('change', function () { // Select2 change event
-                    const opt = $(this).find('option:selected'); // Get selected option
-                    const heso = parseFloat(opt.data('heso'));
-
-                    if (!heso) {
-                        heSoBadge.hide();
-                        return;
-                    }
-
-                    const luong = Math.round(heso * mucLuongCoSo);
-                    const formatted = formatNumber(luong);
-
-                    // Điền vào ô lương cơ bản
-                    luongCoBanInput.val(formatted); // Use val()
-
-                    // Cập nhật badge
-                    heSoValue.text(heso ? heso.toFixed(2) : '0.00'); // Use text()
-                    luongTinhTu.text(formatNumber(luong) + ' đ'); // Use text()
-                    heSoBadge.show(); // Use show()
-
-                    // Kích hoạt tính tổng lương
-                    calculateSalary();
-                });
-
-                // Pre-select Bậc if renewal
-                @if(isset($isRenew) && $oldDienBien)
-                    const oldNgachId = "{{ $oldDienBien->NgachLuongId }}";
-                    const oldBacId = "{{ $oldDienBien->BacLuongId }}";
-                    if (oldNgachId) {
-                        ngachSelect.val(oldNgachId).trigger('change');
-                        if (oldBacId) {
-                            // Wait a bit for the cascade to finish
-                            setTimeout(() => {
-                                bacSelect.val(oldBacId).trigger('change');
-                            }, 500);
-                        }
-                    }
-                @endif
-            });
         </script>
     @endpush
 @endsection

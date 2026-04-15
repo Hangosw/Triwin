@@ -61,17 +61,19 @@
         margin-bottom: 20px;
     }
     .perm-group-header {
-        background: #f3f4f6;
-        padding: 10px 16px;
+        background: #f9fafb;
+        padding: 12px 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid #e5e7eb;
+        border-left: 4px solid #0BAA4B;
     }
     body.dark-theme .perm-group-card { border-color: #2e3349; }
     body.dark-theme .perm-group-header {
         background: #21263a !important;
         border-color: #2e3349 !important;
+        border-left-color: #0BAA4B !important;
     }
     .perm-group-body {
         padding: 14px;
@@ -110,17 +112,18 @@
                 @php
                     // Define permission groups (same keywords as in users.edit)
                     $permGroups = [
-                        ['icon' => '👤', 'label' => 'Nhân viên',          'keywords' => ['nhân viên', 'thông tin']],
-                        ['icon' => '🏢', 'label' => 'Tổ chức',            'keywords' => ['tổ chức', 'phòng ban', 'chức vụ']],
-                        ['icon' => '🔑', 'label' => 'Người dùng',         'keywords' => ['người dùng']],
-                        ['icon' => '📄', 'label' => 'Hợp đồng',           'keywords' => ['hợp đồng']],
-                        ['icon' => '⏰', 'label' => 'Chấm công',          'keywords' => ['chấm công']],
-                        ['icon' => '🕐', 'label' => 'Tăng ca',             'keywords' => ['tăng ca']],
-                        ['icon' => '🌴', 'label' => 'Nghỉ phép',           'keywords' => ['nghỉ phép', 'duyệt']],
-                        ['icon' => '💰', 'label' => 'Lương',              'keywords' => ['lương']],
-                        ['icon' => '📝', 'label' => 'Văn thư',            'keywords' => ['văn thư']],
-                        ['icon' => '✈️', 'label' => 'Công tác',           'keywords' => ['công tác']],
-                        ['icon' => '⚙️', 'label' => 'Hệ thống',          'keywords' => ['hệ thống']],
+                        ['label' => 'Nhân viên',          'keywords' => ['nhân viên', 'thông tin']],
+                        ['label' => 'Tổ chức',            'keywords' => ['tổ chức', 'phòng ban', 'chức vụ']],
+                        ['label' => 'Người dùng',         'keywords' => ['người dùng']],
+                        ['label' => 'Hợp đồng',           'keywords' => ['hợp đồng']],
+                        ['label' => 'Chấm công',          'keywords' => ['chấm công']],
+                        ['label' => 'Tăng ca',             'keywords' => ['tăng ca']],
+                        ['label' => 'Work From Home',      'keywords' => ['wfh']],
+                        ['label' => 'Nghỉ phép',           'keywords' => ['nghỉ phép', 'duyệt']],
+                        ['label' => 'Lương',              'keywords' => ['lương']],
+                        ['label' => 'Văn thư',            'keywords' => ['văn thư']],
+                        ['label' => 'Công tác',           'keywords' => ['công tác']],
+                        ['label' => 'Hệ thống',          'keywords' => ['hệ thống']],
                     ];
 
                     $groupedPerms = [];
@@ -150,8 +153,7 @@
                             <div class="perm-group-card">
                                 <div class="perm-group-header">
                                     <div style="display:flex; align-items:center; gap:10px;">
-                                        <span style="font-size:18px;">{{ $group['icon'] }}</span>
-                                        <span style="font-size:14px; font-weight:700; color:#374151;">{{ $group['label'] }}</span>
+                                        <span style="font-size:15px; font-weight:800; color:#111827; text-transform: uppercase; letter-spacing: 0.5px;">{{ $group['label'] }}</span>
                                     </div>
                                     <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#6b7280; cursor:pointer;">
                                         <input type="checkbox" class="group-select-all" data-group="{{ $gi }}" style="width:14px; height:14px;">
@@ -176,8 +178,7 @@
                         <div class="perm-group-card">
                             <div class="perm-group-header">
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <span style="font-size:18px;">🔒</span>
-                                    <span style="font-size:14px; font-weight:700; color:#374151;">Khác</span>
+                                    <span style="font-size:15px; font-weight:800; color:#111827; text-transform: uppercase; letter-spacing: 0.5px;">Khác</span>
                                 </div>
                             </div>
                             <div class="perm-group-body">

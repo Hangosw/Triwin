@@ -15,6 +15,8 @@ class QuaTrinhCongTac extends Model
 
         'PhongBanId',
         'ChucVuId',
+        'DiaDiem',
+        'GhiChu',
     ];
 
     protected $casts = [

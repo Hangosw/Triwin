@@ -11,7 +11,9 @@ class CauHinhController extends Controller
         $configs = \App\Models\SystemConfig::pluck('value', 'key')->toArray();
         $caLamViecs = \App\Models\DmCaLamViec::all();
         $lichLamViecs = \App\Models\CauHinhLichLamViec::orderBy('Thu', 'asc')->get();
-        return view('config.index', compact('configs', 'caLamViecs', 'lichLamViecs'));
+        $nhanViens = \App\Models\NhanVien::select('id', 'Ma', 'Ten')->get();
+
+        return view('config.index', compact('configs', 'caLamViecs', 'lichLamViecs', 'nhanViens'));
     }
 
     public function update(Request $request)

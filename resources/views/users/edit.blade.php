@@ -33,17 +33,19 @@
     body.dark-theme .perm-group-card { border-color: #2e3349; }
 
     .perm-group-header {
-        background: #f3f4f6;
-        padding: 8px 14px;
+        background: #f9fafb;
+        padding: 10px 14px;
         display: flex;
         align-items: center;
         gap: 10px;
         border-bottom: 1px solid #e5e7eb;
+        border-left: 4px solid #0BAA4B;
         transition: background 0.2s, border-color 0.2s;
     }
     body.dark-theme .perm-group-header {
         background: #21263a !important;
         border-color: #2e3349 !important;
+        border-left-color: #0BAA4B !important;
     }
     body.dark-theme .perm-group-header span { color: #c3c8da !important; }
     body.dark-theme .perm-group-header label { color: #6b7492 !important; }
@@ -148,9 +150,9 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
 
                 <div class="form-group" style="grid-column: span 2;">
-                    <label class="form-label">Họ và tên</label>
+                    <label class="form-label">Họ và tên <span style="color: red;">*</span></label>
                     <input type="text" name="Ten" class="form-control" value="{{ old('Ten', $user->Ten) }}"
-                        placeholder="Nhập họ và tên">
+                        placeholder="Nhập họ và tên" required>
                 </div>
 
                 <div class="form-group">
@@ -238,17 +240,18 @@
                         @php
                             // Định nghĩa nhóm quyền theo từ khóa (case-insensitive keyword matching)
                             $permGroups = [
-                                ['icon' => '👤', 'label' => 'Nhân viên',          'keywords' => ['nhân viên', 'thông tin']],
-                                ['icon' => '🏢', 'label' => 'Tổ chức',            'keywords' => ['tổ chức', 'phòng ban', 'chức vụ']],
-                                ['icon' => '🔑', 'label' => 'Người dùng',         'keywords' => ['người dùng']],
-                                ['icon' => '📄', 'label' => 'Hợp đồng',           'keywords' => ['hợp đồng']],
-                                ['icon' => '⏰', 'label' => 'Chấm công',          'keywords' => ['chấm công']],
-                                ['icon' => '🕐', 'label' => 'Tăng ca',             'keywords' => ['tăng ca']],
-                                ['icon' => '🌴', 'label' => 'Nghỉ phép',           'keywords' => ['nghỉ phép', 'duyệt']],
-                                ['icon' => '💰', 'label' => 'Lương',              'keywords' => ['lương']],
-                                ['icon' => '📝', 'label' => 'Văn thư',            'keywords' => ['văn thư']],
-                                ['icon' => '✈️', 'label' => 'Công tác',           'keywords' => ['công tác']],
-                                ['icon' => '⚙️', 'label' => 'Hệ thống',          'keywords' => ['hệ thống']],
+                                ['label' => 'Nhân viên',          'keywords' => ['nhân viên', 'thông tin']],
+                                ['label' => 'Tổ chức',            'keywords' => ['tổ chức', 'phòng ban', 'chức vụ']],
+                                ['label' => 'Người dùng',         'keywords' => ['người dùng']],
+                                ['label' => 'Hợp đồng',           'keywords' => ['hợp đồng']],
+                                ['label' => 'Chấm công',          'keywords' => ['chấm công']],
+                                ['label' => 'Tăng ca',             'keywords' => ['tăng ca']],
+                                ['label' => 'Work From Home',      'keywords' => ['wfh']],
+                                ['label' => 'Nghỉ phép',           'keywords' => ['nghỉ phép', 'duyệt']],
+                                ['label' => 'Lương',              'keywords' => ['lương']],
+                                ['label' => 'Văn thư',            'keywords' => ['văn thư']],
+                                ['label' => 'Công tác',           'keywords' => ['công tác']],
+                                ['label' => 'Hệ thống',          'keywords' => ['hệ thống']],
                             ];
 
                             // Phân loại quyền vào nhóm bằng keyword matching
@@ -282,8 +285,7 @@
                                     <div style="border:1px solid #e5e7eb; border-radius:8px; overflow:hidden;">
                                         {{-- Group header --}}
                                         <div class="perm-group-header">
-                                            <span style="font-size:16px;">{{ $group['icon'] }}</span>
-                                            <span style="font-size:13px; font-weight:700; color:#374151; flex:1;">{{ $group['label'] }}</span>
+                                            <span style="font-size:14px; font-weight:800; color:#111827; text-transform: uppercase; letter-spacing: 0.5px; flex:1;">{{ $group['label'] }}</span>
                                             <label style="display:flex; align-items:center; gap:5px; font-size:12px; color:#6b7280; cursor:pointer;">
                                                 <input type="checkbox" class="group-select-all" data-group="{{ $gi }}" style="width:14px;height:14px;">
                                                 <span>Chọn nhóm</span>
@@ -308,8 +310,8 @@
 
                             @if($ungrouped->isNotEmpty())
                                 <div style="border:1px solid #e5e7eb; border-radius:8px; overflow:hidden;">
-                                    <div class="perm-group-header" style="background:#f3f4f6; padding:8px 14px; font-size:13px; font-weight:700; color:#374151;">
-                                        🔒 Khác
+                                    <div class="perm-group-header">
+                                        <span style="font-size:14px; font-weight:800; color:#111827; text-transform: uppercase; letter-spacing: 0.5px; flex:1;">Khác</span>
                                     </div>
                                     <div style="padding:10px 14px; display:flex; flex-wrap:wrap; gap:8px;">
                                         @foreach($ungrouped as $perm)

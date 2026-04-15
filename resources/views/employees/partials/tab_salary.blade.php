@@ -1,122 +1,31 @@
 <div class="tab-content" id="tab-salary">
     <div class="detail-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-            <h2 style="margin-bottom:0; border-bottom:none;">
-                <i class="bi bi-graph-up-arrow"></i>
-                Diễn biến lương
-            </h2>
-            <a href="{{ route('salary.config', ['nhanVienId' => $employee->id]) }}" class="btn btn-primary"
-                style="display:flex;align-items:center;gap:6px;">
-                <i class="bi bi-box-arrow-up-right"></i>
-                Xem chi tiết / Quản lý
-            </a>
-        </div>
-
-        @if($employee->dienBienLuongs->isEmpty())
-            <div style="text-align:center; padding:48px 24px; color:#9ca3af;">
-                <i class="bi bi-cash-stack" style="font-size:48px; display:block; margin-bottom:16px; opacity:0.35;"></i>
-                <div style="font-size:15px; font-weight:500; margin-bottom:8px; color:#6b7280;">Chưa có diễn biến lương
-                </div>
-                <div style="font-size:14px;">
-                    Diễn biến lương sẽ được tạo tự động khi tạo hợp đồng có chọn <strong>Ngạch/Bậc lương</strong>.
-                </div>
-                <div style="margin-top:20px;">
-                    <a href="{{ route('salary.config', ['nhanVienId' => $employee->id]) }}" class="btn btn-secondary">
-                        <i class="bi bi-gear-fill"></i> Mở trang cấu hình lương
-                    </a>
-                </div>
-            </div>
-        @else
-            @php
-                $mucLuongCoSo = \App\Models\ThamSoLuong::getCurrentBaseSalary()?->MucLuongCoSo ?? 2340000;
-            @endphp
-            <div class="table-responsive premium-table">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Ngày hưởng</th>
-                            <th>Mã ngạch</th>
-                            <th>Tên ngạch</th>
-                            <th>Bậc</th>
-                            <th>Hệ số</th>
-                            <th>PC Vượt khung</th>
-                            <th>Lương ngạch bậc</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($employee->dienBienLuongs as $i => $dbl)
-                            @php
-                                $luongBac = $dbl->bacLuong
-                                    ? $dbl->bacLuong->HeSo * $mucLuongCoSo * (1 + ($dbl->PhuCapVuotKhung ?? 0) / 100)
-                                    : 0;
-                                
-                                // Current active salary check
-                                $isCurrent = false;
-
-                                if ($dbl->hopDong) {
-                                    // 1. If linked to a contract, its status must be 'Active' (1)
-                                    if ($dbl->hopDong->TrangThai == 1) {
-                                        $isCurrent = true;
-                                    }
-                                } else {
-                                    // 2. Fallback for old data: use the first record
-                                    if ($i === 0) {
-                                        $isCurrent = true;
-                                    }
-                                }
-                            @endphp
-                            <tr @if($isCurrent) style="background:#f0fdf4;" @endif>
-                                <td><strong>{{ $i + 1 }}</strong></td>
-                                <td>{{ $dbl->NgayHuong ? \Carbon\Carbon::parse($dbl->NgayHuong)->format('d/m/Y') : '–' }}</td>
-                                <td>{{ $dbl->ngachLuong?->Ma ?? '–' }}</td>
-                                <td>{{ $dbl->ngachLuong?->Ten ?? '–' }}</td>
-                                <td>{{ $dbl->bacLuong ? 'Bậc ' . $dbl->bacLuong->Bac : '–' }}</td>
-                                <td><strong>{{ $dbl->bacLuong ? number_format($dbl->bacLuong->HeSo, 2) : '–' }}</strong></td>
-                                <td>{{ $dbl->PhuCapVuotKhung ?? 0 }}%</td>
-                                <td style="font-weight:600; color:{{ $isCurrent ? '#0BAA4B' : '#6b7280' }};">
-                                    {{ number_format($luongBac, 0, ',', '.') }} đ
-                                </td>
-                                <td>
-                                    @php
-                                        // Current active salary check
-                                        $isCurrent = false;
-
-                                        if ($dbl->hopDong) {
-                                            // 1. If linked to a contract, its status must be 'Active' (1)
-                                            if ($dbl->hopDong->TrangThai == 1) {
-                                                $isCurrent = true;
-                                            }
-                                        } else {
-                                            // 2. Fallback for old data without HopDongId: use the first record in the sorted list
-                                            if ($isFirst) {
-                                                $isCurrent = true;
-                                            }
-                                        }
-                                    @endphp
-
-                                    @if($isCurrent)
-                                        <span class="badge badge-success">Đang áp dụng</span>
-                                    @elseif($dbl->hopDong && $dbl->hopDong->TrangThai == 2)
-                                        <span class="badge badge-danger">Đã hủy</span>
-                                    @else
-                                        <span class="badge" style="background:#f3f4f6;color:#6b7280;">Hết hiệu lực</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
-
-    <div class="detail-section">
         <h2 style="margin-bottom:24px;">
             <i class="bi bi-file-earmark-text"></i>
             Danh sách phiếu lương tháng
         </h2>
+
+        <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="min-width: 150px;">
+                <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block; text-transform: uppercase;">Lọc theo Tháng</label>
+                <select id="monthFilter" class="form-select form-select-sm" style="border-radius: 8px; height: 38px;">
+                    <option value="">Tất cả các tháng</option>
+                    @for($m = 1; $m <= 12; $m++)
+                        <option value="{{ $m }}">Tháng {{ $m }}</option>
+                    @endfor
+                </select>
+            </div>
+            <div style="min-width: 150px;">
+                <label style="font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block; text-transform: uppercase;">Lọc theo Năm</label>
+                <select id="yearFilter" class="form-select form-select-sm" style="border-radius: 8px; height: 38px;">
+                    <option value="">Tất cả các năm</option>
+                    @php $currentYear = date('Y'); @endphp
+                    @for($y = $currentYear; $y >= 2022; $y--)
+                        <option value="{{ $y }}">{{ $y }}</option>
+                    @endfor
+                </select>
+            </div>
+        </div>
 
         @if($employee->luongs->isEmpty())
             <div style="text-align:center; padding:32px; color:#9ca3af;">
@@ -125,7 +34,7 @@
             </div>
         @else
             <div class="table-responsive premium-table">
-                <table class="table mb-0">
+                <table class="table mb-0" id="salarySlipsTable">
                     <thead>
                         <tr>
                             <th>Kỳ lương</th>
@@ -140,7 +49,7 @@
                             @php
                                 $dt = \Carbon\Carbon::parse($l->ThoiGian);
                             @endphp
-                            <tr>
+                            <tr data-month="{{ $dt->month }}" data-year="{{ $dt->year }}">
                                 <td><strong>Tháng {{ $dt->month }}/{{ $dt->year }}</strong></td>
                                 <td>
                                     @if($l->LoaiLuong === 0)

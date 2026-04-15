@@ -7,13 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 class PhuLucHopDong extends Model
 {
     protected $table = 'phu_luc_hop_dongs';
-    protected $fillable = ['HopDongId', 'ten_phu_luc', 'ngay_ky', 'TrangThai'];
-    // public $timestamps = true; // Default is true, so I'll just remove the false override
+    protected $fillable = [
+        'HopDongGocId', 
+        'HopDongPLId', 
+        'ten_phu_luc', 
+        'ngay_ky', 
+        'TrangThai'
+    ];
 
-    // Quan hệ với Hợp đồng chính
-    public function hopDong()
+    /**
+     * Relationship: The original root contract
+     */
+    public function hopDongGoc()
     {
-        return $this->belongsTo(HopDong::class, 'HopDongId');
+        return $this->belongsTo(HopDong::class, 'HopDongGocId');
+    }
+
+    /**
+     * Relationship: The specific version/appendix contract
+     */
+    public function hopDongPL()
+    {
+        return $this->belongsTo(HopDong::class, 'HopDongPLId');
     }
 
     public function dieuKhoans()

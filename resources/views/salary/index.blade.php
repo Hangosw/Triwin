@@ -8,59 +8,392 @@
         <p>Quản lý và xem danh sách lương của toàn bộ nhân viên</p>
     </div>
 
-    <div class="card">
-        <div class="action-bar" style="flex-wrap: wrap; gap: 12px;">
-            {{-- Bộ lọc tháng/năm --}}
-            <form method="GET" action="{{ route('salary.index') }}" id="filterForm"
-                style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label style="font-size: 14px; font-weight: 600; white-space: nowrap; color: #374151;">Kỳ lương:</label>
-                    <select name="thang" class="form-control" style="height: auto; padding: 6px 10px; min-width: 110px;"
-                        onchange="document.getElementById('filterForm').submit()">
-                        @for($m = 1; $m <= 12; $m++)
-                            <option value="{{ $m }}" {{ $m == $thang ? 'selected' : '' }}>
-                                Tháng {{ $m }}
-                            </option>
-                        @endfor
-                    </select>
-                    <select name="nam" class="form-control" style="height: auto; padding: 6px 10px; min-width: 90px;"
-                        onchange="document.getElementById('filterForm').submit()">
-                        @for($y = date('Y') - 2; $y <= date('Y') + 1; $y++)
-                            <option value="{{ $y }}" {{ $y == $nam ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
-            </form>
+    <style>
+        /* Đồng bộ chiều cao tất cả các filter */
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+            display: flex !important;
+            align-items: center !important;
+        }
 
-            <div style="flex: 1; min-width: 200px;">
+        .action-bar {
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .filter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .buttons-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .buttons-row {
+            border-top-color: #2e3349;
+        }
+
+        /* Custom Colors for Salary Redesign */
+        .col-phu-cap {
+            background-color: #e0f2fe !important;
+            /* Light Blue */
+        }
+
+        .col-khau-tru {
+            background-color: #fee2e2 !important;
+            /* Light Red */
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .col-khau-tru:hover {
+            background-color: #fecaca !important;
+        }
+
+        .col-thuc-nhan {
+            background-color: #dcfce7 !important;
+            /* Light Green */
+            color: #166534 !important;
+            cursor: pointer;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .col-thuc-nhan:hover {
+            background-color: #bbf7d0 !important;
+        }
+
+        .col-thuc-nhan strong {
+            color: #166534 !important;
+        }
+
+        /* Insurance Detail Columns */
+        .ins-detail {
+            background-color: #fff1f2 !important;
+            /* Lighter Red for details */
+            font-size: 12px;
+            text-align: right;
+            color: #9f1239;
+        }
+
+        .group-header-row {
+            background-color: #f8fafc !important;
+        }
+
+        body.dark-theme .group-header-row {
+            background-color: #1a1e2e !important;
+        }
+
+        .custom-filter-dropdown {
+            min-width: 150px;
+        }
+
+        .custom-filter-dropdown .form-control {
+            cursor: pointer;
+            height: 38px;
+            background-color: #fff;
+            padding: 0.375rem 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        body.dark-theme .custom-filter-dropdown .form-control {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        /* Dark mode specific fixes */
+        body.dark-theme .col-thuc-nhan {
+            background-color: #064e3b !important;
+            color: #6ee7b7 !important;
+        }
+
+        body.dark-theme .col-thuc-nhan strong {
+            color: #6ee7b7 !important;
+        }
+
+        /* Table overrides */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .salary-table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            table-layout: fixed !important;
+            border: 1px solid #e5e7eb !important;
+        }
+
+        .salary-table th,
+        .salary-table td {
+            border: 1px solid #e5e7eb !important;
+            padding: 5px 7px !important;
+            vertical-align: middle !important;
+            font-size: 12px !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .salary-table th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            text-align: center;
+            font-size: 11px !important;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .salary-table .salary-row td {
+            line-height: 1.4;
+        }
+
+        /* Ki luong plain text style */
+        .ki-luong-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4f46e5;
+            letter-spacing: 0.04em;
+        }
+
+        body.dark-theme .ki-luong-text {
+            color: #818cf8;
+        }
+
+        body.dark-theme .salary-table,
+        body.dark-theme .salary-table th,
+        body.dark-theme .salary-table td {
+            border-color: #2e3349 !important;
+        }
+
+        /* Fix text alignment in dropdown grid */
+        .custom-filter-dropdown .dropdown-menu button {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 34px;
+        }
+
+        /* Dark mode specific fixes */
+        body.dark-theme .custom-filter-dropdown .dropdown-menu {
+            background-color: #1a1e2e !important;
+            border-color: #2e3349 !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        body.dark-theme .custom-filter-dropdown .dropdown-text {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .custom-filter-dropdown .form-control .bi-calendar3 {
+            color: #9ca3af !important;
+        }
+
+        body.dark-theme .dropdown-menu .mb-2 span {
+            color: #9ca3af !important;
+        }
+
+        body.dark-theme .dropdown-menu .mb-2 {
+            border-bottom-color: #2e3349 !important;
+        }
+
+        body.dark-theme .btn-light {
+            background-color: #21263a !important;
+            color: #e8eaf0 !important;
+            border: none !important;
+        }
+
+        body.dark-theme .btn-light:hover {
+            background-color: #2d334d !important;
+        }
+
+        /* Search bar focus and placeholder */
+        body.dark-theme #salarySearch {
+            background-color: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme #salarySearch::placeholder {
+            color: #6b7280 !important;
+        }
+
+        body.dark-theme #salarySearch:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+        }
+
+        /* Summary Cards Dark Mode */
+        body.dark-theme .card div[style*="color: #6b7280"] {
+            color: #8b93a8 !important;
+        }
+
+        body.dark-theme .card div[style*="color: #1e293b"] {
+            color: #e8eaf0 !important;
+        }
+
+        /* Table Dark Mode Fixes */
+        body.dark-theme .salary-row td[style*="color: #374151"] {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .salary-row div[style*="color: #6b7280"] {
+            color: #8b93a8 !important;
+        }
+
+        body.dark-theme th {
+            color: #8b93a8 !important;
+            border-bottom-color: #2e3349 !important;
+        }
+
+        body.dark-theme .table-container {
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .salary-row {
+            border-bottom-color: #2e3349 !important;
+        }
+
+        body.dark-theme .form-label[style*="color: #6b7280"] {
+            color: #8b93a8 !important;
+        }
+
+        body.dark-theme .dropdown-menu span[style*="color: #4b5563"] {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .card[style*="color: #6b7280"] {
+            color: #8b93a8 !important;
+        }
+    </style>
+
+    <div class="card">
+        <div class="action-bar">
+            {{-- Row 1: Filters & Search --}}
+            <div class="filter-row">
+                <form method="GET" action="{{ route('salary.index') }}" id="filterForm"
+                    style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+                    {{-- Tháng --}}
+                    <div class="form-group" style="margin-bottom: 0; min-width: 140px;">
+                        <label class="form-label"
+                            style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Tháng</label>
+                        <div class="dropdown custom-filter-dropdown">
+                            <input type="hidden" name="thang" id="inputMonth" value="{{ $thang }}">
+                            <div class="form-control d-flex justify-content-between align-items-center"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="monthDropdownText" class="dropdown-text">Tháng {{ $thang }}</span>
+                                <i class="bi bi-calendar3 ms-2" style="font-size: 14px;"></i>
+                            </div>
+                            <div class="dropdown-menu p-2 shadow"
+                                style="min-width: 250px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                                    <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN THÁNG</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                                    @for($m = 1; $m <= 12; $m++)
+                                        <button type="button"
+                                            class="btn btn-sm {{ (int) $thang === $m ? 'btn-primary fw-bold shadow-sm' : 'btn-light' }}"
+                                            onclick="selectFilter('inputMonth', '{{ $m }}')"
+                                            style="padding: 6px 0; font-size: 13px; border-radius: 6px; border: none; @if((int) $thang === $m) background-color: #3b82f6; color: #fff; @endif transition: all 0.2s;">
+                                            Tháng {{ $m }}
+                                        </button>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Năm --}}
+                    <div class="form-group" style="margin-bottom: 0; min-width: 120px;">
+                        <label class="form-label"
+                            style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Năm</label>
+                        <div class="dropdown custom-filter-dropdown">
+                            <input type="hidden" name="nam" id="inputYear" value="{{ $nam }}">
+                            <div class="form-control d-flex justify-content-between align-items-center"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="yearDropdownText" class="dropdown-text">Năm {{ $nam }}</span>
+                                <i class="bi bi-calendar3 ms-2" style="font-size: 14px;"></i>
+                            </div>
+                            <div class="dropdown-menu p-2 shadow"
+                                style="min-width: 200px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
+                                    <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN NĂM</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+                                    @for($y = date('Y') - 2; $y <= date('Y') + 1; $y++)
+                                        <button type="button"
+                                            class="btn btn-sm {{ (int) $nam === $y ? 'btn-primary fw-bold shadow-sm' : 'btn-light' }}"
+                                            onclick="selectFilter('inputYear', '{{ $y }}')"
+                                            style="padding: 6px 0; font-size: 13px; border-radius: 6px; border: none; @if((int) $nam === $y) background-color: #3b82f6; color: #fff; @endif transition: all 0.2s;">
+                                            {{ $y }}
+                                        </button>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
                 <div class="search-bar">
-                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        style="width: 20px; height: 20px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input type="text" id="salarySearch" class="form-control"
-                        placeholder="Tìm kiếm nhân viên, mã nhân viên...">
+                    <label class="form-label"
+                        style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Tìm
+                        kiếm</label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            style="width: 18px; height: 18px; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="text" id="salarySearch" class="form-control"
+                            placeholder="Tìm kiếm nhân viên, mã nhân viên..."
+                            style="padding-left: 42px; height: 38px; border-radius: 8px; width: 100%;">
+                    </div>
                 </div>
             </div>
 
-            <div class="action-buttons">
-                <button id="btnTinhLuongHangLoat" class="btn btn-primary"
-                    style="background:#0BAA4B; display:flex; align-items:center; gap:6px;">
+            {{-- Row 2: Actions --}}
+            <div class="buttons-row">
+
+                <button id="btnXuatBaoCao" class="btn btn-primary d-flex align-items-center gap-2"
+                    style="background-color: #1D6F42; border-color: #1D6F42;">
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                    <span>Xuất báo cáo</span>
+                </button>
+                <button id="btnTinhLuongHangLoat" class="btn btn-primary d-flex align-items-center gap-2"
+                    style="background-color: #0BAA4B; border-color: #0BAA4B;">
                     <i class="bi bi-lightning-charge-fill"></i>
-                    Tính lương tự động
+                    <span>Tính lương tự động</span>
                 </button>
-                <button id="btnGuiMailLuong" class="btn btn-info"
-                    style="background:#3b82f6; color:white; display:flex; align-items:center; gap:6px; border:none;">
+                <button id="btnGuiMailLuong" class="btn btn-info d-flex align-items-center gap-2"
+                    style="background-color: #3b82f6; border-color: #3b82f6; color: white;">
                     <i class="bi bi-envelope-fill"></i>
-                    Gửi Email
-                </button>
-                <button class="btn btn-secondary" style="display:flex; align-items:center; gap:6px;">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Xuất báo cáo
+                    <span>Gửi Email phiếu lương</span>
                 </button>
             </div>
         </div>
@@ -104,102 +437,106 @@
     @else
         <div class="card">
             <div class="table-container">
-                <table class="table" id="salaryTable" style="width: 100%;">
+                <table class="table salary-table" id="salaryTable" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th style="width: 50px;"><strong>STT</strong></th>
-                            <th>Nhân viên</th>
-                            <th>Chức vụ</th>
-                            <th style="text-align: center;">Ngày công</th>
-                            <th>Lương cơ bản</th>
-                            <th>Phụ cấp + Tăng ca</th>
-                            <th>Khấu trừ</th>
-                            <th style="color: #0BAA4B;">Thực nhận</th>
-                            <th>Trạng thái</th>
-                            <th style="text-align: right;">Hành động</th>
+                            <th style="width: 7%;">Kỳ lương</th>
+                            <th style="width: 20%;">Nhân viên</th>
+                            <th style="width: 13%;">Lương cơ bản</th>
+                            <th class="col-phu-cap" style="width: 10%;">Phụ cấp</th>
+                            <th class="col-khau-tru" style="width: 10%;">Khấu trừ</th>
+                            {{-- Detailed Columns --}}
+                            <th class="ins-detail" style="width: 9%;">BHXH</th>
+                            <th class="ins-detail" style="width: 7%;">BHYT</th>
+                            <th class="ins-detail" style="width: 7%;">BHTN</th>
+                            <th class="ins-detail" style="width: 9%;">Thuế TNCN</th>
+                            <th class="col-thuc-nhan" style="width: 13%;">Thực nhận</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($luongs as $index => $luong)
-                            @php
-                                $nv = $luong->nhanVien;
-                                $chucVu = $nv?->ttCongViec?->chucVu?->Ten ?? '—';
-                                $isCongNhan = $luong->LoaiLuong === 0;
-                            @endphp
-                            <tr class="salary-row">
-                                <td><strong>{{ $index + 1 }}</strong></td>
-                                <td>
-                                    <a href="{{ route('salary.detail', [$nv?->id, 'thang' => $thang, 'nam' => $nam]) }}"
-                                        style="color: #0BAA4B; text-decoration: none; font-weight: 600;">
-                                        {{ $nv?->Ten ?? '—' }}
-                                    </a>
-                                    <div style="font-size: 13px; color: #6b7280;">{{ $nv?->Ma }}</div>
-                                    @if($isCongNhan)
-                                        <span class="badge badge-orange" style="font-size:11px; margin-top:2px;">Công nhân</span>
-                                    @else
-                                        <span class="badge badge-info" style="font-size:11px; margin-top:2px;">Văn phòng</span>
-                                    @endif
-                                </td>
-                                <td>{{ $chucVu }}</td>
-                                <td style="text-align: center; font-weight: 600; color: #374151;">
-                                    {{ number_format($luong->SoNgayCong, 2, ',', '.') }}
-                                </td>
-                                <td class="font-medium">
-                                    {{ number_format($luong->LuongCoBan, 0, ',', '.') }} đ
-                                </td>
-                                <td>
-                                    @if(($luong->PhuCap ?? 0) > 0 || ($luong->LuongTangCa ?? 0) > 0)
-                                        @if(($luong->PhuCap ?? 0) > 0)
-                                            <div style="font-size: 13px; color: #3b82f6;" title="Phụ cấp">
-                                                <span style="opacity:.6;">PC</span> {{ number_format($luong->PhuCap, 0, ',', '.') }} đ
-                                            </div>
-                                        @endif
-                                        @if(($luong->LuongTangCa ?? 0) > 0)
-                                            <div style="font-size: 13px; color: #f97316;" title="Tăng ca">
-                                                <span style="opacity:.6;">TC</span> {{ number_format($luong->LuongTangCa, 0, ',', '.') }} đ
-                                            </div>
-                                        @endif
-                                    @else
-                                        <span style="color:#d1d5db; font-size:13px;">—</span>
-                                    @endif
-                                </td>
-                                <td style="color: #dc2626; white-space: nowrap;">
-                                    -{{ number_format(($luong->KhauTruBaoHiem ?? 0) + ($luong->ThueTNCN ?? 0), 0, ',', '.') }} đ
-                                    <div style="font-size: 11px; color: #9ca3af;">BH + Thuế</div>
-                                </td>
-                                <td>
-                                    <strong style="color: #0BAA4B; font-size: 15px; white-space: nowrap;">
-                                        {{ number_format($luong->Luong, 0, ',', '.') }} đ
-                                    </strong>
-                                </td>
-                                <td>
-                                    @if($luong->TrangThai == 1)
-                                        <span class="badge badge-success">Đã thanh toán</span>
-                                    @else
-                                        <span class="badge badge-warning">Chưa thanh toán</span>
-                                    @endif
-                                </td>
-                                <td style="text-align: right;">
-                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                        <a href="{{ route('salary.detail', [$nv?->id, 'thang' => $thang, 'nam' => $nam]) }}"
-                                            class="btn-icon" title="Xem chi tiết">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        </a>
-                                        <button class="btn-icon btn-show-slip" title="Xem phiếu lương" data-nv-id="{{ $nv?->id }}"
-                                            data-thang="{{ $thang }}" data-nam="{{ $nam }}">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                            </svg>
-                                        </button>
+                        @php
+                            $groupedLuongs = $luongs->sortBy(function ($l) {
+                                return $l->nhanVien?->ttCongViec?->chucVu?->Ten ?? '—';
+                            })->groupBy(function ($l) {
+                                return $l->nhanVien?->ttCongViec?->chucVu?->Ten ?? '—';
+                            });
+                        @endphp
+
+                        @foreach ($groupedLuongs as $chucVu => $groupLuongs)
+                            <tr class="group-header-row">
+                                <td colspan="10" class="pos-header"
+                                    style="padding: 7px 16px; font-weight: 700; color: #1e293b; background: #f1f5f9; font-size: 12px;">
+                                    <div class="d-flex align-items-center">
+                                        <div
+                                            style="width: 4px; height: 14px; background: #0BAA4B; border-radius: 2px; margin-right: 8px;">
+                                        </div>
+                                        {{ strtoupper($chucVu) }}
                                     </div>
                                 </td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
+                                <td style="display: none;"></td>
                             </tr>
+
+                            @foreach ($groupLuongs as $luong)
+                                @php
+                                    $nv = $luong->nhanVien;
+
+                                    $insuranceDetail = $insuranceDetails[$nv?->id] ?? [];
+                                    $bhxh = 0;
+                                    $bhyt = 0;
+                                    $bhtn = 0;
+                                    foreach ($insuranceDetail as $detail) {
+                                        $t = strtoupper($detail['ten'] ?? '');
+                                        if (str_contains($t, 'BHXH'))
+                                            $bhxh = $detail['so_tien'];
+                                        if (str_contains($t, 'BHYT'))
+                                            $bhyt = $detail['so_tien'];
+                                        if (str_contains($t, 'BHTN'))
+                                            $bhtn = $detail['so_tien'];
+                                    }
+                                @endphp
+                                <tr class="salary-row">
+                                    <td style="text-align: center;">
+                                        <span class="ki-luong-text">{{ $thang }}/{{ $nam }}</span>
+                                    </td>
+                                    <td>
+                                        <div
+                                            style="font-weight: 600; color: #1e293b; font-size: 12px; overflow:hidden; text-overflow:ellipsis;">
+                                            {{ $nv?->Ten ?? '—' }}
+                                        </div>
+                                        <div style="font-size: 11px; color: #64748b;">{{ $nv?->Ma }}</div>
+                                    </td>
+                                    <td style="text-align: right; font-weight: 500;">
+                                        {{ number_format($luong->LuongCoBan, 0, ',', '.') }} đ
+                                    </td>
+                                    <td class="col-phu-cap" style="text-align: right; font-weight: 500; color: #0369a1;">
+                                        {{ number_format($luong->PhuCap, 0, ',', '.') }} đ
+                                    </td>
+                                    <td class="col-khau-tru" style="text-align: right; font-weight: 600; color: #be123c;">
+                                        -{{ number_format(($luong->KhauTruBaoHiem ?? 0) + ($luong->ThueTNCN ?? 0), 0, ',', '.') }} đ
+                                    </td>
+
+                                    {{-- Detailed Insurance Cells --}}
+                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhxh, 0, ',', '.') }} đ</td>
+                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhyt, 0, ',', '.') }} đ</td>
+                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhtn, 0, ',', '.') }} đ</td>
+                                    <td class="ins-detail" style="color: #9f1239;">
+                                        {{ number_format($luong->ThueTNCN ?? 0, 0, ',', '.') }} đ
+                                    </td>
+
+                                    <td class="col-thuc-nhan btn-show-slip" data-nv-id="{{ $nv?->id }}" data-thang="{{ $thang }}"
+                                        data-nam="{{ $nam }}">
+                                        <strong>{{ number_format($luong->Luong, 0, ',', '.') }} đ</strong>
+                                    </td>
+                                </tr>
+                            @endforeach
                         @endforeach
                     </tbody>
                 </table>
@@ -208,47 +545,30 @@
     @endif
 
     {{-- ========== MODAL PHIẾU LƯƠNG ========== --}}
-    <div id="slipModal" style="
-                                display:none; position:fixed; inset:0; z-index:9999;
-                                background:rgba(0,0,0,0.55); align-items:center; justify-content:center;
-                                overflow-y:auto; padding:24px 16px;
-                            ">
-        <div style="
-                                    background:#fff; border-radius:12px; width:100%; max-width:860px;
-                                    margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3);
-                                    display:flex; flex-direction:column; max-height:90vh;
-                                ">
+    <div id="slipModal"
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; overflow-y:auto; padding:24px 16px;">
+        <div
+            style="background:#fff; border-radius:12px; width:100%; max-width:860px; margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; max-height:90vh;">
             {{-- Modal Header --}}
-            <div style="
-                                        display:flex; justify-content:space-between; align-items:center;
-                                        padding:16px 20px; border-bottom:1px solid #e5e7eb;
-                                        background:linear-gradient(135deg,#0BAA4B,#088c3d);
-                                        border-radius:12px 12px 0 0;
-                                    ">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #e5e7eb; background:linear-gradient(135deg,#0BAA4B,#088c3d); border-radius:12px 12px 0 0;">
                 <div style="color:#fff; font-size:16px; font-weight:700;">
                     <i class="bi bi-file-earmark-text"></i>
                     &nbsp;Phiếu Lương
                 </div>
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <button id="btnPrintSlip" style="
-                                                background:#fff; color:#0BAA4B; border:none; border-radius:6px;
-                                                padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer;
-                                                display:flex; align-items:center; gap:6px;
-                                            ">
+                    <button id="btnPrintSlip"
+                        style="background:#fff; color:#0BAA4B; border:none; border-radius:6px; padding:6px 14px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                         </svg>
                         In phiếu
                     </button>
-                    <button onclick="closeSlipModal()" style="
-                                                background:rgba(255,255,255,0.2); border:none; border-radius:6px;
-                                                color:#fff; font-size:20px; cursor:pointer; width:32px; height:32px;
-                                                display:flex; align-items:center; justify-content:center; line-height:1;
-                                            ">✕</button>
+                    <button onclick="closeSlipModal()"
+                        style="background:rgba(255,255,255,0.2); border:none; border-radius:6px; color:#fff; font-size:20px; cursor:pointer; width:32px; height:32px; display:flex; align-items:center; justify-content:center; line-height:1;">✕</button>
                 </div>
             </div>
-
             {{-- Modal Body --}}
             <div id="slipContent" style="padding:20px; overflow-y:auto; flex:1;">
                 <div style="text-align:center; padding:40px; color:#6b7280;">
@@ -258,11 +578,17 @@
             </div>
         </div>
     </div>
-    {{-- ========== END MODAL ========== --}}
 
     @push('scripts')
         <script>
+            function selectFilter(inputId, val) {
+                document.getElementById(inputId).value = val;
+                document.getElementById('filterForm').submit();
+            }
+        </script>
+        <script>
             $(document).ready(function () {
+                // Initialize DataTable without automatic sorting to respect our PHP grouping
                 const table = $('#salaryTable').DataTable({
                     language: {
                         "sProcessing": "Đang xử lý...",
@@ -273,20 +599,21 @@
                         "sInfoFiltered": "(được lọc từ _MAX_ mục)",
                         "sSearch": "Tìm kiếm:",
                         "oPaginate": {
-                            "sFirst": "Đầu",
-                            "sPrevious": "Trước",
-                            "sNext": "Tiếp",
-                            "sLast": "Cuối"
+                            "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối"
                         }
                     },
-                    responsive: true,
+                    responsive: false,
                     autoWidth: false,
-                    pageLength: 25,
+                    pageLength: 100,
                     dom: 'rtip',
+                    ordering: false, // Disable ordering to keep PHP groups together
                     columnDefs: [
-                        { orderable: false, targets: [8] }
+                        { searchable: false, targets: [0] }
                     ]
                 });
+
+                // Deduction columns are now always visible
+                // Removed toggle logic per user request
 
                 // Custom Search
                 $('#salarySearch').on('keyup', function () {
@@ -295,8 +622,8 @@
 
                 // Nút tính lương hàng loạt
                 document.getElementById('btnTinhLuongHangLoat').addEventListener('click', function () {
-                    const thang = document.querySelector('select[name="thang"]').value;
-                    const nam = document.querySelector('select[name="nam"]').value;
+                    const thang = document.getElementById('inputMonth').value;
+                    const nam = document.getElementById('inputYear').value;
 
                     Swal.fire({
                         title: `Tính lương tháng ${thang}/${nam}?`,
@@ -329,28 +656,12 @@
                             .then(r => r.json())
                             .then(data => {
                                 if (data.success && data.thanh_cong > 0) {
-                                    let html = data.message;
-                                    if (data.bo_qua > 0 && data.errors?.length) {
-                                        html += '<br><br><details style="text-align:left;font-size:12px;color:#dc2626;">'
-                                            + '<summary style="cursor:pointer;">Xem chi tiết lỗi</summary><ul style="margin-top:6px;">'
-                                            + data.errors.map(e => `<li>${e}</li>`).join('')
-                                            + '</ul></details>';
-                                    }
                                     Swal.fire({
                                         title: 'Hoàn thành!',
-                                        html,
+                                        html: data.message,
                                         icon: 'success',
                                         confirmButtonColor: '#0BAA4B',
-                                        confirmButtonText: 'OK',
                                     }).then(() => window.location.reload());
-                                } else if (data.success && data.bo_qua > 0) {
-                                    const errList = (data.errors ?? []).map(e => `<li style="font-size:12px;">${e}</li>`).join('');
-                                    Swal.fire({
-                                        title: 'Tất cả thất bại!',
-                                        html: `<b>${data.message}</b><br><ul style="text-align:left;margin-top:8px;color:#dc2626;">${errList}</ul>`,
-                                        icon: 'error',
-                                        confirmButtonColor: '#0BAA4B',
-                                    });
                                 } else {
                                     Swal.fire('Lỗi', data.message ?? 'Có lỗi xảy ra.', 'error');
                                 }
@@ -361,146 +672,52 @@
                     });
                 });
 
-                // Nút gửi mail lương hàng loạt
+                // Gửi mail logic
                 document.getElementById('btnGuiMailLuong').addEventListener('click', function () {
-                    const thang = document.querySelector('select[name="thang"]').value;
-                    const nam = document.querySelector('select[name="nam"]').value;
-
-                    Swal.fire({
-                        title: `Gửi email phiếu lương tháng ${thang}/${nam}?`,
-                        text: `Hệ thống sẽ gửi email phiếu lương chi tiết cho toàn bộ nhân viên có dữ liệu lương trong tháng ${thang}/${nam}.`,
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3b82f6',
-                        cancelButtonColor: '#6b7280',
-                        confirmButtonText: '<i class="bi bi-envelope-fill"></i> Xác nhận gửi mail',
-                        cancelButtonText: 'Hủy',
-                    }).then((result) => {
-                        if (!result.isConfirmed) return;
-
-                        Swal.fire({
-                            title: 'Đang gửi email...',
-                            html: `Đang xử lý gửi phiếu lương tháng ${thang}/${nam}, vui lòng chờ.`,
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            didOpen: () => Swal.showLoading(),
-                        });
-
-                        fetch('{{ route('salary.gui-mail') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            },
-                            body: JSON.stringify({ thang, nam }),
-                        })
-                            .then(r => r.json())
-                            .then(data => {
-                                if (data.success) {
-                                    let html = data.message;
-                                    if (data.gui_loi > 0 && data.errors?.length) {
-                                        html += '<br><br><details style="text-align:left;font-size:12px;color:#dc2626;">'
-                                            + '<summary style="cursor:pointer;">Xem chi tiết lỗi</summary><ul style="margin-top:6px;">'
-                                            + data.errors.map(e => `<li>${e}</li>`).join('')
-                                            + '</ul></details>';
-                                    }
-                                    Swal.fire({
-                                        title: 'Hoàn thành!',
-                                        html,
-                                        icon: 'success',
-                                        confirmButtonColor: '#0BAA4B',
-                                        confirmButtonText: 'OK',
-                                    });
-                                } else {
-                                    Swal.fire('Lỗi', data.message ?? 'Có lỗi xảy ra.', 'error');
-                                }
-                            })
-                            .catch(() => {
-                                Swal.fire('Lỗi kết nối', 'Không thể kết nối đến máy chủ.', 'error');
-                            });
-                    });
+                    Swal.fire('Tính năng này đang được bảo trì');
                 });
 
-                // ===== MODAL PHIẾU LƯƠNG =====
+                // Modal Slice detail
                 const slipModal = document.getElementById('slipModal');
                 const slipContent = document.getElementById('slipContent');
                 const btnPrint = document.getElementById('btnPrintSlip');
 
-                const LOADING_HTML = `
-                                                            <div style="text-align:center;padding:48px;color:#6b7280;">
-                                                                <div style="font-size:36px;margin-bottom:10px;">⏳</div>
-                                                                <div style="font-size:14px;">Đang tải phiếu lương...</div>
-                                                            </div>`;
-
                 function openSlipModal(nvId, thang, nam) {
-                    slipContent.innerHTML = LOADING_HTML;
+                    slipContent.innerHTML = '<div style="text-align:center;padding:48px;color:#6b7280;"><div style="font-size:36px;margin-bottom:10px;">⏳</div><div style="font-size:14px;">Đang tải phiếu lương...</div></div>';
                     slipModal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
 
                     fetch(`/salary/slip/${nvId}?thang=${thang}&nam=${nam}`, {
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
                     })
-                        .then(r => {
-                            if (!r.ok) throw new Error('HTTP ' + r.status);
-                            return r.text();
-                        })
+                        .then(r => r.text())
                         .then(html => { slipContent.innerHTML = html; })
                         .catch(err => {
-                            slipContent.innerHTML = `
-                                                                    <div style="text-align:center;padding:48px;color:#dc2626;">
-                                                                        <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
-                                                                        <div>Không thể tải phiếu lương.<br><small style="color:#9ca3af;">${err.message}</small></div>
-                                                                    </div>`;
+                            slipContent.innerHTML = '<div style="text-align:center;padding:48px;color:#dc2626;"><div style="font-size:32px;margin-bottom:8px;">⚠️</div><div>Không thể tải phiếu lương.</div></div>';
                         });
                 }
 
                 window.closeSlipModal = function () {
                     slipModal.style.display = 'none';
                     document.body.style.overflow = '';
-                    slipContent.innerHTML = LOADING_HTML;
                 };
 
-                // Click backdrop để đóng
-                slipModal.addEventListener('click', function (e) {
-                    if (e.target === slipModal) window.closeSlipModal();
+                $(document).on('click', '.btn-show-slip', function () {
+                    const nvId = $(this).data('nvId');
+                    const thang = $(this).data('thang');
+                    const nam = $(this).data('nam');
+                    openSlipModal(nvId, thang, nam);
                 });
 
-                // ESC để đóng
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape' && slipModal.style.display === 'flex') {
-                        window.closeSlipModal();
-                    }
-                });
-
-                // Gắn sự kiện (Event Delegation) cho tất cả nút phiếu lương
-                document.addEventListener('click', function (e) {
-                    const btn = e.target.closest('.btn-show-slip');
-                    if (btn) {
-                        const nvId = btn.dataset.nvId;
-                        const thang = btn.dataset.thang;
-                        const nam = btn.dataset.nam;
-                        openSlipModal(nvId, thang, nam);
-                    }
-                });
-
-                // Nút In phiếu
                 btnPrint.addEventListener('click', function () {
                     const printWin = window.open('', '_blank', 'width=950,height=700');
-                    printWin.document.write(`
-                                                                <!DOCTYPE html><html><head>
-                                                                <meta charset="UTF-8">
-                                                                <title>Phiếu Lương</title>
-                                                                <style>
-                                                                    body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
-                                                                    @media print { body { margin: 0; } }
-                                                                </style>
-                                                                <\/head><body>${slipContent.innerHTML}<\/body><\/html>`);
+                    var printStyle = '<style>body{font-family:Arial,sans-serif;font-size:13px;margin:20px;}<' + '/style>';
+                    var printHtml = '<' + '!DOCTYPE html><html><head><meta charset="UTF-8"><title>Phieu Luong<' + '/title>' + printStyle + '<' + '/head><body>' + slipContent.innerHTML + '<' + '/body><' + '/html>';
+                    printWin.document.write(printHtml);
                     printWin.document.close();
                     printWin.focus();
-                    setTimeout(() => { printWin.print(); }, 500);
+                    setTimeout(function () { printWin.print(); }, 500);
                 });
-                // ===== END MODAL PHIẾU LƯƠNG =====
-
             });
         </script>
     @endpush

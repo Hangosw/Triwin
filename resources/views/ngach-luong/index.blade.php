@@ -29,6 +29,34 @@
         body.dark-theme .table thead th { background-color: #21263a !important; color: #c3c8da !important; border-bottom-color: #2e3349 !important; }
         body.dark-theme .action-bar { border-bottom-color: #2e3349; }
         body.dark-theme .table tbody tr:hover { background-color: #21263a; }
+
+        /* Hide number spin buttons */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .btn-close-modal {
+            border: 1px solid #d1d5db !important;
+            color: #4b5563 !important;
+        }
+        .btn-close-modal:hover {
+            background-color: #f3f4f6 !important;
+            color: #1f2937 !important;
+            border-color: #d1d5db !important;
+        }
+        body.dark-theme .btn-close-modal {
+            border-color: #374151 !important;
+            color: #8b93a8 !important;
+            background-color: transparent !important;
+        }
+        body.dark-theme .btn-close-modal:hover {
+            background-color: #374151 !important;
+            color: #e8eaf0 !important;
+        }
     </style>
 @endpush
 
@@ -83,7 +111,7 @@
                                     {{ $ngach->dien_bien_luongs_count }} nhân viên
                                 </span>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center" id="status-badge-{{ $ngach->id }}">
                                 @if($ngach->TrangThai == 1)
                                     <span class="badge badge-success">Hoạt động</span>
                                 @else
@@ -95,8 +123,10 @@
                                     <button class="btn btn-sm btn-icon btn-outline-primary btn-edit-ngach" title="Chỉnh sửa">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-icon btn-outline-{{ $ngach->TrangThai == 1 ? 'danger' : 'success' }}"
-                                        onclick="toggleStatus({{ $ngach->Id }}, {{ $ngach->TrangThai }})"
+                                    <button class="btn btn-sm btn-icon btn-outline-{{ $ngach->TrangThai == 1 ? 'danger' : 'success' }} btn-toggle-status"
+                                        id="status-btn-{{ $ngach->id }}"
+                                        data-id="{{ $ngach->id }}"
+                                        data-status="{{ $ngach->TrangThai }}"
                                         title="{{ $ngach->TrangThai == 1 ? 'Khóa' : 'Mở khóa' }}">
                                         <i class="bi {{ $ngach->TrangThai == 1 ? 'bi-lock' : 'bi-unlock' }}"></i>
                                     </button>
@@ -109,65 +139,86 @@
         </div>
     </div>
 
-    <!-- Add Modal -->
+    <!-- Add/Edit Modal (Large) -->
     <div class="modal fade" id="ngachLuongModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content"
-                style="border-radius: 12px; border: none; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-                <div class="modal-header" style="border-bottom: 1px solid #f3f4f6; padding: 20px 24px;">
-                    <h5 class="modal-title" style="font-weight: 700; color: #1f2937;">Thêm ngạch lương mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                style="border-radius: 16px; border: none; box-shadow: 0 25px 30px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #0BAA4B, #077935); border-radius: 16px 16px 0 0; padding: 22px 28px; border: none;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white;">
+                             <i class="bi bi-gear-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title" style="font-weight: 700; color: #ffffff; margin: 0; font-size: 19px;">Thêm ngạch lương mới</h5>
+                            <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 12.5px;">Cập nhật định nghĩa và hệ thống bậc lương</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="ngachLuongForm">
                     @csrf
                     <input type="hidden" name="Id" id="inputNgachId">
-                    <div class="modal-body" style="padding: 24px;">
-                        <div class="form-group mb-4">
-                            <label class="form-label">Mã ngạch <span style="color: #dc2626;">*</span></label>
-                            <input type="text" class="form-control" name="Ma" id="inputMa" placeholder="VD: 01.003"
-                                required>
-                            <div class="invalid-feedback" id="errorMa"></div>
-                        </div>
-                        <div class="form-group mb-4">
-                            <label class="form-label">Tên ngạch <span style="color: #dc2626;">*</span></label>
-                            <input type="text" class="form-control" name="Ten" id="inputTen" placeholder="VD: Chuyên viên"
-                                required>
-                            <div class="invalid-feedback" id="errorTen"></div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Nhóm ngạch <span style="color: #dc2626;">*</span></label>
-                            <input type="text" class="form-control" name="Nhom" id="inputNhom" placeholder="VD: A1"
-                                required>
-                            <div class="invalid-feedback" id="errorNhom"></div>
+                    <div class="modal-body" style="padding: 28px;">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-weight: 600; color: #4b5563; font-size: 13.5px;">Mã ngạch <span style="color: #ef4444;">*</span></label>
+                                    <input type="text" class="form-control" name="Ma" id="inputMa" placeholder="VD: 01.003"
+                                        style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 11px 14px;" required>
+                                    <div class="invalid-feedback" id="errorMa"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-weight: 600; color: #4b5563; font-size: 13.5px;">Tên ngạch <span style="color: #ef4444;">*</span></label>
+                                    <input type="text" class="form-control" name="Ten" id="inputTen" placeholder="VD: Chuyên viên"
+                                        style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 11px 14px;" required>
+                                    <div class="invalid-feedback" id="errorTen"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-0">
+                                    <label class="form-label" style="font-weight: 600; color: #4b5563; font-size: 13.5px;">Nhóm ngạch <span style="color: #ef4444;">*</span></label>
+                                    <input type="text" class="form-control" name="Nhom" id="inputNhom" placeholder="VD: A1"
+                                        style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 11px 14px;" required>
+                                    <div class="invalid-feedback" id="errorNhom"></div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Phần quản lý Bậc lương (Chỉ hiện khi Sửa) -->
-                        <div id="sectionBacLuong" style="display: none; border-top: 1px solid #f3f4f6; padding-top: 24px; margin-top: 24px;">
-                            <h6 style="font-weight: 700; color: #1f2937; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                                <span><i class="bi bi-layers-fill" style="color: #0BAA4B;"></i> Danh sách bậc lương</span>
-                                <button type="button" class="btn btn-sm btn-success" style="padding: 2px 10px; font-size: 12px;" onclick="addEmptyBacRow()">
-                                    <i class="bi bi-plus-lg"></i> Thêm bậc mới
-                                </button>
-                            </h6>
-                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                <table class="table table-sm table-hover mb-0" style="font-size: 13px;">
-                                    <thead style="background-color: #f9fafb; position: sticky; top: 0; z-index: 1;">
-                                        <tr>
-                                            <th class="text-center" style="width: 80px;">Bậc</th>
-                                            <th class="text-center">Hệ số</th>
-                                            <th class="text-center" style="width: 100px;">Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="listBacLuongBody">
-                                        <!-- Dynamic content -->
-                                    </tbody>
-                                </table>
+                        <div id="sectionBacLuong" style="display: none; border-top: 1px dashed #e5e7eb; padding-top: 28px; margin-top: 32px;">
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid #edf2f7;">
+                                <h6 style="font-weight: 700; color: #1f2937; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 15px;">
+                                    <span><i class="bi bi-stack" style="color: #0BAA4B; margin-right: 8px;"></i> Cấu hình hệ thống Bậc lương</span>
+                                    <button type="button" class="btn btn-sm" style="background-color: #0BAA4B; color: white; border-radius: 6px; padding: 6px 14px; font-weight: 600;" onclick="addEmptyBacRow()">
+                                        <i class="bi bi-plus-circle-fill"></i> Thêm bậc mới
+                                    </button>
+                                </h6>
+                                <div class="table-responsive" style="max-height: 350px; overflow-y: auto; border: 1px solid #edf2f7; border-radius: 10px; background: white;">
+                                    <table class="table table-hover mb-0" style="font-size: 13.5px; border: none !important;">
+                                        <thead>
+                                            <tr style="background: #f1f5f9; border: none !important;">
+                                                <th class="text-center" style="width: 100px; padding: 12px; color: #64748b; font-weight: 700;"># BẬC</th>
+                                                <th class="text-center" style="padding: 12px; color: #64748b; font-weight: 700;">HỆ SỐ LƯƠNG</th>
+                                                <th class="text-center" style="width: 120px; padding: 12px; color: #64748b; font-weight: 700;">THAO TÁC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listBacLuongBody">
+                                            <!-- Dynamic content -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-muted mt-3 mb-0" style="font-size: 12px; font-style: italic;">
+                                    <i class="bi bi-info-circle"></i> Nhấn "Lưu" (biểu tượng đĩa mềm) sau khi thay đổi từng dòng bậc lương.
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer" style="border-top: 1px solid #f3f4f6; padding: 16px 24px;">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-primary" id="btnSubmit">Lưu ngạch lương</button>
+                    <div class="modal-footer" style="background-color: #f9fafb; border-top: 1px solid #f3f4f6; padding: 20px 28px; border-radius: 0 0 16px 16px;">
+                        <button type="button" class="btn btn-outline-secondary btn-close-modal" data-bs-dismiss="modal" style="border-radius: 8px; padding: 9px 20px;">Đóng</button>
+                        <button type="submit" class="btn btn-primary" id="btnSubmit" style="border-radius: 8px; padding: 9px 25px; font-weight: 600;">Lưu ngạch lương</button>
                     </div>
                 </form>
             </div>
@@ -251,7 +302,7 @@
                     </div>
                 </div>
                 <div class="modal-footer" style="padding: 20px 32px; background: #f8fafc; border-radius: 0 0 16px 16px;">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-outline-secondary btn-close-modal px-4" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
@@ -308,6 +359,38 @@
             background-color: #f0fdf4 !important;
         }
 
+        /* Bỏ tính năng hover cho các nút thao tác trong bảng */
+        .table .btn-icon:hover {
+            transform: none !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+        .table .btn-outline-primary:hover {
+            color: #0d6efd !important;
+            border-color: #0d6efd !important;
+        }
+        .table .btn-outline-danger:hover {
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+        .table .btn-outline-success:hover {
+            color: #198754 !important;
+            border-color: #198754 !important;
+        }
+        
+        body.dark-theme .table .btn-outline-primary:hover {
+            color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+        }
+        body.dark-theme .table .btn-outline-danger:hover {
+            color: #ef4444 !important;
+            border-color: #ef4444 !important;
+        }
+        body.dark-theme .table .btn-outline-success:hover {
+            color: #10b981 !important;
+            border-color: #10b981 !important;
+        }
+
         body.dark-theme .modal-content {
             background-color: #1a1d27;
             color: white;
@@ -336,6 +419,33 @@
             background-color: #21263a !important;
             border-color: #2e3349 !important;
         }
+
+        /* Modal Styles Redesign Overrides */
+        body.dark-theme #sectionBacLuong {
+            border-top-color: #2e3349 !important;
+        }
+        body.dark-theme div[style*="background: #f8fafc"] {
+            background-color: #1e2535 !important;
+            border-color: #2e3349 !important;
+        }
+        body.dark-theme div[style*="background: white"] {
+            background-color: #111827 !important; /* listBacLuongBody area */
+        }
+        body.dark-theme .modal-footer {
+            background-color: #161c2d !important;
+        }
+        body.dark-theme .form-control {
+            background-color: #111827;
+            border-color: #374151;
+            color: #f9fafb;
+        }
+        body.dark-theme th[style*="color: #64748b"] {
+            color: #94a3b8 !important;
+            background: #1e2535 !important;
+        }
+        body.dark-theme .form-label {
+            color: #d1d5db !important;
+        }
     </style>
 
 @endsection
@@ -344,7 +454,7 @@
     <script>
         $(document).ready(function () {
             // Khởi tạo DataTable
-            $('#ngachLuongTable').DataTable({
+            const table = $('#ngachLuongTable').DataTable({
                 language: {
                     "sProcessing": "Đang xử lý...",
                     "sLengthMenu": "Hiển thị _MENU_ dòng",
@@ -356,8 +466,20 @@
                     "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" }
                 },
                 pageLength: 25,
-                order: [[0, 'asc']]
+                columnDefs: [
+                    { orderable: false, targets: [0, 6] },
+                    { searchable: false, targets: [0, 6] }
+                ],
+                order: [[1, 'asc']]
             });
+
+            // Index column recalculation - STT luôn bắt đầu từ 1 sau khi sort/search
+            table.on('order.dt search.dt', function () {
+                let i = 1;
+                table.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+                    this.data('<strong>' + i++ + '</strong>');
+                });
+            }).draw();
 
             // Khởi tạo Bootstrap Modals
             window.ngachModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('ngachLuongModal'));
@@ -511,7 +633,7 @@
                 body.append(`
                     <tr data-id="${stepId}" class="align-middle">
                         <td><input type="number" class="form-control form-control-sm text-center input-bac font-weight-bold" value="${stepBac}" style="border: none; background: transparent; color: #1f2937; min-width: 60px;"></td>
-                        <td><input type="number" step="0.01" class="form-control form-control-sm text-center input-heso font-bold" value="${parseFloat(stepHeSo).toFixed(2)}" style="border: none; background: transparent; color: #0BAA4B;"></td>
+                        <td><input type="number" step="0.01" min="0" class="form-control form-control-sm text-center input-heso font-bold" value="${parseFloat(stepHeSo).toFixed(2)}" style="border: none; background: transparent; color: #0BAA4B;"></td>
                         <td class="text-center">
                             <button type="button" class="btn btn-link text-primary p-0 me-2" onclick="updateBac(${stepId}, this)" title="Lưu thay đổi"><i class="bi bi-save"></i></button>
                             <button type="button" class="btn btn-link text-danger p-0" onclick="deleteBac(${stepId}, this)" title="Xóa bậc"><i class="bi bi-trash"></i></button>
@@ -533,7 +655,7 @@
             const newRow = $(`
                 <tr class="align-middle bg-light">
                     <td><input type="number" class="form-control form-control-sm text-center input-new-bac" value="${nextBac}"></td>
-                    <td><input type="number" step="0.01" class="form-control form-control-sm text-center input-new-heso" placeholder="0.00"></td>
+                    <td><input type="number" step="0.01" min="0" class="form-control form-control-sm text-center input-new-heso" placeholder="0.00"></td>
                     <td class="text-center">
                         <button type="button" class="btn btn-link text-success p-0 me-2" onclick="saveNewBac(this)" title="Xác nhận"><i class="bi bi-check-circle-fill"></i></button>
                         <button type="button" class="btn btn-link text-muted p-0" onclick="$(this).closest('tr').remove()" title="Hủy"><i class="bi bi-x-circle"></i></button>
@@ -552,8 +674,13 @@
                 HeSo: row.find('.input-new-heso').val()
             };
 
-            if (!data.Bac || !data.HeSo) {
+            if (!data.Bac || data.HeSo === "") {
                 Swal.fire('Chú ý', 'Vui lòng nhập đầy đủ Bậc và Hệ số', 'warning');
+                return;
+            }
+
+            if (parseFloat(data.HeSo) < 0) {
+                Swal.fire('Lỗi', 'Hệ số lương không được nhỏ hơn 0', 'error');
                 return;
             }
 
@@ -593,6 +720,11 @@
                 Bac: row.find('.input-bac').val(),
                 HeSo: row.find('.input-heso').val()
             };
+
+            if (data.HeSo === "" || parseFloat(data.HeSo) < 0) {
+                Swal.fire('Lỗi', 'Hệ số lương phải lớn hơn hoặc bằng 0', 'error');
+                return;
+            }
 
             try {
                 const response = await fetch(`{{ url('salary/ngach-luong/bac-luong/update') }}/${id}`, {
@@ -660,8 +792,13 @@
             $('#ngachLuongForm .invalid-feedback').text('');
         }
 
-        function toggleStatus(id, currentStatus) {
+        $(document).on('click', '.btn-toggle-status', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const id = $(this).data('id');
+            const currentStatus = $(this).data('status');
             const action = currentStatus == 1 ? 'khóa' : 'mở khóa';
+            
             Swal.fire({
                 title: `Xác nhận ${action}?`,
                 text: `Bạn có chắc chắn muốn ${action} ngạch lương này không?`,
@@ -677,18 +814,38 @@
                         const response = await fetch(`{{ url('salary/ngach-luong/toggle-status') }}/${id}`, {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
                             }
                         });
                         const res = await response.json();
                         if (res.success) {
+                            // Update UI instantly
+                            const newStatus = currentStatus == 1 ? 0 : 1;
+                            const badgeEl = $(`#status-badge-${id}`);
+                            const btnEl = $(`#status-btn-${id}`);
+                            
+                            if (newStatus == 1) {
+                                badgeEl.html('<span class="badge badge-success">Hoạt động</span>');
+                                btnEl.removeClass('btn-outline-success').addClass('btn-outline-danger');
+                                btnEl.html('<i class="bi bi-lock"></i>');
+                                btnEl.attr('title', 'Khóa');
+                            } else {
+                                badgeEl.html('<span class="badge badge-danger">Đã khóa</span>');
+                                btnEl.removeClass('btn-outline-danger').addClass('btn-outline-success');
+                                btnEl.html('<i class="bi bi-unlock"></i>');
+                                btnEl.attr('title', 'Mở khóa');
+                            }
+                            
+                            btnEl.data('status', newStatus);
+
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Thành công',
                                 text: res.message,
-                                timer: 1500,
+                                timer: 1000,
                                 showConfirmButton: false
-                            }).then(() => location.reload());
+                            });
                         } else {
                             Swal.fire('Lỗi', res.message || 'Xảy ra lỗi khi thay đổi trạng thái', 'error');
                         }
@@ -697,6 +854,6 @@
                     }
                 }
             });
-        }
+        });
     </script>
 @endpush

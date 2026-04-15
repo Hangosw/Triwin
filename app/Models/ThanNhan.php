@@ -18,7 +18,8 @@ class ThanNhan extends Model
         'LaGiamTruGiaCanh',
         'MaSoThue',
         'TepDinhKem',
-        'TrangThai'
+        'TrangThai',
+        'GhiChu'
     ];
 
     protected $casts = [
@@ -28,7 +29,7 @@ class ThanNhan extends Model
     ];
 
     /**
-     * Thân nhân thuộc về một nhân viên cụ thể
+     * Người phụ thuộc thuộc về một nhân viên cụ thể
      */
     public function nhanVien()
     {

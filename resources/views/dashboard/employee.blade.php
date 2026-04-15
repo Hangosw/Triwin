@@ -53,13 +53,13 @@
         </div>
     </a>
 
-    <a href="{{ route('tang-ca.ca-nhan') }}" style="text-decoration: none; background: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s;">
+    <a href="{{ route('wfh.ca-nhan') }}" style="text-decoration: none; background: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s;">
         <div style="width: 48px; height: 48px; background: #fffbeb; color: #f59e0b; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-            <i class="bi bi-clock-history"></i>
+            <i class="bi bi-house-door"></i>
         </div>
         <div>
-            <div style="font-weight: 600; color: #1f2937; font-size: 16px;">Đăng ký tăng ca</div>
-            <div style="font-size: 13px; color: #6b7280; margin-top: 4px;">Tạo phiếu làm ngoài giờ</div>
+            <div style="font-weight: 600; color: #1f2937; font-size: 16px;">Đăng ký WFH</div>
+            <div style="font-size: 13px; color: #6b7280; margin-top: 4px;">Tạo đơn làm việc từ xa</div>
         </div>
     </a>
 
@@ -78,10 +78,10 @@
 <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #1f2937;">Thống kê của tôi</h3>
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="label">Giờ tăng ca tháng này</div>
+        <div class="label">Ngày WFH tháng này</div>
         <div class="value" style="display: flex; align-items: baseline; gap: 8px;">
-            {{ number_format($myOtHoursThisMonth, 1) }}
-            <span style="font-size: 15px; font-weight: 500; color: #6b7280;">giờ</span>
+            {{ number_format($myWorkFromHomeDaysThisMonth, 1) }}
+            <span style="font-size: 15px; font-weight: 500; color: #6b7280;">ngày</span>
         </div>
     </div>
     
@@ -93,9 +93,9 @@
     </div>
 
     <div class="stat-card">
-        <div class="label">Tăng ca chờ duyệt</div>
-        <div class="value" style="color: {{ $myPendingOvertimeCount > 0 ? '#f59e0b' : '#1f2937' }}">
-            {{ $myPendingOvertimeCount }}
+        <div class="label">Đơn WFH chờ duyệt</div>
+        <div class="value" style="color: {{ $myPendingWFHCount > 0 ? '#f59e0b' : '#1f2937' }}">
+            {{ $myPendingWFHCount }}
         </div>
     </div>
 </div>
@@ -105,7 +105,7 @@
     <div class="card" style="margin-bottom: 0;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
             <h2 style="font-size: 18px; font-weight: 700; margin: 0;">Lịch sử Lương (6 tháng)</h2>
-            <a href="{{ route('salary.index') }}" style="color: #0BAA4B; text-decoration: none; font-size: 13px; font-weight: 500;">Xem tất cả</a>
+            <a href="{{ route('salary.history') }}" style="color: #0BAA4B; text-decoration: none; font-size: 13px; font-weight: 500;">Xem tất cả</a>
         </div>
         <div class="table-container">
             <table class="table" style="font-size: 13px;">
@@ -147,13 +147,13 @@
                         'url' => route('nghi-phep.ca-nhan')
                     ]);
                 }
-                foreach($recentOTs as $ot) {
+                foreach($recentWFHs as $wfh) {
                     $myRecentLogs->push((object)[
-                        'type' => 'overtime',
-                        'date' => $ot->created_at,
-                        'title' => 'Tăng ca ngày ' . \Carbon\Carbon::parse($ot->Ngay)->format('d/m'),
-                        'status' => $ot->TrangThai == 'da_duyet' ? 1 : ($ot->TrangThai == 'tu_choi' ? 0 : 2),
-                        'url' => route('tang-ca.ca-nhan')
+                        'type' => 'wfh',
+                        'date' => $wfh->created_at,
+                        'title' => 'WFH ngày ' . \Carbon\Carbon::parse($wfh->NgayBatDau)->format('d/m'),
+                        'status' => $wfh->TrangThai == 'da_duyet' ? 1 : ($wfh->TrangThai == 'tu_choi' ? 0 : 2),
+                        'url' => route('wfh.ca-nhan')
                     ]);
                 }
                 $myRecentLogs = $myRecentLogs->sortByDesc('date')->take(6);
@@ -162,7 +162,7 @@
             @forelse($myRecentLogs as $log)
                 <a href="{{ $log->url }}" style="text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; border: 1px solid #f3f4f6; transition: background 0.2s;">
                     <div style="width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; background: {{ $log->type == 'leave' ? '#f0fdfa' : '#fffbeb' }}; color: {{ $log->type == 'leave' ? '#0d9488' : '#d97706' }};">
-                        <i class="bi {{ $log->type == 'leave' ? 'bi-calendar-minus' : 'bi-clock-history' }}"></i>
+                        <i class="bi {{ $log->type == 'leave' ? 'bi-calendar-minus' : ($log->type == 'wfh' ? 'bi-house-door' : 'bi-clock-history') }}"></i>
                     </div>
                     <div style="flex: 1;">
                         <div style="font-weight: 500; color: #1f2937; font-size: 14px;">{{ $log->title }}</div>

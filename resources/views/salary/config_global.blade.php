@@ -68,7 +68,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Ngày áp dụng</label>
-                        <input type="date" name="NgayApDung" class="form-control" required>
+                        <input type="text" name="NgayApDung" class="form-control datepicker" placeholder="dd/mm/yyyy" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Mức lương cơ sở (VNĐ)</label>
@@ -139,6 +139,54 @@
             color: #0BAA4B !important;
         }
         .badge-success { background-color: #d1fae5; color: #065f46; }
+
+        /* Dark Mode Overrides */
+        body.dark-theme .config-option {
+            background-color: #1a1d27;
+            border-color: #2e3349 !important;
+        }
+        body.dark-theme .config-option span[style*="color: #1f2937"] {
+            color: #e8eaf0 !important;
+        }
+        body.dark-theme .config-option span[style*="color: #6b7280"] {
+            color: #8b93a8 !important;
+        }
+        body.dark-theme .config-option:hover {
+            background-color: #21263a !important;
+        }
+        body.dark-theme .active-option {
+            border-color: #0BAA4B !important;
+            background-color: rgba(11, 170, 75, 0.1) !important;
+        }
+        body.dark-theme #paramForm {
+            background-color: #1a1d27 !important;
+            border-color: #2e3349 !important;
+        }
+        body.dark-theme #paramForm h4 {
+            color: #e8eaf0 !important;
+        }
+        body.dark-theme thead[style*="background-color: #f8f9fa"] {
+            background-color: #21263a !important;
+        }
+        body.dark-theme th {
+            color: #8b93a8 !important;
+            border-color: #2e3349 !important;
+        }
+        body.dark-theme .table-container td {
+            border-color: #2e3349 !important;
+        }
+        body.dark-theme .badge-success {
+            background-color: rgba(11, 170, 75, 0.2);
+            color: #0BAA4B;
+        }
+        body.dark-theme .alert-success[style*="background-color: #d1fae5"] {
+            background-color: rgba(11, 170, 75, 0.1) !important;
+            border: 1px solid #0BAA4B !important;
+        }
+        body.dark-theme .alert-danger[style*="background-color: #fee2e2"] {
+            background-color: rgba(220, 38, 38, 0.1) !important;
+            border: 1px solid #dc2626 !important;
+        }
     </style>
 
     <script>

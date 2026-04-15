@@ -19,11 +19,20 @@
     <style>
         .user-name-link {
             font-weight: 500;
-            color: #2563eb;
+            color: #0BAA4B;
             text-decoration: none;
         }
         .user-name-link:hover {
             text-decoration: underline;
+            color: #09933f;
+        }
+        .text-not-updated {
+            color: #9ca3af;
+            font-style: italic;
+            font-size: 13px;
+        }
+        body.dark-theme .text-not-updated {
+            color: #8b93a8;
         }
     </style>
 @endpush
@@ -59,6 +68,7 @@
                     </svg>
                     Xóa đã chọn (<span id="selectedCount">0</span>)
                 </button>
+{{-- 
                 <button class="btn btn-secondary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -66,6 +76,7 @@
                     </svg>
                     Xuất Excel
                 </button>
+--}}
                 <a href="{{ route('nguoi-dung.tao') }}" class="btn btn-primary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -134,7 +145,7 @@
                     {
                         data: 'Ten',
                         render: function (data, type, row) {
-                            if (!data) return '<span class="text-muted">Chưa cập nhật</span>';
+                            if (!data) return '<span class="text-not-updated">Chưa cập nhật</span>';
                             return `<a href="/nguoi-dung/sua/${row.id}" class="user-name-link">${data}</a>`;
                         }
                     },
@@ -154,9 +165,12 @@
                         data: null,
                         orderable: false,
                         render: function (data, type, row) {
+                            const currentUserId = {{ \Illuminate\Support\Facades\Auth::id() }};
+                            const isSelf = row.id == currentUserId;
+
                             const statusIcon = row.TrangThai == 1 
-                                ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>` // Lock icon for active user
-                                : `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>`; // Unlock icon for inactive user
+                                ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>` 
+                                : `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>`;
                             
                             const statusTitle = row.TrangThai == 1 ? 'Khóa người dùng' : 'Mở khóa người dùng';
                             const statusClass = row.TrangThai == 1 ? 'text-warning' : 'text-success';
@@ -166,11 +180,15 @@
                                     <button type="button" class="btn-icon ${statusClass} btn-toggle-status" data-id="${row.id}" title="${statusTitle}" style="background: none; border: none; cursor: pointer;">
                                         ${statusIcon}
                                     </button>
+                                    ${!isSelf ? `
                                     <button type="button" class="btn-icon text-danger btn-delete" data-id="${row.id}" title="Xóa" style="background: none; border: none; cursor: pointer; color: #dc2626;">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
                                     </button>
+                                    ` : `
+                                    <span class="badge badge-info" style="font-size: 11px;">Chính bạn</span>
+                                    `}
                                 </div>
                             `;
                         }
@@ -272,7 +290,12 @@
                             if (res.success) {
                                 table.ajax.reload();
                                 Swal.fire('Đã xóa!', res.message, 'success');
+                            } else {
+                                Swal.fire('Lỗi!', res.message, 'error');
                             }
+                        }).fail(function(xhr) {
+                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Có lỗi xảy ra khi xóa người dùng.';
+                            Swal.fire('Thất bại!', msg, 'error');
                         });
                     }
                 });
@@ -303,7 +326,12 @@
                                 $('#selectAll').prop('checked', false);
                                 updateDeleteButton();
                                 Swal.fire('Thành công!', res.message, 'success');
+                            } else {
+                                Swal.fire('Lỗi!', res.message, 'error');
                             }
+                        }).fail(function(xhr) {
+                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Có lỗi xảy ra khi xóa danh sách người dùng.';
+                            Swal.fire('Thất bại!', msg, 'error');
                         });
                     }
                 });

@@ -265,6 +265,107 @@
             border-color: var(--primary-green);
             color: var(--primary-green);
         }
+
+        /* Dark Mode Overrides */
+        body.dark-theme {
+            --surface: #1a1d2d;
+            --text-main: #e8eaf0;
+            --text-muted: #8b93a8;
+        }
+
+        body.dark-theme #dateRange {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .step-card {
+            background: #1a1d2d;
+            border-color: #2e3349;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-theme .step-title {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .form-label {
+            color: #c3c8da;
+        }
+
+        body.dark-theme .form-control:not(textarea), 
+        body.dark-theme .select2-container--default .select2-selection--single,
+        body.dark-theme textarea.form-control {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .form-control:focus, 
+        body.dark-theme .select2-container--default.select2-container--focus .select2-selection--single {
+            background: #1a1d2d !important;
+            border-color: var(--primary-green) !important;
+        }
+
+        body.dark-theme .session-table-container {
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .session-table {
+            background: #1a1d2d;
+        }
+
+        body.dark-theme .session-table th,
+        body.dark-theme .session-row-label {
+            background: #21263a;
+            color: #c3c8da;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .session-table td {
+            border-color: #2e3349;
+            color: #e1e1e1;
+        }
+
+        body.dark-theme .quick-select-btn {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da;
+        }
+
+        body.dark-theme .summary-box {
+            background: rgba(11, 170, 75, 0.1);
+            border-color: rgba(11, 170, 75, 0.2);
+        }
+
+        body.dark-theme .summary-item .label {
+            color: #10b981;
+        }
+
+        body.dark-theme .summary-item .value {
+            color: #34d399;
+        }
+
+        body.dark-theme #splitLeaveSection {
+            background: rgba(245, 158, 11, 0.1) !important;
+            border-color: rgba(245, 158, 11, 0.2) !important;
+        }
+
+        body.dark-theme #splitMessage {
+            color: #fbbf24;
+        }
+
+        body.dark-theme .btn-secondary {
+            background: #2e3349;
+            color: #c3c8da;
+        }
+
+        body.dark-theme .btn-secondary:hover {
+            background: #39405a;
+            color: #fff;
+        }
     </style>
 @endpush
 
@@ -311,7 +412,7 @@
                                 <option value="{{ $type->id }}" data-limit="{{ $leaveLimitsMap[$type->id] ?? 999 }}">
                                     {{ $type->Ten }} 
                                     @if(!(isset($isAdmin) && $isAdmin))
-                                        (Còn {{ number_format($leaveLimitsMap[$type->id] ?? 999, 1) }} ngày)
+                                        ({{ $type->Ten == 'Nghỉ phép năm' ? 'Khả dụng' : 'Còn' }} {{ number_format($leaveLimitsMap[$type->id] ?? 999, 1) }} ngày)
                                     @endif
                                 </option>
                             @endforeach

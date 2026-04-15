@@ -21,7 +21,6 @@ class Luong extends Model
 
         // 1. Thu nhập (Earnings)
         'LuongCoBan',    // Tính từ Hệ số (bảng bac_luongs) * Lương cơ sở
-        'LuongTangCa',   // Tổng tiền từ bảng tang_cas đã duyệt
         'PhuCap',        // Tổng các loại phụ cấp (ăn trưa, điện thoại...)
         'KhenThuong',    // Thưởng đột xuất
 

@@ -46,18 +46,125 @@
             font-weight: 500;
         }
 
-        .profile-header {
-            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
-            border-radius: 8px;
-            padding: 32px;
-            margin-bottom: 24px;
-            color: white;
+        /* Basic Info Redesign */
+        .basic-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
         }
 
-        .profile-content {
+        .info-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .info-card-header {
             display: flex;
             align-items: center;
-            gap: 32px;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-card-header i {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            color: #16a34a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .info-card-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .info-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px 24px;
+        }
+
+        .info-card-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-card-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .info-card-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        body.dark-theme .info-card {
+            background: #1a1d27;
+            border-color: #2e3349;
+            box-shadow: none;
+        }
+
+        body.dark-theme .info-card-header {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .info-card-header i {
+            background: rgba(22, 163, 74, 0.1);
+        }
+
+        body.dark-theme .info-card-header h3 {
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .info-card-value {
+            color: #cbd5e1;
+        }
+
+        @media (max-width: 991px) {
+            .basic-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .profile-overview {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px !important;
+            }
+
+            .profile-overview .badge {
+                margin: 0 auto;
+            }
         }
 
         .profile-avatar {
@@ -96,6 +203,7 @@
             gap: 8px;
             border-bottom: 2px solid #e5e7eb;
             margin-bottom: 24px;
+            margin-top: 24px;
             overflow-x: auto;
         }
 
@@ -403,7 +511,7 @@
         }
 
         body.dark-theme .detail-label {
-            color: #6b7492;
+            color: #8b93a8;
         }
 
         body.dark-theme .detail-value {
@@ -456,10 +564,25 @@
         }
 
         /* Badges in Dark Mode */
-        body.dark-theme .badge-bo-me { background: rgba(14, 165, 233, 0.15); color: #7dd3fc; }
-        body.dark-theme .badge-vo-chong { background: rgba(236, 72, 153, 0.15); color: #f9a8d4; }
-        body.dark-theme .badge-con { background: rgba(11, 170, 75, 0.15); color: #4ade80; }
-        body.dark-theme .badge-khac { background: #2e3349; color: #94a3b8; }
+        body.dark-theme .badge-bo-me {
+            background: rgba(14, 165, 233, 0.15);
+            color: #7dd3fc;
+        }
+
+        body.dark-theme .badge-vo-chong {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f9a8d4;
+        }
+
+        body.dark-theme .badge-con {
+            background: rgba(11, 170, 75, 0.15);
+            color: #4ade80;
+        }
+
+        body.dark-theme .badge-khac {
+            background: #2e3349;
+            color: #94a3b8;
+        }
 
         /* Form elements for Filters in Tab Attendance */
         body.dark-theme #attendanceDateDisplay {
@@ -515,7 +638,7 @@
             color: #c3c8da !important;
         }
 
-        body.dark-theme #attendanceStats > div {
+        body.dark-theme #attendanceStats>div {
             background: #21263a !important;
             border-color: #2e3349 !important;
         }
@@ -633,112 +756,54 @@
 
         .document-image-link:hover img {
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
             border-color: #0BAA4B !important;
         }
     </style>
- @endpush
+@endpush
 
 @section('content')
     <!-- Back Button -->
-    <div style="margin-bottom: 24px;">
-        <a href="{{ route('nhan-vien.danh-sach') }}" class="btn btn-secondary">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Quay lại danh sách
-        </a>
-    </div>
-
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="profile-content">
-            @php
-                $avatar = $employee->AnhDaiDien
-                    ? asset($employee->AnhDaiDien)
-                    : 'https://ui-avatars.com/api/?name=' . urlencode($employee->Ten) . '&background=0F5132&color=fff&size=128';
-            @endphp
-            <img src="{{ $avatar }}" alt="{{ $employee->Ten }}" class="profile-avatar"
-                onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($employee->Ten) }}&background=0F5132&color=fff&size=128'">
-            <div class="profile-info">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <h1>{{ $employee->Ten }}</h1>
-                    @php
-                        $status = $employee->TrangThai ?? 1;
-                        if ($status == 1) {
-                            $statusData = ['text' => 'Làm tại công ty', 'class' => 'bg-success'];
-                        } elseif ($status == 2) {
-                            $statusData = ['text' => 'Làm từ xa (WFH)', 'class' => 'bg-info'];
-                        } else {
-                            $statusData = ['text' => 'Nghỉ làm', 'class' => 'bg-secondary'];
-                        }
-                    @endphp
-                    <span class="badge {{ $statusData['class'] }}" style="padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        {{ $statusData['text'] }}
-                    </span>
-                </div>
-                <div style="font-size: 18px; opacity: 0.9;">
-                    {{ $employee->ttCongViec->chucVu->Ten ?? 'Chưa có chức vụ' }} -
-                    {{ $employee->ttCongViec->phongBan->Ten ?? 'Chưa có phòng ban' }}
-                </div>
-
-                <div class="profile-meta">
-                    <div class="profile-meta-item">
-                        <i class="bi bi-envelope-fill" style="font-size: 18px;"></i>
-                        {{ $employee->Email ?? 'Chưa có' }}
-                    </div>
-                    <div class="profile-meta-item">
-                        <i class="bi bi-telephone-fill" style="font-size: 18px;"></i>
-                        {{ $employee->SoDienThoai ?? 'Chưa có' }}
-                    </div>
-                    @if($employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien !== null)
-                        <div class="profile-meta-item">
-                            <i class="bi bi-person-badge-fill" style="font-size: 18px;"></i>
-                            {{ $employee->ttCongViec->LoaiNhanVien == 1 ? 'Văn phòng' : 'Công nhân' }}
-                        </div>
-                    @endif
-                </div>
-
-                <div class="action-buttons-header">
-                    <a href="{{ route('nhan-vien.suaView', $employee->id) }}" class="btn btn-light" style="background: white; border: none; font-weight: 600; color: #0BAA4B; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                        <i class="bi bi-pencil-square"></i>
-                        Chỉnh sửa hồ sơ
-                    </a>
-
-                </div>
-            </div>
+    @can('Xem Nhân Viên')
+        <div style="margin-bottom: 24px;">
+            <a href="{{ route('nhan-vien.danh-sach') }}" class="btn btn-secondary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Quay lại danh sách
+            </a>
         </div>
-    </div>
+    @endcan
+
 
     <!-- Tabs Navigation -->
     <div class="tabs">
         <button class="tab active" onclick="switchTab(event, 'basic')">
-            <i class="bi bi-person-lines-fill"></i> Thông tin cơ bản
+            <i class="bi bi-person-lines-fill"></i> Thông tin
         </button>
         <button class="tab" onclick="switchTab(event, 'work')">
-            <i class="bi bi-briefcase-fill"></i> Thông tin công việc
+            <i class="bi bi-briefcase-fill"></i> Công việc
         </button>
         <button class="tab" onclick="switchTab(event, 'relatives')">
-            <i class="bi bi-people-fill"></i> Thân nhân
+            <i class="bi bi-people-fill"></i> Người phụ thuộc
         </button>
         <button class="tab" onclick="switchTab(event, 'salary')">
-            <i class="bi bi-cash-coin"></i> Diễn biến lương
-            @if($employee->dienBienLuongs->isNotEmpty())
-                <span class="badge" style="background:#0BAA4B;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
-                    {{ $employee->dienBienLuongs->count() }}
-                </span>
-            @endif
+            <i class="bi bi-cash-coin"></i> Lương
         </button>
         <button class="tab" onclick="switchTab(event, 'contracts')">
             <i class="bi bi-file-earmark-text-fill"></i> Hợp đồng
             @if($employee->hopDongs->isNotEmpty())
-                <span class="badge" style="background:#0BAA4B;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
+                <span class="badge"
+                    style="background:#0BAA4B;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
                     {{ $employee->hopDongs->count() }}
                 </span>
             @endif
-        <button class="tab" onclick="switchTab(event, 'attendance')" data-tab="attendance">
-            <i class="bi bi-clock-history"></i> Chấm công
-        </button>
+            <button class="tab" onclick="switchTab(event, 'attendance')" data-tab="attendance">
+                <i class="bi bi-clock-history"></i> Chấm công
+            </button>
+            <button class="tab" onclick="switchTab(event, 'asset')">
+                <i class="bi bi-pc-display"></i> Tài sản
+            </button>
     </div>
 
     {{-- Tab Contents --}}
@@ -748,6 +813,7 @@
     @include('employees.partials.tab_salary')
     @include('employees.partials.tab_contracts')
     @include('employees.partials.tab_attendance')
+    @include('employees.partials.tab_asset')
 
     {{-- Modals --}}
     @include('employees.partials.modal_add_relative')
@@ -760,28 +826,56 @@
                 document.querySelectorAll('.tab-content').forEach(content => {
                     content.classList.remove('active');
                 });
-                
+
                 // Disable active state for all tab buttons
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.classList.remove('active');
                 });
-                
+
                 // Activate selected content
                 const targetContent = document.getElementById('tab-' + tabName);
                 if (targetContent) {
                     targetContent.classList.add('active');
                 }
-                
+
                 // Activate clicked button
                 if (event && event.currentTarget) {
                     event.currentTarget.classList.add('active');
+                } else {
+                    // Find button by tabName if no event (for auto-switch)
+                    const btn = document.querySelector(`.tab[onclick*="'${tabName}'"]`);
+                    if (btn) btn.classList.add('active');
+                }
+
+                // Update hash without scrolling
+                if (history.pushState) {
+                    history.pushState(null, null, '#' + tabName);
+                } else {
+                    location.hash = tabName;
                 }
             }
 
+            // Auto-restore tab from hash on page load
+            window.addEventListener('DOMContentLoaded', () => {
+                const hash = window.location.hash.substring(1);
+                if (hash && document.getElementById('tab-' + hash)) {
+                    switchTab(null, hash);
+                }
+            });
+
             document.getElementById('addRelativeForm').addEventListener('submit', function (e) {
                 e.preventDefault();
-                const formData = new FormData(this);
-                fetch('{{ route("than-nhan.tao") }}', {
+
+                const form = this;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnHtml = submitBtn.innerHTML;
+
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...';
+
+                const formData = new FormData(form);
+                fetch('{{ route("nguoi-phu-thuoc.tao") }}', {
                     method: 'POST',
                     body: formData,
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
@@ -794,12 +888,19 @@
                                 text: data.message,
                                 icon: 'success',
                                 borderRadius: '0.5rem',
-                            }).then(() => { location.reload(); });
+                            }).then(() => {
+                                window.location.hash = 'relatives';
+                                location.reload();
+                            });
                         } else {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnHtml;
                             Swal.fire('Lỗi!', data.message || 'Đã có lỗi xảy ra', 'error');
                         }
                     })
                     .catch(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnHtml;
                         Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ', 'error');
                     });
             });
@@ -816,7 +917,7 @@
                     cancelButtonText: 'Hủy'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/than-nhan/xoa/${id}`, {
+                        fetch(`/nguoi-phu-thuoc/xoa/${id}`, {
                             method: 'POST',
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                         })
@@ -824,6 +925,7 @@
                             .then(data => {
                                 if (data.success) {
                                     Swal.fire('Đã xóa!', data.message, 'success').then(() => {
+                                        window.location.hash = 'relatives';
                                         location.reload();
                                     });
                                 }
@@ -834,9 +936,11 @@
 
             function approveRelative(id) {
                 Swal.fire({
-                    title: 'Duyệt thân nhân?',
-                    text: 'Xác nhận thông tin người thân này đã hợp lệ.',
+                    title: 'Duyệt người phụ thuộc?',
+                    text: 'Xác nhận thông tin người thân này đã hợp lệ. Bạn có thể nhập ghi chú thêm (không bắt buộc):',
                     icon: 'question',
+                    input: 'textarea',
+                    inputPlaceholder: 'Nhập ghi chú tại đây...',
                     showCancelButton: true,
                     confirmButtonColor: '#0BAA4B',
                     cancelButtonColor: '#6b7280',
@@ -844,14 +948,66 @@
                     cancelButtonText: 'Hủy'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/than-nhan/duyet/${id}`, {
+                        fetch(`/nguoi-phu-thuoc/duyet/${id}`, {
                             method: 'POST',
-                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ GhiChu: result.value })
                         })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    Swal.fire('Thành công!', data.message, 'success').then(() => { location.reload(); });
+                                    Swal.fire('Thành công!', data.message, 'success').then(() => {
+                                        window.location.hash = 'relatives';
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire('Lỗi!', data.message, 'error');
+                                }
+                            })
+                            .catch(() => {
+                                Swal.fire('Lỗi!', 'Không thể kết nối đến máy chủ', 'error');
+                            });
+                    }
+                });
+            }
+
+            function rejectRelative(id) {
+                Swal.fire({
+                    title: 'Từ chối người phụ thuộc?',
+                    text: 'Vui lòng nhập lý do từ chối để nhân viên được biết:',
+                    icon: 'warning',
+                    input: 'textarea',
+                    inputPlaceholder: 'Lý do từ chối (bắt buộc)...',
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Bạn phải nhập lý do từ chối!';
+                        }
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Từ chối',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/nguoi-phu-thuoc/tu-choi/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ GhiChu: result.value })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('Đã từ chối!', data.message, 'success').then(() => {
+                                        window.location.hash = 'relatives';
+                                        location.reload();
+                                    });
                                 } else {
                                     Swal.fire('Lỗi!', data.message, 'error');
                                 }
@@ -869,10 +1025,10 @@
             const btnPrint = document.getElementById('btnPrintSlip');
 
             const LOADING_HTML = `
-                <div style="text-align:center;padding:48px;color:#6b7280;">
-                    <div style="font-size:36px;margin-bottom:10px;">⏳</div>
-                    <div style="font-size:14px;">Đang tải phiếu lương...</div>
-                </div>`;
+                                                                        <div style="text-align:center;padding:48px;color:#6b7280;">
+                                                                            <div style="font-size:36px;margin-bottom:10px;">⏳</div>
+                                                                            <div style="font-size:14px;">Đang tải phiếu lương...</div>
+                                                                        </div>`;
 
             function openSlipModal(nvId, thang, nam) {
                 slipContent.innerHTML = LOADING_HTML;
@@ -882,18 +1038,18 @@
                 fetch(`/salary/slip/${nvId}?thang=${thang}&nam=${nam}`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
-                .then(r => {
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
-                    return r.text();
-                })
-                .then(html => { slipContent.innerHTML = html; })
-                .catch(err => {
-                    slipContent.innerHTML = `
-                        <div style="text-align:center;padding:48px;color:#dc2626;">
-                            <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
-                            <div>Không thể tải phiếu lương.<br><small style="color:#9ca3af;">${err.message}</small></div>
-                        </div>`;
-                });
+                    .then(r => {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.text();
+                    })
+                    .then(html => { slipContent.innerHTML = html; })
+                    .catch(err => {
+                        slipContent.innerHTML = `
+                                                                                <div style="text-align:center;padding:48px;color:#dc2626;">
+                                                                                    <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
+                                                                                    <div>Không thể tải phiếu lương.<br><small style="color:#9ca3af;">${err.message}</small></div>
+                                                                                </div>`;
+                    });
             }
 
             window.closeSlipModal = function () {
@@ -929,17 +1085,65 @@
             btnPrint.addEventListener('click', function () {
                 const printWin = window.open('', '_blank', 'width=950,height=700');
                 printWin.document.write(`
-                    <!DOCTYPE html><html><head>
-                    <meta charset="UTF-8">
-                    <title>Phiếu Lương</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
-                        @media print { body { margin: 0; } }
-                    </style>
-                    <\/head><body>${slipContent.innerHTML}<\/body><\/html>`);
+                                                                            <!DOCTYPE html><html><head>
+                                                                            <meta charset="UTF-8">
+                                                                            <title>Phiếu Lương</title>
+                                                                            <style>
+                                                                                body { font-family: Arial, sans-serif; font-size:13px; margin:20px; }
+                                                                                @media print { body { margin: 0; } }
+                                                                            </style>
+                                                                            <\/head><body>${slipContent.innerHTML}<\/body><\/html>`);
                 printWin.document.close();
                 printWin.focus();
                 setTimeout(() => { printWin.print(); }, 500);
+            });
+            // ===== DATATABLE CHO PHIẾU LƯƠNG =====
+            $(document).ready(function () {
+                if ($('#salarySlipsTable').length) {
+                    const slipsTable = $('#salarySlipsTable').DataTable({
+                        pageLength: 5,
+                        lengthMenu: [5, 10, 25, 50],
+                        language: {
+                            "sProcessing": "Đang xử lý...",
+                            "sLengthMenu": "Hiển thị _MENU_ mục",
+                            "sZeroRecords": "Không tìm thấy dữ liệu",
+                            "sInfo": "Đang xem _START_ đến _END_ (Tổng _TOTAL_)",
+                            "sInfoEmpty": "Không có dữ liệu",
+                            "sInfoFiltered": "(lọc từ _MAX_ mục)",
+                            "sSearch": "Tìm kiếm:",
+                            "oPaginate": {
+                                "sFirst": "Đầu",
+                                "sPrevious": "Trước",
+                                "sNext": "Tiếp",
+                                "sLast": "Cuối"
+                            }
+                        },
+                        dom: 'rtip',
+                        order: [] // Giữ nguyên thứ tự từ server
+                    });
+
+                    // Custom filtering logic for Month and Year
+                    $.fn.dataTable.ext.search.push(
+                        function (settings, data, dataIndex) {
+                            if (settings.nTable.id !== 'salarySlipsTable') return true;
+
+                            const row = $(slipsTable.row(dataIndex).node());
+                            const m = row.attr('data-month');
+                            const y = row.attr('data-year');
+                            const targetM = $('#monthFilter').val();
+                            const targetY = $('#yearFilter').val();
+
+                            if ((targetM === "" || m === targetM) && (targetY === "" || y === targetY)) {
+                                return true;
+                            }
+                            return false;
+                        }
+                    );
+
+                    $('#monthFilter, #yearFilter').on('change', function () {
+                        slipsTable.draw();
+                    });
+                }
             });
         </script>
     @endpush

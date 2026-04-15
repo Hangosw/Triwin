@@ -14,7 +14,6 @@ class ChamCong extends Model
     protected $fillable = [
         'NhanVienId',
         'Loai', // 0: Hành chính, 1: Tăng ca
-        'TangCaId',
         'Vao',
         'Ra',
         'TrangThai', // tre, dung_gio, ve_som
@@ -25,7 +24,6 @@ class ChamCong extends Model
     protected $casts = [
         'NhanVienId' => 'integer',
         'Loai' => 'integer',
-        'TangCaId' => 'integer',
         'Vao' => 'datetime',
         'Ra' => 'datetime',
         'TrangThai' => 'string',

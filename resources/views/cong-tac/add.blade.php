@@ -4,65 +4,6 @@
 
 @push('styles')
     <style>
-        .custom-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 0;
-        }
-
-        .custom-tab-btn {
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            font-size: 15px;
-            font-weight: 600;
-            color: #6b7280;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        .custom-tab-btn:hover {
-            color: #1f2937;
-        }
-
-        .custom-tab-btn.active {
-            color: #0BAA4B;
-        }
-
-        .custom-tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #0BAA4B;
-        }
-
-        .tab-pane {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-pane.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .auth-user-card {
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -112,103 +53,20 @@
     @endif
 
     <div class="card" style="max-width: 900px;">
-        <!-- Tabs Header -->
-        <div class="custom-tabs">
-            @can('Tạo Yêu Cầu Công Tác')
-                <button class="custom-tab-btn active" onclick="switchTab('top-down', this)">
-                    <i class="bi bi-diagram-3" style="margin-right:8px;"></i> Quản lý Phân công (Top-down)
-                </button>
-            @endcan
-            <button class="custom-tab-btn {{ !auth()->user()->can('Tạo Yêu Cầu Công Tác') ? 'active' : '' }}"
-                onclick="switchTab('bottom-up', this)">
-                <i class="bi bi-person-lines-fill" style="margin-right:8px;"></i> Cá nhân Đăng ký (Bottom-up)
-            </button>
-        </div>
-
-        <!-- Tab 1: Top-down (Phân công) -->
-        @can('Tạo Yêu Cầu Công Tác')
-            <div id="tab-top-down" class="tab-pane active">
-                <form action="{{ route('cong-tac.store') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="type" value="top-down">
-
-                    <div class="form-group mb-4">
-                        <label class="form-label">Chọn Nhân Viên <span style="color:red">*</span></label>
-                        <select name="NhanVienId" class="form-control select2" style="width: 100%;" required>
-                            <option value="">-- Tìm kiếm & Chọn nhân viên --</option>
-                            @foreach($nhanViens as $nv)
-                                <option value="{{ $nv->id }}" {{ old('NhanVienId') == $nv->id ? 'selected' : '' }}>
-                                    {{ $nv->Ma }} - {{ $nv->Ten }} ({{ $nv->SoCCCD }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="form-group mb-4">
-                            <label class="form-label">Phòng ban công tác <span style="color:red">*</span></label>
-                            <select name="PhongBanId" class="form-control select2" style="width: 100%;" required>
-                                <option value="">-- Chọn Phòng ban --</option>
-                                @foreach($phongBans as $pb)
-                                    <option value="{{ $pb->id }}" {{ old('PhongBanId') == $pb->id ? 'selected' : '' }}>
-                                        {{ $pb->Ten }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label class="form-label">Chức vụ phụ trách <span style="color:red">*</span></label>
-                            <select name="ChucVuId" class="form-control select2" style="width: 100%;" required>
-                                <option value="">-- Chọn Chức vụ --</option>
-                                @foreach($chucVus as $cv)
-                                    <option value="{{ $cv->id }}" {{ old('ChucVuId') == $cv->id ? 'selected' : '' }}>
-                                        {{ $cv->Ten }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label class="form-label">Từ ngày <span style="color:red">*</span></label>
-                            <input type="text" name="TuNgay" class="form-control datepicker"
-                                value="{{ old('TuNgay', date('d/m/Y')) }}" placeholder="DD/MM/YYYY" required>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label class="form-label">Đến ngày</label>
-                            <input type="text" name="DenNgay" class="form-control datepicker" value="{{ old('DenNgay') }}"
-                                placeholder="DD/MM/YYYY (Để trống nếu chưa kết thúc)">
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 24px;">
-                        <button type="submit" class="btn btn-primary">Lưu Nhiệm vụ Công tác</button>
-                        <a href="{{ route('cong-tac.danh-sach') }}" class="btn btn-secondary">Hủy</a>
-                    </div>
-                </form>
-            </div>
-        @endcan
-
-        <!-- Tab 2: Bottom-up (Cá nhân tự khai báo) -->
-        <div id="tab-bottom-up" class="tab-pane {{ !auth()->user()->can('create cong-tac') ? 'active' : '' }}">
+        <div id="tab-top-down" class="tab-pane active">
             <form action="{{ route('cong-tac.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="type" value="bottom_up">
 
-                <div class="auth-user-card">
-                    <div class="auth-avatar">
-                        <i class="bi bi-person"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 13px; color: #64748b;">Hồ sơ nhân sự tự khai báo</div>
-                        <div style="font-size: 16px; font-weight: 600; color: #0f172a;">
-                            {{ auth()->user()->nhanVien->Ten ?? auth()->user()->TaiKhoan }}
-                        </div>
-                        <div style="font-size: 13px; color: #64748b;">Mã NV:
-                            {{ auth()->user()->nhanVien->Ma ?? 'Chưa liên kết hồ sơ' }}
-                        </div>
-                    </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">Chọn Nhân Viên <span style="color:red">*</span></label>
+                    <select name="NhanVienId" class="form-control select2" style="width: 100%;" required>
+                        <option value="">-- Tìm kiếm & Chọn nhân viên --</option>
+                        @foreach($nhanViens as $nv)
+                            <option value="{{ $nv->id }}" {{ old('NhanVienId') == $nv->id ? 'selected' : '' }}>
+                                {{ $nv->Ma }} - {{ $nv->Ten }} ({{ $nv->SoCCCD }})
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -247,33 +105,52 @@
                         <input type="text" name="DenNgay" class="form-control datepicker" value="{{ old('DenNgay') }}"
                             placeholder="DD/MM/YYYY (Để trống nếu chưa kết thúc)">
                     </div>
+
+                    <div class="form-group mb-4" style="grid-column: span 2;">
+                        <label class="form-label">Địa điểm công tác</label>
+                        <input type="text" name="DiaDiem" class="form-control" value="{{ old('DiaDiem') }}"
+                            placeholder="Ví dụ: TP. Hồ Chí Minh, Hà Nội, Nhà máy X...">
+                    </div>
+
+                    <div class="form-group mb-4" style="grid-column: span 2;">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea name="GhiChu" class="form-control" rows="3"
+                            placeholder="Mô tả chi tiết nội dung công tác hoặc các lưu ý khác...">{{ old('GhiChu') }}</textarea>
+                    </div>
                 </div>
 
                 <div style="margin-top: 24px;">
-                    <button type="submit" class="btn btn-primary" style="background-color: #4f46e5;">Đăng ký Quá trình Công
-                        tác</button>
+                    <button type="submit" class="btn btn-primary" style="background:#0BAA4B; border-color:#0BAA4B;">
+                        <i class="bi bi-save" style="margin-right:8px;"></i> Lưu Nhiệm vụ Công tác
+                    </button>
                     <a href="{{ route('cong-tac.danh-sach') }}" class="btn btn-secondary">Hủy</a>
                 </div>
             </form>
         </div>
     </div>
+    </div>
 
 @endsection
 
 @push('scripts')
+    @if (session('success'))
+        <script>
+            $(document).ready(function() {
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: "{{ session('success') }}",
+                    icon: 'success',
+                    confirmButtonColor: '#0BAA4B',
+                    confirmButtonText: 'Đóng'
+                }).then((result) => {
+                    window.location.href = "{{ route('cong-tac.danh-sach') }}";
+                });
+            });
+        </script>
+    @endif
     <script>
         $(document).ready(function () {
             $('.select2').select2();
         });
-
-        function switchTab(tabId, btn) {
-            // Cập nhật trạng thái nút
-            document.querySelectorAll('.custom-tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Ẩn/hiện nội dung
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-        }
     </script>
 @endpush

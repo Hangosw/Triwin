@@ -21,7 +21,7 @@ class DashboardController extends Controller
         // Hợp đồng sắp hết hạn (trong vòng 25 ngày kể từ hôm nay)
         $today = Carbon::today();
         $twentyFiveDaysLater = Carbon::today()->addDays(25);
-        
+
         $expiringContractsCount = HopDong::where('TrangThai', 1)
             ->whereNotNull('NgayKetThuc')
             ->where('NgayKetThuc', '>=', $today)
@@ -37,19 +37,22 @@ class DashboardController extends Controller
         // Đơn nghỉ phép chờ duyệt (TrangThai = 2)
         $pendingLeaveCount = \App\Models\DangKyNghiPhep::where('TrangThai', 2)->count();
 
-        // Phiếu tăng ca chờ duyệt (TrangThai = 'dang_cho')
-        $pendingOvertimeCount = \App\Models\TangCa::where('TrangThai', 'dang_cho')->count();
+        // Đơn WFH chờ duyệt (TrangThai = 'dang_cho')
+        $pendingWFHCount = \App\Models\WorkFromHome::where('TrangThai', 'dang_cho')->count();
+
+        // Người phụ thuộc chờ duyệt (TrangThai = 0)
+        $pendingRelatives = \App\Models\ThanNhan::where('TrangThai', 0)->with('nhanVien')->get();
 
         // Sinh nhật hôm nay
         $todayMonth = $today->month;
-        $todayDay   = $today->day;
+        $todayDay = $today->day;
         $birthdayEmployees = NhanVien::whereNotNull('NgaySinh')
             ->whereMonth('NgaySinh', $todayMonth)
             ->whereDay('NgaySinh', $todayDay)
             ->get();
 
         // Nếu là Admin, hiển thị Dashboard tổng quát
-        if (auth()->user()->hasRole('Super Admin')) {
+        if (auth()->user()->hasAnyRole(['Super Admin', 'System Admin', 'HR Manager'])) {
             return view('dashboard.dashboard', compact(
                 'totalEmployees',
                 'totalDepartments',
@@ -57,7 +60,8 @@ class DashboardController extends Controller
                 'expiringContractsCount',
                 'missingAttendanceCount',
                 'pendingLeaveCount',
-                'pendingOvertimeCount',
+                'pendingWFHCount',
+                'pendingRelatives',
                 'birthdayEmployees'
             ));
         }
@@ -67,48 +71,55 @@ class DashboardController extends Controller
         if (!$nv) {
             // Mặc định ném về màn hình nào đó nếu tài khoản không liên kết nhân viên (VD: admin mới)
             return view('dashboard.dashboard', compact(
-                'totalEmployees', 'totalDepartments', 'totalContracts', 'expiringContractsCount',
-                'missingAttendanceCount', 'pendingLeaveCount', 'pendingOvertimeCount', 'birthdayEmployees'
+                'totalEmployees',
+                'totalDepartments',
+                'totalContracts',
+                'expiringContractsCount',
+                'missingAttendanceCount',
+                'pendingLeaveCount',
+                'pendingWFHCount',
+                'pendingRelatives',
+                'birthdayEmployees'
             ));
         }
 
         $nvId = $nv->id;
-        
+
         // Đơn xin nghỉ phép đang chờ
         $myPendingLeaveCount = \App\Models\DangKyNghiPhep::where('NhanVienId', $nvId)
-                            ->where('TrangThai', 2)
-                            ->count();
-                            
-        // Bảng tăng ca đang chờ
-        $myPendingOvertimeCount = \App\Models\TangCa::where('NhanVienId', $nvId)
-                            ->where('TrangThai', 'dang_cho')
-                            ->count();
-                            
-        // Giờ tăng ca đã duyệt trong tháng này
-        $myOtHoursThisMonth = \App\Models\TangCa::where('NhanVienId', $nvId)
-                            ->where('TrangThai', 'da_duyet')
-                            ->whereMonth('Ngay', $today->month)
-                            ->whereYear('Ngay', $today->year)
-                            ->sum('Tong');
-                            
+            ->where('TrangThai', 2)
+            ->count();
+
+        // Đơn WFH đang chờ
+        $myPendingWFHCount = \App\Models\WorkFromHome::where('NhanVienId', $nvId)
+            ->where('TrangThai', 'dang_cho')
+            ->count();
+
+        // Số ngày WFH đã duyệt trong tháng này
+        $myWorkFromHomeDaysThisMonth = \App\Models\WorkFromHome::where('NhanVienId', $nvId)
+            ->where('TrangThai', 'da_duyet')
+            ->whereMonth('NgayBatDau', $today->month)
+            ->whereYear('NgayBatDau', $today->year)
+            ->sum('Ngay');
+
         // Lịch sử lương (6 tháng gần nhất)
         $latestSalaries = \App\Models\Luong::where('NhanVienId', $nvId)
-                            ->orderBy('ThoiGian', 'desc')
-                            ->take(6)
-                            ->get();
-                            
-        // Đơn từ gần đây (Lấy 5 đơn nghỉ phép và 5 đơn tăng ca mới nhất để gộp)
+            ->orderBy('ThoiGian', 'desc')
+            ->take(6)
+            ->get();
+
+        // Đơn từ gần đây (Lấy 5 đơn nghỉ phép và 5 đơn WFH mới nhất để gộp)
         $recentLeaves = \App\Models\DangKyNghiPhep::where('NhanVienId', $nvId)->orderBy('created_at', 'desc')->take(5)->get();
-        $recentOTs = \App\Models\TangCa::where('NhanVienId', $nvId)->orderBy('created_at', 'desc')->take(5)->get();
+        $recentWFHs = \App\Models\WorkFromHome::where('NhanVienId', $nvId)->orderBy('created_at', 'desc')->take(5)->get();
 
         return view('dashboard.employee', compact(
             'nv',
             'myPendingLeaveCount',
-            'myPendingOvertimeCount',
-            'myOtHoursThisMonth',
+            'myPendingWFHCount',
+            'myWorkFromHomeDaysThisMonth',
             'latestSalaries',
             'recentLeaves',
-            'recentOTs'
+            'recentWFHs'
         ));
     }
 

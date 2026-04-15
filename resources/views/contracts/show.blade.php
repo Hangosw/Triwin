@@ -6,92 +6,89 @@
     <style>
         .detail-section {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             padding: 24px;
             margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
         }
 
         .detail-section h2 {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
             color: #1f2937;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #0BAA4B;
+            border-bottom: 1px solid #f3f4f6;
             display: flex;
             align-items: center;
             gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .detail-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
         }
 
         .detail-item {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
         .detail-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #6b7280;
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .detail-value {
-            font-size: 15px;
+            font-size: 14px;
             color: #1f2937;
-            font-weight: 400;
+            font-weight: 500;
         }
 
-        .profile-header {
-            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
-            border-radius: 8px;
-            padding: 32px;
+        /* Employee Summary Card */
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
             margin-bottom: 24px;
-            color: white;
-        }
-
-        .profile-content {
+            border: 1px solid #e5e7eb;
             display: flex;
             align-items: center;
-            gap: 32px;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            object-fit: cover;
-        }
-
-        .profile-info h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .profile-meta {
-            display: flex;
             gap: 24px;
-            margin-top: 16px;
-            flex-wrap: wrap;
         }
 
-        .profile-meta-item {
+        .summary-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s;
+        }
+
+        .summary-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .summary-info h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .summary-meta {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 6px 12px;
-            border-radius: 6px;
+            gap: 16px;
+            color: #6b7280;
             font-size: 14px;
         }
 
@@ -99,78 +96,38 @@
             display: inline-flex;
             align-items: center;
             padding: 4px 12px;
-            border-radius: 9999px;
+            border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
-            text-transform: uppercase;
         }
 
-        .badge-success {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-warning {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .badge-info {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
+        .badge-success { background-color: #d1fae5; color: #065f46; }
+        .badge-warning { background-color: #fef3c7; color: #92400e; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+        .badge-info { background-color: #dbeafe; color: #1e40af; }
 
         .salary-value {
             font-weight: 700;
             color: #0BAA4B;
-            font-size: 18px;
-        }
-
-        .secondary-text {
-            color: #6b7280;
-        }
-
-        body.dark-theme .secondary-text {
-            color: #8b93a8 !important;
-        }
-
-        .file-box {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            background: #f9fafb;
-            border: 1px dashed #d1d5db;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-        .file-box:hover {
-            border-color: #0BAA4B;
-            background: #f0fdf4;
+            font-size: 20px;
         }
 
         .tabs {
             display: flex;
-            gap: 8px;
-            border-bottom: 2px solid #e5e7eb;
+            gap: 24px;
+            border-bottom: 1px solid #e5e7eb;
             margin-bottom: 24px;
         }
 
         .tab {
-            padding: 12px 24px;
+            padding: 12px 0;
             background: none;
             border: none;
-            font-size: 15px;
-            font-weight: 500;
-            color: #6b7280;
+            font-size: 14px;
+            font-weight: 600;
+            color: #9ca3af;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-bottom: 2px solid transparent;
             transition: all 0.2s;
         }
 
@@ -187,15 +144,13 @@
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .profile-content {
-                flex-direction: column;
-                text-align: center;
-            }
+        @media (max-width: 992px) {
+            .detail-grid { grid-template-columns: repeat(2, 1fr); }
+        }
 
-            .detail-grid {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 768px) {
+            .summary-card { flex-direction: column; text-align: center; }
+            .detail-grid { grid-template-columns: 1fr; }
         }
 
         /* Dark Theme Overrides */
@@ -255,40 +210,74 @@
         .related-doc-card {
             border: 1px solid #e5e7eb;
             border-radius: 12px;
-            padding: 16px;
-            background: #f8fafc;
+            padding: 20px;
+            background: #ffffff;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            transition: all 0.2s;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            text-decoration: none !important;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .related-doc-card:hover {
             border-color: #0BAA4B;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            background: #fdfdfd;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
         }
 
         .related-doc-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 24px;
             flex-shrink: 0;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .related-doc-card:hover .related-doc-icon {
+            transform: scale(1.1);
+        }
+
+        .related-doc-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .related-doc-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .related-doc-card:hover .related-doc-action {
+            background: #0BAA4B;
             color: white;
         }
 
         .related-doc-bg-icon {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            opacity: 0.05;
-            font-size: 60px;
+            top: 50%;
+            right: 60px;
+            transform: translateY(-50%);
+            opacity: 0.03;
+            font-size: 80px;
+            pointer-events: none;
         }
 
         .related-doc-title {
@@ -438,19 +427,165 @@
 
         .diff-added { color: #059669; font-weight: 500; }
         .diff-removed { color: #dc2626; text-decoration: line-through; }
+
+        /* Contract Tree Structure */
+        .contract-tree {
+            padding: 20px 0;
+            margin-left: 20px;
+            position: relative;
+        }
+
+        .tree-root {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 0;
+        }
+
+        .tree-node {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: inline-block;
+            min-width: 320px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .tree-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #0BAA4B;
+        }
+
+        .tree-root .tree-node {
+            border-left: 4px solid #0BAA4B;
+            background: #fdfdfd;
+        }
+
+        .tree-branches {
+            position: relative;
+            padding-top: 0;
+            padding-left: 40px;
+            margin-top: -5px; /* Pull up to meet the root connector */
+        }
+
+        .tree-branches::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: -20px;
+            bottom: 35px; /* Stop at the last branch item's center */
+            width: 3px;
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .tree-branch-item {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .tree-branch-item::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            width: 40px;
+            height: 3px;
+            background: #cbd5e1;
+            transform: translateY(-50%);
+        }
+
+        .tree-branch-item::after {
+            content: '';
+            position: absolute;
+            left: -44px;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        .branch-node {
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* Dark Mode for Tree */
+        body.dark-theme .tree-node {
+            background-color: #21263a;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .tree-root .tree-node {
+            background-color: rgba(11, 170, 75, 0.05);
+        }
+
+        body.dark-theme .tree-branches::before,
+        body.dark-theme .tree-branch-item::before,
+        body.dark-theme .tree-branch-item::after {
+            background: #3d445e;
+        }
+
+        .node-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #9ca3af;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .node-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        body.dark-theme .node-title {
+            color: #e8eaf0;
+        }
+
+        .node-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        body.dark-theme .node-subtitle {
+            color: #8b93a8;
+        }
+
+        .node-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
     </style>
 @endpush
 
 @section('content')
     <!-- Back Button & Actions -->
     <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+        @can('Xem Danh Sách Hợp Đồng')
         <a href="{{ route('hop-dong.danh-sach') }}" class="btn btn-secondary">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
             Quay lại danh sách
         </a>
+        @endcan
         <div style="display: flex; gap: 12px;">
+            @can('Sửa Hợp Đồng')
             <a href="{{ route('hop-dong.suaView', $hopDong->id) }}" class="btn btn-secondary">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -458,6 +593,7 @@
                 </svg>
                 Chỉnh sửa
             </a>
+            @endcan
             @if(!str_starts_with($hopDong->Loai ?? '', 'nda'))
                 <a href="{{ route('hop-dong.download-word', $hopDong->id) }}" class="btn btn-success">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
@@ -477,120 +613,83 @@
         </div>
     </div>
 
-    <!-- Contract Header -->
-    <div class="profile-header">
-        <div class="profile-content">
-            @php
-                $avatar = $hopDong->nhanVien->AnhDaiDien
-                    ? asset($hopDong->nhanVien->AnhDaiDien)
-                    : 'https://ui-avatars.com/api/?name=' . urlencode($hopDong->nhanVien->Ten) . '&background=ffffff&color=0F5132&size=128';
-            @endphp
-            <img src="{{ $avatar }}" alt="{{ $hopDong->nhanVien->Ten }}" class="profile-avatar">
-            <div class="profile-info">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
-                    <span class="badge"
-                        style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                        {{ $hopDong->SoHopDong }}
-                    </span>
-                    @php
-                        $isExpiringSoon = false;
-                        if ($hopDong->NgayKetThuc && $hopDong->TrangThai == 1) {
-                            $today = \Carbon\Carbon::today();
-                            $endDate = \Carbon\Carbon::parse($hopDong->NgayKetThuc);
-                            $diff = $today->diffInDays($endDate, false);
-                            if ($diff >= 0 && $diff <= 25) {
-                                $isExpiringSoon = true;
-                            }
+    <!-- Employee Summary Card -->
+    <div class="summary-card">
+        @php
+            $avatar = $hopDong->nhanVien->AnhDaiDien
+                ? asset($hopDong->nhanVien->AnhDaiDien)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($hopDong->nhanVien->Ten) . '&background=f3f4f6&color=1f2937&size=128';
+        @endphp
+        <a href="{{ route('nhan-vien.info', $hopDong->NhanVienId) }}" title="Xem chi tiết nhân viên">
+            <img src="{{ $avatar }}" alt="{{ $hopDong->nhanVien->Ten }}" class="summary-avatar">
+        </a>
+        <div class="summary-info">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span class="badge badge-info" style="text-transform: none; letter-spacing: 0;">
+                    {{ $hopDong->SoHopDong }}
+                </span>
+                
+                @php
+                    $isExpiringSoon = false;
+                    if ($hopDong->NgayKetThuc && $hopDong->TrangThai == 1) {
+                        $today = \Carbon\Carbon::today();
+                        $endDate = \Carbon\Carbon::parse($hopDong->NgayKetThuc);
+                        $diff = $today->diffInDays($endDate, false);
+                        if ($diff >= 0 && $diff <= 25) {
+                            $isExpiringSoon = true;
                         }
-                    @endphp
+                    }
+                @endphp
 
-                    @if($isExpiringSoon)
-                        <span class="badge badge-warning"
-                            style="background: #ffffff; color: #92400e; display: flex; align-items: center; gap: 6px;">
-                            Sắp hết hạn
-                            <i class="bi bi-arrow-repeat" style="font-size: 14px;"></i>
-                        </span>
-                    @elseif($hopDong->TrangThai == 1)
-                        <span class="badge badge-success" style="background: #ffffff; color: #065f46;">Đang hiệu lực</span>
-                    @elseif($hopDong->TrangThai == 0)
-                        <span class="badge badge-danger" style="background: #ffffff; color: #991b1b;">Hết hiệu lực</span>
-                    @else
-                        <span class="badge badge-warning" style="background: #ffffff; color: #92400e;">Bị hủy</span>
-                    @endif
-                </div>
+                @if($isExpiringSoon)
+                    <span class="badge badge-warning">Sắp hết hạn</span>
+                @elseif($hopDong->TrangThai == 1)
+                    <span class="badge badge-success">Đang hiệu lực</span>
+                @elseif($hopDong->TrangThai == 0)
+                    <span class="badge badge-danger">Hết hiệu lực</span>
+                @else
+                    <span class="badge badge-warning">Bị hủy</span>
+                @endif
+            </div>
+            <a href="{{ route('nhan-vien.info', $hopDong->NhanVienId) }}" style="text-decoration: none;">
                 <h1>{{ $hopDong->nhanVien->Ten }}</h1>
-                <div style="opacity: 0.9; font-size: 16px;">
-                    <i class="bi bi-briefcase-fill"></i> {{ $hopDong->chucVu->Ten ?? 'N/A' }} |
-                    <i class="bi bi-building"></i> {{ $hopDong->phongBan->Ten ?? 'N/A' }}
-                </div>
-
-                <div class="profile-meta">
-                    <div class="profile-meta-item">
-                        <i class="bi bi-file-earmark-text"></i>
-                        @php
-                            $loai = $hopDong->Loai;
-                            $label = $hopDong->loaiHopDong->TenLoai ?? $loai;
-                            $textColor = '#1e40af'; // Default info color
-
-                            if ($loai === 'thu_viec') {
-                                $label = 'HĐ thử việc';
-                                $textColor = '#92400e';
-                            } elseif ($loai === 'chinh_thuc_xac_dinh_thoi_han') {
-                                $label = 'HĐ chính thức (XĐTH)';
-                                $textColor = '#065f46';
-                            } elseif ($loai === 'chinh_thuc_khong_xac_dinh_thoi_han') {
-                                $label = 'HĐ chính thức (KXĐTH)';
-                                $textColor = '#065f46';
-                            } elseif ($loai === 'khoan_viec') {
-                                $label = 'HĐ khoán việc';
-                                $textColor = '#1e40af';
-                            } elseif ($loai === 'thoi_vu') {
-                                $label = 'HĐ thời vụ';
-                                $textColor = '#374151';
-                            } elseif (str_starts_with($loai ?? '', 'nda')) {
-                                $label = 'Thỏa thuận bảo mật (NDA)';
-                                $textColor = '#7c3aed';
-                            }
-                        @endphp
-                        Loại: <span class="badge"
-                            style="background: white; color: {{ $textColor }}; margin-left:8px;">{{ $label }}</span>
-                    </div>
-                    <div class="profile-meta-item">
-                        <i class="bi bi-calendar-check"></i>
-                        Bắt đầu: {{ \Carbon\Carbon::parse($hopDong->NgayBatDau)->format('d/m/Y') }}
-                    </div>
-                    <div class="profile-meta-item">
-                        <i class="bi bi-calendar-x"></i>
-                        Kết thúc:
-                        {{ $hopDong->NgayKetThuc ? \Carbon\Carbon::parse($hopDong->NgayKetThuc)->format('d/m/Y') : 'Không thời hạn' }}
-                    </div>
-                </div>
+            </a>
+            <div class="summary-meta">
+                <span><i class="bi bi-briefcase"></i> {{ $hopDong->chucVu->Ten ?? 'N/A' }}</span>
+                <span><i class="bi bi-building"></i> {{ $hopDong->phongBan->Ten ?? 'N/A' }}</span>
+                <span><i class="bi bi-person-badge"></i> {{ $hopDong->nhanVien->Ma ?? 'N/A' }}</span>
             </div>
         </div>
     </div>
 
     <!-- Tabs Navigation -->
     <div class="tabs">
-        <button class="tab active" onclick="switchTab('general')">Thông tin hợp đồng</button>
-        <button class="tab" onclick="switchTab('salary')">Lương & Phụ cấp</button>
-        <button class="tab" onclick="switchTab('history')">Lịch sử thay đổi</button>
+        <button class="tab active" onclick="switchTab('general')">Thông tin hợp đồng & Lương</button>
+        <button class="tab" onclick="switchTab('annex')">Phụ lục hợp đồng</button>
     </div>
 
-    <!-- Tab Content: General -->
+    <!-- Tab Content: General & Salary -->
     <div class="tab-content active" id="tab-general">
         <div class="detail-section">
             <h2>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Chi tiết các điều khoản
+                <i class="bi bi-file-earmark-text"></i>
+                Chi tiết điều khoản & Công việc
             </h2>
             <div class="detail-grid">
                 <div class="detail-item">
                     <div class="detail-label">Số hợp đồng</div>
                     <div class="detail-value" style="font-weight: 500;">{{ $hopDong->SoHopDong }}</div>
                 </div>
+                <div class="detail-item">
+                    <div class="detail-label">Số ngày phép năm</div>
+                    <div class="detail-value" style="font-weight: 500;">{{ $hopDong->NgayPhepNam ?? 12 }} ngày/năm</div>
+                </div>
+                @if($hopDong->NgayPhepKhaDung)
+                <div class="detail-item">
+                    <div class="detail-label">Phép khả dụng năm nay</div>
+                    <div class="detail-value" style="font-weight: 500; color: #0BAA4B;">{{ $hopDong->NgayPhepKhaDung }} ngày</div>
+                </div>
+                @endif
                 <div class="detail-item">
                     <div class="detail-label">Loại hợp đồng</div>
                     <div class="detail-value" style="font-weight: 500;">
@@ -630,6 +729,50 @@
             </div>
         </div>
 
+
+
+        <!-- Merged Salary Sections -->
+        <div class="detail-section">
+            <h2>
+                <i class="bi bi-cash-stack"></i>
+                Chế độ lương & Thu nhập
+            </h2>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Lương cơ bản</div>
+                    <div class="salary-value">{{ number_format($hopDong->LuongCoBan, 0, ',', '.') }} VNĐ</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Tổng phụ cấp</div>
+                    @php
+                        $tongPhuCap = collect($hopDong->PhuCap ?? [])->sum('amount');
+                    @endphp
+                    <div class="salary-value secondary-text">{{ number_format($tongPhuCap, 0, ',', '.') }} VNĐ
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Tổng thu nhập</div>
+                    <div class="salary-value" style="font-size: 24px; color: #0BAA4B;">
+                        {{ number_format($hopDong->TongLuong, 0, ',', '.') }} VNĐ
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h2><i class="bi bi-list-check"></i> Chi tiết phụ cấp</h2>
+            <div class="detail-grid">
+                @if(!empty($hopDong->PhuCap))
+                    @foreach($hopDong->PhuCap as $pc)
+                        <div class="detail-item">
+                            <div class="detail-label">{{ $pc['name'] }}</div>
+                            <div class="detail-value" style="font-weight: 500;">{{ number_format($pc['amount'], 0, ',', '.') }} VNĐ</div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
         @if($hopDong->File)
             <div class="detail-section">
                 <h2>
@@ -663,7 +806,7 @@
             </div>
         @endif
 
-        @if($laborContract || $ndaContract || $hopDong->phuLucs->isNotEmpty())
+        @if($laborContract || $ndaContract || $hopDong->appendices->isNotEmpty())
             <div class="detail-section">
                 <h2 style="border-bottom-color: #7c3aed;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -675,317 +818,141 @@
                 </h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
                     @if($laborContract)
-                        <div class="related-doc-card">
+                        <a href="{{ route('hop-dong.print', $laborContract->id) }}" target="_blank" class="related-doc-card">
                             <div class="related-doc-bg-icon"><i class="bi bi-file-earmark-text"></i></div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="related-doc-icon" style="background: #0BAA4B;"><i class="bi bi-file-earmark-text"></i>
-                                </div>
-                                <div style="min-width: 0;">
-                                    <div class="related-doc-title">Hợp đồng lao động</div>
-                                    <div class="related-doc-subtitle">{{ $laborContract->SoHopDong }}</div>
-                                </div>
+                            <div class="related-doc-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                <i class="bi bi-file-earmark-text"></i>
                             </div>
-                            <div class="related-doc-btns">
-                                <a href="{{ route('hop-dong.info', $laborContract->id) }}"
-                                    class="btn btn-sm btn-secondary btn-center"
-                                    style="flex: 1; font-size: 11px; display: flex; justify-content: center; align-items: center;">Chi
-                                    tiết</a>
-                                <a href="{{ route('hop-dong.print', $laborContract->id) }}" target="_blank"
-                                    class="btn btn-sm btn-primary btn-center"
-                                    style="flex: 1.2; font-size: 11px; background-color: #0BAA4B; border-color: #0BAA4B; display: flex; justify-content: center; align-items: center;">
-                                    <i class="bi bi-printer"></i> In HĐLĐ
-                                </a>
+                            <div class="related-doc-info">
+                                <div class="related-doc-title">Hợp đồng lao động</div>
+                                <div class="related-doc-subtitle">{{ $laborContract->SoHopDong }}</div>
                             </div>
-                        </div>
+                            <div class="related-doc-action" title="In Hợp đồng">
+                                <i class="bi bi-printer"></i>
+                            </div>
+                        </a>
                     @endif
 
                     @if($ndaContract)
-                        <div class="related-doc-card">
+                        <a href="{{ route('hop-dong.print', $ndaContract->id) }}" target="_blank" class="related-doc-card">
                             <div class="related-doc-bg-icon"><i class="bi bi-shield-lock"></i></div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="related-doc-icon" style="background: #7c3aed;"><i class="bi bi-shield-lock"></i></div>
-                                <div style="min-width: 0;">
-                                    <div class="related-doc-title">Thỏa thuận NDA</div>
-                                    <div class="related-doc-subtitle">{{ $ndaContract->SoHopDong }}</div>
-                                </div>
+                            <div class="related-doc-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                                <i class="bi bi-shield-lock"></i>
                             </div>
-                            <div class="related-doc-btns">
-                                <a href="{{ route('hop-dong.info', $ndaContract->id) }}" class="btn btn-sm btn-secondary btn-center"
-                                    style="flex: 1; font-size: 11px; display: flex; justify-content: center; align-items: center;">Chi
-                                    tiết</a>
-                                <a href="{{ route('hop-dong.print', $ndaContract->id) }}" target="_blank"
-                                    class="btn btn-sm btn-primary btn-center"
-                                    style="flex: 1.2; font-size: 11px; background-color: #7c3aed; border-color: #7c3aed; display: flex; justify-content: center; align-items: center;">
-                                    <i class="bi bi-printer"></i> In NDA
-                                </a>
+                            <div class="related-doc-info">
+                                <div class="related-doc-title">Thỏa thuận NDA</div>
+                                <div class="related-doc-subtitle">{{ $ndaContract->SoHopDong }}</div>
                             </div>
-                        </div>
+                            <div class="related-doc-action" title="In NDA">
+                                <i class="bi bi-printer"></i>
+                            </div>
+                        </a>
                     @endif
 
                     @php
-                        $activePhuLuc = $hopDong->phuLucs->where('TrangThai', 1)->first() ?? $hopDong->phuLucs->first();
+                        $activePhuLuc = $hopDong->appendices->where('TrangThai', 1)->first() ?? $hopDong->appendices->first();
                     @endphp
                     @if($activePhuLuc)
-                        <div class="related-doc-card">
+                        <a href="{{ route('hop-dong.print-phu-luc', $activePhuLuc->id) }}" target="_blank" class="related-doc-card">
                             <div class="related-doc-bg-icon"><i class="bi bi-file-earmark-plus"></i></div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="related-doc-icon" style="background: #0284c7;"><i class="bi bi-file-earmark-plus"></i>
-                                </div>
-                                <div style="min-width: 0;">
-                                    <div class="related-doc-title">Phụ lục hiện tại</div>
-                                    <div class="related-doc-subtitle">Kèm HĐ: {{ $hopDong->SoHopDong }}</div>
-                                </div>
+                            <div class="related-doc-icon" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+                                <i class="bi bi-file-earmark-plus"></i>
                             </div>
-                            <div class="related-doc-btns">
-                                <button onclick="switchTab('history')" class="btn btn-sm btn-secondary btn-center"
-                                    style="flex: 1; font-size: 11px; display: flex; justify-content: center; align-items: center;">Lịch
-                                    sử</button>
-                                <a href="{{ route('hop-dong.print-phu-luc', $hopDong->id) }}" target="_blank"
-                                    class="btn btn-sm btn-primary btn-center"
-                                    style="flex: 1.2; font-size: 11px; background-color: #0284c7; border-color: #0284c7; display: flex; justify-content: center; align-items: center;">
-                                    <i class="bi bi-printer"></i> In Phụ lục
-                                </a>
+                            <div class="related-doc-info">
+                                <div class="related-doc-title">Phụ lục hiện tại</div>
+                                <div class="related-doc-subtitle">{{ $activePhuLuc->SoHopDong }}</div>
                             </div>
-                        </div>
+                            <div class="related-doc-action" title="In Phụ lục">
+                                <i class="bi bi-printer"></i>
+                            </div>
+                        </a>
                     @endif
                 </div>
             </div>
         @endif
     </div>
 
-    <!-- Tab Content: Salary -->
-    <div class="tab-content" id="tab-salary">
-        <div class="detail-section">
-            <h2>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Chế độ lương
-            </h2>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Lương cơ bản</div>
-                    <div class="salary-value">{{ number_format($hopDong->LuongCoBan, 0, ',', '.') }} VNĐ</div>
+    <!-- Tab Content: Appendices -->
+    <div class="tab-content" id="tab-annex">
+        <div class="contract-tree">
+            <!-- Hợp đồng gốc (Root) -->
+            <div class="tree-root">
+                <div class="node-label">
+                    <i class="bi bi-star-fill" style="color: #f59e0b;"></i>
+                    Hợp đồng lao động ban đầu
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label">Tổng phụ cấp</div>
-                    @php
-                        $tongPhuCap = $hopDong->phuCaps->sum('pivot.so_tien');
-                    @endphp
-                    <div class="salary-value secondary-text">{{ number_format($tongPhuCap, 0, ',', '.') }} VNĐ
+                <div class="tree-node shadow-sm">
+                    @if($rootHopDong->TrangThai == 1 && $hopDong->id == $rootHopDong->id)
+                        <span class="badge badge-success node-badge">Đang hiệu lực</span>
+                    @else
+                        <span class="badge badge-secondary node-badge">Hết hiệu lực</span>
+                    @endif
+                    <div class="node-title">
+                        <a href="{{ route('hop-dong.info', $rootHopDong->id) }}" style="text-decoration: none; color: inherit;">
+                            {{ $rootHopDong->SoHopDong }}
+                        </a>
                     </div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Tổng thu nhập</div>
-                    <div class="salary-value" style="font-size: 24px; color: #0BAA4B;">
-                        {{ number_format($hopDong->TongLuong, 0, ',', '.') }} VNĐ
+                    <div class="node-subtitle">
+                        <i class="bi bi-calendar-check-fill me-1"></i> Ngày ký: {{ \Carbon\Carbon::parse($rootHopDong->created_at)->format('d/m/Y') }}<br>
+                        <i class="bi bi-person-fill me-1"></i> Đại diện: {{ $rootHopDong->nguoiKy->Ten ?? 'Ban Giám đốc' }}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="detail-section">
-            <h2>Chi tiết phụ cấp</h2>
-            <div class="detail-grid">
-                @foreach($allAllowances as $allowance)
+            <!-- Các nhánh phụ lục (Branches) -->
+            <div class="tree-branches">
+                @if($rootHopDong->appendices->isNotEmpty())
                     @php
-                        $contractAllowance = $hopDong->phuCaps->where('id', $allowance->id)->first();
-                        $amount = $contractAllowance ? $contractAllowance->pivot->so_tien : 0;
+                        $sortedAppendices = $rootHopDong->appendices->sortByDesc('id');
+                        $totalPl = $sortedAppendices->count();
                     @endphp
-                    <div class="detail-item">
-                        <div class="detail-label">{{ $allowance->noi_dung }}</div>
-                        <div class="detail-value" style="font-weight: 500;">{{ number_format($amount, 0, ',', '.') }} VNĐ</div>
+                    @foreach($sortedAppendices as $index => $plLink)
+                        @php $pl = $plLink->hopDongPL; @endphp
+                        @if($pl)
+                        <div class="tree-branch-item">
+                            <div class="node-label">
+                                <i class="bi bi-file-earmark-plus-fill" style="color: #3b82f6;"></i>
+                                {{ $plLink->ten_phu_luc }}
+                                @if($pl->id == $hopDong->id && $pl->TrangThai == 1)
+                                    <span class="badge badge-info ms-2" style="font-size: 9px; background-color: #0BAA4B; color: white;">Đang xem</span>
+                                @elseif($index === 0 && $pl->TrangThai == 1)
+                                    <span class="badge badge-info ms-2" style="font-size: 9px;">Mới nhất</span>
+                                @endif
+                            </div>
+                            <div class="tree-node branch-node {{ $pl->id == $hopDong->id ? 'item-active' : '' }}" 
+                                 style="{{ $pl->id == $hopDong->id ? 'border-left-color: #0BAA4B; background-color: rgba(11, 170, 75, 0.05);' : '' }}">
+                                <div class="node-title">
+                                    <a href="{{ route('hop-dong.info', $pl->id) }}" style="text-decoration: none; color: inherit;">
+                                        {{ $pl->SoHopDong }}
+                                    </a>
+                                </div>
+                                <div class="node-subtitle">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span><i class="bi bi-calendar3 me-1"></i> {{ \Carbon\Carbon::parse($pl->NgayBatDau)->format('d/m/Y') }}</span>
+                                        <span class="text-success fw-bold"><i class="bi bi-cash me-1"></i> {{ number_format($pl->TongLuong, 0, ',', '.') }} VNĐ</span>
+                                    </div>
+                                    <div class="mt-1" style="font-size: 11px; opacity: 0.8;">
+                                        Trạng thái: {{ $pl->TrangThai == 1 ? 'Đang hiệu lực' : 'Đã thay thế' }}
+                                    </div>
+                                </div>
+                                <div style="margin-top: 12px; display: flex; gap: 8px;">
+                                    <a href="{{ route('hop-dong.info', $pl->id) }}" class="btn btn-sm btn-outline-secondary" style="font-size: 11px; padding: 2px 10px; border-radius: 20px;">
+                                        <i class="bi bi-eye me-1"></i> Chi tiết
+                                    </a>
+                                    <a href="{{ route('hop-dong.print', $pl->id) }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 11px; padding: 2px 10px; border-radius: 20px;">
+                                        <i class="bi bi-printer me-1"></i> In
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    @endforeach
+                @else
+                    <div style="padding: 40px; text-align: center; color: #9ca3af; font-style: italic; font-size: 14px;">
+                        <i class="bi bi-info-circle me-1"></i> Chưa có phụ lục nào cho hợp đồng này.
                     </div>
-                @endforeach
+                @endif
             </div>
-        </div>
-    </div>
-
-    <!-- Tab Content: History -->
-    <div class="tab-content" id="tab-history">
-        <div class="history-timeline">
-            @php
-                $timeline = collect();
-                
-                $typeMapping = [
-                    'thu_viec' => 'Hợp đồng thử việc',
-                    'chinh_thuc_xac_dinh_thoi_han' => 'Hợp đồng lao động xác định thời hạn',
-                    'chinh_thuc_khong_xac_dinh_thoi_han' => 'Hợp đồng lao động không xác định thời hạn',
-                    'khoan_viec' => 'Hợp đồng khoán việc',
-                    'thoi_vu' => 'Hợp đồng thời vụ',
-                    'nda' => 'Thỏa thuận bảo mật (NDA)'
-                ];
-
-                $statusMapping = [
-                    '0' => 'Hết hạn',
-                    '1' => 'Còn hiệu lực',
-                    '2' => 'Bị hủy/Thanh lý'
-                ];
-
-                // 1. Add Contract Versions
-                foreach($historyContracts as $hc) {
-                    $timeline->push([
-                        'type' => 'contract',
-                        'date' => $hc->created_at,
-                        'data' => $hc,
-                        'title' => 'Phiên bản hợp đồng: ' . $hc->SoHopDong,
-                        'badge' => $hc->TrangThai == 1 ? 'Mới nhất' : 'Dữ liệu cũ',
-                        'badge_class' => $hc->TrangThai == 1 ? 'badge-success' : 'badge-secondary'
-                    ]);
-                    
-                    // 2. Add Annexes (if not already handled separately)
-                    foreach($hc->phuLucs as $pl) {
-                        $timeline->push([
-                            'type' => 'annex',
-                            'date' => $pl->created_at,
-                            'data' => $pl,
-                            'title' => 'Phụ lục: ' . $pl->ten_phu_luc,
-                            'badge' => 'Phụ lục',
-                            'badge_class' => 'badge-info'
-                        ]);
-                    }
-                }
-                
-                // 3. Add Activity Logs
-                foreach($activityLogs as $log) {
-                    $timeline->push([
-                        'type' => 'log',
-                        'date' => $log->CreatedAt,
-                        'data' => $log,
-                        'title' => $log->MoTa ?? $log->HanhDong,
-                        'badge' => 'Nhật ký',
-                        'badge_class' => 'badge-warning'
-                    ]);
-                }
-                
-                // Sort unified timeline by date desc
-                $sortedTimeline = $timeline->sortByDesc('date');
-            @endphp
-
-            @if($sortedTimeline->isEmpty())
-                <div class="detail-section" style="text-align: center; padding: 48px;">
-                    <div style="font-size: 48px; color: #e5e7eb; margin-bottom: 16px;">
-                        <i class="bi bi-clock-history"></i>
-                    </div>
-                    <div class="secondary-text">Chưa có lịch sử thay đổi nào được ghi nhận cho hợp đồng này.</div>
-                </div>
-            @else
-                @foreach($sortedTimeline as $item)
-                    <div class="timeline-item">
-                        <div class="timeline-date">{{ \Carbon\Carbon::parse($item['date'])->format('d/m/Y H:i') }}</div>
-                        <div class="timeline-title">
-                            <span class="badge {{ $item['badge_class'] }}" style="margin-right: 8px;">{{ $item['badge'] }}</span>
-                            {{ $item['title'] }}
-                        </div>
-                        
-                        <div class="timeline-content">
-                            @if($item['type'] === 'contract')
-                                <div class="detail-grid">
-                                    <div class="detail-item">
-                                        <div class="detail-label">Loại HĐ</div>
-                                        <div class="detail-value">{{ $item['data']->loaiHopDong->TenLoai ?? ($typeMapping[$item['data']->Loai] ?? $item['data']->Loai) }}</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Lương cơ bản</div>
-                                        <div class="detail-value">{{ number_format($item['data']->LuongCoBan, 0, ',', '.') }} VNĐ</div>
-                                    </div>
-                                    <div class="detail-item" style="grid-column: span 2; display: flex; gap: 12px; margin-top: 8px;">
-                                        <a href="{{ route('hop-dong.download-word', $item['data']->id) }}" class="btn btn-sm btn-outline-info" title="Tải Word">
-                                            <i class="bi bi-file-earmark-word"></i> Word
-                                        </a>
-                                        @if(str_starts_with($item['data']->Loai ?? '', 'nda'))
-                                            <a href="{{ route('hop-dong.download-nda-pdf', $item['data']->id) }}" class="btn btn-sm btn-outline-danger" title="Tải PDF">
-                                                <i class="bi bi-file-earmark-pdf"></i> PDF
-                                            </a>
-                                        @else
-                                            <a href="{{ route('hop-dong.download-pdf', $item['data']->id) }}" class="btn btn-sm btn-outline-danger" title="Tải PDF">
-                                                <i class="bi bi-file-earmark-pdf"></i> PDF
-                                            </a>
-                                        @endif
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Thời hạn</div>
-                                        <div class="detail-value">
-                                            {{ \Carbon\Carbon::parse($item['data']->NgayBatDau)->format('d/m/Y') }} - 
-                                            {{ $item['data']->NgayKetThuc ? \Carbon\Carbon::parse($item['data']->NgayKetThuc)->format('d/m/Y') : 'Không thời hạn' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            @elseif($item['type'] === 'annex')
-                                <div class="detail-grid">
-                                    @foreach($item['data']->dieuKhoans as $dk)
-                                        <div class="detail-item">
-                                            <div class="detail-label">{{ $dk->noi_dung }}</div>
-                                            <div class="detail-value">{{ number_format($dk->pivot->so_tien, 0, ',', '.') }} VNĐ</div>
-                                        </div>
-                                    @endforeach
-                                    <div class="detail-item" style="grid-column: span 2; display: flex; gap: 12px; margin-top: 8px;">
-                                        <a href="{{ route('hop-dong.download-phu-luc-word', $item['data']->HopDongId) }}" class="btn btn-sm btn-outline-info" title="Tải Word">
-                                            <i class="bi bi-file-earmark-word"></i> Word
-                                        </a>
-                                        <a href="{{ route('hop-dong.download-phu-luc-pdf', $item['data']->HopDongId) }}" class="btn btn-sm btn-outline-danger" title="Tải PDF">
-                                            <i class="bi bi-file-earmark-pdf"></i> PDF
-                                        </a>
-                                    </div>
-                                </div>
-                            @elseif($item['type'] === 'log')
-                                <div>
-                                    @if(!empty($item['data']->DuLieuCu) && !empty($item['data']->DuLieuMoi))
-                                        @php
-                                            $diffs = [];
-                                            $old = $item['data']->DuLieuCu;
-                                            $new = $item['data']->DuLieuMoi;
-                                            $labels = [
-                                                'SoHopDong' => 'Số hợp đồng',
-                                                'LuongCoBan' => 'Lương cơ bản',
-                                                'NgayKetThuc' => 'Ngày kết thúc',
-                                                'TrangThai' => 'Trạng thái',
-                                                'Loai' => 'Loại',
-                                            ];
-                                            foreach($labels as $field => $label) {
-                                                if(isset($old[$field]) && isset($new[$field]) && $old[$field] != $new[$field]) {
-                                                    $oldVal = $old[$field];
-                                                    $newVal = $new[$field];
-
-                                                    // Map values for better display
-                                                    if ($field === 'Loai') {
-                                                        $oldVal = $typeMapping[$oldVal] ?? $oldVal;
-                                                        $newVal = $typeMapping[$newVal] ?? $newVal;
-                                                    } elseif ($field === 'TrangThai') {
-                                                        $oldVal = $statusMapping[$oldVal] ?? $oldVal;
-                                                        $newVal = $statusMapping[$newVal] ?? $newVal;
-                                                    } elseif ($field === 'LuongCoBan') {
-                                                        $oldVal = number_format((float)$oldVal, 0, ',', '.') . ' VNĐ';
-                                                        $newVal = number_format((float)$newVal, 0, ',', '.') . ' VNĐ';
-                                                    }
-
-                                                    $diffs[] = "$label: <span class='diff-removed'>".($oldVal ?? 'Trống')."</span> &rarr; <span class='diff-added'>".($newVal ?? 'Trống')."</span>";
-                                                }
-                                            }
-                                        @endphp
-                                        @if(empty($diffs))
-                                            <div class="secondary-text">Cập nhật thông tin chi tiết</div>
-                                        @else
-                                            <ul style="margin: 0; padding-left: 20px;">
-                                                @foreach($diffs as $diff)
-                                                    <li style="margin-bottom: 4px;">{!! $diff !!}</li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                    @else
-                                        <div class="secondary-text">Hành động: {{ $item['data']->HanhDong }}</div>
-                                    @endif
-                                </div>
-                                <div class="timeline-user">
-                                    <i class="bi bi-person-circle"></i>
-                                    Thực hiện bởi: {{ $item['data']->nguoiDung->Ten ?? 'Hệ thống' }}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                @endforeach
-            @endif
         </div>
     </div>
 

@@ -26,7 +26,7 @@
             </a>
         </div>
 
-        <table id="positionsTable" class="table table-hover" style="width: 100%;">
+        <table id="positionsTable" class="table table-hover" style="width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
                     <th style="width: 60px;">
@@ -37,11 +37,11 @@
                             </div>
                         </div>
                     </th>
-                    <th>Mã chức vụ</th>
-                    <th>Tên chức vụ</th>
-                    <th>Loại</th>
-                    <th>Phụ cấp (VNĐ)</th>
-                    <th>Số nhân viên</th>
+                    <th style="width: 15%;">Mã chức vụ</th>
+                    <th style="width: 40%;">Tên chức vụ</th>
+                    <th style="width: 15%;">Loại</th>
+                    <th style="width: 18%;">Phụ cấp (VNĐ)</th>
+                    <th style="width: 7%;">Số nhân viên</th>
                 </tr>
             </thead>
             <tbody>

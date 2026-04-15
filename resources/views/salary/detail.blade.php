@@ -1,11 +1,99 @@
 @extends('layouts.app')
 
 @section('title', 'Chi tiết lương nhân viên - Vietnam Rubber Group')
+@push('styles')
+    <style>
+        /* Dark Mode Overrides */
+        body.dark-theme {
+            --surface: #1a1d2d;
+            --text-main: #e8eaf0;
+            --text-muted: #8b93a8;
+            --bg-body: #11131f;
+        }
+
+        body.dark-theme .card {
+            background: #1a1d2d;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme h1, 
+        body.dark-theme h2, 
+        body.dark-theme h3 {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .table thead th {
+            background: #21263a;
+            color: #c3c8da;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .table td {
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .table tr[style*="background-color: #f9fafb"] {
+            background-color: #21263a !important;
+        }
+
+        body.dark-theme .table tr[style*="background-color: #f0fdf4"],
+        body.dark-theme .table tr[style*="background-color: #eff6ff"],
+        body.dark-theme .table tr[style*="background-color: #fff7ed"],
+        body.dark-theme .table tr[style*="background-color: #fee2e2"],
+        body.dark-theme .table tr[style*="background-color: #dcfce7"] {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            filter: brightness(1.2);
+        }
+
+        body.dark-theme .form-control {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .btn-secondary, 
+        body.dark-theme a.btn-secondary[style*="background-color: #6b7280"] {
+            background-color: #2e3349 !important;
+            color: #e8eaf0 !important;
+            border: 1px solid #3f4662 !important;
+        }
+
+        body.dark-theme .btn-secondary:hover {
+            background-color: #39405a !important;
+        }
+
+        body.dark-theme #slipModal > div {
+            background: #1a1d2d !important;
+        }
+
+        body.dark-theme .alert {
+            background: #1a1d2d;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme div[style*="border-bottom: 1px solid #e5e7eb"] {
+            border-bottom-color: #2e3349 !important;
+        }
+
+        body.dark-theme div[style*="background: #f9fafb"] {
+            background: #1a1d2d !important;
+            border-color: #2e3349 !important;
+        }
+    </style>
+@endpush
 
 @section('content')
-    <div class="page-header">
-        <h1>Chi tiết lương nhân viên</h1>
-        <p>Xem chi tiết bảng lương của từng nhân viên theo tháng</p>
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1>Chi tiết lương nhân viên</h1>
+            <p>Xem chi tiết bảng lương của từng nhân viên theo tháng</p>
+        </div>
+        <a href="{{ route('salary.index', ['thang' => $thang, 'nam' => $nam]) }}" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px; background-color: #6b7280; border: none; padding: 8px 16px; border-radius: 8px;">
+            <i class="bi bi-arrow-left"></i>
+            Quay lại danh sách
+        </a>
     </div>
 
     {{-- Hiển thị thông báo thành công hoặc lỗi --}}
@@ -34,7 +122,6 @@
         // Dữ liệu từ LuongService (breakdown cho view chi tiết)
         $luongCoBan = $luong['luong_co_ban'] ?? 0;
         $tongPhuCap = $luong['tong_phu_cap'] ?? 0;
-        $tongTangCa = $luong['tong_tang_ca'] ?? 0;
         $tongThuNhap = $luong['tong_thu_nhap'] ?? 0;
         $tongKhauTruBH = $luong['tong_khau_tru_bh'] ?? 0;
         $soNguoiPT = $luong['so_nguoi_phu_thuoc'] ?? 0;
@@ -49,7 +136,6 @@
         if (isset($luongRecord)) {
             $luongCoBan = $luongRecord->LuongCoBan ?? $luongCoBan;
             $tongPhuCap = $luongRecord->PhuCap ?? $tongPhuCap;
-            $tongTangCa = $luongRecord->LuongTangCa ?? $tongTangCa;
             $tongKhauTruBH = $luongRecord->KhauTruBaoHiem ?? $tongKhauTruBH;
             $thueTNCN = $luongRecord->ThueTNCN ?? $thueTNCN;
             $luongThucNhan = $luongRecord->Luong ?? $luongThucNhan;
@@ -92,13 +178,6 @@
             $prevLimit = $bracket['limit'];
         }
 
-        // Tăng ca chi tiết trong tháng
-        $tangCas = \App\Models\TangCa::with('loaiTangCa')
-            ->where('NhanVienId', $nhanVien->id)
-            ->where('TrangThai', 'da_duyet')
-            ->whereYear('Ngay', $nam)
-            ->whereMonth('Ngay', $thang)
-            ->get();
         $ngayCongChuan = 26;
         $gioMoiNgay = 8;
         $luongGio = $luongCoBan / ($ngayCongChuan * $gioMoiNgay);
@@ -233,46 +312,9 @@
                     <td></td>
                 </tr>
 
-                {{-- C. TĂNG CA --}}
+                {{-- C. KHẤU TRỪ BẢO HIỂM --}}
                 <tr style="background-color: #f9fafb;">
-                    <td colspan="4"><strong>C. TĂNG CA (đã duyệt trong tháng {{ $thang }}/{{ $nam }})</strong></td>
-                </tr>
-                @if($tangCas->isEmpty())
-                    <tr>
-                        <td colspan="4" style="padding-left: 32px; color: #6b7280; font-style: italic;">
-                            Không có tăng ca đã duyệt trong tháng này
-                        </td>
-                    </tr>
-                @else
-                    @foreach($tangCas as $tc)
-                        @php
-                            $heSo = $tc->loaiTangCa?->HeSo ?? 1.5;
-                            $tenLoaiTC = $tc->loaiTangCa?->TenLoai ?? 'Tăng ca';
-                            $tienTC = ($tc->Tong ?? 0) * $luongGio * $heSo;
-                        @endphp
-                        <tr>
-                            <td style="padding-left: 32px;">
-                                {{ $tenLoaiTC }}
-                                <span style="font-size: 12px; color: #6b7280;">({{ $tc->Ngay->format('d/m') }})</span>
-                            </td>
-                            <td>{{ number_format($tc->Tong ?? 0, 1) }} giờ × {{ number_format($luongGio, 0, ',', '.') }} ×
-                                {{ $heSo }}
-                            </td>
-                            <td class="font-medium">{{ number_format($tienTC, 0, ',', '.') }}</td>
-                            <td>Hệ số {{ $heSo }}</td>
-                        </tr>
-                    @endforeach
-                @endif
-                <tr style="background-color: #fff7ed;">
-                    <td><strong>Tổng tăng ca</strong></td>
-                    <td></td>
-                    <td class="font-bold" style="color: #f97316;">{{ number_format($tongTangCa, 0, ',', '.') }}</td>
-                    <td></td>
-                </tr>
-
-                {{-- D. KHẤU TRỪ BẢO HIỂM --}}
-                <tr style="background-color: #f9fafb;">
-                    <td colspan="4"><strong>D. KHẤU TRỪ XÃ HỘI</strong></td>
+                    <td colspan="4"><strong>C. KHẤU TRỪ XÃ HỘI</strong></td>
                 </tr>
                 @foreach($baoHiems as $bh)
                     @php $deduction = ($luongCoBan * $bh->TiLeNhanVien) / 100; @endphp
@@ -290,9 +332,9 @@
                     <td></td>
                 </tr>
 
-                {{-- E. GIẢM TRỪ GIA CẢNH --}}
+                {{-- D. GIẢM TRỪ GIA CẢNH --}}
                 <tr style="background-color: #f9fafb;">
-                    <td colspan="4"><strong>E. GIẢM TRỪ GIA CẢNH (thuế TNCN)</strong></td>
+                    <td colspan="4"><strong>D. GIẢM TRỪ GIA CẢNH (thuế TNCN)</strong></td>
                 </tr>
                 <tr>
                     <td style="padding-left: 32px;">Giảm trừ bản thân</td>
@@ -325,9 +367,9 @@
                     <td></td>
                 </tr>
 
-                {{-- F. THUẾ TNCN --}}
+                {{-- E. THUẾ TNCN --}}
                 <tr style="background-color: #f9fafb;">
-                    <td colspan="4"><strong>F. THUẾ THU NHẬP CÁ NHÂN</strong></td>
+                    <td colspan="4"><strong>E. THUẾ THU NHẬP CÁ NHÂN</strong></td>
                 </tr>
                 <tr>
                     <td style="padding-left: 32px;">Thu nhập tính thuế</td>
@@ -384,17 +426,19 @@
             </p>
             
             <div style="display: flex; gap: 12px; justify-content: center;">
-                <form action="{{ route('salary.update-single', $nhanVien->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="thang" value="{{ $thang }}">
-                    <input type="hidden" name="nam" value="{{ $nam }}">
-                    <button type="submit" class="btn" style="background-color: #0BAA4B; color: white;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Khởi tạo & Tính lương ngay
-                    </button>
-                </form>
+                @can('Xem Danh Sách Lương')
+                    <form action="{{ route('salary.update-single', $nhanVien->id) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="thang" value="{{ $thang }}">
+                        <input type="hidden" name="nam" value="{{ $nam }}">
+                        <button type="submit" class="btn" style="background-color: #0BAA4B; color: white;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Khởi tạo & Tính lương ngay
+                        </button>
+                    </form>
+                @endcan
                 <a href="{{ route('salary.index', ['thang' => $thang, 'nam' => $nam]) }}" class="btn btn-secondary">
                     Quay lại danh sách
                 </a>

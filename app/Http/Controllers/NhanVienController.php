@@ -24,7 +24,7 @@ class NhanVienController extends Controller
     public function DataNhanVien(Request $request)
     {
         $query = NhanVien::with(['ttCongViec.phongBan', 'ttCongViec.chucVu'])
-            ;
+        ;
 
         // Server-side processing
         $totalRecords = $query->count();
@@ -38,6 +38,16 @@ class NhanVienController extends Controller
                     ->orWhere('Email', 'like', "%{$searchValue}%")
                     ->orWhere('SoDienThoai', 'like', "%{$searchValue}%");
             });
+        }
+
+        // Filter by Gender
+        if ($request->has('gioi_tinh') && $request->gioi_tinh !== null && $request->gioi_tinh !== '') {
+            $query->where('GioiTinh', $request->gioi_tinh);
+        }
+
+        // Filter by Status
+        if ($request->has('trang_thai') && $request->trang_thai !== null && $request->trang_thai !== '') {
+            $query->where('TrangThai', $request->trang_thai);
         }
 
         $filteredRecords = $query->count();
@@ -55,7 +65,7 @@ class NhanVienController extends Controller
         // Pagination
         $start = $request->start ?? 0;
         $length = $request->length ?? 10;
-        
+
         if ($length != -1) {
             $data = $query->skip($start)->take($length)->get();
         } else {
@@ -113,13 +123,15 @@ class NhanVienController extends Controller
                     ->orderByRaw('CASE WHEN TrangThai = 1 THEN 0 ELSE 1 END')
                     ->orderBy('NgayBatDau', 'desc');
             },
-            'dienBienLuongs' => function ($q) {
-                $q->with(['ngachLuong', 'bacLuong', 'hopDong'])->orderBy('NgayHuong', 'desc');
-            },
             'luongs' => function ($q) {
                 $q->orderBy('ThoiGian', 'desc');
             },
         ])->findOrFail($id);
+
+        // Ownership / Permission check
+        if (!auth()->user()->can('Xem Nhân Viên') && $employee->NguoiDungId != auth()->id()) {
+            abort(403, 'Bạn không có quyền xem thông tin của nhân viên này.');
+        }
 
         return view('employees.show', compact('employee'));
     }
@@ -168,9 +180,10 @@ class NhanVienController extends Controller
             'NgayTuyenDung' => 'required|date',
             'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cropped_avatar' => 'nullable|string',
-            'anh_cccd.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'anh_cccd' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'anh_cccd_sau' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'anh_bhxh.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'TrangThai' => 'nullable|integer|in:0,1,2',
+            'TrangThai' => 'nullable|string|in:dang_lam,nghi_viec,nghi_thai_san',
         ], [
             // Thông tin cá nhân
             'Ten.required' => 'Vui lòng nhập họ và tên nhân viên.',
@@ -204,8 +217,10 @@ class NhanVienController extends Controller
             'AnhDaiDien.mimes' => 'Ảnh phải có định dạng: jpeg, png, jpg, hoặc gif.',
             'AnhDaiDien.max' => 'Kích thước ảnh không được vượt quá 2MB.',
 
-            'anh_cccd.*.image' => 'File tải lên CCCD phải là hình ảnh.',
-            'anh_cccd.*.max' => 'Kích thước mỗi ảnh CCCD không được vượt quá 5MB.',
+            'anh_cccd.image' => 'File tải lên CCCD mặt trước phải là hình ảnh.',
+            'anh_cccd.max' => 'Kích thước ảnh CCCD mặt trước không được vượt quá 5MB.',
+            'anh_cccd_sau.image' => 'File tải lên CCCD mặt sau phải là hình ảnh.',
+            'anh_cccd_sau.max' => 'Kích thước ảnh CCCD mặt sau không được vượt quá 5MB.',
             'anh_bhxh.*.image' => 'File tải lên BHXH phải là hình ảnh.',
             'anh_bhxh.*.max' => 'Kích thước mỗi ảnh BHXH không được vượt quá 5MB.',
         ]);
@@ -242,7 +257,7 @@ class NhanVienController extends Controller
                         $imageData = substr($imageData, strpos($imageData, ',') + 1);
                         $imageData = base64_decode($imageData);
                         $extension = strtolower($type[1]); // png, jpg, etc.
-                        
+
                         $filename = 'avatar_' . $Ma . '_' . time() . '.' . $extension;
                         file_put_contents(public_path('AnhDaiDien/' . $filename), $imageData);
                         $avatarPath = 'AnhDaiDien/' . $filename;
@@ -254,14 +269,21 @@ class NhanVienController extends Controller
                     $avatarPath = 'AnhDaiDien/' . $filename;
                 }
 
-                // Handle multiple CCCD images
+                // Handle CCCD images (Front and Back)
                 $anhCccdPaths = [];
                 if ($request->hasFile('anh_cccd')) {
-                    foreach ($request->file('anh_cccd') as $file) {
-                        $filename = 'cccd_' . $Ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                        $file->move(public_path('uploads/cccd'), $filename);
-                        $anhCccdPaths[] = 'uploads/cccd/' . $filename;
-                    }
+                    $file = $request->file('anh_cccd');
+                    $filename = 'cccd_front_' . $Ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/cccd'), $filename);
+                    $anhCccdPaths[] = 'uploads/cccd/' . $filename; // Store as array with 1 element for compatibility
+                }
+
+                $anhCccdSauPath = null;
+                if ($request->hasFile('anh_cccd_sau')) {
+                    $file = $request->file('anh_cccd_sau');
+                    $filename = 'cccd_back_' . $Ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/cccd'), $filename);
+                    $anhCccdSauPath = 'uploads/cccd/' . $filename;
                 }
 
                 // Handle multiple BHXH images
@@ -315,7 +337,8 @@ class NhanVienController extends Controller
                     'Note' => $request->Note,
                     'AnhDaiDien' => $avatarPath,
                     'anh_cccd' => $anhCccdPaths,
-                    'TrangThai' => $request->TrangThai ?? 1,
+                    'anh_cccd_sau' => $anhCccdSauPath,
+                    'TrangThai' => $request->TrangThai ?? 'dang_lam',
                 ]);
 
                 // Verify NhanVien was created successfully
@@ -374,9 +397,9 @@ class NhanVienController extends Controller
             $nvCreated = NhanVien::where('Ma', $Ma)->first();
             if ($nvCreated) {
                 \App\Services\SystemLogService::log(
-                    'Tạo mới', 
-                    'NhanVien', 
-                    $nvCreated->id, 
+                    'Tạo mới',
+                    'NhanVien',
+                    $nvCreated->id,
                     "Thêm mới nhân viên: {$nvCreated->Ten} ({$nvCreated->Ma})"
                 );
             }
@@ -402,6 +425,11 @@ class NhanVienController extends Controller
             'ttCongViec.phongBan'
         ])->findOrFail($id);
 
+        // Ownership / Permission check
+        if (!auth()->user()->can('Sửa Nhân Viên') && !auth()->user()->can('Chỉnh Sửa Một Phần Nhân Viên') && $employee->NguoiDungId != auth()->id()) {
+            abort(403, 'Bạn không có quyền chỉnh sửa nhân viên này.');
+        }
+
         $phongBans = DmPhongBan::all();
         $chucVus = DmChucVu::all();
 
@@ -424,7 +452,7 @@ class NhanVienController extends Controller
                 'ChucVuId' => 'required|exists:dm_chuc_vus,id',
                 'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'cropped_avatar' => 'nullable|string',
-                'TrangThai' => 'required|integer|in:0,1,2',
+                'TrangThai' => 'required|string|in:dang_lam,nghi_viec,nghi_thai_san',
             ];
 
             $messages = [
@@ -442,12 +470,22 @@ class NhanVienController extends Controller
                 'anh_bhxh.*.max' => 'Kích thước mỗi ảnh BHXH không được vượt quá 5MB.',
             ];
 
-            $rules['anh_cccd.*'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120';
+            $rules['anh_cccd'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120';
+            $rules['anh_cccd_sau'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120';
             $rules['anh_bhxh.*'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120';
 
-            $validated = $request->validate($rules, $messages);
+            $request->validate($rules, $messages);
 
             $employee = NhanVien::findOrFail($id);
+
+            // Ownership / Permission check
+            if (!auth()->user()->can('Sửa Nhân Viên') && !auth()->user()->can('Chỉnh Sửa Một Phần Nhân Viên') && $employee->NguoiDungId != auth()->id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền cập nhật thông tin nhân viên này.'
+                ], 403);
+            }
+
             $oldData = $employee->toArray();
 
             // Handle Avatar Upload
@@ -458,7 +496,7 @@ class NhanVienController extends Controller
                     $imageData = substr($imageData, strpos($imageData, ',') + 1);
                     $imageData = base64_decode($imageData);
                     $extension = strtolower($type[1]);
-                    
+
                     $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
                     $filename = 'avatar_' . $ma . '_' . time() . '.' . $extension;
                     file_put_contents(public_path('AnhDaiDien/' . $filename), $imageData);
@@ -469,21 +507,26 @@ class NhanVienController extends Controller
                 $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
                 $filename = 'avatar_' . $ma . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('AnhDaiDien'), $filename);
-                
+
                 // Update the attribute in the model instance
                 $employee->AnhDaiDien = 'AnhDaiDien/' . $filename;
             }
 
-            // Handle multiple CCCD images
+            // Handle CCCD images
             if ($request->hasFile('anh_cccd')) {
-                $anhCccdPaths = [];
                 $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
-                foreach ($request->file('anh_cccd') as $file) {
-                    $filename = 'cccd_' . $ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('uploads/cccd'), $filename);
-                    $anhCccdPaths[] = 'uploads/cccd/' . $filename;
-                }
-                $employee->anh_cccd = $anhCccdPaths;
+                $file = $request->file('anh_cccd');
+                $filename = 'cccd_front_' . $ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/cccd'), $filename);
+                $employee->anh_cccd = ['uploads/cccd/' . $filename];
+            }
+
+            if ($request->hasFile('anh_cccd_sau')) {
+                $ma = $employee->Ma ?: 'NV_OLD_' . $employee->id;
+                $file = $request->file('anh_cccd_sau');
+                $filename = 'cccd_back_' . $ma . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/cccd'), $filename);
+                $employee->anh_cccd_sau = 'uploads/cccd/' . $filename;
             }
 
             // Handle multiple BHXH images
@@ -525,13 +568,16 @@ class NhanVienController extends Controller
                 'Note' => $request->Note,
                 'AnhDaiDien' => $employee->AnhDaiDien,
                 'anh_cccd' => $employee->anh_cccd,
+                'anh_cccd_sau' => $employee->anh_cccd_sau,
                 'TrangThai' => $request->TrangThai,
             ]);
 
             // Sync account status if checked
             if ($request->sync_account_status == "1" && $employee->nguoiDung) {
+                // Map enum status to integer status for User account (1: Active, 0: Locked)
+                $userStatus = ($request->TrangThai === 'nghi_viec') ? 0 : 1;
                 $employee->nguoiDung->update([
-                    'TrangThai' => $request->TrangThai
+                    'TrangThai' => $userStatus
                 ]);
             }
 
@@ -554,9 +600,9 @@ class NhanVienController extends Controller
 
             $newData = $employee->fresh()->toArray();
             \App\Services\SystemLogService::log(
-                'Cập nhật', 
-                'NhanVien', 
-                $employee->id, 
+                'Cập nhật',
+                'NhanVien',
+                $employee->id,
                 "Cập nhật thông tin nhân viên: {$employee->Ten}",
                 $oldData,
                 $newData
@@ -723,7 +769,7 @@ class NhanVienController extends Controller
             \App\Models\DienBienLuong::where('NhanVienId', $id)->delete();
             \App\Models\Luong::where('NhanVienId', $id)->delete();
             \App\Models\ChamCong::where('NhanVienId', $id)->delete();
-            \App\Models\TangCa::where('NhanVienId', $id)->delete();
+            \App\Models\WorkFromHome::where('NhanVienId', $id)->delete();
             \App\Models\QuanLyPhepNam::where('NhanVienId', $id)->delete();
             \App\Models\DangKyNghiPhep::where('NhanVienId', $id)->delete();
             \App\Models\QuaTrinhCongTac::where('NhanVienId', $id)->delete();
@@ -737,7 +783,7 @@ class NhanVienController extends Controller
 
             // Set các ID tham chiếu sang null để bảo toàn dữ liệu lịch sử
             \App\Models\HopDong::where('NguoiKyId', $id)->update(['NguoiKyId' => null]);
-            \App\Models\TangCa::where('NguoiDuyetId', $id)->update(['NguoiDuyetId' => null]);
+            \App\Models\WorkFromHome::where('NguoiDuyetId', $id)->update(['NguoiDuyetId' => null]);
             \App\Models\DangKyNghiPhep::where('NguoiDuyetId', $id)->update(['NguoiDuyetId' => null]);
 
             // Xóa file ảnh đại diện nếu có
@@ -797,7 +843,7 @@ class NhanVienController extends Controller
             \App\Models\DienBienLuong::whereIn('NhanVienId', $ids)->delete();
             \App\Models\Luong::whereIn('NhanVienId', $ids)->delete();
             \App\Models\ChamCong::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\TangCa::whereIn('NhanVienId', $ids)->delete();
+            \App\Models\WorkFromHome::whereIn('NhanVienId', $ids)->delete();
             \App\Models\QuanLyPhepNam::whereIn('NhanVienId', $ids)->delete();
             \App\Models\DangKyNghiPhep::whereIn('NhanVienId', $ids)->delete();
             \App\Models\QuaTrinhCongTac::whereIn('NhanVienId', $ids)->delete();
@@ -813,7 +859,7 @@ class NhanVienController extends Controller
 
             // Cập nhật tham chiếu
             \App\Models\HopDong::whereIn('NguoiKyId', $ids)->update(['NguoiKyId' => null]);
-            \App\Models\TangCa::whereIn('NguoiDuyetId', $ids)->update(['NguoiDuyetId' => null]);
+            \App\Models\WorkFromHome::whereIn('NguoiDuyetId', $ids)->update(['NguoiDuyetId' => null]);
             \App\Models\DangKyNghiPhep::whereIn('NguoiDuyetId', $ids)->update(['NguoiDuyetId' => null]);
 
             // Xóa ảnh đại diện

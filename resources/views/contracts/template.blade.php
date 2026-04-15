@@ -284,7 +284,7 @@
         <table class="header-table">
             <tr>
                 <td style="width: 40%; text-align: center;">
-                    <span class="text-bold">CÔNG TY TNHH TRIWIN</span><br>
+                    <span class="text-bold">{{ mb_strtoupper(\App\Models\SystemConfig::getValue('company_name', 'CÔNG TY TNHH TRIWIN')) }}</span><br>
                     <span>Số: {{ $hopDong->SoHopDong ?? '..... /HĐLĐ' }}</span>
                 </td>
                 <td style="width: 60%; text-align: center;">
@@ -301,9 +301,9 @@
         <span class="text-bold">Chúng tôi, một bên là Ông/Bà:</span> {{ $hopDong->nguoiKy->Ten ?? '...' }} <span
             style="float: right;">Quốc tịch: Việt Nam</span><br>
         <span class="text-bold">Chức vụ:</span> Giám đốc<br>
-        <span class="text-bold">Đại diện cho:</span> CÔNG TY TNHH PHẦN MỀM<br>
-        <span class="text-bold">Điện thoại:</span> 0123456789<br>
-        <span class="text-bold">Địa chỉ:</span> 123 Đường Công Nghệ, Phường Sáng Tạo, Quận 1, TP.HCM<br>
+        <span class="text-bold">Đại diện cho:</span> {{ \App\Models\SystemConfig::getValue('company_name', 'CÔNG TY TNHH TRIWIN') }}<br>
+        <span class="text-bold">Điện thoại:</span> {{ \App\Models\SystemConfig::getValue('company_hotline', '0123456789') }}<br>
+        <span class="text-bold">Địa chỉ:</span> {{ \App\Models\SystemConfig::getValue('company_address', '123 Đường Công Nghệ, Phường Sáng Tạo, Quận 1, TP.HCM') }}<br>
         <br>
         <span class="text-bold">Và một bên là Ông/Bà:</span> <span class="text-bold"
             style="text-transform: uppercase;">{{ $hopDong->nhanVien->Ten ?? '...' }}</span> <span
@@ -335,8 +335,7 @@
                     đến ngày {{ \Carbon\Carbon::parse($hopDong->NgayKetThuc)->format('d/m/Y') }}
                 @endif
             </li>
-            <li><span class="text-bold">Địa điểm làm việc:</span> Số 123 Đường Công Nghệ, Phường Sáng Tạo, Quận 1,
-                TP.HCM</li>
+            <li><span class="text-bold">Địa điểm làm việc:</span> {{ \App\Models\SystemConfig::getValue('company_address') }}</li>
             <li><span class="text-bold">Chức danh chuyên môn:</span> {{ $hopDong->chucVu->Ten ?? 'Nhân viên' }}</li>
             <li><span class="text-bold">Công việc phải làm:</span> Liên quan đến chuyên môn và những công việc khác do
                 Giám đốc (hoặc cá nhân được Giám đốc ủy quyền) phân công theo quy định của Pháp luật.</li>
@@ -359,12 +358,14 @@
         <ul>
             <li>Phương tiện đi lại làm việc: tự túc.</li>
             <li><span class="text-bold">Mức lương chính:</span>
-                {{ number_format($hopDong->MucLuong ?? 0, 0, ',', '.') }} VNĐ/tháng (tại thời điểm ký hợp đồng).
+                {{ number_format($hopDong->LuongCoBan ?? 0, 0, ',', '.') }} VNĐ/tháng (tại thời điểm ký hợp đồng).
             </li>
-            <li>Hình thức trả lương: Bằng chuyển khoản / tiền mặt.</li>
-            <li>Được trang bị bảo hộ lao động: Theo yêu cầu công việc được phân công.</li>
-            <li>Tiền thưởng lễ, tết: Hưởng theo quy chế lương thưởng chung của toàn công ty.</li>
-            <li>Chế độ đào tạo: Theo nghị quyết của Ban Giám đốc công ty.</li>
+            @if(!empty($hopDong->PhuCap))
+                @foreach($hopDong->PhuCap as $pc)
+                    <li><span class="text-bold">{{ $pc['name'] }}:</span> {{ number_format($pc['amount'], 0, ',', '.') }} VNĐ/tháng</li>
+                @endforeach
+            @endif
+            <li><span class="text-bold">Tổng thu nhập:</span> {{ number_format($hopDong->TongLuong ?? 0, 0, ',', '.') }} VNĐ/tháng</li>
         </ul>
 
         <div><span class="text-bold">2. Nghĩa vụ:</span></div>

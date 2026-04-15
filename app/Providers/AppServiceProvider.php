@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,12 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useBootstrapFive();
+
         \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
             return $user->hasAnyRole(['Super Admin', 'System Admin']) ? true : null;
         });
 
-        if ($this->app->environment('local')) {
-            URL::forceScheme('https');
-        }
+        // if ($this->app->environment('local')) {
+        //     URL::forceScheme('https');
+        // }
     }
 }

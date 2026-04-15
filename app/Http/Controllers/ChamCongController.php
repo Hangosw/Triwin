@@ -15,7 +15,7 @@ class ChamCongController extends Controller
     public function ChamCongData(Request $request, $id)
     {
         $month = $request->month ?? Carbon::now()->month;
-        $year  = $request->year  ?? Carbon::now()->year;
+        $year = $request->year ?? Carbon::now()->year;
 
         $attendances = ChamCong::where('NhanVienId', $id)
             ->whereYear('Vao', $year)
@@ -31,10 +31,12 @@ class ChamCongController extends Controller
 
     public function DanhSachView(Request $request)
     {
-        $month  = $request->month  ?? Carbon::now()->month;
-        $year   = $request->year   ?? Carbon::now()->year;
-        $day    = $request->day    ?? '';      // '' = tất cả ngày
+        $month = $request->month ?? Carbon::now()->month;
+        $year = $request->year ?? Carbon::now()->year;
+        $day = $request->day ?? '';      // '' = tất cả ngày
         $status = $request->status ?? '';      // '' = tất cả trạng thái
+        $tab = $request->get('tab', 'nhan_vien'); // 'nhan_vien' hoặc 'khach'
+
         $user = auth()->user();
         $isEmployeeOnly = $user->hasAnyRole(['Employee', 'Nhân viên']) && !$user->hasAnyRole(['Super Admin', 'Admin Đơn Vị', 'CEO', 'Supervisor', 'HR Manager', 'System Admin', 'Factory Supervisor', 'Line Manager']);
         $nhanVienId = $user->nhanVien?->id;
@@ -42,7 +44,22 @@ class ChamCongController extends Controller
         // Stats for the month (luôn theo tháng/năm, không lọc thêm ngày/trạng thái)
         $totalEmployeesQuery = NhanVien::query();
         $onTimeQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'dung_gio');
-        $lateQuery   = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
+        $lateQuery = ChamCong::whereYear('Vao', $year)->whereMonth('Vao', $month)->where('TrangThai', 'tre');
+
+        // Tab Counts Query
+        $baseQuery = ChamCong::whereYear('Vao', $year)
+            ->whereMonth('Vao', $month);
+        
+        if ($day !== '' && $day > 0) {
+            $baseQuery->whereDay('Vao', $day);
+        }
+
+        if ($isEmployeeOnly && $nhanVienId) {
+            $baseQuery->where('NhanVienId', $nhanVienId);
+        }
+
+        $employeeTabCount = (clone $baseQuery)->whereNotNull('NhanVienId')->count();
+        $guestTabCount = (clone $baseQuery)->whereNull('NhanVienId')->count();
 
         // Main query
         $attendancesQuery = ChamCong::with('nhanVien.ttCongViec.phongBan')
@@ -54,13 +71,14 @@ class ChamCongController extends Controller
             $attendancesQuery->whereDay('Vao', $day);
         }
 
-        // Lọc theo trạng thái
-        if ($status !== '') {
-            if ($status === 'la') {
-                // Khách / Lạ: bản ghi không có NhanVienId
-                $attendancesQuery->whereNull('NhanVienId');
-            } else {
-                $attendancesQuery->whereNotNull('NhanVienId')->where('TrangThai', $status);
+        // Lọc theo Tab
+        if ($tab === 'khach') {
+            $attendancesQuery->whereNull('NhanVienId');
+        } else {
+            $attendancesQuery->whereNotNull('NhanVienId');
+            // Lọc theo trạng thái (chỉ áp dụng cho nhân viên)
+            if ($status !== '') {
+                $attendancesQuery->where('TrangThai', $status);
             }
         }
 
@@ -74,13 +92,22 @@ class ChamCongController extends Controller
         }
 
         $totalEmployees = $totalEmployeesQuery->count();
-        $onTimeCount    = $onTimeQuery->count();
-        $lateCount      = $lateQuery->count();
-        $attendances    = $attendancesQuery->get();
+        $onTimeCount = $onTimeQuery->count();
+        $lateCount = $lateQuery->count();
+        $attendances = $attendancesQuery->get();
 
         return view('attendance.index', compact(
-            'attendances', 'totalEmployees', 'onTimeCount', 'lateCount',
-            'month', 'year', 'day', 'status'
+            'attendances',
+            'totalEmployees',
+            'onTimeCount',
+            'lateCount',
+            'month',
+            'year',
+            'day',
+            'status',
+            'tab',
+            'employeeTabCount',
+            'guestTabCount'
         ));
     }
 
@@ -138,11 +165,11 @@ class ChamCongController extends Controller
 
             $fileName = 'attendance_' . $nhanVienId . '_' . time() . '.' . $type;
             $imagePath = 'uploads/attendances/' . $fileName;
-            
+
             if (!file_exists(public_path('uploads/attendances'))) {
                 mkdir(public_path('uploads/attendances'), 0777, true);
             }
-            
+
             file_put_contents(public_path($imagePath), $imageData);
         }
 
@@ -175,39 +202,26 @@ class ChamCongController extends Controller
             ->orderBy('Vao', 'desc') // Lấy bản ghi mới nhất
             ->first();
 
-        // Kiểm tra xem nhân viên có phiếu tăng ca được duyệt hôm nay không
-        $approvedOT = \App\Models\TangCa::where('NhanVienId', $nhanVienId)
-            ->where('Ngay', $today)
-            ->where('TrangThai', 'da_duyet')
-            ->first();
 
-        if (!$attendance || ($attendance->Ra && $approvedOT && $attendance->Loai == 0)) {
+
+        if (!$attendance) {
             // CLOCK IN (Lần đầu hoặc bắt đầu ca tăng ca sau khi đã kết thúc ca HC)
             $status = 'dung_gio';
             $loai = 0; // Mặc định là hành chính
-            $tangCaId = null;
-
-            // Nếu đã có ca HC rồi thì ca này mặc định là tăng ca
-            if ($attendance && $attendance->Ra) {
-                $loai = 1;
-                $tangCaId = $approvedOT->id;
-            } else {
-                // Kiểm tra trễ giờ hành chính
-                if ($now->toTimeString() > $startWorkTime) {
-                    $status = 'tre';
-                }
+            // Kiểm tra trễ giờ hành chính
+            if ($now->toTimeString() > $startWorkTime) {
+                $status = 'tre';
             }
 
             ChamCong::create([
                 'NhanVienId' => $nhanVienId,
                 'Vao' => $now,
-                'Loai' => $loai,
-                'TangCaId' => $tangCaId,
+                'Loai' => 0,
                 'TrangThai' => $status,
                 'AnhChamCong' => $imagePath // Lưu ảnh vào đây
             ]);
 
-            $msg = $loai == 1 ? 'Vào ca TĂNG CA' : 'Vào làm';
+            $msg = 'vào làm';
             return response()->json([
                 'success' => true,
                 'message' => "Bạn đã ghi nhận {$msg} lúc " . $now->format('H:i:s'),
@@ -222,44 +236,7 @@ class ChamCongController extends Controller
                 ]);
             }
 
-            // XỬ LÝ SPLIT CA (Case 2: Làm một mạch từ sáng đến hết ca tăng ca)
-            // Nếu bản ghi hiện tại là HC (Loai=0) và có approvedOT
-            if ($attendance->Loai == 0 && $approvedOT) {
-                $otStartTime = Carbon::parse($today . ' ' . $approvedOT->BatDau);
-                
-                // Nếu giờ ra hiện tại sau giờ bắt đầu tăng ca -> Thực hiện tách ca
-                if ($now->greaterThan($otStartTime)) {
-                    // 1. Kết thúc ca HC tại thời điểm bắt đầu tăng ca
-                    $currentStatus = $attendance->TrangThai;
-                    if ($currentStatus !== 'tre') {
-                        // Ca HC coi như đúng giờ nếu làm đến tận lúc tăng ca
-                        $currentStatus = 'dung_gio';
-                    }
 
-                    $attendance->update([
-                        'Ra' => $otStartTime,
-                        'TrangThai' => $currentStatus,
-                        'AnhChamCong' => $attendance->AnhChamCong ?: $imagePath // Giữ ảnh cũ nếu có, không thì dùng ảnh mới
-                    ]);
-
-                    // 2. Tạo bản ghi mới cho ca Tăng ca (từ otStartTime đến bây giờ)
-                    ChamCong::create([
-                        'NhanVienId' => $nhanVienId,
-                        'Vao' => $otStartTime,
-                        'Ra' => $now,
-                        'Loai' => 1,
-                        'TangCaId' => $approvedOT->id,
-                        'TrangThai' => 'dung_gio',
-                        'AnhChamCong' => $imagePath // Lưu ảnh mới cho ca tăng ca
-                    ]);
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Hệ thống đã tự động ghi nhận 2 ca (Hành chính & Tăng ca). Giờ về cuối cùng: ' . $now->format('H:i:s'),
-                        'type' => 'ra'
-                    ]);
-                }
-            }
 
             // Clock out bình thường (Hoặc kết thúc ca tăng ca riêng biệt)
             $currentStatus = $attendance->TrangThai;
@@ -283,7 +260,7 @@ class ChamCongController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Bạn đã ghi nhận Ra về lúc ' . $now->format('H:i:s'),
+                'message' => 'Bạn đã ghi nhận ra về lúc ' . $now->format('H:i:s'),
                 'type' => 'ra'
             ]);
         }
@@ -312,13 +289,9 @@ class ChamCongController extends Controller
 
         $latestAttendance = $todayAttendances->first();
 
-        // Kiểm tra xem nhân viên có phiếu tăng ca được duyệt hôm nay không
-        $approvedOT = \App\Models\TangCa::where('NhanVienId', $nhanVien->id)
-            ->where('Ngay', Carbon::today())
-            ->where('TrangThai', 'da_duyet')
-            ->first();
 
-        return view('attendance.self', compact('nhanVien', 'todayAttendances', 'latestAttendance', 'approvedOT'));
+
+        return view('attendance.self', compact('nhanVien', 'todayAttendances', 'latestAttendance'));
     }
 
     /**
@@ -384,7 +357,7 @@ class ChamCongController extends Controller
     {
         $date = $request->date ?? Carbon::today()->toDateString();
         $dateObj = Carbon::parse($date);
-        
+
         $user = auth()->user();
         $isEmployeeOnly = $user->hasAnyRole(['Employee', 'Nhân viên']) && !$user->hasAnyRole(['Super Admin', 'Admin Đơn Vị', 'CEO', 'Supervisor', 'HR Manager', 'System Admin', 'Factory Supervisor', 'Line Manager']);
 
@@ -408,14 +381,14 @@ class ChamCongController extends Controller
 
         // 4. Phân loại nhân viên
         $checkedInIds = $attendances->pluck('NhanVienId')->filter()->unique()->toArray();
-        
+
         // - Đi sớm: Vao < giờ vào chuẩn
-        $diSom = $attendances->filter(function($att) use ($gioVaoChuan) {
+        $diSom = $attendances->filter(function ($att) use ($gioVaoChuan) {
             return $att->Vao && $att->Vao->toTimeString() < $gioVaoChuan && $att->NhanVienId;
         })->unique('NhanVienId');
 
         // - Đi trễ: Vao > giờ vào chuẩn
-        $diTre = $attendances->filter(function($att) use ($gioVaoChuan) {
+        $diTre = $attendances->filter(function ($att) use ($gioVaoChuan) {
             return $att->Vao && $att->Vao->toTimeString() > $gioVaoChuan && $att->NhanVienId;
         })->unique('NhanVienId');
 
@@ -423,7 +396,7 @@ class ChamCongController extends Controller
         $chuaCheckin = $allEmployees->whereNotIn('id', $checkedInIds);
 
         // - Về trễ: Ra > giờ ra chuẩn
-        $veTre = $attendances->filter(function($att) use ($gioRaChuan) {
+        $veTre = $attendances->filter(function ($att) use ($gioRaChuan) {
             return $att->Ra && $att->Ra->toTimeString() > $gioRaChuan && $att->NhanVienId;
         })->unique('NhanVienId');
 
@@ -432,11 +405,19 @@ class ChamCongController extends Controller
 
         // Thống kê thẻ tóm tắt
         $checkedInCount = count($checkedInIds);
-        
+
         return view('attendance.daily_overview', compact(
-            'date', 'dateObj', 'totalEmployeeCount', 'checkedInCount',
-            'diSom', 'diTre', 'chuaCheckin', 'veTre', 'khachLa',
-            'gioVaoChuan', 'gioRaChuan'
+            'date',
+            'dateObj',
+            'totalEmployeeCount',
+            'checkedInCount',
+            'diSom',
+            'diTre',
+            'chuaCheckin',
+            'veTre',
+            'khachLa',
+            'gioVaoChuan',
+            'gioRaChuan'
         ));
     }
 }

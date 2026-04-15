@@ -88,9 +88,6 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $logs->links() }}
-        </div>
     </div>
 
     <style>
@@ -105,11 +102,32 @@
         .badge-warning { background: #fef9c3; color: #854d0e; }
         .badge-danger { background: #fee2e2; color: #991b1b; }
         
+        body.dark-theme .badge-success { background: rgba(22, 101, 52, 0.2); color: #4ade80; }
+        body.dark-theme .badge-warning { background: rgba(133, 77, 14, 0.2); color: #facc15; }
+        body.dark-theme .badge-danger { background: rgba(153, 27, 27, 0.2); color: #f87171; }
+        
         .log-row:hover {
             background-color: rgba(0,0,0,0.02) !important;
         }
         body.dark-theme .log-row:hover {
             background-color: rgba(255,255,255,0.05) !important;
+        }
+        
+        /* Pagination Styling in Dark Mode */
+        body.dark-theme .pagination .page-link {
+            background-color: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da;
+        }
+        body.dark-theme .pagination .page-item.active .page-link {
+            background-color: #0BAA4B;
+            border-color: #0BAA4B;
+            color: #fff;
+        }
+        body.dark-theme .pagination .page-item.disabled .page-link {
+            background-color: #1a1d27;
+            border-color: #2e3349;
+            color: #6b7280;
         }
         
         /* Swat custom style */
@@ -128,6 +146,12 @@
         body.dark-theme .swal-log-label {
             border-color: #2e3349;
             color: #e8eaf0;
+        }
+        body.dark-theme .swal-log-data-old {
+            color: #8b93a8 !important;
+        }
+        body.dark-theme .swal-log-data-new {
+            color: #e8eaf0 !important;
         }
     </style>
 @endsection
@@ -153,9 +177,10 @@
             },
             responsive: true,
             autoWidth: false,
-            pageLength: 25,
+            pageLength: 10, // Default to 10 records
             order: [[0, 'desc']] // Sort by ID descending by default
         });
+
 
         // Click row to show popup
         $('#historyTable tbody').on('click', 'tr', function() {
@@ -173,11 +198,11 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div>
                                 <div class="swal-log-label">Dữ liệu cũ</div>
-                                <div style="color: #6b7280;">${oldData}</div>
+                                <div class="swal-log-data-old">${oldData}</div>
                             </div>
                             <div>
                                 <div class="swal-log-label" style="color: #0BAA4B;">Dữ liệu mới</div>
-                                <div style="color: #374151;">${newData}</div>
+                                <div class="swal-log-data-new">${newData}</div>
                             </div>
                         </div>
                     </div>

@@ -10,7 +10,7 @@
                     </div>
                     <div>
                         <h5 class="modal-title" id="addRelativeModalLabel" style="font-weight: 700; margin: 0;">Thêm
-                            thân nhân mới</h5>
+                            người phụ thuộc mới</h5>
                         <p style="margin: 0; font-size: 13px; opacity: 0.8;">Điền thông tin người thân của nhân viên</p>
                     </div>
                 </div>
@@ -50,7 +50,8 @@
                             <label class="form-label" style="font-weight: 600;">Ngày sinh</label>
                             <div class="form-icon-group">
                                 <i class="bi bi-calendar-date-fill form-icon"></i>
-                                <input type="text" name="NgaySinh" class="form-control form-icon-input datepicker" placeholder="dd/mm/yyyy">
+                                <input type="text" name="NgaySinh" class="form-control form-icon-input datepicker"
+                                    placeholder="dd/mm/yyyy">
                             </div>
                         </div>
                         <div class="col-4">
@@ -81,8 +82,7 @@
                             <label class="form-label" style="font-weight: 600;">Giấy tờ chứng minh
                                 (Ảnh/PDF)</label>
                             <div class="input-group">
-                                <span class="input-group-text"
-                                    style="border-right: none; border-radius: 8px 0 0 8px;">
+                                <span class="input-group-text" style="border-right: none; border-radius: 8px 0 0 8px;">
                                     <i class="bi bi-file-earmark-arrow-up-fill"></i>
                                 </span>
                                 <input type="file" name="TepDinhKem" class="form-control"
@@ -90,7 +90,8 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="toggle-switch-group" onclick="document.getElementById('laGiamTru').click()">
+                            <label class="toggle-switch-group" for="laGiamTru"
+                                style="display: flex; width: 100%; margin-bottom: 0;">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <div
                                         style="background: #D1FAE5; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
@@ -98,7 +99,8 @@
                                     </div>
                                     <div>
                                         <div style="font-weight: 600;" class="toggle-title">Người phụ thuộc</div>
-                                        <div style="font-size: 13px;" class="toggle-subtitle">Giảm trừ gia cảnh (thuế TNCN)
+                                        <div style="font-size: 13px;" class="toggle-subtitle">Giảm trừ gia cảnh (thuế
+                                            TNCN)
                                         </div>
                                     </div>
                                 </div>
@@ -106,7 +108,7 @@
                                     <input class="form-check-input" type="checkbox" name="LaGiamTruGiaCanh"
                                         id="laGiamTru" value="1" style="width: 48px; height: 24px; cursor: pointer;">
                                 </div>
-                            </div>
+                            </label>
                         </div>
                     </div>
                 </div>

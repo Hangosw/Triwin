@@ -22,7 +22,7 @@
             <table id="dmPhuLucTable" class="table table-hover" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th width="50">#</th>
+                        <th width="50" style="text-align: center;">STT</th>
                         <th>Từ khóa (Key)</th>
                         <th>Nội dung điều khoản</th>
                         <th>Tính BHXH</th>
@@ -67,10 +67,10 @@
                         </div>
                         <div class="form-group mb-3">
                             <div class="form-check form-switch p-0" style="display: flex; align-items: center; gap: 40px;">
-                                <label class="form-label mb-0" style="cursor: pointer;" for="is_bhxh">Tính đóng BHXH</label>
-                                <input class="form-check-input" type="checkbox" id="is_bhxh" name="is_bhxh" value="1" style="width: 40px; height: 20px; cursor: pointer; margin-left: 0;">
+                                <label class="form-label mb-0" style="cursor: pointer;" for="is_bhxh">Có đóng BHXH</label>
+                                <input class="form-check-input" type="checkbox" id="is_bhxh" name="is_bhxh" value="1"
+                                    style="width: 40px; height: 20px; cursor: pointer; margin-left: 0;">
                             </div>
-                            <small class="text-muted">Bật nếu phụ cấp này được tính vào lương đóng bảo hiểm xã hội</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -154,49 +154,55 @@
 @push('scripts')
     <script>
         let table;
-        $(document).ready(function() {
+        $(document).ready(function () {
             table = $('#dmPhuLucTable').DataTable({
                 processing: true,
                 serverSide: true,
+                autoWidth: false,
+                order: [[1, 'asc']],
                 ajax: '{{ route('hop-dong.dm-phu-luc.data') }}',
                 columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
-                    },
-                    {
-                        data: 'keyvalue',
-                        render: (data) => `<span class="font-medium text-primary">${data}</span>`
-                    },
-                    {
-                        data: 'noi_dung',
-                        render: (data) => data.length > 100 ? data.substring(0, 100) + '...' : data
-                    },
-                    {
-                        data: 'is_bhxh',
-                        render: (data) => data ? '<span class="badge badge-info">Có BHXH</span>' : '<span class="badge badge-gray">Không BHXH</span>'
-                    },
-                    {
-                        data: 'TrangThai',
-                        render: (data) => {
-                            if (data === 'mo') return '<span class="badge badge-success">Mở</span>';
-                            return '<span class="badge badge-danger">Khóa</span>';
-                        }
-                    },
-                    {
-                        data: null,
-                        orderable: false,
-                        render: (data, type, row) => {
-                            return `
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="btn-icon" onclick='openEditModal(${JSON.stringify(row)})' title="Sửa" style="color: #0BAA4B;">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            `;
-                        }
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    class: 'text-center',
+                    width: '50px',
+                    render: () => ''
+                },
+                {
+                    data: 'keyvalue',
+                    render: (data) => `<span class="font-medium text-primary">${data}</span>`
+                },
+                {
+                    data: 'noi_dung',
+                    render: (data) => data.length > 100 ? data.substring(0, 100) + '...' : data
+                },
+                {
+                    data: 'is_bhxh',
+                    render: (data) => data ? '<span class="badge badge-info">Có BHXH</span>' : '<span class="badge badge-gray">Không BHXH</span>'
+                },
+                {
+                    data: 'TrangThai',
+                    render: (data) => {
+                        if (data === 'mo') return '<span class="badge badge-success">Mở</span>';
+                        return '<span class="badge badge-danger">Khóa</span>';
                     }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    render: (data, type, row) => {
+                        return `
+                                                        <div style="display: flex; gap: 8px;">
+                                                            <button class="btn-icon" onclick='openEditModal(${JSON.stringify(row)})' title="Sửa" style="color: #0BAA4B;">
+                                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    `;
+                    }
+                }
                 ],
                 language: {
                     "sProcessing": "Đang xử lý...",
@@ -215,7 +221,15 @@
                 }
             });
 
-            $('#dmPhuLucForm').on('submit', function(e) {
+            // Đảm bảo số thứ tự luôn bắt đầu từ 1 khi sort hoặc search (server-side)
+            table.on('draw.dt', function () {
+                var info = table.page.info();
+                table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                    cell.innerHTML = i + 1 + info.start;
+                });
+            });
+
+            $('#dmPhuLucForm').on('submit', function (e) {
                 e.preventDefault();
                 const id = $('#itemId').val();
                 const url = id ? `{{ route('hop-dong.dm-phu-luc.index') }}/update/${id}` :
@@ -225,7 +239,7 @@
                     url: url,
                     type: 'POST',
                     data: $(this).serialize(),
-                    success: function(res) {
+                    success: function (res) {
                         if (res.success) {
                             Swal.fire('Thành công!', res.message, 'success');
                             closeModal();
@@ -234,7 +248,7 @@
                             Swal.fire('Lỗi!', res.message, 'error');
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         Swal.fire('Lỗi!', xhr.responseJSON?.message || 'Có lỗi xảy ra', 'error');
                     }
                 });

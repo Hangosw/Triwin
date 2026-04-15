@@ -67,6 +67,7 @@
         color: #000;
         line-height: 1.5;
         padding: 4px;
+        background: #fff;
     }
 
     .slip-wrap table {
@@ -130,13 +131,63 @@
     .slip-row-sub:first-child {
         margin-top: 0;
     }
+
+    /* Dark Mode Overrides */
+    body.dark-theme .slip-wrap {
+        background: #111827 !important;
+        color: #e5e7eb !important;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    body.dark-theme .slip-wrap td,
+    body.dark-theme .slip-wrap th {
+        border-color: #374151 !important;
+        color: #e5e7eb !important;
+    }
+
+    body.dark-theme .slip-title {
+        color: #10b981 !important; /* Brand Green */
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+    }
+
+    body.dark-theme .slip-bold {
+        color: #ffffff !important;
+    }
+
+    body.dark-theme .slip-blue,
+    body.dark-theme .slip-total-label,
+    body.dark-theme .slip-total-val {
+        color: #60a5fa !important; /* Lighter blue for dark bg */
+    }
+
+    body.dark-theme .slip-row-section td {
+        background: #1f2937 !important;
+        color: #10b981 !important;
+    }
+
+    body.dark-theme .slip-header span {
+        color: #9ca3af !important;
+    }
+
+    body.dark-theme .slip-row-sub span:first-child {
+        color: #9ca3af;
+    }
+
+    body.dark-theme .slip-total-val {
+        color: #10b981 !important;
+        font-size: 19px;
+    }
 </style>
 
 <div class="slip-wrap">
     {{-- Header --}}
     <div class="slip-header">
-        <div style="font-size:13px; max-width:160px;">
-            Công ty TNHH Cao Su Bình Long
+        <div style="font-size:13px; max-width:200px; font-weight: bold;">
+            {{ \App\Models\SystemConfig::getValue('company_name', 'Vietnam Rubber Group') }}<br>
+            <span style="font-size: 11px; font-weight: normal; color: #666;">
+                {{ \App\Models\SystemConfig::getValue('company_address', '') }}
+            </span>
         </div>
         <div class="slip-title">PHIẾU LƯƠNG THÁNG {{ $thang }}/{{ $nam }}</div>
         <div style="width:100px;"></div>

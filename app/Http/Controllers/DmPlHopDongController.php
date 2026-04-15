@@ -29,6 +29,28 @@ class DmPlHopDongController extends Controller
         $totalRecords = DmPlHopDong::count();
         $filteredRecords = $query->count();
 
+        // Sorting
+        if ($request->has('order')) {
+            $columnIndex = $request->order[0]['column'];
+            $columnDir = $request->order[0]['dir'];
+            $columns = [
+                1 => 'keyvalue',
+                2 => 'noi_dung',
+                3 => 'is_bhxh',
+                4 => 'TrangThai'
+            ];
+            if (isset($columns[$columnIndex])) {
+                $col = $columns[$columnIndex];
+                if ($col === 'keyvalue') {
+                    $query->orderByRaw("LENGTH($col) $columnDir")->orderBy($col, $columnDir);
+                } else {
+                    $query->orderBy($col, $columnDir);
+                }
+            }
+        } else {
+            $query->orderByRaw("LENGTH(keyvalue) asc")->orderBy('keyvalue', 'asc');
+        }
+
         $start = $request->start ?? 0;
         $length = $request->length ?? 10;
         $data = $query->skip($start)->take($length)->get();

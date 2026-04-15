@@ -15,148 +15,181 @@
         </div>
     @endif
 
-    <!-- Appearance Settings -->
+    <!-- Appearance Settings Redesign -->
     <div class="card" style="margin-bottom: 24px;">
-        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Giao diện hệ thống</h3>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <i class="bi bi-palette text-primary" style="font-size: 20px;"></i>
+            <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Giao diện hệ thống</h3>
+        </div>
+        
         <div class="form-group">
-            <label class="form-label" style="margin-bottom: 12px;">Màu sắc giao diện</label>
+            <label class="form-label" style="margin-bottom: 12px; color: #6b7280;">Lựa chọn chế độ hiển thị ưa thích của bạn</label>
             <div style="display: flex; gap: 24px; align-items: center;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; padding: 10px 20px; border: 1px solid #d1d5db; border-radius: 8px; background: white;" id="label-theme-light">
-                    <input type="radio" name="theme_option" value="light" style="width: 18px; height: 18px; cursor: pointer;">
-                    Chế độ Sáng
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; padding: 12px 24px; border: 1px solid #d1d5db; border-radius: 10px; transition: all 0.2s;" id="label-theme-light">
+                    <input type="radio" name="theme_option" value="light" style="width: 18px; height: 18px; accent-color: #0BAA4B;">
+                    <i class="bi bi-sun"></i> Chế độ Sáng
                 </label>
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; padding: 10px 20px; border: 1px solid #d1d5db; border-radius: 8px; background: white;" id="label-theme-dark">
-                    <input type="radio" name="theme_option" value="dark" style="width: 18px; height: 18px; cursor: pointer;">
-                    Chế độ Tối
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; padding: 12px 24px; border: 1px solid #d1d5db; border-radius: 10px; transition: all 0.2s;" id="label-theme-dark">
+                    <input type="radio" name="theme_option" value="dark" style="width: 18px; height: 18px; accent-color: #0BAA4B;">
+                    <i class="bi bi-moon-stars"></i> Chế độ Tối
                 </label>
             </div>
-            <small class="text-gray" style="display: block; margin-top: 8px;">* Giao diện sẽ thay đổi ngay lập tức sau khi bạn chọn.</small>
+            <p style="color: #6b7280; font-size: 13px; margin-top: 12px; margin-bottom: 0;">* Thay đổi sẽ được áp dụng ngay lập tức mà không cần tải lại trang.</p>
         </div>
     </div>
 
     <form action="{{ route('config.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
-        <!-- General Settings -->
+        <!-- General Settings Redesign -->
         <div class="card">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Thông tin công ty</h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Thông tin đơn vị & Người đại diện</h3>
+                <span class="badge" style="background: #f0fdf4; color: #166534; padding: 6px 12px; border-radius: 6px; font-size: 12px;">Cấu hình chung</span>
+            </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                <div class="form-group">
-                    <label class="form-label">Tên công ty</label>
-                    <input type="text" name="company_name" class="form-control"
-                        value="{{ $configs['company_name'] ?? 'Vietnam Rubber Group' }}">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                <!-- Left Column: Company Info -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">Tên công ty / Đơn vị</label>
+                        <input type="text" name="company_name" class="form-control"
+                            value="{{ $configs['company_name'] ?? 'Vietnam Rubber Group' }}" placeholder="Nhập tên đầy đủ">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Mã số thuế</label>
+                            <input type="text" name="company_tax_code" class="form-control"
+                                value="{{ $configs['company_tax_code'] ?? '' }}" placeholder="0123456789">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại (Hotline)</label>
+                            <input type="text" name="company_hotline" class="form-control"
+                                value="{{ $configs['company_hotline'] ?? '' }}" placeholder="028.xxxx.xxxx">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Địa chỉ trụ sở</label>
+                        <textarea name="company_address" class="form-control"
+                            rows="2" placeholder="Số nhà, tên đường, quận/huyện...">{{ $configs['company_address'] ?? '' }}</textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Mã số thuế</label>
-                    <input type="text" name="company_tax_code" class="form-control"
-                        value="{{ $configs['company_tax_code'] ?? '0123456789' }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Số điện thoại</label>
-                    <input type="text" name="company_hotline" class="form-control"
-                        value="{{ $configs['company_hotline'] ?? '' }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" name="company_email" class="form-control"
-                        value="{{ $configs['company_email'] ?? '' }}">
-                </div>
-                <div class="form-group" style="grid-column: span 1;">
-                    <label class="form-label">Ảnh đại diện công ty</label>
-                    <div style="display: flex; align-items: flex-start; gap: 15px;">
-                        @if(isset($configs['company_logo']))
-                            <img src="{{ asset($configs['company_logo']) }}" alt="Logo" 
-                                style="width: 80px; height: 80px; object-fit: contain; border: 1px solid #e5e7eb; border-radius: 8px; padding: 5px; background: white;">
-                        @else
-                            <div style="width: 80px; height: 80px; border: 2px dashed #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 12px; text-align: center; padding: 5px;">
-                                Chưa có logo
+
+                <!-- Right Column: Representative & Logo -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
+                            <i class="bi bi-person-badge"></i> Người đại diện ký tên
+                        </label>
+                        <select name="signer_id" class="form-control select2" data-placeholder="Chọn nhân viên ký tên">
+                            <option value=""></option>
+                            @foreach($nhanViens as $nv)
+                                <option value="{{ $nv->id }}" {{ ($configs['signer_id'] ?? '') == $nv->id ? 'selected' : '' }}>
+                                    [{{ $nv->Ma }}] {{ $nv->Ten }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small style="color: #6b7280; font-size: 12px; margin-top: 4px;">* Nhân viên này sẽ xuất hiện trên các văn bản, hợp đồng của hệ thống.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Logo công ty</label>
+                        <div style="display: flex; align-items: center; gap: 20px; padding: 16px; border: 1px dashed #d1d5db; border-radius: 12px; background: #f9fafb;">
+                            @if(isset($configs['company_logo']))
+                                <div style="position: relative; width: 80px; height: 80px;">
+                                    <img src="{{ asset($configs['company_logo']) }}" alt="Logo" 
+                                        style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px; background: white;">
+                                </div>
+                            @else
+                                <div style="width: 80px; height: 80px; border: 1px solid #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: white; color: #9ca3af; font-size: 12px; text-align: center;">
+                                    Chưa có logo
+                                </div>
+                            @endif
+                            <div style="flex: 1;">
+                                <input type="file" name="company_logo" class="form-control" accept="image/*" style="font-size: 13px;">
+                                <p style="font-size: 11px; color: #6b7280; margin-top: 6px; margin-bottom: 0;">Khuyên dùng ảnh PNG trong suốt. Tối đa 2MB.</p>
                             </div>
-                        @endif
-                        <div style="flex: 1;">
-                            <input type="file" name="company_logo" class="form-control" accept="image/*" style="padding: 8px;">
-                            <p style="font-size: 11px; color: #6b7280; margin-top: 5px;">Định dạng: JPG, PNG, GIF. Tối đa 2MB.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group" style="margin-top: 20px;">
-                <label class="form-label">Địa chỉ</label>
-                <textarea name="company_address" class="form-control"
-                    rows="3">{{ $configs['company_address'] ?? '123 Đường ABC, Phường XYZ, Thành phố Hồ Chí Minh' }}</textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">
+                    <i class="bi bi-check2-circle"></i> Lưu cấu hình đơn vị
+                </button>
             </div>
-
-            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Lưu thay đổi
-            </button>
         </div>
 
-        <!-- Work Time Settings -->
+        <!-- Work Time Settings Redesign -->
         <div class="card">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Cấu hình giờ làm việc</h3>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <i class="bi bi-clock-history text-primary" style="font-size: 20px;"></i>
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Cấu hình thời gian & Nghỉ phép</h3>
+            </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 <div class="form-group">
-                    <label class="form-label">Giờ vào làm</label>
+                    <label class="form-label">Giờ bắt đầu làm việc</label>
                     <input type="time" name="work_time_start" class="form-control"
                         value="{{ $configs['work_time_start'] ?? '08:00' }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giờ tan làm</label>
+                    <label class="form-label">Giờ kết thúc ca</label>
                     <input type="time" name="work_time_end" class="form-control"
                         value="{{ $configs['work_time_end'] ?? '17:30' }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Thời gian nghỉ trưa (phút)</label>
+                    <label class="form-label">Nghỉ trưa (phút)</label>
                     <input type="number" name="lunch_break_minutes" class="form-control"
                         value="{{ $configs['lunch_break_minutes'] ?? 60 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Số ngày công chuẩn (1 tháng)</label>
+                    <label class="form-label text-truncate" title="Số ngày công chuẩn (1 tháng)">Công chuẩn / tháng</label>
                     <input type="number" name="standard_work_days" class="form-control"
                         value="{{ $configs['standard_work_days'] ?? 26 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Số ngày phép năm</label>
+                    <label class="form-label">Phép năm mặc định</label>
                     <input type="number" name="annual_leave_days" class="form-control"
                         value="{{ $configs['annual_leave_days'] ?? 12 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giới hạn ngày nghỉ phép năm / lần</label>
+                    <label class="form-label">Giới hạn nghỉ / lần</label>
                     <input type="number" name="annual_leave_limit_per_request" class="form-control"
                         value="{{ $configs['annual_leave_limit_per_request'] ?? 5 }}">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Lưu thay đổi
-            </button>
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Lưu cài đặt thời gian
+                </button>
+            </div>
         </div>
 
-        <!-- Salary Settings -->
+        <!-- Salary Settings Redesign -->
         <div class="card">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Cấu hình lương</h3>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <i class="bi bi-cash-stack text-primary" style="font-size: 20px;"></i>
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Định mức lương & Khấu trừ</h3>
+            </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 <div class="form-group">
                     <label class="form-label">Lương cơ sở (VNĐ)</label>
                     <input type="number" name="base_salary" class="form-control"
                         value="{{ $configs['base_salary'] ?? 2340000 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giảm trừ cá nhân (VNĐ)</label>
+                    <label class="form-label">Giảm trừ cá nhân</label>
                     <input type="number" name="tax_deduction_personal" class="form-control"
                         value="{{ $configs['tax_deduction_personal'] ?? 11000000 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giảm trừ người phụ thuộc (VNĐ)</label>
+                    <label class="form-label">Giảm trừ phụ thuộc</label>
                     <input type="number" name="tax_deduction_dependent" class="form-control"
                         value="{{ $configs['tax_deduction_dependent'] ?? 4400000 }}">
                 </div>
@@ -171,53 +204,44 @@
                         value="{{ $configs['insurance_bhyt_emp'] ?? 1.5 }}" step="0.1">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Bảo hiểm thất nghiệp (%)</label>
+                    <label class="form-label">Bảo hiểm TN (%)</label>
                     <input type="number" name="insurance_bhtn_emp" class="form-control"
                         value="{{ $configs['insurance_bhtn_emp'] ?? 1 }}" step="0.1">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Lưu thay đổi
-            </button>
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Lưu thông số tài chính
+                </button>
+            </div>
         </div>
 
-        <!-- Overtime Settings -->
+        <!-- WFH Redesign (Replacing Overtime since Overtime is removed) -->
         <div class="card">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Cấu hình tăng ca</h3>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <i class="bi bi-laptop text-primary" style="font-size: 20px;"></i>
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Cấu hình Work From Home</h3>
+            </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                 <div class="form-group">
-                    <label class="form-label">Hệ số tăng ca ngày thường</label>
-                    <input type="number" name="ot_rate_normal" class="form-control"
-                        value="{{ $configs['ot_rate_normal'] ?? 1.5 }}" step="0.1">
+                    <label class="form-label">Số ngày WFH tối đa / tháng</label>
+                    <input type="number" name="max_wfh_days_per_month" class="form-control"
+                        value="{{ $configs['max_wfh_days_per_month'] ?? 4 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Hệ số tăng ca cuối tuần</label>
-                    <input type="number" name="ot_rate_weekend" class="form-control"
-                        value="{{ $configs['ot_rate_weekend'] ?? 2.0 }}" step="0.1">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Hệ số tăng ca ngày lễ</label>
-                    <input type="number" name="ot_rate_holiday" class="form-control"
-                        value="{{ $configs['ot_rate_holiday'] ?? 3.0 }}" step="0.1">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Hệ số tăng ca ban đêm</label>
-                    <input type="number" name="ot_rate_night" class="form-control"
-                        value="{{ $configs['ot_rate_night'] ?? 2.3 }}" step="0.1">
+                    <label class="form-label">Quy chuẩn hưởng lương (%)</label>
+                    <input type="number" name="wfh_salary_rate" class="form-control"
+                        value="{{ $configs['wfh_salary_rate'] ?? 100 }}">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Lưu thay đổi
-            </button>
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Lưu cài đặt WFH
+                </button>
+            </div>
         </div>
 
     </form>

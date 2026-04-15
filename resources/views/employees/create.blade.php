@@ -232,7 +232,7 @@
             max-height: 500px;
             overflow: hidden;
         }
-        
+
         .cropper-view-box,
         .cropper-face {
             border-radius: 50%;
@@ -331,6 +331,102 @@
         .btn-close:hover {
             opacity: 1;
         }
+
+        /* Dark Mode Overrides */
+        body.dark-theme h1 {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme p {
+            color: #8b93a8 !important;
+        }
+
+        body.dark-theme .form-section {
+            background-color: #1a1d27;
+            border-color: #2e3349;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-theme .form-section h2 {
+            color: #e8eaf0;
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .form-group label {
+            color: #8b93a8;
+        }
+
+        body.dark-theme .form-group input,
+        body.dark-theme .form-group select,
+        body.dark-theme .form-group textarea {
+            background-color: #21263a;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .form-group input:disabled {
+            background-color: #13161f !important;
+            color: #4b5563 !important;
+        }
+
+        body.dark-theme .form-group input::placeholder,
+        body.dark-theme .form-group textarea::placeholder {
+            color: #4b5563;
+        }
+
+        body.dark-theme .upload-area {
+            border-color: #2e3349;
+            background-color: #13161f;
+        }
+
+        body.dark-theme .upload-area:hover {
+            border-color: #0BAA4B;
+            background-color: #21263a;
+        }
+
+        body.dark-theme .upload-area svg {
+            color: #4b5563;
+        }
+
+        body.dark-theme .upload-area div {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme .help-text {
+            color: #8b93a8;
+        }
+
+        body.dark-theme .radio-item label {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .form-actions {
+            border-top-color: #2e3349;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single {
+            background-color: #21263a;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .modal-content {
+            background-color: #1a1d27;
+            color: #e8eaf0;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .modal-header {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .modal-footer {
+            border-top-color: #2e3349;
+            background-color: #13161f;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 @endpush
@@ -342,7 +438,7 @@
             <h1 style="font-size: 30px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">Thêm nhân viên mới</h1>
             <p style="color: #6b7280;">Nhập thông tin đầy đủ để thêm nhân viên vào hệ thống</p>
         </div>
-        <a href="{{ route('employees.index') }}" class="btn btn-secondary">
+        <a href="{{ route('nhan-vien.danh-sach') }}" class="btn btn-secondary">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -370,13 +466,12 @@
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>Độc thân
+                    </svg>
                     <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">
                         Click để tải ảnh lên
                     </div>
                     <div class="help-text">PNG, JPG hoặc GIF (MAX. 2MB)</div>
-                    <input type="file" id="avatar" accept="image/*" style="display: none;"
-                        onchange="initCropper(this)">
+                    <input type="file" id="avatar" accept="image/*" style="display: none;" onchange="initCropper(this)">
                     <input type="hidden" name="cropped_avatar" id="croppedAvatarInput">
                     <img id="preview" class="preview-image">
                 </div>
@@ -426,10 +521,18 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Ảnh CCCD (2 ảnh) <span class="required">*</span></label>
-                    <input type="file" name="anh_cccd[]" id="anh_cccd" multiple accept="image/*" required onchange="previewImages(this, 'cccd-preview')">
-                    <div class="help-text">Tải lên mặt trước và mặt sau của CCCD</div>
-                    <div id="cccd-preview" class="preview-container"></div>
+                    <label>Ảnh CCCD mặt trước <span class="required">*</span></label>
+                    <input type="file" name="anh_cccd" id="anh_cccd" accept="image/*" required
+                        onchange="previewImages(this, 'cccd-front-preview')">
+                    <div class="help-text">Tải lên mặt trước của CCCD</div>
+                    <div id="cccd-front-preview" class="preview-container"></div>
+                </div>
+                <div class="form-group">
+                    <label>Ảnh CCCD mặt sau <span class="required">*</span></label>
+                    <input type="file" name="anh_cccd_sau" id="anh_cccd_sau" accept="image/*" required
+                        onchange="previewImages(this, 'cccd-back-preview')">
+                    <div class="help-text">Tải lên mặt sau của CCCD</div>
+                    <div id="cccd-back-preview" class="preview-container"></div>
                 </div>
             </div>
 
@@ -494,9 +597,9 @@
                 <div class="form-group">
                     <label>Trạng thái nhân viên</label>
                     <select name="TrangThai" class="select2">
-                        <option value="1" selected>Làm tại công ty</option>
-                        <option value="0">Nghỉ làm</option>
-                        <option value="2">Làm từ xa (WFH)</option>
+                        <option value="dang_lam" selected>Làm tại công ty</option>
+                        <option value="nghi_viec">Nghỉ làm</option>
+                        <option value="nghi_thai_san">Nghỉ thai sản</option>
                     </select>
                 </div>
             </div>
@@ -663,7 +766,8 @@
 
                 <div class="form-group">
                     <label>Ảnh BHXH (Nhiều ảnh)</label>
-                    <input type="file" name="anh_bhxh[]" id="anh_bhxh" multiple accept="image/*" onchange="previewImages(this, 'bhxh-preview')">
+                    <input type="file" name="anh_bhxh[]" id="anh_bhxh" multiple accept="image/*"
+                        onchange="previewImages(this, 'bhxh-preview')">
                     <div class="help-text">Tải lên các ảnh liên quan đến BHXH (nếu có)</div>
                     <div id="bhxh-preview" class="preview-container"></div>
                 </div>
@@ -688,48 +792,48 @@
         </div>
 
         <!-- Người liên hệ khẩn cấp -->
-        <div class="form-section">
-            <h2>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                Người liên hệ khẩn cấp
-            </h2>
+        <!-- <div class="form-section">
+                            <h2>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                Người liên hệ khẩn cấp
+                            </h2>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Họ tên người liên hệ</label>
-                    <input type="text" name="nguoi_lien_he_khan_cap" placeholder="Nguyễn Văn B">
-                </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Họ tên người liên hệ</label>
+                                    <input type="text" name="nguoi_lien_he_khan_cap" placeholder="Nguyễn Văn B">
+                                </div>
 
-                <div class="form-group">
-                    <label>Quan hệ</label>
-                    <select name="quan_he_nguoi_lien_he" class="select2">
-                        <option value="">-- Chọn quan hệ --</option>
-                        <option value="Bố">Bố</option>
-                        <option value="Mẹ">Mẹ</option>
-                        <option value="Vợ">Vợ</option>
-                        <option value="Chồng">Chồng</option>
-                        <option value="Anh/Chị/Em ruột">Anh/Chị/Em ruột</option>
-                        <option value="Con">Con</option>
-                        <option value="Khác">Khác</option>
-                    </select>
-                </div>
-            </div>
+                                <div class="form-group">
+                                    <label>Quan hệ</label>
+                                    <select name="quan_he_nguoi_lien_he" class="select2">
+                                        <option value="">-- Chọn quan hệ --</option>
+                                        <option value="Bố">Bố</option>
+                                        <option value="Mẹ">Mẹ</option>
+                                        <option value="Vợ">Vợ</option>
+                                        <option value="Chồng">Chồng</option>
+                                        <option value="Anh/Chị/Em ruột">Anh/Chị/Em ruột</option>
+                                        <option value="Con">Con</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+                            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Số điện thoại người liên hệ</label>
-                    <input type="tel" name="sdt_nguoi_lien_he" placeholder="0901234567">
-                </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Số điện thoại người liên hệ</label>
+                                    <input type="tel" name="sdt_nguoi_lien_he" placeholder="0901234567">
+                                </div>
 
-                <div class="form-group">
-                    <label>Địa chỉ người liên hệ</label>
-                    <input type="text" name="dia_chi_nguoi_lien_he" placeholder="Địa chỉ liên hệ">
-                </div>
-            </div>
-        </div>
+                                <div class="form-group">
+                                    <label>Địa chỉ người liên hệ</label>
+                                    <input type="text" name="dia_chi_nguoi_lien_he" placeholder="Địa chỉ liên hệ">
+                                </div>
+                            </div>
+                        </div> -->
 
         <!-- Ghi chú -->
         <div class="form-section">
@@ -751,7 +855,7 @@
         <!-- Form Actions -->
         <div class="form-section">
             <div class="form-actions">
-                <a href="{{ route('employees.index') }}" class="btn btn-secondary">
+                <a href="{{ route('nhan-vien.danh-sach') }}" class="btn btn-secondary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -768,7 +872,8 @@
     </form>
 
     <!-- Cropper Modal -->
-    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true" data-bs-backdrop="static" style="display: none;">
+    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true"
+        data-bs-backdrop="static" style="display: none;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -798,7 +903,7 @@
             function initCropper(input) {
                 if (input.files && input.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         imageToCrop.src = e.target.result;
                         cropperModal.show();
                     }
@@ -806,7 +911,7 @@
                 }
             }
 
-            document.getElementById('cropperModal').addEventListener('shown.bs.modal', function() {
+            document.getElementById('cropperModal').addEventListener('shown.bs.modal', function () {
                 cropper = new Cropper(imageToCrop, {
                     aspectRatio: 1,
                     viewMode: 1,
@@ -814,13 +919,13 @@
                     autoCropArea: 1,
                     dragMode: 'move',
                     background: false,
-                    ready: function() {
+                    ready: function () {
                         // Success callback
                     }
                 });
             });
 
-            document.getElementById('cropperModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('cropperModal').addEventListener('hidden.bs.modal', function () {
                 if (cropper) {
                     cropper.destroy();
                     cropper = null;
@@ -829,7 +934,7 @@
                 document.getElementById('avatar').value = '';
             });
 
-            document.getElementById('cropAndSave').addEventListener('click', function() {
+            document.getElementById('cropAndSave').addEventListener('click', function () {
                 if (cropper) {
                     const canvas = cropper.getCroppedCanvas({
                         width: 400,
@@ -1169,11 +1274,11 @@
             function previewImages(input, containerId) {
                 const container = document.getElementById(containerId);
                 container.innerHTML = '';
-                
+
                 if (input.files) {
                     Array.from(input.files).forEach(file => {
                         const reader = new FileReader();
-                        reader.onload = function(e) {
+                        reader.onload = function (e) {
                             const div = document.createElement('div');
                             div.className = 'preview-item';
                             div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;

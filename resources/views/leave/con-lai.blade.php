@@ -22,6 +22,45 @@
         #leaveBalanceTable th, #leaveBalanceTable td {
             white-space: nowrap;
         }
+
+        /* Hide sorting icons for STT */
+        #leaveBalanceTable th:first-child:before,
+        #leaveBalanceTable th:first-child:after {
+            display: none !important;
+        }
+        #leaveBalanceTable th:first-child {
+            cursor: default !important;
+        }
+
+        /* Dark Mode Overrides */
+        body.dark-theme .dataTables_wrapper .dataTables_filter input,
+        body.dark-theme .dataTables_wrapper .dataTables_length select {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme #leaveBalanceTable thead {
+            background-color: #21263a !important;
+        }
+
+        body.dark-theme #leaveBalanceTable th {
+            color: #c3c8da;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme #leaveBalanceTable td {
+            color: #e8eaf0;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme #leaveBalanceTable tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        body.dark-theme .form-label {
+            color: #8b93a8 !important;
+        }
     </style>
 @endpush
 
@@ -59,12 +98,14 @@
             </div>
             <div class="action-buttons">
                 <!-- Nút xuất Excel (Placeholder cho tương lai) -->
-                <!-- <button type="button" class="btn btn-secondary">
+                {{-- 
+                <button type="button" class="btn btn-secondary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     Xuất Excel
-                </button> -->
+                </button>
+                --}}
             </div>
         </form>
     </div>
@@ -75,11 +116,11 @@
             <table class="table" id="leaveBalanceTable" style="width: 100%;">
                 <thead style="background-color: #f9fafb;">
                     <tr>
-                        <th style="width: 50px; text-align: center;">STT</th>
-                        <th>Nhân viên</th>
-                        <th>Phòng ban</th>
+                        <th style="width: 60px; text-align: center;">STT</th>
+                        <th style="width: 250px;">Nhân viên</th>
+                        <th style="width: 200px;">Phòng ban</th>
                         @foreach($loaiNghiPheps as $lp)
-                            <th style="text-align: right; min-width: 120px;">
+                            <th style="text-align: right; min-width: 140px; width: 140px;">
                                 {{ $lp->Ten }} <br>
                                 <small style="color: #6b7280; font-weight: normal;">
                                     (Tối đa: {{ $lp->Ten == 'Nghỉ phép năm' ? 'Theo QĐ' : $lp->HanMucToiDa }})
@@ -103,20 +144,30 @@
                             <td style="vertical-align: middle; color: #4b5563;">{{ $nv->ttCongViec->phongBan->Ten ?? 'N/A' }}</td>
                             
                             @foreach($loaiNghiPheps as $lp)
-                                @php
-                                    $conLai = 0;
-                                    if ($lp->Ten == 'Nghỉ phép năm') {
-                                        $phepNam = $nv->quanLyPhepNams->first();
-                                        $conLai = $phepNam ? (float)$phepNam->ConLai : 0;
-                                    } else {
-                                        $used = $nv->dangKyNghiPheps->where('LoaiNghiPhepId', $lp->id)->sum('SoNgayNghi');
-                                        $conLai = max(0, $lp->HanMucToiDa - $used);
-                                    }
-                                @endphp
-                                <td style="text-align: right; vertical-align: middle;">
-                                    <span class="badge {{ $conLai <= 0 ? 'badge-danger' : ($conLai < 3 ? 'badge-warning' : 'badge-success') }}" style="font-size: 13px; font-weight: 600;">
-                                        {{ (float)$conLai }}
-                                    </span>
+                                    @if($lp->Ten == 'Nghỉ phép năm')
+                                        @php
+                                            $phepNam = $nv->quanLyPhepNams->first();
+                                            $khaDung = $phepNam ? (float)$phepNam->PhepKhaDung : 0;
+                                            $tong = $phepNam ? (float)$phepNam->TongPhepDuocNghi : 0;
+                                        @endphp
+                                        <div style="text-align: right;">
+                                            <span class="badge {{ $khaDung <= 0 ? 'badge-danger' : ($khaDung < 1 ? 'badge-warning' : 'badge-success') }}" title="Phép khả dụng">
+                                                {{ $khaDung }}
+                                            </span>
+                                            <span style="font-size: 11px; color: #64748b; margin: 0 2px;">/</span>
+                                            <span style="font-size: 12px; color: #64748b;" title="Tổng phép năm">
+                                                {{ $tong }}
+                                            </span>
+                                        </div>
+                                    @else
+                                        @php
+                                            $used = $nv->dangKyNghiPheps->where('LoaiNghiPhepId', $lp->id)->sum('SoNgayNghi');
+                                            $conLai = max(0, $lp->HanMucToiDa - $used);
+                                        @endphp
+                                        <span class="badge {{ $conLai <= 0 ? 'badge-danger' : ($conLai < 3 ? 'badge-warning' : 'badge-success') }}" style="font-size: 13px; font-weight: 600;">
+                                            {{ (float)$conLai }}
+                                        </span>
+                                    @endif
                                 </td>
                             @endforeach
                         </tr>
@@ -130,7 +181,7 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
-        $('#leaveBalanceTable').DataTable({
+        const table = $('#leaveBalanceTable').DataTable({
             "language": {
                 "sProcessing": "Đang xử lý...",
                 "sLengthMenu": "Xem _MENU_ mục",
@@ -151,10 +202,19 @@
             "responsive": false,
             "autoWidth": false,
             "ordering": true,
+            "order": [[1, 'asc']], // Sort by name by default, not by STT
             "columnDefs": [
                 { "orderable": false, "targets": 0 }
             ]
         });
+
+        // Tự động đánh lại STT khi sort hoặc search
+        table.on('order.dt search.dt', function () {
+            let i = 1;
+            table.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+                this.data('<strong>' + i++ + '</strong>');
+            });
+        }).draw();
     });
 </script>
 @endpush

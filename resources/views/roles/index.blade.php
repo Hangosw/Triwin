@@ -18,27 +18,17 @@
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success"
-                style="color: #0BAA4B; background-color: #d1fae5; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger"
-                style="color: #991b1b; background-color: #fee2e2; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-                {{ session('error') }}
-            </div>
-        @endif
+        {{-- Alerts will be handled by SweetAlert2 in the scripts section --}}
+
 
         <div class="table-container">
             <table id="rolesTable" class="table">
                 <thead>
                     <tr>
-                        <th style="width: 50px;">ID</th>
-                        <th>Tên Role</th>
-                        <th>Số lượng User</th>
-                        <th style="text-align: right;">Hành động</th>
+                        <th style="width: 60px; text-align: center;">STT</th>
+                        <th style="width: 400px;">Tên Role</th>
+                        <th style="width: 200px;">Số lượng User</th>
+                        <th style="width: 150px; text-align: right;">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,10 +51,11 @@
                                     </a>
                                     @if($r->name != 'System Admin')
                                         <form action="{{ route('roles.destroy', $r->id) }}" method="POST"
-                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa Role này?');"
                                             style="display:inline-block;">
                                             @csrf
-                                            <button type="submit" class="btn-icon" title="Xóa Role" style="color:#dc2626;">
+                                            <button type="submit" class="btn-icon delete-confirm" title="Xóa Role" 
+                                                data-message="Bạn có chắc chắn muốn xóa Role này?"
+                                                style="color:#dc2626;">
                                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -73,6 +64,7 @@
                                             </button>
                                         </form>
                                     @endif
+
                                 </div>
                             </td>
                         </tr>
@@ -83,8 +75,26 @@
     </div>
 @push('scripts')
 <script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: "{{ session('success') }}",
+            confirmButtonColor: '#0BAA4B'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#dc2626'
+        });
+    @endif
+
     $(document).ready(function() {
-        $('#rolesTable').DataTable({
+        const table = $('#rolesTable').DataTable({
             language: {
                 "sProcessing": "Đang xử lý...",
                 "sLengthMenu": "Hiển thị _MENU_ dòng",
@@ -103,11 +113,20 @@
             responsive: true,
             autoWidth: false,
             pageLength: 10,
-            order: [[0, 'asc']],
+            order: [[1, 'asc']], // Default sort by Role Name
             columnDefs: [
-                { orderable: false, targets: [3] }
+                { orderable: false, targets: [0, 3] }, // Disable sorting on STT and Actions
+                { className: "text-center", targets: [0] }
             ]
         });
+
+        // Dynamic STT indexing
+        table.on('order.dt search.dt', function () {
+            let i = 1;
+            table.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+                this.data('<strong style="color: #6b7280;">' + i++ + '</strong>');
+            });
+        }).draw();
     });
 </script>
 @endpush

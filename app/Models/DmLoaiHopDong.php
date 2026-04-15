@@ -14,12 +14,14 @@ class DmLoaiHopDong extends Model
         'ThoiHanThang',
         'ThoiHanBaoTruoc',
         'CoDongBaoHiem', // 0 là không, 1 là có
+        'TrangThai', // mo, khoa
     ];
 
     protected $casts = [
         'ThoiHanThang' => 'integer',
         'ThoiHanBaoTruoc' => 'integer',
         'CoDongBaoHiem' => 'integer',
+        'TrangThai' => 'string',
     ];
 
     /**

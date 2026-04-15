@@ -40,6 +40,7 @@ class NhanVien extends Model
 
         'SoCCCD', //
         'anh_cccd',
+        'anh_cccd_sau',
         'NoiCap',
         'NgayCap',
         'NgaySinh',
@@ -69,7 +70,6 @@ class NhanVien extends Model
         'GioiTinh' => 'integer',
         'anh_cccd' => 'array',
         'anh_bhxh' => 'array',
-        'TrangThai' => 'integer',
     ];
 
     /**
@@ -140,13 +140,7 @@ class NhanVien extends Model
         return $this->hasMany(HopDong::class, 'NguoiKyId');
     }
 
-    /**
-     * Relationship: Nhân viên có nhiều diễn biến lương
-     */
-    public function dienBienLuongs()
-    {
-        return $this->hasMany(DienBienLuong::class, 'NhanVienId');
-    }
+
 
     /**
      * Relationship: Nhân viên có nhiều bảng lương
@@ -165,19 +159,19 @@ class NhanVien extends Model
     }
 
     /**
-     * Relationship: Nhân viên có nhiều đơn tăng ca
+     * Relationship: Nhân viên có nhiều đơn WFH
      */
-    public function tangCas()
+    public function workFromHomes()
     {
-        return $this->hasMany(TangCa::class, 'NhanVienId');
+        return $this->hasMany(WorkFromHome::class, 'NhanVienId');
     }
 
     /**
-     * Relationship: Đơn tăng ca do nhân viên duyệt
+     * Relationship: Đơn WFH do nhân viên duyệt
      */
-    public function tangCasDuyet()
+    public function workFromHomesDuyet()
     {
-        return $this->hasMany(TangCa::class, 'NguoiDuyetId');
+        return $this->hasMany(WorkFromHome::class, 'NguoiDuyetId');
     }
 
     /**
@@ -256,7 +250,7 @@ class NhanVien extends Model
     }
 
     /**
-     * Relationship: Nhân viên có nhiều thân nhân
+     * Relationship: Nhân viên có nhiều người phụ thuộc
      */
     public function thanNhans()
     {

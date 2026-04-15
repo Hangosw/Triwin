@@ -117,52 +117,6 @@
     </div>
 </div>
 
-<!-- Appearance Settings -->
-<div class="card">
-    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Giao diện</h3>
-    
-    <div class="form-group">
-        <label class="form-label">Màu sắc giao diện</label>
-        <select class="form-control" id="theme-selector">
-            <option value="light" selected>Sáng</option>
-            <option value="dark">Tối</option>
-        </select>
-    </div>
-    
-    <div class="form-group">
-        <label class="form-label">Ngôn ngữ</label>
-        <select class="form-control">
-            <option value="vi" selected>Tiếng Việt</option>
-            <option value="en">English</option>
-        </select>
-    </div>
-    
-    <div class="form-group">
-        <label class="form-label">Múi giờ</label>
-        <select class="form-control">
-            <option value="Asia/Ho_Chi_Minh" selected>GMT+7 (Hà Nội, Bangkok)</option>
-            <option value="Asia/Tokyo">GMT+9 (Tokyo)</option>
-            <option value="Europe/London">GMT+0 (London)</option>
-        </select>
-    </div>
-    
-    <div class="form-group">
-        <label class="form-label">Định dạng ngày</label>
-        <select class="form-control">
-            <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
-            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
-        </select>
-    </div>
-    
-    <button class="btn btn-primary">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-        Lưu thay đổi
-    </button>
-</div>
-
 <!-- Danger Zone -->
 <div class="card" style="border: 1px solid #ef4444;">
     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #ef4444;">Vùng nguy hiểm</h3>
@@ -180,26 +134,4 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const themeSelector = document.getElementById('theme-selector');
-        
-        // Cập nhật giá trị hiển thị ban đầu từ localStorage
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        themeSelector.value = currentTheme;
-        
-        // Lắng nghe sự kiện thay đổi select
-        themeSelector.addEventListener('change', function(e) {
-            const selectedTheme = e.target.value;
-            
-            if (selectedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                document.body.classList.remove('dark-theme');
-                localStorage.setItem('theme', 'light');
-            }
-        });
-    });
-</script>
 @endpush

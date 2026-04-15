@@ -154,15 +154,23 @@
         }
 
         /* Dark Mode Overrides */
+        body.dark-theme h1 {
+            color: #e8eaf0 !important;
+        }
+
+        body.dark-theme p {
+            color: #8b93a8 !important;
+        }
+
         body.dark-theme .form-section {
             background-color: #1a1d27;
             border-color: #2e3349;
-            color: #e8eaf0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
 
         body.dark-theme .form-section h2 {
             color: #e8eaf0;
-            border-bottom-color: #0BAA4B;
+            border-bottom-color: #2e3349;
         }
 
         body.dark-theme .form-group label {
@@ -199,12 +207,32 @@
             color: #e8eaf0;
         }
 
-        body.dark-theme h1 {
-            color: #e8eaf0 !important;
-        }
-
         body.dark-theme .radio-item label {
             color: #e8eaf0;
+        }
+
+        body.dark-theme .modal-content {
+            background-color: #1a1d27;
+            color: #e8eaf0;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .modal-header {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .modal-footer {
+            border-top-color: #2e3349;
+            background-color: #13161f;
+        }
+
+        body.dark-theme #cccd-existing p,
+        body.dark-theme #bhxh-existing p {
+            color: #8b93a8 !important;
+        }
+
+        body.dark-theme #avatarPreview {
+            background: #13161f !important;
         }
 
         .preview-container {
@@ -339,6 +367,9 @@
 @endpush
 
 @section('content')
+    @php
+        $isRestricted = auth()->user()->can('Chỉnh Sửa Một Phần Nhân Viên') && !auth()->user()->can('Sửa Nhân Viên');
+    @endphp
     <!-- Header -->
     <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
         <div>
@@ -436,9 +467,9 @@
                 <div class="form-group">
                     <label>Trạng thái nhân viên</label>
                     <select name="TrangThai" id="TrangThai" class="select2">
-                        <option value="1" {{ ($employee->TrangThai ?? 1) == 1 ? 'selected' : '' }}>Làm tại công ty</option>
-                        <option value="0" {{ ($employee->TrangThai ?? 1) == 0 ? 'selected' : '' }}>Nghỉ làm</option>
-                        <option value="2" {{ ($employee->TrangThai ?? 1) == 2 ? 'selected' : '' }}>Làm từ xa (WFH)</option>
+                        <option value="dang_lam" {{ ($employee->TrangThai ?? 'dang_lam') == 'dang_lam' ? 'selected' : '' }}>Làm tại công ty</option>
+                        <option value="nghi_viec" {{ ($employee->TrangThai ?? 'dang_lam') == 'nghi_viec' ? 'selected' : '' }}>Nghỉ làm</option>
+                        <option value="nghi_thai_san" {{ ($employee->TrangThai ?? 'dang_lam') == 'nghi_thai_san' ? 'selected' : '' }}>Nghỉ thai sản</option>
                     </select>
                     <input type="hidden" name="sync_account_status" id="syncAccountStatus" value="0">
                 </div>
@@ -498,18 +529,26 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Ảnh CCCD (2 ảnh)</label>
-                    <input type="file" name="anh_cccd[]" id="anh_cccd" multiple accept="image/*" onchange="previewImages(this, 'cccd-preview', 'cccd-existing')">
-                    <div class="help-text">Chọn ảnh mới để thay thế ảnh cũ (nếu muốn). Tải lên mặt trước và mặt sau.</div>
-                    <div id="cccd-preview" class="preview-container"></div>
+                    <label>Ảnh CCCD mặt trước</label>
+                    <input type="file" name="anh_cccd" id="anh_cccd" accept="image/*" onchange="previewImages(this, 'cccd-front-preview', 'cccd-front-existing')">
+                    <div class="help-text">Chọn ảnh mới để thay thế mặt trước (nếu muốn).</div>
+                    <div id="cccd-front-preview" class="preview-container"></div>
                     @if($employee->anh_cccd && count($employee->anh_cccd) > 0)
-                        <div id="cccd-existing" style="margin-top: 10px;">
-                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Ảnh hiện tại:</p>
-                            <div style="display: flex; gap: 10px;">
-                                @foreach($employee->anh_cccd as $path)
-                                    <img src="{{ asset($path) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
-                                @endforeach
-                            </div>
+                        <div id="cccd-front-existing" style="margin-top: 10px;">
+                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Mặt trước hiện tại:</p>
+                            <img src="{{ asset($employee->anh_cccd[0]) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                        </div>
+                    @endif
+                </div>
+                <div class="form-group">
+                    <label>Ảnh CCCD mặt sau</label>
+                    <input type="file" name="anh_cccd_sau" id="anh_cccd_sau" accept="image/*" onchange="previewImages(this, 'cccd-back-preview', 'cccd-back-existing')">
+                    <div class="help-text">Chọn ảnh mới để thay thế mặt sau (nếu muốn).</div>
+                    <div id="cccd-back-preview" class="preview-container"></div>
+                    @if($employee->anh_cccd_sau)
+                        <div id="cccd-back-existing" style="margin-top: 10px;">
+                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Mặt sau hiện tại:</p>
+                            <img src="{{ asset($employee->anh_cccd_sau) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
                         </div>
                     @endif
                 </div>
@@ -653,11 +692,14 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Loại nhân viên</label>
-                    <select name="LoaiNhanVien" class="select2">
+                    <select name="LoaiNhanVien" class="select2" {{ $isRestricted ? 'disabled' : '' }}>
                         <option value="">-- Chọn loại nhân viên --</option>
                         <option value="1" {{ $employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien == 1 ? 'selected' : '' }}>Văn phòng</option>
                         <option value="0" {{ $employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien == 0 ? 'selected' : '' }}>Công nhân</option>
                     </select>
+                    @if($isRestricted)
+                        <input type="hidden" name="LoaiNhanVien" value="{{ $employee->ttCongViec->LoaiNhanVien ?? '' }}">
+                    @endif
                 </div>
 
 
@@ -666,7 +708,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Phòng ban</label>
-                    <select name="PhongBanId" id="phongBanSelect" class="select2">
+                    <select name="PhongBanId" id="phongBanSelect" class="select2" {{ $isRestricted ? 'disabled' : '' }}>
                         <option value="">-- Chọn phòng ban --</option>
                         @foreach($phongBans as $phongBan)
                             <option value="{{ $phongBan->id }}"
@@ -675,11 +717,14 @@
                             </option>
                         @endforeach
                     </select>
+                    @if($isRestricted)
+                        <input type="hidden" name="PhongBanId" value="{{ $employee->ttCongViec->PhongBanId ?? '' }}">
+                    @endif
                 </div>
 
                 <div class="form-group">
                     <label>Chức vụ</label>
-                    <select name="ChucVuId" class="select2">
+                    <select name="ChucVuId" class="select2" {{ $isRestricted ? 'disabled' : '' }}>
                         <option value="">-- Chọn chức vụ --</option>
                         @foreach($chucVus as $chucVu)
                             <option value="{{ $chucVu->id }}"
@@ -688,6 +733,9 @@
                             </option>
                         @endforeach
                     </select>
+                    @if($isRestricted)
+                        <input type="hidden" name="ChucVuId" value="{{ $employee->ttCongViec->ChucVuId ?? '' }}">
+                    @endif
                 </div>
             </div>
 
@@ -696,14 +744,20 @@
                     <label>Ngày tuyển dụng</label>
                     <input type="text" name="NgayTuyenDung" class="datepicker" 
                         value="{{ $employee->ttCongViec && $employee->ttCongViec->NgayTuyenDung ? \Carbon\Carbon::parse($employee->ttCongViec->NgayTuyenDung)->format('d-m-Y') : '' }}" 
-                        placeholder="Chọn ngày tuyển dụng">
+                        placeholder="Chọn ngày tuyển dụng" {{ $isRestricted ? 'disabled' : '' }}>
+                    @if($isRestricted)
+                        <input type="hidden" name="NgayTuyenDung" value="{{ $employee->ttCongViec && $employee->ttCongViec->NgayTuyenDung ? \Carbon\Carbon::parse($employee->ttCongViec->NgayTuyenDung)->format('d-m-Y') : '' }}">
+                    @endif
                 </div>
 
                 <div class="form-group">
                     <label>Ngày vào biên chế</label>
                     <input type="text" name="NgayVaoBienChe" class="datepicker" 
                         value="{{ $employee->ttCongViec && $employee->ttCongViec->NgayVaoBienChe ? \Carbon\Carbon::parse($employee->ttCongViec->NgayVaoBienChe)->format('d-m-Y') : '' }}" 
-                        placeholder="Chọn ngày vào biên chế">
+                        placeholder="Chọn ngày vào biên chế" {{ $isRestricted ? 'disabled' : '' }}>
+                    @if($isRestricted)
+                        <input type="hidden" name="NgayVaoBienChe" value="{{ $employee->ttCongViec && $employee->ttCongViec->NgayVaoBienChe ? \Carbon\Carbon::parse($employee->ttCongViec->NgayVaoBienChe)->format('d-m-Y') : '' }}">
+                    @endif
                 </div>
             </div>
         </div>

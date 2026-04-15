@@ -5,8 +5,9 @@ namespace App\Services;
 use App\Models\CauHinhBaoHiem;
 use App\Models\CauHinhLichLamViec;
 use App\Models\ChamCong;
-use App\Models\TangCa;
+use App\Models\PhuLucHopDong;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * LuongService - Tính lương tự động cho nhân viên
@@ -88,17 +89,21 @@ class LuongService
         $tongPhuCapHD = self::tinhTongPhuCap($hopDong);
         $tongPhuCap = round($tongPhuCapHD * $tiLeNgayCong, 2);
 
-        // --- Tăng ca đã duyệt ---
-        $tongTangCaTien = self::tinhTienTangCa($nhanVien->id, $thang, $nam, $luongCoBan, $ngayCongChuan);
-
         // --- Tổng thu nhập ---
-        $tongThuNhap = $luongNgayCong + $tongPhuCap + $tongTangCaTien;
+        $tongThuNhap = $luongNgayCong + $tongPhuCap;
 
         // --- Bảo hiểm ---
         $baoHiems = \App\Models\CauHinhBaoHiem::getHieuLucHienTai();
         $tongKhauTruBH = 0;
+        $baoHiemsDetail = [];
         foreach ($baoHiems as $bh) {
-            $tongKhauTruBH += ($luongCoBan * $bh->TiLeNhanVien) / 100;
+            $amount = ($luongCoBan * $bh->TiLeNhanVien) / 100;
+            $tongKhauTruBH += $amount;
+            $baoHiemsDetail[] = [
+                'ten' => $bh->TenLoai,
+                'ti_le' => $bh->TiLeNhanVien,
+                'so_tien' => $amount
+            ];
         }
 
         // --- Giảm trừ gia cảnh ---
@@ -124,10 +129,10 @@ class LuongService
             'don_gia_ngay' => round($donGiaNgay, 2),
             'luong_ngay_cong' => $luongNgayCong,
             'tong_phu_cap' => $tongPhuCap,
-            'tong_tang_ca' => $tongTangCaTien,
             'tong_thu_nhap' => $tongThuNhap,
             // Khấu trừ
             'tong_khau_tru_bh' => $tongKhauTruBH,
+            'bao_hiems_detail' => $baoHiemsDetail,
             'so_nguoi_phu_thuoc' => $soNguoiPhuThuoc,
             'tong_giam_tru' => $tongGiamTru,
             'thu_nhap_chiu_thue' => $thuNhapChiuThue,
@@ -156,24 +161,29 @@ class LuongService
         // --- Phụ cấp ---
         $tongPhuCap = self::tinhTongPhuCap($hopDong);
 
-        // --- Tăng ca đã duyệt ---
         $ngayCongChuan = self::tinhNgayCongChuan($thang, $nam);
-        $tongTangCaTien = self::tinhTienTangCa($nhanVien->id, $thang, $nam, $luongCoBan, $ngayCongChuan);
 
         // --- Tổng thu nhập ---
         // Nếu ở chế độ "Theo hợp đồng", sử dụng cột TongLuong trực tiếp
         // TongLuong thường đã bao gồm Lương cơ bản + Phụ cấp cố định
         if ($forcedContract) {
-            $tongThuNhap = ($hopDong?->TongLuong ?? 0) + $tongTangCaTien;
+            $tongThuNhap = ($hopDong?->TongLuong ?? 0);
         } else {
-            $tongThuNhap = $luongCoBan + $tongPhuCap + $tongTangCaTien;
+            $tongThuNhap = $luongCoBan + $tongPhuCap;
         }
 
         // --- Bảo hiểm ---
         $baoHiems = \App\Models\CauHinhBaoHiem::getHieuLucHienTai();
         $tongKhauTruBH = 0;
+        $baoHiemsDetail = [];
         foreach ($baoHiems as $bh) {
-            $tongKhauTruBH += ($luongCoBan * $bh->TiLeNhanVien) / 100;
+            $amount = ($luongCoBan * $bh->TiLeNhanVien) / 100;
+            $tongKhauTruBH += $amount;
+            $baoHiemsDetail[] = [
+                'ten' => $bh->TenLoai,
+                'ti_le' => $bh->TiLeNhanVien,
+                'so_tien' => $amount
+            ];
         }
 
         // --- Giảm trừ gia cảnh ---
@@ -199,10 +209,10 @@ class LuongService
             'don_gia_ngay' => null,
             'luong_ngay_cong' => $forcedContract ? ($hopDong?->TongLuong ?? 0) : $luongCoBan,
             'tong_phu_cap' => $tongPhuCap,
-            'tong_tang_ca' => $tongTangCaTien,
             'tong_thu_nhap' => $tongThuNhap,
             // Khấu trừ
             'tong_khau_tru_bh' => $tongKhauTruBH,
+            'bao_hiems_detail' => $baoHiemsDetail,
             'so_nguoi_phu_thuoc' => $soNguoiPhuThuoc,
             'tong_giam_tru' => $tongGiamTru,
             'thu_nhap_chiu_thue' => $thuNhapChiuThue,
@@ -269,55 +279,44 @@ class LuongService
     }
 
     /**
-     * Tổng phụ cấp từ hợp đồng.
+     * Tổng phụ cấp từ phụ lục hợp đồng mới nhất.
+     *
+     * Ưu tiên lấy từ phụ lục (phu_luc_hop_dongs) mới nhất của hợp đồng gốc.
+     * Mỗi phụ lục liên kết với một hợp đồng phiên bản (HopDongPLId), từ đó
+     * lấy toàn bộ điều khoản phụ cấp (chi_tiet_phu_luc) và cộng so_tien lại.
+     *
+     * Nếu không có phụ lục nào, fallback về mảng PhuCap JSON trong hop_dongs.
      */
     public static function tinhTongPhuCap($hopDong): float
     {
         if (!$hopDong)
             return 0;
 
-        $fields = [
-            'PhuCapChucVu',
-            'PhuCapTrachNhiem',
-            'PhuCapDocHai',
-            'PhuCapThamNien',
-            'PhuCapKhuVuc',
-            'PhuCapAnTrua',
-            'PhuCapXangXe',
-            'PhuCapDienThoai',
-            'PhuCapKhac',
-        ];
+        // Tìm phụ lục mới nhất của hợp đồng gốc này
+        // Hợp đồng gốc = $hopDong (HopDongGocId trỏ vào $hopDong->id)
+        $phuLucMoiNhat = PhuLucHopDong::where('HopDongGocId', $hopDong->id)
+            ->orderBy('ngay_ky', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($phuLucMoiNhat) {
+            // Lấy tổng so_tien từ bảng chi_tiet_phu_luc của phụ lục này
+            $tong = DB::table('chi_tiet_phu_luc')
+                ->where('PhuLucId', $phuLucMoiNhat->id)
+                ->sum('so_tien');
+            return (float) $tong;
+        }
+
+        // Fallback: lấy từ JSON PhuCap cũ trong hop_dongs (nếu chưa có phụ lục)
+        $phuCap = $hopDong->PhuCap;
+        if (!is_array($phuCap))
+            return 0;
+
         $tong = 0;
-        foreach ($fields as $field) {
-            $tong += (float) ($hopDong->$field ?? 0);
+        foreach ($phuCap as $item) {
+            $tong += (float) ($item['amount'] ?? 0);
         }
         return $tong;
-    }
-
-    /**
-     * Tính tiền tăng ca trong tháng cho nhân viên.
-     * Lương giờ = LuongCoBan / (ngày chuẩn × giờ/ngày)
-     * Tiền TC   = Tổng giờ × Lương giờ × Hệ số loại TC
-     */
-    public static function tinhTienTangCa(int $nhanVienId, int $thang, int $nam, float $luongCoBan, int $ngayCongChuan = 26): float
-    {
-        $gioMoiNgay = 8;
-        $luongGio = $luongCoBan / ($ngayCongChuan * $gioMoiNgay);
-
-        $tangCas = TangCa::with('loaiTangCa')
-            ->where('NhanVienId', $nhanVienId)
-            ->where('TrangThai', 'da_duyet')
-            ->whereYear('Ngay', $nam)
-            ->whereMonth('Ngay', $thang)
-            ->get();
-
-        $tongTien = 0;
-        foreach ($tangCas as $tc) {
-            $heSo = $tc->loaiTangCa?->HeSo ?? 1.5;
-            $tongTien += ($tc->Tong ?? 0) * $luongGio * $heSo;
-        }
-
-        return round($tongTien, 2);
     }
 
     /**

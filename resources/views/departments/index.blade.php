@@ -46,7 +46,7 @@
     <!-- Data Table Card -->
     <div class="card">
         <div class="table-container">
-            <table id="departmentsTable" class="table table-hover" style="width: 100%;">
+            <table id="departmentsTable" class="table table-hover" style="width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
                     <th style="width: 60px;">
@@ -57,9 +57,9 @@
                             </div>
                         </div>
                     </th>
-                    <th>Mã phòng ban</th>
-                    <th>Tên phòng ban</th>
-                    <th>Số nhân viên</th>
+                    <th style="width: 20%;">Mã phòng ban</th>
+                    <th style="width: 55%;">Tên phòng ban</th>
+                    <th style="width: 20%;">Số nhân viên</th>
                 </tr>
             </thead>
             <tbody>

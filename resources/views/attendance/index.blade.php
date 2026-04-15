@@ -25,6 +25,77 @@
             height: 36px !important;
             right: 4px !important;
         }
+
+        /* custom-clear-icon visibility */
+        .custom-clear-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            color: #6b7280;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .custom-clear-icon:hover {
+            color: #ef4444 !important;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        body.dark-theme .custom-clear-icon {
+            color: #8b93a8;
+        }
+        body.dark-theme .custom-clear-icon:hover {
+            color: #f87171 !important;
+            background-color: rgba(248, 113, 113, 0.2);
+        }
+
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            color: #0BAA4B;
+        }
+
+        .tab.active {
+            color: #0BAA4B;
+            border-bottom-color: #0BAA4B;
+        }
+
+        body.dark-theme .tabs {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .tab {
+            color: #8b93a8;
+        }
+
+        body.dark-theme .tab:hover {
+            color: var(--primary-green);
+        }
+
+        body.dark-theme .tab.active {
+            color: var(--primary-green);
+            border-bottom-color: var(--primary-green);
+        }
     </style>
 
     <!-- Filter Bar -->
@@ -39,7 +110,7 @@
                         <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
                             <span id="dayDropdownText" style="color: {{ $day === '' ? '#6c757d' : '#212529' }};">{{ $day !== '' ? 'Ngày ' . sprintf('%02d', $day) : 'Tất cả ngày' }}</span>
                             @if($day !== '')
-                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearDayFilter();" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                                <i class="bi bi-x-circle-fill ms-2 custom-clear-icon" style="font-size: 12px;" onclick="event.stopPropagation(); clearDayFilter();"></i>
                             @else
                                 <i class="bi bi-calendar3 ms-2 text-muted" style="font-size: 14px;"></i>
                             @endif
@@ -65,7 +136,7 @@
                         <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
                             <span id="monthDropdownText" style="color: {{ $month == date('m') && !request()->has('month') ? '#6c757d' : '#212529' }};">{{ $month !== '' ? 'Tháng ' . $month : 'Tất cả tháng' }}</span>
                             @if($month !== '' && request()->has('month'))
-                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearFilter('inputMonth');" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                                <i class="bi bi-x-circle-fill ms-2 custom-clear-icon" style="font-size: 12px;" onclick="event.stopPropagation(); clearFilter('inputMonth');"></i>
                             @else
                                 <i class="bi bi-calendar3 ms-2 text-muted" style="font-size: 14px;"></i>
                             @endif
@@ -91,7 +162,7 @@
                         <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
                             <span id="yearDropdownText" style="color: {{ $year == date('Y') && !request()->has('year') ? '#6c757d' : '#212529' }};">{{ $year !== '' ? 'Năm ' . $year : 'Tất cả năm' }}</span>
                             @if($year !== '' && request()->has('year'))
-                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearFilter('inputYear');" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                                <i class="bi bi-x-circle-fill ms-2 custom-clear-icon" style="font-size: 12px;" onclick="event.stopPropagation(); clearFilter('inputYear');"></i>
                             @else
                                 <i class="bi bi-calendar3 ms-2 text-muted" style="font-size: 14px;"></i>
                             @endif
@@ -116,14 +187,14 @@
                         <input type="hidden" name="status" id="inputStatus" value="{{ $status }}">
                         <div class="form-control d-flex justify-content-between align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; height: 38px; background-color: #fff; padding: 0.375rem 0.75rem;">
                             <span id="statusDropdownText" style="color: {{ $status === '' ? '#6c757d' : '#212529' }};">
-                                @if($status === 'dung_gio') ✅ Đúng giờ
-                                @elseif($status === 'tre') ⏰ Đi muộn
-                                @elseif($status === 've_som') 🏃 Về sớm
-                                @elseif($status === 'la') ❓ Khách / Lạ
+                                @if($status === 'dung_gio') Đúng giờ
+                                @elseif($status === 'tre') Đi muộn
+                                @elseif($status === 've_som') Về sớm
+                                @elseif($status === 'la') Khách / Lạ
                                 @else Tất cả trạng thái @endif
                             </span>
                             @if($status !== '')
-                                <i class="bi bi-x-circle-fill text-muted ms-2" style="font-size: 12px; padding: 4px; border-radius: 50%;" onclick="event.stopPropagation(); clearFilter('inputStatus');" onmouseover="this.classList.replace('text-muted', 'text-danger')" onmouseout="this.classList.replace('text-danger', 'text-muted')"></i>
+                                <i class="bi bi-x-circle-fill ms-2 custom-clear-icon" style="font-size: 12px;" onclick="event.stopPropagation(); clearFilter('inputStatus');"></i>
                             @else
                                 <i class="bi bi-list ms-2 text-muted" style="font-size: 16px;"></i>
                             @endif
@@ -136,10 +207,9 @@
                                 @php
                                     $statuses = [
                                         '' => 'Tất cả trạng thái',
-                                        'dung_gio' => '✅ Đúng giờ',
-                                        'tre' => '⏰ Đi muộn',
-                                        've_som' => '🏃 Về sớm',
-                                        'la' => '❓ Khách / Lạ',
+                                        'dung_gio' => 'Đúng giờ',
+                                        'tre' => 'Đi muộn',
+                                        've_som' => 'Về sớm',
                                     ];
                                 @endphp
                                 @foreach($statuses as $val => $label)
@@ -149,11 +219,13 @@
                         </div>
                     </div>
                 </div>
+                {{-- Hidden input for Tab --}}
+                <input type="hidden" name="tab" id="inputTab" value="{{ $tab }}">
                 {{-- Xóa bộ lọc nhanh --}}
                 @if($day !== '' || $status !== '' || request()->has('month') || request()->has('year'))
                     <div class="form-group" style="margin-bottom: 0;">
-                        <a href="{{ route('cham-cong.danh-sach') }}" class="btn btn-outline-danger d-flex align-items-center justify-content-center" style="height: 38px; padding: 0 16px; font-size: 13px; font-weight: 500; gap: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#fee2e2'; this.style.borderColor='#ef4444';" onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#fca5a5';">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;">
+                        <a href="{{ route('cham-cong.danh-sach') }}" class="btn-clear-filter">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                             Xóa bộ lọc
@@ -173,6 +245,7 @@
                         Xem tổng quan hôm nay
                     </a>
                 @endif
+{{-- 
                 <button type="button" class="btn btn-secondary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -180,6 +253,7 @@
                     </svg>
                     Xuất Excel
                 </button>
+--}}
                 <a href="{{ route('cham-cong.taoView') }}" class="btn btn-primary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -218,27 +292,41 @@
         </div>
     </div>
 
+    <!-- Tabs -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-body" style="padding: 0 20px;">
+            <div class="tabs" style="margin-bottom: 0;">
+                <button class="tab {{ $tab === 'nhan_vien' ? 'active' : '' }}" onclick="switchTab('nhan_vien')">
+                    Nhân viên ({{ $employeeTabCount }})
+                </button>
+                <button class="tab {{ $tab === 'khach' ? 'active' : '' }}" onclick="switchTab('khach')">
+                    Khách / Người lạ ({{ $guestTabCount }})
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Table -->
     <div class="card">
         <div class="table-container">
             <table class="table" id="attendanceTable" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th><strong>STT</strong></th>
-                        <th>Nhân viên</th>
-                        <th>Loại</th>
-                        <th>Phòng ban</th>
-                        <th>Ngày</th>
-                        <th>Giờ vào</th>
-                        <th>Giờ ra</th>
-                        <th>Công</th>
-                        <th>Trạng thái</th>
+                        <th class="text-center" style="width: 50px;">STT</th>
+                        <th style="width: 220px;">Nhân viên</th>
+                        <th style="width: 110px;">Loại</th>
+                        <th style="width: 180px;">Phòng ban</th>
+                        <th style="width: 110px;">Ngày</th>
+                        <th style="width: 100px;">Giờ vào</th>
+                        <th style="width: 100px;">Giờ ra</th>
+                        <th style="width: 80px;">Công</th>
+                        <th style="width: 120px;">Trạng thái</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($attendances as $index => $att)
                         <tr>
-                            <td><strong>{{ $index + 1 }}</strong></td>
+                            <td class="text-center"></td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <div class="avatar"
@@ -300,7 +388,7 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#attendanceTable').DataTable({
+        const table = $('#attendanceTable').DataTable({
             language: {
                 "sProcessing": "Đang xử lý...",
                 "sLengthMenu": "Hiển thị _MENU_ dòng",
@@ -319,8 +407,22 @@
             responsive: true,
             autoWidth: false,
             pageLength: 25,
-            order: [] // Bỏ sort mặc định để giữ nguyên thứ tự mới nhất từ Server (orderBy 'Vao' desc)
+            order: [], // Bỏ sort mặc định để giữ nguyên thứ tự mới nhất từ Server (orderBy 'Vao' desc)
+            columnDefs: [
+                {
+                    targets: 0,
+                    orderable: false,
+                    className: 'text-center'
+                }
+            ]
         });
+
+        // Đảm bảo số thứ tự luôn bắt đầu từ 1 khi sort hoặc search
+        table.on('order.dt search.dt', function () {
+            table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                cell.innerHTML = i + 1;
+            } );
+        }).draw();
     });
 
     function showAttendanceImage(url) {
@@ -354,6 +456,15 @@
     // Keep Day compat
     function selectDay(day) { selectFilter('inputDay', day); }
     function clearDayFilter() { clearFilter('inputDay'); }
+
+    function switchTab(tab) {
+        document.getElementById('inputTab').value = tab;
+        // Khi chuyển tab, có thể muốn reset status filter vì status 'la' không còn nữa
+        if (tab === 'khach') {
+            document.getElementById('inputStatus').value = '';
+        }
+        document.getElementById('filterForm').submit();
+    }
     
     // Custom select2 height normalization to perfectly match the custom day picker (if any other select2 exists on page)
     $(document).ready(function() {

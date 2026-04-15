@@ -13,7 +13,7 @@ class LichSuController extends Controller
             ->leftJoin('nguoi_dungs', 'lich_sus.NhanVienId', '=', 'nguoi_dungs.id')
             ->select('lich_sus.*', 'nguoi_dungs.Ten as TenNguoiDung', 'nguoi_dungs.TaiKhoan')
             ->orderByDesc('lich_sus.Id')
-            ->paginate(50);
+            ->get();
 
         return view('lich-su.index', compact('logs'));
     }

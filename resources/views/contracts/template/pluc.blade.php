@@ -1,17 +1,17 @@
 @php
     $nv = $hopDong->nhanVien;
     $nguoiKy = $hopDong->nguoiKy;
-    $ngayKy = \Carbon\Carbon::parse($phuLuc->ngay_ky);
+    $ngayKy = $phuLuc->ngay_ky ? \Carbon\Carbon::parse($phuLuc->ngay_ky) : now();
     $ngayKyHopDong = \Carbon\Carbon::parse($hopDong->NgayBatDau);
     
-    // Tính tổng phụ cấp từ phụ lục
-    $tongPhuCap = $phuLuc->dieuKhoans->sum('pivot.so_tien');
+    // Tính tổng phụ cấp từ hợp đồng (phiên bản hiện tại)
+    $tongPhuCap = collect($hopDong->PhuCap ?? [])->sum('amount');
 @endphp
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Phụ lục hợp đồng - {{ $nv->Ten }}</title>
+    <title>Phụ lục hợp đồng - {{ $nv->Ten ?? 'N/A' }}</title>
     <style>
         body {
             font-family: "Times New Roman", Times, serif;
@@ -191,24 +191,24 @@
         </div>
 
         <div class="section">
-            <p>Hôm nay, ngày {{ $ngayKy->day }} tháng {{ $ngayKy->month }} năm {{ $ngayKy->year }}, Tại văn phòng công ty TNHH TRIWIN</p>
+            <p>Hôm nay, ngày {{ $ngayKy->day }} tháng {{ $ngayKy->month }} năm {{ $ngayKy->year }}, Tại văn phòng {{ \App\Models\SystemConfig::getValue('company_name', 'công ty TNHH TRIWIN') }}</p>
             <p>Chúng tôi gồm có:</p>
         </div>
 
         <div class="section">
             <div class="bold">BÊN SỬ DỤNG LAO ĐỘNG (BÊN A):</div>
-            <div>Bên A: <span class="bold">CÔNG TY TNHH TRIWIN</span></div>
+            <div>Bên A: <span class="bold">{{ mb_strtoupper(\App\Models\SystemConfig::getValue('company_name', 'CÔNG TY TNHH TRIWIN')) }}</span></div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Đại diện:</div>
-                <div class="bold">{{ $nguoiKy->Ten }}</div>
+                <div class="bold">{{ $nguoiKy->Ten ?? '...' }}</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Chức vụ:</div>
-                <div>{{ $nguoiKy->ttCongViec->chucVu->TenChucVu ?? 'Giám đốc' }}</div>
+                <div>{{ $nguoiKy->ttCongViec->chucVu->TenChucVu ?? ($nguoiKy->ttCongViec->chucVu->Ten ?? 'Giám đốc') }}</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Địa chỉ:</div>
-                <div>M2 đường số 5, KDC Cityland, Phường Tân Phú, Quận 7, TP.HCM</div>
+                <div>{{ \App\Models\SystemConfig::getValue('company_address', 'M2 đường số 5, KDC Cityland, Phường Tân Phú, Quận 7, TP.HCM') }}</div>
             </div>
         </div>
 
@@ -216,19 +216,19 @@
             <div class="bold">NGƯỜI LAO ĐỘNG (BÊN B):</div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Ông/Bà:</div>
-                <div class="bold">{{ strtoupper($nv->Ten) }}</div>
+                <div class="bold">{{ strtoupper($nv->Ten ?? '...') }}</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Sinh ngày:</div>
-                <div>{{ \Carbon\Carbon::parse($nv->NgaySinh)->format('d/m/Y') }} &nbsp;&nbsp;&nbsp; Quốc tịch: Việt Nam</div>
+                <div>{{ $nv->NgaySinh ? \Carbon\Carbon::parse($nv->NgaySinh)->format('d/m/Y') : '...' }} &nbsp;&nbsp;&nbsp; Quốc tịch: Việt Nam</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Địa chỉ:</div>
-                <div>{{ $nv->DiaChi }}</div>
+                <div>{{ $nv->DiaChi ?? '...' }}</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Số CCCD:</div>
-                <div>{{ $nv->SoCCCD }}, cấp ngày {{ $nv->NgayCap ? \Carbon\Carbon::parse($nv->NgayCap)->format('d/m/Y') : '...' }}</div>
+                <div>{{ $nv->SoCCCD ?? '...' }}, cấp ngày {{ $nv->NgayCap ? \Carbon\Carbon::parse($nv->NgayCap)->format('d/m/Y') : '...' }}</div>
             </div>
         </div>
 
@@ -237,12 +237,17 @@
             
             <p><span class="bold">ĐIỀU 1: CÁC NỘI DUNG THAY ĐỔI, BỔ SUNG</span></p>
             <p>1.1 Thay đổi về mức phụ cấp phúc lợi:</p>
-            <p>- Tổng các khoản phụ cấp: <span class="bold">{{ number_format($tongPhuCap, 0, ',', '.') }} VNĐ/tháng</span>.</p>
+            @php
+                $tongPhuCapDisplay = collect($hopDong->PhuCap ?? [])->sum('amount');
+            @endphp
+            <p>- Tổng các khoản phụ cấp: <span class="bold">{{ number_format($tongPhuCapDisplay, 0, ',', '.') }} VNĐ/tháng</span>.</p>
             <p>Chi tiết các khoản phụ cấp bao gồm:</p>
             <div style="margin-left: 20px; margin-top: 10px;">
-                @foreach($phuLuc->dieuKhoans as $index => $dk)
-                    <p style="margin: 5px 0;">1.2.{{ $index + 1 }} {{ $dk->noi_dung }}: <span class="bold">{{ number_format($dk->pivot->so_tien, 0, ',', '.') }} đồng/ tháng</span></p>
-                @endforeach
+                @if(!empty($hopDong->PhuCap))
+                    @foreach($hopDong->PhuCap as $index => $pc)
+                        <p style="margin: 5px 0;">1.1.{{ $index + 1 }} {{ $pc['name'] }}: <span class="bold">{{ number_format($pc['amount'], 0, ',', '.') }} đồng/ tháng</span></p>
+                    @endforeach
+                @endif
             </div>
             
             <p>1.2 Tiền thưởng cuối năm: Lương tháng 13 (Theo quy định của công ty).</p>
@@ -264,7 +269,7 @@
                         <img src="{{ asset('storage/' . $kySo->chu_ky_nhan_vien) }}" class="signature-img">
                     @endif
                 </div>
-                <div class="bold">{{ $nv->Ten }}</div>
+                <div class="bold">{{ $nv->Ten ?? '...' }}</div>
             </div>
             <div id="company-signature-area">
                 <div class="bold">ĐẠI DIỆN CÔNG TY</div>
@@ -274,7 +279,7 @@
                         <img src="{{ asset('storage/' . $kySo->chu_ky_dai_dien) }}" class="signature-img">
                     @endif
                 </div>
-                <div class="bold">{{ $nguoiKy->Ten }}</div>
+                <div class="bold">{{ $nguoiKy->Ten ?? '...' }}</div>
             </div>
         </div>
     </div>

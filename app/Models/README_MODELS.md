@@ -24,7 +24,7 @@
 ### 4. NHÓM CHUYÊN CẦN & PHÉP
 - **ChamCong.php** - Quản lý chấm công
 - **LoaiNghiPhep.php** - Danh mục loại nghỉ phép
-- **TangCa.php** - Quản lý tăng ca
+- **WorkFromHome.php** - Quản lý làm việc từ xa (thay thế tăng ca)
 - **CauHinhPhepNam.php** - Cấu hình phép năm
 - **QuanLyPhepNam.php** - Quản lý số phép năm của nhân viên
 - **DangKyNghiPhep.php** - Quản lý đăng ký nghỉ phép

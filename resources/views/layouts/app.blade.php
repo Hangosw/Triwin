@@ -12,6 +12,30 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
+        :root {
+            --bg-main: #f9fafb;
+            --bg-card: #ffffff;
+            --bg-sidebar: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
+            --accent-color: #0BAA4B;
+            --accent-hover: #0d7a3a;
+            --swal-bg: #ffffff;
+            --swal-text: #1f2937;
+        }
+
+        body.dark-theme {
+            --bg-main: #0f1117;
+            --bg-card: #1a1d27;
+            --bg-sidebar: #13161f;
+            --text-primary: #e8eaf0;
+            --text-secondary: #8b93a8;
+            --border-color: #2e3349;
+            --swal-bg: #1a1d27;
+            --swal-text: #e8eaf0;
+        }
+
         *,
         *::before,
         *::after {
@@ -215,9 +239,43 @@
 
         .sidebar-footer {
             padding: 24px;
-            background-color: #f9fafb;
-            border-top: 1px solid #f3f4f6;
-            color: #1f2937;
+            background-color: var(--bg-sidebar);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .theme-toggle-container {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .theme-toggle-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: block;
+            font-weight: 600;
+        }
+
+        .theme-select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .theme-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(11, 170, 75, 0.1);
         }
 
         .user-info {
@@ -966,7 +1024,8 @@
             border: 1px solid #d1d5db !important;
             border-radius: 8px !important;
             display: flex !important;
-            align-items: stretch !important;   /* KEY: stretch, not center */
+            align-items: stretch !important;
+            /* KEY: stretch, not center */
             background-color: white !important;
             position: relative !important;
             transition: border-color 0.2s, box-shadow 0.2s !important;
@@ -976,10 +1035,12 @@
         /* Rendered text area — fills full 42px then centers content inside */
         .select2-container--default .select2-selection--single .select2-selection__rendered {
             display: flex !important;
-            align-items: center !important;    /* centers × and text within 42px */
+            align-items: center !important;
+            /* centers × and text within 42px */
             flex: 1 !important;
             min-width: 0 !important;
-            padding: 0 28px 0 0 !important;   /* right-pad for arrow */
+            padding: 0 28px 0 0 !important;
+            /* right-pad for arrow */
             line-height: 1 !important;
             color: #374151 !important;
             font-size: 14px !important;
@@ -1004,10 +1065,13 @@
             height: 18px !important;
             min-width: 18px !important;
             min-height: 18px !important;
-            line-height: 18px !important;     /* match height → centers baseline */
-            font-size: 13px !important;       /* smaller → breathing room in 18px circle */
+            line-height: 18px !important;
+            /* match height → centers baseline */
+            font-size: 13px !important;
+            /* smaller → breathing room in 18px circle */
             font-weight: 900 !important;
-            font-family: Arial, sans-serif !important; /* more predictable glyph metrics */
+            font-family: Arial, sans-serif !important;
+            /* more predictable glyph metrics */
             text-align: center !important;
             vertical-align: middle !important;
             color: #ef4444 !important;
@@ -1276,6 +1340,12 @@
             box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.15) !important;
         }
 
+        /* Fix native date/time picker icon visibility in dark mode */
+        body.dark-theme input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
         body.dark-theme .dataTables_wrapper .dataTables_length label,
         body.dark-theme .dataTables_wrapper .dataTables_filter label {
             color: #8b93a8;
@@ -1458,6 +1528,50 @@
             background-color: #1a1d27 !important;
         }
 
+        /* --- Global Clear Filter Button --- */
+        .btn-clear-filter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+            padding: 0 16px;
+            font-size: 13px;
+            font-weight: 500;
+            gap: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            background-color: #fff1f2;
+            border: 1px solid #fecaca;
+            color: #e11d48;
+            cursor: pointer;
+        }
+
+        .btn-clear-filter:hover {
+            background-color: #ffe4e6;
+            border-color: #fb7185;
+            color: #be123c;
+            text-decoration: none;
+        }
+
+        .btn-clear-filter svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Clear Filter Button - Dark Theme */
+        body.dark-theme .btn-clear-filter {
+            background-color: rgba(225, 29, 72, 0.1);
+            border-color: rgba(225, 29, 72, 0.3);
+            color: #fb7185;
+        }
+
+        body.dark-theme .btn-clear-filter:hover {
+            background-color: rgba(225, 29, 72, 0.2);
+            border-color: #fb7185;
+            color: #fff;
+        }
+
         /* Modals */
         body.dark-theme .modal-content {
             background-color: #1a1d27;
@@ -1525,14 +1639,14 @@
         }
 
         /* thead for Bootstrap tables */
-        body.dark-theme .table > thead {
+        body.dark-theme .table>thead {
             background-color: #21263a !important;
             color: #c3c8da !important;
             border-color: #2e3349 !important;
         }
 
-        body.dark-theme .table > thead > tr > th,
-        body.dark-theme .table > thead > tr > td {
+        body.dark-theme .table>thead>tr>th,
+        body.dark-theme .table>thead>tr>td {
             background-color: #21263a !important;
             color: #c3c8da !important;
             border-color: #2e3349 !important;
@@ -1540,52 +1654,52 @@
         }
 
         /* tbody for Bootstrap tables */
-        body.dark-theme .table > tbody > tr > td,
-        body.dark-theme .table > tbody > tr > th {
+        body.dark-theme .table>tbody>tr>td,
+        body.dark-theme .table>tbody>tr>th {
             background-color: #1a1d27 !important;
             color: #e8eaf0 !important;
             border-color: #2e3349 !important;
         }
 
-        body.dark-theme .table > tbody > tr:hover > td,
-        body.dark-theme .table > tbody > tr:hover > th {
+        body.dark-theme .table>tbody>tr:hover>td,
+        body.dark-theme .table>tbody>tr:hover>th {
             background-color: #21263a !important;
             color: #e8eaf0 !important;
         }
 
         /* tfoot for Bootstrap tables */
-        body.dark-theme .table > tfoot > tr > td,
-        body.dark-theme .table > tfoot > tr > th {
+        body.dark-theme .table>tfoot>tr>td,
+        body.dark-theme .table>tfoot>tr>th {
             background-color: #21263a !important;
             color: #c3c8da !important;
             border-color: #2e3349 !important;
         }
 
         /* table-bordered variant */
-        body.dark-theme .table-bordered > :not(caption) > * {
+        body.dark-theme .table-bordered> :not(caption)>* {
             border-color: #2e3349 !important;
         }
 
-        body.dark-theme .table-bordered > :not(caption) > * > * {
+        body.dark-theme .table-bordered> :not(caption)>*>* {
             border-color: #2e3349 !important;
         }
 
         /* table-hover variant (re-override hover variables) */
-        body.dark-theme .table-hover > tbody > tr:hover > * {
+        body.dark-theme .table-hover>tbody>tr:hover>* {
             --bs-table-accent-bg: #21263a;
             background-color: #21263a !important;
             color: #e8eaf0 !important;
         }
 
         /* table-striped variant */
-        body.dark-theme .table-striped > tbody > tr:nth-of-type(odd) > * {
+        body.dark-theme .table-striped>tbody>tr:nth-of-type(odd)>* {
             --bs-table-accent-bg: #1e2231;
             background-color: #1e2231 !important;
             color: #e8eaf0 !important;
         }
 
         /* table-sm variant */
-        body.dark-theme .table-sm > :not(caption) > * > * {
+        body.dark-theme .table-sm> :not(caption)>*>* {
             background-color: inherit;
             color: inherit;
             border-color: #2e3349 !important;
@@ -1635,7 +1749,7 @@
         }
 
         /* Fix Bootstrap table caption */
-        body.dark-theme .table > caption {
+        body.dark-theme .table>caption {
             color: #8b93a8;
         }
 
@@ -1651,22 +1765,22 @@
         }
 
         /* Modal tables */
-        body.dark-theme .modal-body .table > thead > tr > th,
-        body.dark-theme .modal-body .table > thead > tr > td {
+        body.dark-theme .modal-body .table>thead>tr>th,
+        body.dark-theme .modal-body .table>thead>tr>td {
             background-color: #2a2f45 !important;
             color: #c3c8da !important;
             border-color: #3d445e !important;
         }
 
-        body.dark-theme .modal-body .table > tbody > tr > td,
-        body.dark-theme .modal-body .table > tbody > tr > th {
+        body.dark-theme .modal-body .table>tbody>tr>td,
+        body.dark-theme .modal-body .table>tbody>tr>th {
             background-color: #1a1d27 !important;
             color: #e8eaf0 !important;
             border-color: #3d445e !important;
         }
 
-        body.dark-theme .modal-body .table > tbody > tr:hover > td,
-        body.dark-theme .modal-body .table > tbody > tr:hover > th {
+        body.dark-theme .modal-body .table>tbody>tr:hover>td,
+        body.dark-theme .modal-body .table>tbody>tr:hover>th {
             background-color: #21263a !important;
         }
 
@@ -1782,6 +1896,58 @@
             border-color: #2e3349 !important;
             color: #e8eaf0 !important;
         }
+
+        /* Fix browser default indicators (clock/calendar) in dark mode */
+        body.dark-theme {
+            color-scheme: dark;
+        }
+
+        body.dark-theme input::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(1.5) contrast(1.5) !important;
+            cursor: pointer;
+        }
+
+        /* Support for other browser variants of the indicator */
+        body.dark-theme input::-webkit-inner-spin-button,
+        body.dark-theme input::-webkit-clear-button {
+            filter: invert(1) brightness(1.5) !important;
+        }
+
+        /* ========================================
+           DARK MODE — SweetAlert2 Global
+           ======================================== */
+        body.dark-theme .swal2-popup {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+        }
+
+        body.dark-theme .swal2-title,
+        body.dark-theme .swal2-html-container,
+        body.dark-theme .swal2-content {
+            color: var(--text-primary) !important;
+        }
+
+        body.dark-theme .swal2-confirm {
+            background-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 3px rgba(11, 170, 75, 0.25) !important;
+        }
+
+        body.dark-theme .swal2-cancel {
+            background-color: var(--bg-main) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        /* Override backgrounds in icons (success/error circles) */
+        body.dark-theme .swal2-success-circular-line-left,
+        body.dark-theme .swal2-success-circular-line-right,
+        body.dark-theme .swal2-success-fix,
+        body.dark-theme .swal2-timer-progress-bar {
+            background-color: var(--bg-card) !important;
+        }
+
 
         /* Bootstrap dropdown-menu */
         body.dark-theme .dropdown-menu {
@@ -2232,35 +2398,39 @@
 
                 @canany(['Xem Thông Tin Cá Nhân', 'Xem Hợp Đồng Cá Nhân'])
                     @unlessrole('System Admin')
-                        <div class="nav-item-parent">
-                            <div class="nav-item {{ request()->routeIs('nhan-vien.info') || request()->routeIs('hop-dong.info') ? 'active' : '' }}"
-                                onclick="toggleSubmenu('profile-submenu')" style="cursor: pointer;">
-                                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                    </svg>
-                                    <span>Hồ sơ cá nhân</span>
-                                </div>
-                                <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    <div class="nav-item-parent">
+                        <div class="nav-item {{ request()->routeIs('nhan-vien.info') || request()->routeIs('hop-dong.info') ? 'active' : '' }}"
+                            onclick="toggleSubmenu('profile-submenu')" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                 </svg>
+                                <span>Hồ sơ cá nhân</span>
                             </div>
-                            <div class="submenu" id="profile-submenu">
-                                @can('Xem Thông Tin Cá Nhân')
-                                    <a href="{{ $authNV ? route('nhan-vien.info', $authNV->id) : '#' }}"
-                                        class="submenu-item {{ request()->routeIs('nhan-vien.info') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
-                                        <span>Thông tin cá nhân</span>
-                                    </a>
-                                @endcan
-                                @can('Xem Hợp Đồng Cá Nhân')
-                                    <a href="{{ $activeContract ? route('hop-dong.info', $activeContract->id) : '#' }}"
-                                        class="submenu-item {{ request()->routeIs('hop-dong.info') && request()->route('id') == ($activeContract?->id ?? 0) ? 'active' : '' }}">
-                                        <span>Hợp đồng cá nhân</span>
-                                    </a>
-                                @endcan
-                            </div>
+                            <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </div>
+                        <div class="submenu" id="profile-submenu">
+                            @can('Xem Thông Tin Cá Nhân')
+                                <a href="{{ $authNV ? route('nhan-vien.info', $authNV->id) : '#' }}"
+                                    class="submenu-item {{ request()->routeIs('nhan-vien.info') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
+                                    <span>Thông tin cá nhân</span>
+                                </a>
+                            @endcan
+                            @can('Xem Hợp Đồng Cá Nhân')
+                                <a href="{{ $activeContract ? route('hop-dong.info', $activeContract->id) : '#' }}"
+                                    class="submenu-item {{ request()->routeIs('hop-dong.info') && request()->route('id') == ($activeContract?->id ?? 0) ? 'active' : '' }}">
+                                    <span>Hợp đồng cá nhân</span>
+                                </a>
+                            @endcan
+                            <a href="{{ route('profile.settings') }}"
+                                class="submenu-item {{ request()->routeIs('profile.settings') ? 'active' : '' }}">
+                                <span>Cài đặt tài khoản</span>
+                            </a>
+                        </div>
+                    </div>
                     @endunlessrole
                 @endcanany
                 @can('Xem Danh Sách Người Dùng')
@@ -2305,7 +2475,7 @@
                     </div>
                 @endcan
 
-                @canany(['Xem Nhân Viên', 'Xem Danh Sách Công Tác', 'Tạo Yêu Cầu Công Tác', 'Điều Chuyển Công Tác'])
+                @canany(['Xem Nhân Viên', 'Xem Danh Sách Công Tác', 'Điều Chuyển Công Tác'])
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('nhan-vien.*') || request()->routeIs('dieu-chuyen.*') || request()->routeIs('cong-tac.*') ? 'active' : '' }}"
                             onclick="toggleSubmenu('employees-submenu')" style="cursor: pointer;">
@@ -2327,10 +2497,7 @@
                                     <span>Danh sách nhân viên</span>
                                 </a>
                             @endcan
-                            <a href="{{ route('dieu-chuyen.index') }}"
-                                class="submenu-item {{ request()->routeIs('dieu-chuyen.*') ? 'active' : '' }}">
-                                <span>Điều chuyển nội bộ</span>
-                            </a>
+
                             @canany(['Xem Danh Sách Công Tác', 'Tạo Yêu Cầu Công Tác', 'Xem Chi Tiết Công Tác', 'Điều Chuyển Công Tác'])
                                 <a href="{{ route('cong-tac.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('cong-tac.*') ? 'active' : '' }}">
@@ -2365,6 +2532,10 @@
                             <a href="{{ route('hop-dong.dm-phu-luc.index') }}"
                                 class="submenu-item {{ request()->routeIs('hop-dong.dm-phu-luc.index') ? 'active' : '' }}">
                                 <span>Phụ lục hợp đồng</span>
+                            </a>
+                            <a href="{{ route('hop-dong.loai-hop-dong.index') }}"
+                                class="submenu-item {{ request()->routeIs('hop-dong.loai-hop-dong.*') ? 'active' : '' }}">
+                                <span>Cấu hình hợp đồng</span>
                             </a>
                         </div>
                     </div>
@@ -2408,34 +2579,54 @@
                     </div>
                 @endcanany
 
-                @canany(['Xem Danh Sách Tăng Ca', 'Tạo Phiếu Tăng Ca Cá Nhân', 'Xem Danh Sách Nghỉ Phép', 'Tạo Phiếu Nghỉ Phép Cá Nhân', 'Duyệt Nghỉ Phép', 'Duyệt Tăng Ca'])
+                @canany(['Xem Danh Sách WFH', 'Tạo Phiếu WFH Cá Nhân', 'Duyệt WFH'])
                     <div class="nav-item-parent">
-                        <div class="nav-item {{ request()->routeIs('tang-ca.*') || request()->routeIs('nghi-phep.*') || request()->routeIs('overtime-leave.*') ? 'active' : '' }}"
-                            onclick="toggleSubmenu('overtime-leave-submenu')" style="cursor: pointer;">
+                        <div class="nav-item {{ request()->routeIs('wfh.*') ? 'active' : '' }}"
+                            onclick="toggleSubmenu('wfh-submenu')" style="cursor: pointer;">
                             <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
-                                <span>Tăng ca & Nghỉ phép</span>
+                                <span>Work From Home</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
-                        <div class="submenu" id="overtime-leave-submenu">
-                            @canany(['Xem Danh Sách Tăng Ca', 'Duyệt Tăng Ca'])
-                                <a href="{{ route('tang-ca.danh-sach') }}"
-                                    class="submenu-item {{ request()->routeIs('tang-ca.danh-sach') ? 'active' : '' }}">
-                                    <span>Tăng ca (Admin)</span>
+                        <div class="submenu" id="wfh-submenu">
+                            @canany(['Xem Danh Sách WFH', 'Duyệt WFH'])
+                                <a href="{{ route('wfh.danh-sach') }}"
+                                    class="submenu-item {{ request()->routeIs('wfh.danh-sach') ? 'active' : '' }}">
+                                    <span>Danh sách WFH (Admin)</span>
                                 </a>
                             @endcanany
-                            @can('Tạo Phiếu Tăng Ca Cá Nhân')
-                                <a href="{{ route('tang-ca.ca-nhan') }}"
-                                    class="submenu-item {{ request()->routeIs('tang-ca.ca-nhan') ? 'active' : '' }}">
-                                    <span>Đăng ký tăng ca</span>
+                            @can('Tạo Phiếu WFH Cá Nhân')
+                                <a href="{{ route('wfh.ca-nhan') }}"
+                                    class="submenu-item {{ request()->routeIs('wfh.ca-nhan') ? 'active' : '' }}">
+                                    <span>Đăng ký WFH</span>
                                 </a>
                             @endcan
+                        </div>
+                    </div>
+                @endcanany
+
+                @canany(['Xem Danh Sách Nghỉ Phép', 'Tạo Phiếu Nghỉ Phép Cá Nhân', 'Duyệt Nghỉ Phép'])
+                    <div class="nav-item-parent">
+                        <div class="nav-item {{ request()->routeIs('nghi-phep.*') ? 'active' : '' }}"
+                            onclick="toggleSubmenu('nghi-phep-submenu')" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>Nghỉ phép</span>
+                            </div>
+                            <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="submenu" id="nghi-phep-submenu">
                             @canany(['Xem Danh Sách Nghỉ Phép', 'Duyệt Nghỉ Phép'])
                                 <a href="{{ route('nghi-phep.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('nghi-phep.danh-sach') ? 'active' : '' }}">
@@ -2444,6 +2635,10 @@
                                 <a href="{{ route('nghi-phep.con-lai') }}"
                                     class="submenu-item {{ request()->routeIs('nghi-phep.con-lai') ? 'active' : '' }}">
                                     <span>Danh sách phép còn lại</span>
+                                </a>
+                                <a href="{{ route('nghi-phep.config') }}"
+                                    class="submenu-item {{ request()->routeIs('nghi-phep.config') ? 'active' : '' }}">
+                                    <span>Cấu hình nghỉ phép</span>
                                 </a>
                             @endcanany
                             @can('Tạo Phiếu Nghỉ Phép Cá Nhân')
@@ -2480,10 +2675,10 @@
                             @endcan
                             @can('Xem Lương Cá Nhân')
                                 @unlessrole('System Admin')
-                                    <a href="{{ $authNV ? route('salary.detail', $authNV->id) : '#' }}"
-                                        class="submenu-item {{ request()->routeIs('salary.detail') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
-                                        <span>Lương cá nhân</span>
-                                    </a>
+                                <a href="{{ $authNV ? route('salary.detail', $authNV->id) : '#' }}"
+                                    class="submenu-item {{ request()->routeIs('salary.detail') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
+                                    <span>Lương cá nhân</span>
+                                </a>
                                 @endunlessrole
                             @endcan
                             @can('Tính Lương Tự Động')
@@ -2492,12 +2687,7 @@
                                     <span>Cấu hình lương</span>
                                 </a>
                             @endcan
-                            @hasrole('System Admin')
-                                <a href="{{ route('salary.ngach-luong.index') }}"
-                                    class="submenu-item {{ request()->routeIs('salary.ngach-luong.index') ? 'active' : '' }}">
-                                    <span>Cấu hình bậc lương</span>
-                                </a>
-                            @endhasrole
+
                         </div>
                     </div>
                 @endcanany
@@ -2559,6 +2749,13 @@
                 @endcan
             </nav>
             <div class="sidebar-footer">
+                <div class="theme-toggle-container">
+                    <label class="theme-toggle-label">Giao diện hệ thống</label>
+                    <select id="global-theme-selector" class="theme-select no-select2">
+                        <option value="light">Chế độ Sáng</option>
+                        <option value="dark">Chế độ Tối</option>
+                    </select>
+                </div>
                 <div class="user-info">
                     <div class="user-avatar">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
@@ -2654,9 +2851,9 @@
             submenu.classList.toggle('open');
             chevron.classList.toggle('rotate');
         }
-        // Auto-open submenu if current page is in submenu
+        // Sidebar active state handling
         document.addEventListener('DOMContentLoaded', function () {
-            // Check if any submenu item is active
+            // 1. Auto-open submenu if current page is in submenu
             document.querySelectorAll('.submenu-item.active').forEach(item => {
                 const submenu = item.closest('.submenu');
                 if (submenu) {
@@ -2668,6 +2865,14 @@
                     }
                 }
             });
+
+            // 2. Auto-scroll sidebar to active item
+            const activeItem = document.querySelector('.nav-item.active, .submenu-item.active');
+            if (activeItem) {
+                setTimeout(() => {
+                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 200);
+            }
         });
         // Initialize Flatpickr for all date inputs globally
         document.addEventListener('DOMContentLoaded', function () {
@@ -2681,13 +2886,13 @@
         // Global Select2 Initialization
         $(document).ready(function () {
             function initSelect2(container) {
-                $(container).find('select').filter(function() {
+                $(container).find('select').filter(function () {
                     const $select = $(this);
-                    return !$select.hasClass('no-select2') && 
-                           !$select.hasClass('select2-hidden-accessible') && 
-                           !$select.hasClass('flatpickr-monthDropdown-months') && 
-                           $select.closest('.no-select2, .no-select2-parent, .dataTables_length, .swal2-container, .swal2-popup').length === 0 &&
-                           !($select.attr('name') && $select.attr('name').endsWith('_length'));
+                    return !$select.hasClass('no-select2') &&
+                        !$select.hasClass('select2-hidden-accessible') &&
+                        !$select.hasClass('flatpickr-monthDropdown-months') &&
+                        $select.closest('.no-select2, .no-select2-parent, .dataTables_length, .swal2-container, .swal2-popup').length === 0 &&
+                        !($select.attr('name') && $select.attr('name').endsWith('_length'));
                 }).each(function () {
                     const dropdownParent = $(this).closest('.modal').length ? $(this).closest('.modal') : null;
                     $(this).select2({
@@ -2706,7 +2911,51 @@
             $(document).on('shown.bs.modal', function (e) {
                 initSelect2(e.target);
             });
+
+            // Global Delete Confirmation with SweetAlert2
+            $(document).on('click', '.delete-confirm', function (e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+                const message = $(this).data('message') || 'Bạn có chắc chắn muốn xóa mục này?';
+
+                Swal.fire({
+                    title: 'Xác nhận xóa',
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Xác nhận xóa',
+                    cancelButtonText: 'Hủy',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
         });
+
+        // Global Theme Toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const themeSelector = document.getElementById('global-theme-selector');
+            if (themeSelector) {
+                const currentTheme = localStorage.getItem('theme') || 'light';
+                themeSelector.value = currentTheme;
+
+                themeSelector.addEventListener('change', function (e) {
+                    const selectedTheme = e.target.value;
+                    if (selectedTheme === 'dark') {
+                        document.body.classList.add('dark-theme');
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        document.body.classList.remove('dark-theme');
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+        });
+
     </script>
 </body>
 

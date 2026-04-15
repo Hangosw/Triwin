@@ -176,6 +176,112 @@
             background-size: 16px;
             padding-right: 36px;
         }
+
+        /* Dark Mode Overrides */
+        body.dark-theme .modal-content {
+            background: #1a1d2d;
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .modal-header,
+        body.dark-theme .modal-footer {
+            border-color: #2e3349;
+        }
+
+        body.dark-theme .modal-header h2 {
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .tabs {
+            border-bottom-color: #2e3349;
+        }
+
+        body.dark-theme .tab {
+            color: #8b93a8;
+        }
+
+        body.dark-theme .tab:hover {
+            color: var(--primary-green);
+        }
+
+        body.dark-theme .tab.active {
+            color: var(--primary-green);
+            border-bottom-color: var(--primary-green);
+        }
+
+        body.dark-theme .dataTables_wrapper .dataTables_filter input,
+        body.dark-theme .dataTables_wrapper .dataTables_length select {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #e8eaf0;
+        }
+
+        body.dark-theme .dataTables_wrapper .paginate_button {
+            background: #21263a !important;
+            border-color: #2e3349 !important;
+            color: #c3c8da !important;
+        }
+
+        body.dark-theme .badge-cyan {
+            background-color: rgba(6, 182, 212, 0.15);
+            color: #67e8f9;
+        }
+
+        body.dark-theme .badge-pink {
+            background-color: rgba(236, 72, 153, 0.15);
+            color: #f9a8d4;
+        }
+
+        body.dark-theme #bulkActionBar {
+            background: rgba(16, 185, 129, 0.1) !important;
+            border-color: rgba(16, 185, 129, 0.2) !important;
+        }
+
+        body.dark-theme #bulkActionBar span {
+            color: #34d399 !important;
+        }
+
+        body.dark-theme .form-label {
+            color: #8b93a8 !important;
+        }
+
+        /* Clear Filter Button Styles */
+        .btn-clear-filter {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: #fef2f2;
+            color: #dc2626;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: 1px solid #fee2e2;
+            height: 42px;
+        }
+
+        .btn-clear-filter:hover {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .btn-clear-filter svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        body.dark-theme .btn-clear-filter {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #ef4444;
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        body.dark-theme .btn-clear-filter:hover {
+            background-color: rgba(220, 38, 38, 0.2);
+            color: #f87171;
+        }
     </style>
 @endpush
 
@@ -252,18 +358,20 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Trạng thái</label>
-                    <select name="trang_thai" class="form-control" style="width: auto; margin-bottom: 0;"
-                        onchange="this.form.submit()">
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="2" {{ request('trang_thai') == '2' ? 'selected' : '' }}>Chờ duyệt</option>
-                        <option value="1" {{ request('trang_thai') == '1' ? 'selected' : '' }}>Đã duyệt</option>
-                        <option value="0" {{ request('trang_thai') == '0' ? 'selected' : '' }}>Từ chối</option>
-                    </select>
-                </div>
+
+                @if(request('phong_ban_id') || request('loai_phep_id') || request('trang_thai'))
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <a href="{{ route('nghi-phep.danh-sach') }}" class="btn-clear-filter">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Xóa bộ lọc
+                        </a>
+                    </div>
+                @endif
             </div>
             <div class="action-buttons">
+{{-- 
                 <button type="button" class="btn btn-secondary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -271,6 +379,7 @@
                     </svg>
                     Xuất Excel
                 </button>
+--}}
                 <a href="{{ route('nghi-phep.admin-dang-ky') }}" class="btn btn-primary">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -310,7 +419,9 @@
                             <th>Thời gian</th>
                             <th>Lý do</th>
                             <th>Trạng thái</th>
-                            <th>Hành động</th>
+                            @can('Duyệt Nghỉ Phép')
+                                <th>Hành động</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody>
@@ -322,26 +433,59 @@
                                         style="cursor: pointer;">
                                 </td>
                                 <td>
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <div class="avatar"
-                                            style="width: 40px; height: 40px; background: #0BAA4B; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
-                                            {{ substr($leave->nhanVien->Ten, 0, 1) }}
+                                    @if($leave->nhanVien)
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="avatar"
+                                                style="width: 40px; height: 40px; flex-shrink: 0; min-width: 40px; min-height: 40px; background: #0BAA4B; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; overflow: hidden;">
+                                                @if($leave->nhanVien->AnhDaiDien)
+                                                    <img src="{{ asset($leave->nhanVien->AnhDaiDien) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                                                @else
+                                                    {{ substr($leave->nhanVien->Ten, 0, 1) }}
+                                                @endif
+                                            </div>
+                                            <div class="font-medium">{{ $leave->nhanVien->Ten }}</div>
                                         </div>
-                                        <div class="font-medium">{{ $leave->nhanVien->Ten }}</div>
-                                    </div>
+                                    @else
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="avatar" style="width: 40px; height: 40px; flex-shrink: 0; min-width: 40px; min-height: 40px; background: #9ca3af; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
+                                                ?
+                                            </div>
+                                            <div class="font-medium text-danger">Nhân viên đã xóa</div>
+                                        </div>
+                                    @endif
                                 </td>
-                                <td>{{ $leave->nhanVien->ttCongViec->phongBan->Ten ?? 'N/A' }}</td>
+                                <td>{{ $leave->nhanVien?->ttCongViec?->phongBan?->Ten ?? 'N/A' }}</td>
                                 <td>
-                                    <span
-                                        class="badge {{ $leave->loaiNghiPhep->Ten == 'Nghỉ phép năm' ? 'badge-cyan' : ($leave->loaiNghiPhep->Ten == 'Nghỉ ốm' ? 'badge-pink' : 'badge-info') }}">
-                                        {{ $leave->loaiNghiPhep->Ten }}
-                                    </span>
+                                    @if($leave->loaiNghiPhep)
+                                        <span
+                                            class="badge {{ $leave->loaiNghiPhep->Ten == 'Nghỉ phép năm' ? 'badge-cyan' : ($leave->loaiNghiPhep->Ten == 'Nghỉ ốm' ? 'badge-pink' : 'badge-info') }}">
+                                            {{ $leave->loaiNghiPhep->Ten }}
+                                        </span>
+                                    @else
+                                        <span class="badge badge-secondary">N/A</span>
+                                    @endif
                                 </td>
                                 <td>
-                                    <div style="font-size: 13px;">
-                                        <div style="color: #6b7280;">Từ: <span class="font-medium" style="color: #1f2937;">{{ $leave->TuNgay->format('d/m/Y') }}</span> @if($leave->TuBuoi != 'ca_ngay') <small>({{ $leave->TuBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</small> @endif </div>
-                                        <div style="color: #6b7280;">Đến: <span class="font-medium" style="color: #1f2937;">{{ $leave->DenNgay->format('d/m/Y') }}</span> @if($leave->DenBuoi != 'ca_ngay') <small>({{ $leave->DenBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</small> @endif </div>
-                                        <div style="color: #0BAA4B; font-weight: 600;">Tổng: {{ number_format((float)$leave->SoNgayNghi, 1) }} ngày</div>
+                                    <div style="display: flex; flex-direction: column; gap: 4px; line-height: 1.4;">
+                                        <div style="color: #8b93a8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">Từ:</div>
+                                        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">
+                                            {{ $leave->TuNgay->format('d/m/Y') }}
+                                            @if($leave->TuBuoi != 'ca_ngay')
+                                                <span style="font-weight: 500; font-size: 11px; color: #8b93a8;">({{ $leave->TuBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</span>
+                                            @endif
+                                        </div>
+                                        
+                                        <div style="color: #8b93a8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">Đến:</div>
+                                        <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);">
+                                            {{ $leave->DenNgay->format('d/m/Y') }}
+                                            @if($leave->DenBuoi != 'ca_ngay')
+                                                <span style="font-weight: 500; font-size: 11px; color: #8b93a8;">({{ $leave->DenBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</span>
+                                            @endif
+                                        </div>
+
+                                        <div style="margin-top: 6px; color: #10b981; font-weight: 700; font-size: 13px;">
+                                            Tổng: {{ number_format((float)$leave->SoNgayNghi, 1) }} ngày
+                                        </div>
                                     </div>
                                 </td>
                                 <td>{{ $leave->LyDo }}</td>
@@ -354,28 +498,30 @@
                                         <span class="badge badge-danger">Từ chối</span>
                                     @endif
                                 </td>
-                                <td>
-                                    @if($leave->TrangThai === 2)
-                                        <div style="display: flex; gap: 8px;">
-                                            <button class="btn-icon text-success" onclick="approveLeave({{ $leave->id }})"
-                                                title="Duyệt">
-                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                            <button class="btn-icon text-danger" onclick="rejectLeave({{ $leave->id }})"
-                                                title="Từ chối">
-                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    @else
-                                        <span style="color: #9ca3af; font-size: 14px;">-</span>
-                                    @endif
-                                </td>
+                                @can('Duyệt Nghỉ Phép')
+                                    <td>
+                                        @if($leave->TrangThai === 2)
+                                            <div style="display: flex; gap: 8px;">
+                                                <button class="btn-icon text-success" onclick="approveLeave({{ $leave->id }})"
+                                                    title="Duyệt">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                                <button class="btn-icon text-danger" onclick="rejectLeave({{ $leave->id }})"
+                                                    title="Từ chối">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        @else
+                                            <span style="color: #9ca3af; font-size: 14px;">-</span>
+                                        @endif
+                                    </td>
+                                @endcan
                             </tr>
                         @endforeach
                     </tbody>
@@ -398,52 +544,9 @@
         let leaveLimitsMap = {};
         let startPicker, endPicker;
 
-        document.addEventListener('DOMContentLoaded', function () {
-            flatpickr.localize(flatpickr.l10ns.vn);
-
-            startPicker = flatpickr("#leaveFromDate", {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d/m/Y",
-                minDate: "today",
-                onChange: function (selectedDates) {
-                    if (endPicker) endPicker.set('minDate', selectedDates[0]);
-                    calculateDays();
-                }
-            });
-
-            endPicker = flatpickr("#leaveToDate", {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d/m/Y",
-                minDate: "today",
-                onChange: function () {
-                    calculateDays();
-                }
-            });
-
-            document.getElementById('leaveType').addEventListener('change', calculateDays);
-            
-            // Lấy hạn mức khi chọn nhân viên
-            $('#leaveEmployee').on('change', function() {
-                const nhanVienId = $(this).val();
-                if (nhanVienId) {
-                    fetch(`{{ route('nghi-phep.api.limits') }}?nhanVienId=${nhanVienId}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            leaveLimitsMap = data;
-                            calculateDays();
-                        });
-                } else {
-                    leaveLimitsMap = {};
-                    calculateDays();
-                }
-            });
-        });
-
         $(document).ready(function () {
             // Initialize DataTable
-            $('#leaveTable').DataTable({
+            const table = $('#leaveTable').DataTable({
                 "language": {
                     "sProcessing": "Đang xử lý...",
                     "sLengthMenu": "Xem _MENU_ mục",
@@ -451,9 +554,7 @@
                     "sInfo": "Đang xem _START_ đến _END_ trong tổng số _TOTAL_ mục",
                     "sInfoEmpty": "Đang xem 0 đến 0 trong tổng số 0 mục",
                     "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                    "sInfoPostFix": "",
                     "sSearch": "Tìm:",
-                    "sUrl": "",
                     "oPaginate": {
                         "sFirst": "Đầu",
                         "sPrevious": "Trước",
@@ -461,55 +562,124 @@
                         "sLast": "Cuối"
                     }
                 },
-                "order": [[4, "desc"]], // Sort by Thời gian (index 4) by default
+                "order": [[4, "desc"]],
                 "responsive": true,
                 "autoWidth": false,
                 "columnDefs": [
-                    { "orderable": false, "targets": [0, 7] } // Disable sorting for checkbox (0) and actions (7)
+                    { "orderable": false, "targets": [0 @can('Duyệt Nghỉ Phép'), 7 @endcan] }
                 ]
             });
 
-            // Select All checkboxes
-            const selectAll = document.getElementById('selectAll');
-            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
-            const bulkActionBar = document.getElementById('bulkActionBar');
-            const selectedCountSpan = document.getElementById('selectedCount');
-
+            // Logic hiển thị thanh tác vụ hàng loạt
             function updateBulkActionBar() {
-                const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
-                const count = selectedCheckboxes.length;
+                // Sử dụng table.$() để đếm trên tất cả các trang
+                const selectedCount = table.$('.row-checkbox:checked').length;
+                const bulkActionBar = document.getElementById('bulkActionBar');
+                const selectedCountSpan = document.getElementById('selectedCount');
 
-                if (count > 0) {
-                    bulkActionBar.style.display = 'block';
-                    selectedCountSpan.textContent = count;
-                } else {
-                    bulkActionBar.style.display = 'none';
+                if (bulkActionBar && selectedCountSpan) {
+                    if (selectedCount > 0) {
+                        bulkActionBar.style.display = 'block';
+                        selectedCountSpan.textContent = selectedCount;
+                    } else {
+                        bulkActionBar.style.display = 'none';
+                    }
                 }
             }
 
-            if (selectAll) {
-                selectAll.addEventListener('change', function () {
-                    rowCheckboxes.forEach(cb => {
-                        cb.checked = selectAll.checked;
-                    });
-                    updateBulkActionBar();
+            $('#selectAll').on('change', function() {
+                const isChecked = this.checked;
+                $(table.rows({search: 'applied'}).nodes()).find('.row-checkbox').prop('checked', isChecked);
+                updateBulkActionBar();
+            });
+
+            $('#leaveTable').on('change', '.row-checkbox', function() {
+                updateBulkActionBar();
+                const allCheckboxes = $(table.rows({search: 'applied'}).nodes()).find('.row-checkbox');
+                const checkedCheckboxes = allCheckboxes.filter(':checked');
+                const selectAll = document.getElementById('selectAll');
+                if (selectAll) {
+                    selectAll.checked = checkedCheckboxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+                    selectAll.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+                }
+            });
+
+            // Phơi bày các hàm ra window để nút bấm gọi được
+            window.approveLeave = function(id) {
+                confirmAction('Bạn có chắc muốn duyêt đơn này?', () => {
+                    sendRequest(`/nghi-phep/duyet/${id}`);
                 });
             }
 
-            rowCheckboxes.forEach(cb => {
-                cb.addEventListener('change', function () {
-                    updateBulkActionBar();
+            window.rejectLeave = function(id) {
+                confirmAction('Bạn có chắc muốn từ chối đơn này?', () => {
+                    sendRequest(`/nghi-phep/tu-choi/${id}`);
+                }, 'warning');
+            }
 
-                    // Update selectAll state
-                    const allChecked = Array.from(rowCheckboxes).every(c => c.checked);
-                    const someChecked = Array.from(rowCheckboxes).some(c => c.checked);
-                    selectAll.checked = allChecked;
-                    selectAll.indeterminate = someChecked && !allChecked;
+            window.bulkApprove = function() {
+                const ids = getSelectedIds();
+                if (ids.length === 0) return;
+                
+                confirmAction(`Duyệt ${ids.length} đơn đã chọn?`, () => {
+                    sendRequest('{{ route("nghi-phep.bulk-duyet") }}', { ids: ids });
                 });
-            });
+            }
+
+            window.bulkReject = function() {
+                const ids = getSelectedIds();
+                if (ids.length === 0) return;
+
+                confirmAction(`Từ chối ${ids.length} đơn đã chọn?`, () => {
+                    sendRequest('{{ route("nghi-phep.bulk-tu-choi") }}', { ids: ids });
+                }, 'warning');
+            }
+
+            // Helpers
+            function getSelectedIds() {
+                const ids = [];
+                table.$('.row-checkbox:checked').each(function() {
+                    ids.push($(this).val());
+                });
+                return ids;
+            }
+
+            function confirmAction(message, callback, icon = 'question') {
+                Swal.fire({
+                    title: 'Xác nhận',
+                    text: message,
+                    icon: icon,
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: icon === 'warning' ? '#ef4444' : '#0BAA4B'
+                }).then((result) => {
+                    if (result.isConfirmed) callback();
+                });
+            }
+
+            function sendRequest(url, data = {}) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Thành công', data.message || 'Thao tác thành công', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Lỗi', 'Không thể kết nối máy chủ', 'error'));
+            }
         });
 
-        // Filter by status
         function filterStatus(status) {
             const url = new URL(window.location.href);
             if (status !== '') {
@@ -519,101 +689,6 @@
             }
             window.location.href = url.toString();
         }
-
-                    document.getElementById('leaveDays').value = '';
-                    return;
-                }
-            }
-        }
-
-                // Calculate actual working days
-                let count = 0;
-                let cur = new Date(fromDate);
-                // Reset time to ensure comparison works correctly
-                cur.setHours(0, 0, 0, 0);
-                let to = new Date(toDate);
-                to.setHours(0, 0, 0, 0);
-
-                const tuBuoi = document.getElementById('leaveFromShift').value;
-                const denBuoi = document.getElementById('leaveToShift').value;
-
-                while (cur <= to) {
-                    const dayOfWeek = cur.getDay();
-                    const dbDayOfWeek = (dayOfWeek === 0) ? 8 : (dayOfWeek + 1);
-
-                    if (workingSchedule[dbDayOfWeek] && workingSchedule[dbDayOfWeek].CoLamViec) {
-                        let dayVal = 1;
-                        if (cur.getTime() === fromDate.getTime() && (tuBuoi === 'sang' || tuBuoi === 'chieu')) {
-                            dayVal = 0.5;
-                        } else if (cur.getTime() === toDate.getTime() && (denBuoi === 'sang' || denBuoi === 'chieu')) {
-                            dayVal = 0.5;
-                        }
-                        count += dayVal;
-                    }
-                    cur.setDate(cur.getDate() + 1);
-                }
-                
-                // Trường hợp cùng ngày
-                if (fromDate.getTime() === toDate.getTime()) {
-                    count = 0;
-                    const dayOfWeek = fromDate.getDay();
-                    const dbDayOfWeek = (dayOfWeek === 0) ? 8 : (dayOfWeek + 1);
-                    if (workingSchedule[dbDayOfWeek] && workingSchedule[dbDayOfWeek].CoLamViec) {
-                        if (tuBuoi === 'sang' && denBuoi === 'sang') count = 0.5;
-                        else if (tuBuoi === 'chieu' && denBuoi === 'chieu') count = 0.5;
-                        else if (tuBuoi === 'sang' && denBuoi === 'chieu') count = 1.0;
-                        else count = 1.0;
-                    }
-                }
-                document.getElementById('leaveDays').value = count.toFixed(1) + ' ngày';
-
-                // Kiểm tra hạn mức (Cảnh báo cho Admin & Split)
-                const typeSelect = document.getElementById('leaveType');
-                const selectedTypeId = typeSelect.value;
-                const remainingBalance = leaveLimitsMap[selectedTypeId] !== undefined ? parseFloat(leaveLimitsMap[selectedTypeId]) : 999;
-                
-                const splitSection = document.getElementById('splitLeaveSection');
-                const splitMessage = document.getElementById('splitMessage');
-                const splitTypeSelect = document.getElementById('splitTypeSelect');
-                let message = "";
-
-                if (selectedTypeId == annualLeaveId) {
-                    const effectiveLimit = Math.min(remainingBalance, annualLeaveLimit);
-                    if (count > effectiveLimit) {
-                         message = count > remainingBalance ? 'Quỹ phép năm còn lại không đủ.' : 'Vượt quá giới hạn mỗi lần dùng của hệ thống.';
-                    }
-                } else if (remainingBalance < count && remainingBalance !== 999) {
-                    message = `Số ngày đăng ký vượt quá hạn mức tối đa còn lại (${remainingBalance} ngày).`;
-                }
-
-                if (message) {
-                    splitMessage.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + message + ' Bạn có thể chọn loại nghỉ thay thế hoặc tiếp tục (Admin).';
-                    splitSection.style.display = 'block';
-
-                    // Dynamic filtering
-                    Array.from(splitTypeSelect.options).forEach(opt => {
-                        if (!opt.value) return;
-                        const optBalance = leaveLimitsMap[opt.value] !== undefined ? parseFloat(leaveLimitsMap[opt.value]) : 999;
-                        if (opt.value == selectedTypeId || (optBalance <= 0)) {
-                            opt.style.display = 'none';
-                            if (splitTypeSelect.value == opt.value) splitTypeSelect.value = "";
-                        } else {
-                            opt.style.display = 'block';
-                        }
-                    });
-                } else {
-                    splitSection.style.display = 'none';
-                }
-            }
-        }
-
-        // Close modal on outside click
-        window.addEventListener('click', function (e) {
-            const modal = document.getElementById('leaveModal');
-            if (e.target === modal) {
-                if (typeof closeLeaveModal === 'function') closeLeaveModal();
-            }
-        });
     </script>
     </script>
 @endpush
