@@ -149,13 +149,9 @@ class HopDongController extends Controller
             ->where('TrangThai', 1)
             ->first();
 
-        // Lấy tất cả danh mục phụ cấp
-        $allAllowances = \App\Models\DmPlHopDong::active()->get();
-
         return view('contracts.show', compact(
             'hopDong',
             'rootHopDong',
-            'allAllowances',
             'laborContract',
             'ndaContract',
             'historyContracts',
@@ -167,16 +163,45 @@ class HopDongController extends Controller
     {
         $ids = $request->ids;
         if (!empty($ids)) {
-            \App\Models\HopDong::whereIn('id', $ids)->delete();
-            return response()->json([
-                'success' => true,
-                'message' => 'Đã xóa ' . count($ids) . ' hợp đồng thành công!'
-            ]);
+            try {
+                \Illuminate\Support\Facades\DB::beginTransaction();
+
+                $allRelatedIds = [];
+                $selectedContracts = \App\Models\HopDong::with(['parentLink'])->whereIn('id', $ids)->get();
+
+                foreach ($selectedContracts as $hd) {
+                    // Xác định ID của hợp đồng gốc
+                    $rootId = $hd->parentLink ? $hd->parentLink->HopDongGocId : $hd->id;
+                    $allRelatedIds[] = $rootId;
+
+                    // Lấy tất cả ID của các phụ lục thuộc hợp đồng gốc này
+                    $appendixIds = \App\Models\PhuLucHopDong::where('HopDongGocId', $rootId)->pluck('HopDongPLId')->toArray();
+                    $allRelatedIds = array_merge($allRelatedIds, $appendixIds);
+                }
+
+                $allRelatedIds = array_unique($allRelatedIds);
+
+                // Cập nhật trạng thái thành 2 (Bị hủy/Thanh lý) thay vì xóa cứng
+                \App\Models\HopDong::whereIn('id', $allRelatedIds)->update(['TrangThai' => 2]);
+
+                \Illuminate\Support\Facades\DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Đã hủy ' . count($allRelatedIds) . ' hợp đồng và phụ lục liên quan thành công!'
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lỗi khi hủy hợp đồng: ' . $e->getMessage()
+                ], 500);
+            }
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Vui lòng chọn hợp đồng để xóa'
+            'message' => 'Vui lòng chọn hợp đồng để hủy'
         ], 400);
     }
 
@@ -191,9 +216,11 @@ class HopDongController extends Controller
                 $rq->where('name', 'Nhân viên');
             });
         })->with(['ttCongViec.chucVu', 'ttCongViec.phongBan'])
-          ->withCount(['thanNhans as phu_thuoc_count' => function ($query) {
-              $query->where('TrangThai', 1);
-          }])->get();
+            ->withCount([
+                'thanNhans as phu_thuoc_count' => function ($query) {
+                    $query->where('TrangThai', 1);
+                }
+            ])->get();
 
         // Lấy danh sách toàn bộ nhân viên để ký tên (đã gỡ bỏ giới hạn System Admin)
         $nguoiKyList = NhanVien::orderBy('Ten')->get();
@@ -204,12 +231,11 @@ class HopDongController extends Controller
 
         // Ngạch lương & bậc lương
         $loaiHopDongs = \App\Models\DmLoaiHopDong::where('TrangThai', 'mo')->get();
-        $dmAllowances = \App\Models\DmPlHopDong::active()->get();
 
         // Lấy người ký từ cấu hình signer_id (trả về null nếu chưa cấu hình)
         $defaultNguoiKyId = \App\Models\SystemConfig::getValue('signer_id');
 
-        return view('contracts.create', compact('nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'loaiHopDongs', 'dmAllowances', 'defaultNguoiKyId', 'nguoiKyList'));
+        return view('contracts.create', compact('nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'loaiHopDongs', 'defaultNguoiKyId', 'nguoiKyList'));
     }
 
     public function Tao(Request $request)
@@ -300,7 +326,7 @@ class HopDongController extends Controller
             }
 
             // Create contract and deactivate old ones in a transaction
-            $hopDong = \DB::transaction(function () use ($data) {
+            $hopDong = \DB::transaction(function () use ($data, $maLoai) {
                 // Nếu hợp đồng mới là đang hoạt động (TrangThai == 1)
                 if ($data['TrangThai'] == 1) {
                     $isNewNDA = str_starts_with($data['Loai'] ?? '', 'nda');
@@ -428,7 +454,7 @@ class HopDongController extends Controller
         $templateProcessor->setValue('TenLoaiHD', $hopDong->loaiHopDong ? $hopDong->loaiHopDong->TenLoai : 'Hợp đồng lao động');
         $templateProcessor->setValue('NgayBatDau', $hopDong->NgayBatDau ? \Carbon\Carbon::parse($hopDong->NgayBatDau)->format('d/m/Y') : '');
         $templateProcessor->setValue('ChucDanhChiTiet', $hopDong->chucVu ? $hopDong->chucVu->TenChucVu : '');
-        
+
         $luongCoBan = number_format($hopDong->LuongCoBan ?? 0, 0, ',', '.');
         $templateProcessor->setValue('LuongCoBan', $luongCoBan);
 
@@ -601,7 +627,7 @@ class HopDongController extends Controller
     {
         $hopDong = \App\Models\HopDong::with(['nhanVien', 'nguoiKy.ttCongViec.chucVu'])->findOrFail($id);
         $this->checkAuthority($hopDong);
-        $phuLuc = \App\Models\PhuLucHopDong::where('HopDongGocId', $id)->with(['dieuKhoans', 'kySo'])->latest()->first();
+        $phuLuc = \App\Models\PhuLucHopDong::where('HopDongGocId', $id)->with(['kySo'])->latest()->first();
 
         if (!$phuLuc) {
             return redirect()->back()->with('error', 'Không tìm thấy phụ lục cho hợp đồng này.');
@@ -783,8 +809,8 @@ class HopDongController extends Controller
             'chucVu',
             'phongBan',
             'nguoiKy',
-            'phuLucs.dieuKhoans',
-            'phuLucs.kySo'
+            'phuLucs.kySo',
+            'phuLucs.hopDongPL',
         ])->findOrFail($id);
 
         $this->checkAuthority($hopDong);
@@ -850,7 +876,7 @@ class HopDongController extends Controller
 
     public function downloadPhuLucPDF($id)
     {
-        $hopDong = \App\Models\HopDong::with(['nhanVien', 'chucVu', 'phongBan', 'nguoiKy', 'phuLucs.dieuKhoans', 'phuLucs.kySo'])->findOrFail($id);
+        $hopDong = \App\Models\HopDong::with(['nhanVien', 'chucVu', 'phongBan', 'nguoiKy', 'phuLucs.kySo'])->findOrFail($id);
         $this->checkAuthority($hopDong);
 
         $phuLuc = $hopDong->phuLucs()->latest()->first();
@@ -887,9 +913,11 @@ class HopDongController extends Controller
                 $rq->where('name', 'Nhân viên');
             });
         })->with(['ttCongViec.chucVu', 'ttCongViec.phongBan'])
-          ->withCount(['thanNhans as phu_thuoc_count' => function ($query) {
-              $query->where('TrangThai', 1);
-          }])->get();
+            ->withCount([
+                'thanNhans as phu_thuoc_count' => function ($query) {
+                    $query->where('TrangThai', 1);
+                }
+            ])->get();
 
         // Lấy danh sách toàn bộ nhân viên để ký tên (đã gỡ bỏ giới hạn System Admin)
         $nguoiKyList = NhanVien::orderBy('Ten')->get();
@@ -899,9 +927,8 @@ class HopDongController extends Controller
         $mucLuongCoSo = $baseSalary ? $baseSalary->MucLuongCoSo : 2340000;
 
         $loaiHopDongs = \App\Models\DmLoaiHopDong::where('TrangThai', 'mo')->get();
-        $dmAllowances = \App\Models\DmPlHopDong::active()->get();
 
-        return view('contracts.edit', compact('hopDong', 'nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'loaiHopDongs', 'dmAllowances', 'nguoiKyList'));
+        return view('contracts.edit', compact('hopDong', 'nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'loaiHopDongs', 'nguoiKyList'));
     }
 
     public function CapNhat(Request $request, $id)
@@ -1026,7 +1053,7 @@ class HopDongController extends Controller
 
                 if ($hasVersioningChanges) {
                     // VERSIONING LOGIC: Retire current, Create new branch
-                    
+
                     // 1. Identify the Root Contract ID (HopDongGocId)
                     // If current contract is already an appendix, use its existing GocId.
                     // Otherwise, this IS the root contract.
@@ -1042,15 +1069,15 @@ class HopDongController extends Controller
                     $rootContract = \App\Models\HopDong::find($rootContractId);
                     $appendixCount = \App\Models\PhuLucHopDong::where('HopDongGocId', $rootContractId)->count();
                     $nextSeq = sprintf("%02d", $appendixCount + 1);
-                    
+
                     $newData = array_merge($data, [
                         'SoHopDong' => "PL{$nextSeq}/" . ($rootContract->SoHopDong),
-                        'NhanVienId' => $hopDong->NhanVienId, 
-                        'NguoiKyId' => $hopDong->NguoiKyId,   
+                        'NhanVienId' => $hopDong->NhanVienId,
+                        'NguoiKyId' => $hopDong->NguoiKyId,
                         'File' => $data['File'] ?? $hopDong->File,
                         'TrangThai' => 1 // Active
                     ]);
-                    
+
                     $appendixContract = \App\Models\HopDong::create($newData);
 
                     // C. Link them in phu_luc_hop_dongs
@@ -1135,12 +1162,11 @@ class HopDongController extends Controller
         // Ngạch lương & bậc lương
         $isRenew = true;
         $loaiHopDongs = \App\Models\DmLoaiHopDong::where('TrangThai', 'mo')->get();
-        $dmAllowances = \App\Models\DmPlHopDong::active()->get();
 
         // Lấy người ký từ cấu hình signer_id (trả về null nếu chưa cấu hình)
         $defaultNguoiKyId = \App\Models\SystemConfig::getValue('signer_id');
 
-        return view('contracts.create', compact('oldContract', 'isRenew', 'nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'loaiHopDongs', 'dmAllowances', 'defaultNguoiKyId', 'nguoiKyList'));
+        return view('contracts.create', compact('oldContract', 'isRenew', 'nhanvien', 'phongban', 'chucvu', 'mucLuongCoSo', 'loaiHopDongs', 'defaultNguoiKyId', 'nguoiKyList'));
     }
 
     /**

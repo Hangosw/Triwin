@@ -21,7 +21,7 @@ class BirthdayMail extends Mailable implements ShouldQueue
     public function __construct($nhanVien)
     {
         $this->nhanVien = $nhanVien;
-        $this->companyName = SystemConfig::getValue('company_name', 'Vietnam Rubber Group');
+        $this->companyName = SystemConfig::getValue('company_name', \App\Models\SystemConfig::getValue('company_name') );
     }
 
     /**
@@ -30,6 +30,6 @@ class BirthdayMail extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject("🎂 Chúc mừng sinh nhật, {$this->nhanVien->Ten}! 🎉")
-                    ->view('emails.birthday');
+            ->view('emails.birthday');
     }
 }

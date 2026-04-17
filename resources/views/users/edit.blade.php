@@ -109,7 +109,7 @@
 @endpush
 
 
-@section('title', 'Chỉnh sửa người dùng - Vietnam Rubber Group')
+@section('title', 'Chỉnh sửa người dùng - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 
 @push('scripts')

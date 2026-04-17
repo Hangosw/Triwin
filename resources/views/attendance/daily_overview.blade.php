@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tổng quan chấm công ngày ' . $dateObj->format('d/m/Y') . ' - Vietnam Rubber Group')
+@section('title', 'Tổng quan chấm công ngày ' . $dateObj->format('d/m/Y') . ' - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">

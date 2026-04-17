@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Luong;
 use Illuminate\Http\Request;
 use App\Models\NhanVien;
 use App\Models\CauHinhBaoHiem;
 use App\Services\LuongService;
+use App\Services\SystemLogService;
 use App\Mail\SalarySlipMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class LuongController extends Controller
 {
@@ -147,6 +151,7 @@ class LuongController extends Controller
                     'SoNguoiPhuThuoc' => $ketQua['so_nguoi_phu_thuoc'],
                     'SoNgayCong' => $ketQua['ngay_cong_thuc_te'],
                     'Luong' => $ketQua['luong_thuc_nhan'],
+                    'TamUng' => $ketQua['tam_ung'] ?? 0,
                     'GhiChu' => "Cập nhật thủ công ngày " . now()->format('d/m/Y H:i'),
                 ]
             );
@@ -179,6 +184,11 @@ class LuongController extends Controller
             'thanNhans',
         ])->findOrFail($id);
 
+        $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-d');
+        $luongRecord = \App\Models\Luong::where('NhanVienId', $id)
+            ->where('ThoiGian', $thoiGian)
+            ->first();
+
         $luong = LuongService::tinhLuong($nhanVien, $thang, $nam);
         $hopDong = $luong['hop_dong'];
         $baoHiems = $luong['bao_hiems'];
@@ -188,6 +198,7 @@ class LuongController extends Controller
             'hopDong',
             'baoHiems',
             'luong',
+            'luongRecord',
             'thang',
             'nam'
         ));
@@ -263,6 +274,7 @@ class LuongController extends Controller
                         'SoNguoiPhuThuoc' => $ketQua['so_nguoi_phu_thuoc'],
                         'SoNgayCong' => $ketQua['ngay_cong_thuc_te'],
                         'Luong' => $ketQua['luong_thuc_nhan'],
+                        'TamUng' => $ketQua['tam_ung'] ?? 0,
                         'TrangThai' => 0,
                         'GhiChu' => ($ketQua['loai_nhan_vien_text'] ?? 'Bản ghi') .
                             " – " . number_format($ketQua['ngay_cong_thuc_te'], 2) . "/" .
@@ -360,7 +372,7 @@ class LuongController extends Controller
                 \Log::info("Sending salary email for {$nv->Ten} to {$nv->Email} (Month: {$thang}/{$nam})");
 
                 // Gửi mail (nên dùng queue để tránh timeout nếu gửi hàng loạt nhiều)
-                Mail::to($nv->Email)->queue(new SalarySlipMail($nv, $dataLuong, $thang, $nam));
+                Mail::to($nv->Email)->queue(new SalarySlipMail($nv, $dataLuong, $thang, $nam, $luong));
 
                 $guiThanhCong++;
             } catch (\Exception $e) {
@@ -379,48 +391,166 @@ class LuongController extends Controller
         ]);
     }
 
-    public function ConfigGlobalView()
-    {
-        $salaryCalculationType = \App\Models\SystemConfig::getValue('salary_calculation_type', 'contract');
-        $thamSoLuongs = \App\Models\ThamSoLuong::orderBy('NgayApDung', 'desc')->get();
-        return view('salary.config_global', compact('salaryCalculationType', 'thamSoLuongs'));
-    }
 
-    public function SaveThamSoLuong(Request $request)
-    {
-        $request->validate([
-            'NgayApDung' => 'required|date',
-            'MucLuongCoSo' => 'required|numeric|min:0',
-        ], [
-            'NgayApDung.required' => 'Ngày áp dụng không được để trống',
-            'NgayApDung.date' => 'Ngày áp dụng không hợp lệ',
-            'MucLuongCoSo.required' => 'Mức lương cơ sở không được để trống',
-            'MucLuongCoSo.numeric' => 'Mức lương cơ sở phải là số',
-        ]);
 
-        try {
-            \App\Models\ThamSoLuong::create($request->all());
-            return redirect()->back()->with('success', 'Đã thêm tham số lương mới thành công!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+    public function export(Request $request)
+    {
+        $thang = (int) ($request->thang ?? now()->month);
+        $nam   = (int) ($request->nam  ?? now()->year);
+
+        $thoiGian = \Carbon\Carbon::createFromDate($nam, $thang, 1)->format('Y-m-01');
+
+        $luongs = Luong::with([
+            'nhanVien.ttCongViec.chucVu',
+            'nhanVien.hopDongs',
+            'nhanVien.thanNhans',
+        ])
+            ->where('ThoiGian', $thoiGian)
+            ->get();
+
+        // Tính insurance details giống IndexView
+        $insuranceDetails = [];
+        foreach ($luongs as $luong) {
+            $nv = $luong->nhanVien;
+            if ($nv) {
+                try {
+                    $detail = \App\Services\LuongService::tinhLuong($nv, $thang, $nam);
+                    $insuranceDetails[$nv->id] = $detail['bao_hiems_detail'] ?? [];
+                } catch (\Exception $e) {
+                    $insuranceDetails[$nv->id] = [];
+                }
+            }
         }
+
+        return (new \App\Exports\SalaryExport($luongs, $insuranceDetails, $thang, $nam))->download();
     }
 
-    public function SaveConfigGlobal(Request $request)
+    /**
+     * View tính lương thủ công (Điều chỉnh tay)
+     */
+    public function ManualEditView($id)
+    {
+        $luong = Luong::with(['nhanVien.ttCongViec.chucVu', 'nhanVien.ttCongViec.phongBan', 'nhanVien.hopDongs'])->findOrFail($id);
+        $nv = $luong->nhanVien;
+
+        $dt = \Carbon\Carbon::parse($luong->ThoiGian);
+        $thang = $dt->month;
+        $nam = $dt->year;
+
+        // Lấy con số tự động chốt để so sánh
+        try {
+            $auto = LuongService::tinhLuong($nv, $thang, $nam);
+        } catch (\Exception $e) {
+            $auto = null;
+        }
+
+        // Lấy lịch sử điều chỉnh
+        $logs = DB::table('lich_sus')
+            ->leftJoin('nguoi_dungs', 'lich_sus.NhanVienId', '=', 'nguoi_dungs.id')
+            ->where('DoiTuongLoai', 'Luong')
+            ->where('DoiTuongId', $id)
+            ->select('lich_sus.*', 'nguoi_dungs.Ten as TenNguoiDung')
+            ->orderByDesc('lich_sus.Id')
+            ->get();
+
+        return view('salary.edit_manual', compact('luong', 'nv', 'auto', 'thang', 'nam', 'logs'));
+    }
+
+    /**
+     * Xử lý cập nhật lương thủ công
+     */
+    public function UpdateManual(Request $request, $id)
     {
         $request->validate([
-            'salary_calculation_type' => 'required|in:contract,attendance',
+            'LuongCoBan' => 'required|numeric|min:0',
+            'PhuCap' => 'required|numeric|min:0',
+            'KhauTruBaoHiem' => 'required|numeric|min:0',
+            'ThueTNCN' => 'required|numeric|min:0',
+            'TamUng' => 'required|numeric|min:0',
+            'KhenThuong' => 'nullable|numeric|min:0',
+            'KyLuat' => 'nullable|numeric|min:0',
+            'LyDoKhenThuong' => 'required_if:KhenThuong,>0|nullable|string',
+            'LyDoKyLuat' => 'required_if:KyLuat,>0|nullable|string',
+            'GhiChu' => 'nullable|string',
         ]);
 
-        \App\Models\SystemConfig::updateOrCreate(
-            ['key' => 'salary_calculation_type'],
-            [
-                'value' => $request->salary_calculation_type,
-                'group' => 'salary',
-                'description' => 'Hình thức tính lương: contract (theo hợp đồng) hoặc attendance (theo chấm công)'
-            ]
-        );
+        return DB::transaction(function () use ($request, $id) {
+            $luong = Luong::lockForUpdate()->findOrFail($id);
 
-        return redirect()->back()->with('success', 'Đã lưu cấu hình lương thành công!');
+            // Lưu log cũ để so sánh
+            $oldData = [
+                'LuongCoBan' => (float)$luong->LuongCoBan,
+                'PhuCap' => (float)$luong->PhuCap,
+                'KhauTruBaoHiem' => (float)$luong->KhauTruBaoHiem,
+                'ThueTNCN' => (float)$luong->ThueTNCN,
+                'TamUng' => (float)$luong->TamUng,
+                'KhenThuong' => (float)$luong->KhenThuong,
+                'KyLuat' => (float)$luong->KyLuat,
+            ];
+
+            // Dữ liệu mới từ request
+            $newData = [
+                'LuongCoBan' => (float)$request->LuongCoBan,
+                'PhuCap' => (float)$request->PhuCap,
+                'KhauTruBaoHiem' => (float)$request->KhauTruBaoHiem,
+                'ThueTNCN' => (float)$request->ThueTNCN,
+                'TamUng' => (float)$request->TamUng,
+                'KhenThuong' => (float)($request->KhenThuong ?? 0),
+                'KyLuat' => (float)($request->KyLuat ?? 0),
+            ];
+
+            // Kiểm tra xem có gì thay đổi không
+            $changedFieldsOld = [];
+            $changedFieldsNew = [];
+            foreach ($newData as $key => $value) {
+                if (abs($value - $oldData[$key]) > 0.01) { // Sử dụng abs để tránh sai số float
+                    $changedFieldsOld[$key] = $oldData[$key];
+                    $changedFieldsNew[$key] = $value;
+                }
+            }
+
+            if (!empty($changedFieldsNew)) {
+                $logMoTa = $request->GhiChu ?? 'Cập nhật các khoản thu nhập/khấu trừ thủ công';
+                
+                // Bổ sung lý do thưởng/phạt vào mô tả log nếu có
+                if ($request->KhenThuong > 0 && $request->LyDoKhenThuong) {
+                    $logMoTa .= " | Lý do thưởng: " . $request->LyDoKhenThuong;
+                }
+                if ($request->KyLuat > 0 && $request->LyDoKyLuat) {
+                    $logMoTa .= " | Lý do kỷ luật: " . $request->LyDoKyLuat;
+                }
+
+                SystemLogService::log(
+                    'Điều chỉnh lương thủ công',
+                    'Luong',
+                    $luong->id,
+                    $logMoTa,
+                    $changedFieldsOld,
+                    $changedFieldsNew
+                );
+            }
+
+            // Cập nhật các trường
+            $luong->LuongCoBan = $newData['LuongCoBan'];
+            $luong->PhuCap = $newData['PhuCap'];
+            $luong->KhauTruBaoHiem = $newData['KhauTruBaoHiem'];
+            $luong->ThueTNCN = $newData['ThueTNCN'];
+            $luong->TamUng = $newData['TamUng'];
+            $luong->KhenThuong = $newData['KhenThuong'];
+            $luong->KyLuat = $newData['KyLuat'];
+            $luong->GhiChu = $request->GhiChu;
+
+            // Recalculate Net
+            $earnings = $luong->LuongCoBan + $luong->PhuCap + $luong->KhenThuong;
+            $deductions = $luong->KhauTruBaoHiem + $luong->ThueTNCN + $luong->TamUng + $luong->KyLuat;
+            $luong->Luong = max(0, $earnings - $deductions);
+
+            $luong->save();
+
+            return redirect()->route('salary.index', [
+                'thang' => \Carbon\Carbon::parse($luong->ThoiGian)->month,
+                'nam' => \Carbon\Carbon::parse($luong->ThoiGian)->year
+            ])->with('success', "Đã điều chỉnh lương thủ công cho nhân viên {$luong->nhanVien->Ten} thành công.");
+        });
     }
 }

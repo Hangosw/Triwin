@@ -8,13 +8,29 @@
             --primary-green: #0BAA4B;
             --secondary-green: #D1E7DD;
             --text-muted: #6b7280;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.2s ease;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+            --header-bg: #f9fafb;
+            --text-main: #111827;
+            --table-th-bg: #f9fafb;
+            --row-border: #e5e7eb;
+        }
+
+        body.dark-theme {
+            --card-bg: #1a1d27;
+            --card-border: #2e3349;
+            --header-bg: #12141c;
+            --text-main: #e8eaf0;
+            --text-muted: #8b93a8;
+            --table-th-bg: #12141c;
+            --row-border: #2e3349;
         }
 
         .card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 16px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--card-border);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             margin-bottom: 24px;
             overflow: hidden;
@@ -22,17 +38,17 @@
 
         .card-header {
             padding: 20px 24px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--card-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #f9fafb;
+            background: var(--header-bg);
         }
 
         .card-title {
             font-size: 18px;
             font-weight: 600;
-            color: #111827;
+            color: var(--text-main);
             margin: 0;
         }
 
@@ -90,21 +106,32 @@
         }
 
         .table th {
-            background: #f9fafb;
+            background: var(--table-th-bg);
             padding: 12px 24px;
             text-align: left;
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
             color: var(--text-muted);
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--row-border);
         }
 
         .table td {
             padding: 16px 24px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--row-border);
             font-size: 14px;
-            color: #1f2937;
+            color: var(--text-main);
+        }
+
+        body.dark-theme .btn-outline-primary,
+        body.dark-theme .btn-outline-danger {
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover,
+        .btn-outline-danger:hover {
+            opacity: 1 !important;
+            filter: none !important;
         }
 
         .badge {
@@ -273,18 +300,19 @@
                             </td>
                             <td>
                                 <div style="display: flex; gap: 8px; justify-content: center;">
-                                    <button class="btn btn-outline-primary" style="padding: 6px 12px;"
-                                        onclick="editLoaiPhep({{ json_encode($loai) }})">
-                                        Sửa
+                                    <button class="btn btn-outline-primary" style="padding: 8px 12px;"
+                                        onclick="editLoaiPhep({{ json_encode($loai) }})" title="Chỉnh sửa">
+                                        <i class="bi bi-pencil-square"></i>
                                     </button>
                                     @if($loai->TrangThai == 1)
-                                    <button class="btn btn-outline-danger" style="padding: 6px 12px;"
-                                        onclick="deleteLoaiPhep({{ $loai->id }})">
-                                        Khóa
+                                    <button class="btn btn-outline-danger" style="padding: 8px 12px;"
+                                        onclick="toggleLoaiPhepStatus({{ $loai->id }}, 'lock')" title="Khóa loại nghỉ">
+                                        <i class="bi bi-lock"></i>
                                     </button>
                                     @else
-                                    <button class="btn" style="padding: 6px 12px; background: #f3f4f6; color: #9ca3af; cursor: not-allowed;" title="Đã khóa" onclick="return false;">
-                                        Đã khóa
+                                    <button class="btn" style="padding: 8px 12px; background: rgba(59, 130, 246, 0.1); color: #3b82f6;" 
+                                        onclick="toggleLoaiPhepStatus({{ $loai->id }}, 'unlock')" title="Mở khóa loại nghỉ">
+                                        <i class="bi bi-unlock-fill"></i>
                                     </button>
                                     @endif
                                 </div>
@@ -435,19 +463,25 @@
                 });
         }
 
-        function deleteLoaiPhep(id) {
+        function toggleLoaiPhepStatus(id, action) {
+            const isLock = action === 'lock';
+            const title = isLock ? 'Xác nhận khóa?' : 'Xác nhận mở khóa?';
+            const text = isLock ? "Loại nghỉ phép này sẽ không còn hiển thị cho nhân viên chọn nữa!" : "Loại nghỉ phép này sẽ hoạt động trở lại và hiển thị cho nhân viên chọn.";
+            const confirmButtonText = isLock ? 'Đồng ý khóa' : 'Đồng ý mở';
+            const confirmButtonColor = isLock ? '#ef4444' : '#0BAA4B';
+
             Swal.fire({
-                title: 'Xác nhận khóa?',
-                text: "Loại nghỉ phép này sẽ không còn hiển thị cho nhân viên chọn nữa!",
+                title: title,
+                text: text,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444',
+                confirmButtonColor: confirmButtonColor,
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Đồng ý khóa',
+                confirmButtonText: confirmButtonText,
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('nghi-phep/config/delete') }}/${id}`, {
+                    fetch(`{{ url('nghi-phep/config/toggle-status') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -459,7 +493,7 @@
                             if (data.success) {
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Đã khóa',
+                                    title: 'Thành công',
                                     text: data.message,
                                     timer: 2000,
                                     showConfirmButton: false
@@ -469,7 +503,7 @@
                             } else {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Không thể khóa',
+                                    title: 'Lỗi',
                                     text: data.message,
                                     confirmButtonColor: '#0BAA4B'
                                 });

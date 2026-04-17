@@ -27,7 +27,7 @@
                     <tr>
                         <th style="width: 60px; text-align: center;">STT</th>
                         <th style="width: 400px;">Tên Role</th>
-                        <th style="width: 200px;">Số lượng User</th>
+                        <th style="width: 200px;">Số lượng Người dùng</th>
                         <th style="width: 150px; text-align: right;">Hành động</th>
                     </tr>
                 </thead>
@@ -38,7 +38,7 @@
                             <td>
                                 <strong style="color: #0BAA4B;">{{ $r->name }}</strong>
                             </td>
-                            <td>{{ $r->users_count }} users</td>
+                            <td data-order="{{ $r->users_count }}">{{ $r->users_count }} người dùng</td>
                             <td style="text-align: right;">
                                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                     <a href="{{ route('roles.edit', $r->id) }}" class="btn-icon" title="Sửa Role"

@@ -3,35 +3,31 @@
     $phongBan = $nhanVien->ttCongViec?->phongBan?->Ten ?? '—';
     $maNV = $nhanVien->Ma ?? '—';
     $hoTen = $nhanVien->Ten ?? '—';
-    $soTK = $nhanVien->SoTaiKhoan ?? '—';
-    $mstTNCN = $nhanVien->MaSoThue ?? '—';
-    $ngayNhanViec = $nhanVien->NgayVaoCongTy
-        ? \Carbon\Carbon::parse($nhanVien->NgayVaoCongTy)->format('d/m/Y')
-        : '—';
     $soNguoiPT = $luong['so_nguoi_phu_thuoc'] ?? 0;
+    $mstTNCN = $nhanVien->MaSoThue ?? '—';
+    $soHopDong = $hopDong?->SoHopDong ?? '—';
+    $ngayNhanViec = ($hopDong && $hopDong->NgayKy)
+        ? \Carbon\Carbon::parse($hopDong->NgayKy)->format('d/m/Y')
+        : '—';
+    $soNgayNghi = $luong['so_ngay_nghi'] ?? 0;
 
     $luongCoBan = $luong['luong_co_ban'] ?? 0;
     $tongPhuCap = $luong['tong_phu_cap'] ?? 0;
     $tongTangCa = $luong['tong_tang_ca'] ?? 0;
-    $tongThuNhap = $luong['tong_thu_nhap'] ?? 0;
-    $tongKhauTruBH = $luong['tong_khau_tru_bh'] ?? 0;
-    $thueTNCN = $luong['thue_tncn'] ?? 0;
-    $tongKhauTru = $luong['tong_khau_tru'] ?? 0;
-    $luongThucNhan = $luong['luong_thuc_nhan'] ?? 0;
+    $tongThuNhap = $luongRecord ? $luongRecord->LuongCoBan + $luongRecord->PhuCap + $luongRecord->KhenThuong : ($luong['tong_thu_nhap'] ?? 0);
+    $tongKhauTruBH = $luongRecord ? $luongRecord->KhauTruBaoHiem : ($luong['tong_khau_tru_bh'] ?? 0);
+    $thueTNCN = $luongRecord ? $luongRecord->ThueTNCN : ($luong['thue_tncn'] ?? 0);
+    $tamUng = $luongRecord ? $luongRecord->TamUng : ($luong['tam_ung'] ?? 0);
+    $kyLuat = $luongRecord ? $luongRecord->KyLuat : 0;
+    $khenThuong = $luongRecord ? $luongRecord->KhenThuong : 0;
+    $phuCapRecord = $luongRecord ? $luongRecord->PhuCap : $tongPhuCap;
+
+    $tongKhauTru = $luongRecord ? ($tongKhauTruBH + $thueTNCN + $tamUng + $kyLuat) : ($luong['tong_khau_tru'] ?? 0);
+    $luongThucNhan = $luongRecord ? $luongRecord->Luong : ($luong['luong_thuc_nhan'] ?? 0);
 
     $isCongNhan = ($luong['loai_nhan_vien'] ?? 1) === 0;
 
-    $allowances = [
-        'Hỗ trợ nhà trọ' => $hopDong?->PhuCapKhuVuc ?? 0,
-        'Hỗ trợ đi lại' => $hopDong?->PhuCapXangXe ?? 0,
-        'Phụ cấp ăn trưa' => $hopDong?->PhuCapAnTrua ?? 0,
-        'Phụ cấp chức vụ' => $hopDong?->PhuCapChucVu ?? 0,
-        'Phụ cấp trách nhiệm' => $hopDong?->PhuCapTrachNhiem ?? 0,
-        'Phụ cấp độc hại' => $hopDong?->PhuCapDocHai ?? 0,
-        'Phụ cấp thâm niên' => $hopDong?->PhuCapThamNien ?? 0,
-        'Phụ cấp điện thoại' => $hopDong?->PhuCapDienThoai ?? 0,
-        'Phụ cấp khác' => $hopDong?->PhuCapKhac ?? 0,
-    ];
+    $allowances = []; // Not used, using phuCapRecord instead
 
     $bhxhRate = 0; $bhytRate = 0; $bhtnRate = 0;
     foreach ($baoHiems as $bh) {
@@ -89,13 +85,23 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td>
+                                                <td width="50%" style="padding-bottom: 12px;">
                                                     <span style="font-size: 12px; color: #718096; text-transform: uppercase; font-weight: 600;">Bộ phận</span><br>
                                                     <span style="font-size: 14px; color: #2d3748; font-weight: 600;">{{ $phongBan }}</span>
                                                 </td>
-                                                <td>
-                                                    <span style="font-size: 12px; color: #718096; text-transform: uppercase; font-weight: 600;">Số tài khoản</span><br>
-                                                    <span style="font-size: 14px; color: #2d3748; font-weight: 600;">{{ $soTK }}</span>
+                                                <td width="50%" style="padding-bottom: 12px;">
+                                                    <span style="font-size: 12px; color: #718096; text-transform: uppercase; font-weight: 600;">Kì lương</span><br>
+                                                    <span style="font-size: 14px; color: #2d3748; font-weight: 600;">{{ $thang }}/{{ $nam }}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-bottom: 12px;">
+                                                    <span style="font-size: 12px; color: #718096; text-transform: uppercase; font-weight: 600;">Ngày tham gia</span><br>
+                                                    <span style="font-size: 14px; color: #2d3748; font-weight: 600;">{{ $ngayNhanViec }}</span>
+                                                </td>
+                                                <td style="padding-bottom: 12px;">
+                                                    <span style="font-size: 12px; color: #718096; text-transform: uppercase; font-weight: 600;">Nghỉ phép (tháng)</span><br>
+                                                    <span style="font-size: 14px; color: #2d3748; font-weight: 600;">{{ number_format($soNgayNghi, 1) }} ngày</span>
                                                 </td>
                                             </tr>
                                         </table>
@@ -111,23 +117,28 @@
                                 </tr>
                                 <tr>
                                     <td style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #4a5568;">Lương cơ bản (HĐLĐ)</td>
-                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: 600; color: #2d3748;">{{ number_format($luongCoBan, 0, ',', '.') }} đ</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: 600; color: #2d3748;">{{ number_format($luongCoBan, 0, ',', '.') }}</td>
                                 </tr>
+                                @if($phuCapRecord > 0)
+                                <tr>
+                                    <td style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #4a5568;">Phụ cấp hợp đồng</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: 600; color: #2d3748;">{{ number_format($phuCapRecord, 0, ',', '.') }}</td>
+                                </tr>
+                                @endif
+                                @if($khenThuong > 0)
+                                <tr>
+                                    <td style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #4a5568;">Thưởng</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: 600; color: #2d3748;">{{ number_format($khenThuong, 0, ',', '.') }}</td>
+                                </tr>
+                                @endif
                                 @if($tongTangCa > 0)
                                 <tr>
                                     <td style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #4a5568;">Làm thêm giờ</td>
-                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: 600; color: #2d3748;">{{ number_format($tongTangCa, 0, ',', '.') }} đ</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: 600; color: #2d3748;">{{ number_format($tongTangCa, 0, ',', '.') }}</td>
                                 </tr>
                                 @endif
                                 
-                                @foreach($allowances as $tenPC => $soTienPC)
-                                    @if($soTienPC > 0)
-                                    <tr>
-                                        <td style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #4a5568;">{{ $tenPC }}</td>
-                                        <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-weight: 600; color: #2d3748;">{{ number_format($soTienPC, 0, ',', '.') }} đ</td>
-                                    </tr>
-                                    @endif
-                                @endforeach
+
 
                                 <!-- Deduction Section -->
                                 <tr>
@@ -136,32 +147,38 @@
                                 @if($bhxh > 0)
                                 <tr>
                                     <td style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; color: #4a5568;">Bảo hiểm xã hội ({{ $bhxhRate }}%)</td>
-                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($bhxh, 0, ',', '.') }} đ</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($bhxh, 0, ',', '.') }}</td>
                                 </tr>
                                 @endif
                                 @if($bhyt > 0)
                                 <tr>
                                     <td style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; color: #4a5568;">Bảo hiểm y tế ({{ $bhytRate }}%)</td>
-                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($bhyt, 0, ',', '.') }} đ</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($bhyt, 0, ',', '.') }}</td>
                                 </tr>
                                 @endif
                                 @if($bhtn > 0)
                                 <tr>
                                     <td style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; color: #4a5568;">Bảo hiểm thất nghiệp ({{ $bhtnRate }}%)</td>
-                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($bhtn, 0, ',', '.') }} đ</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($bhtn, 0, ',', '.') }}</td>
                                 </tr>
                                 @endif
                                 @if($thueTNCN > 0)
                                 <tr>
                                     <td style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; color: #4a5568;">Thuế TNCN</td>
-                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($thueTNCN, 0, ',', '.') }} đ</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($thueTNCN, 0, ',', '.') }}</td>
+                                </tr>
+                                @endif
+                                @if($kyLuat > 0)
+                                <tr>
+                                    <td style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; color: #4a5568;">Phạt/Kỷ luật</td>
+                                    <td align="right" style="padding: 12px 15px; border-bottom: 1px solid #fff1f2; font-weight: 600; color: #2d3748;">- {{ number_format($kyLuat, 0, ',', '.') }}</td>
                                 </tr>
                                 @endif
 
                                 <!-- Net Pay -->
                                 <tr>
                                     <td style="padding: 30px 15px 12px 15px; font-size: 18px; font-weight: 700; color: #2d3748;">THỰC NHẬN</td>
-                                    <td align="right" style="padding: 30px 15px 12px 15px; font-size: 22px; font-weight: 800; color: #0BAA4B;">{{ number_format($luongThucNhan, 0, ',', '.') }} đ</td>
+                                    <td align="right" style="padding: 30px 15px 12px 15px; font-size: 22px; font-weight: 800; color: #0BAA4B;">{{ number_format($luongThucNhan, 0, ',', '.') }}</td>
                                 </tr>
                             </table>
 
@@ -169,9 +186,9 @@
                                 <p style="margin: 0; font-size: 14px; color: #991b1b; line-height: 1.5;">
                                     <strong>Ghi chú:</strong><br>
                                     @if($isCongNhan)
-                                        Đối với công nhân: Số ngày công thực tế là {{ $luong['ngay_cong_thuc_te'] ?? 0 }}/{{ $luong['ngay_cong_chuan'] ?? 26 }} ngày.
+                                        Đối với công nhân: Số ngày đi làm là {{ $luong['ngay_cong_thuc_te'] ?? 0 }}/{{ $luong['ngay_cong_chuan'] ?? 26 }} ngày.
                                     @else
-                                        Dành cho nhân viên văn phòng (Lương khoán/Lương cứng).
+                                        Dành cho nhân viên văn phòng (Số ngày đi làm: {{ $luong['ngay_cong_thuc_te'] ?? 0 }}/{{ $luong['ngay_cong_chuan'] ?? 26 }}).
                                     @endif
                                 </p>
                             </div>

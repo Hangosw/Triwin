@@ -4,21 +4,27 @@
     $maBP = $phongBan;
     $maNV = $nhanVien->Ma ?? '—';
     $hoTen = $nhanVien->Ten ?? '—';
-    $soTK = $nhanVien->SoTaiKhoan ?? '—';
-    $mstTNCN = $nhanVien->MaSoThue ?? '—';
-    $ngayNhanViec = $nhanVien->NgayVaoCongTy
-        ? \Carbon\Carbon::parse($nhanVien->NgayVaoCongTy)->format('d/m/Y')
-        : '—';
     $soNguoiPT = $luong['so_nguoi_phu_thuoc'] ?? 0;
+    $mstTNCN = $nhanVien->MaSoThue ?? '—';
+    $soHopDong = $hopDong?->SoHopDong ?? '—';
+    $ngayNhanViec = ($hopDong && $hopDong->NgayKy)
+        ? \Carbon\Carbon::parse($hopDong->NgayKy)->format('d/m/Y')
+        : '—';
+    $soNgayNghi = $luong['so_ngay_nghi'] ?? 0;
 
     $luongCoBan = $luong['luong_co_ban'] ?? 0;
     $tongPhuCap = $luong['tong_phu_cap'] ?? 0;
     $tongTangCa = $luong['tong_tang_ca'] ?? 0;
-    $tongThuNhap = $luong['tong_thu_nhap'] ?? 0;
-    $tongKhauTruBH = $luong['tong_khau_tru_bh'] ?? 0;
-    $thueTNCN = $luong['thue_tncn'] ?? 0;
-    $tongKhauTru = $luong['tong_khau_tru'] ?? 0;
-    $luongThucNhan = $luong['luong_thuc_nhan'] ?? 0;
+    $tongThuNhap = $luongRecord ? $luongRecord->LuongCoBan + $luongRecord->PhuCap + $luongRecord->KhenThuong : ($luong['tong_thu_nhap'] ?? 0);
+    $tongKhauTruBH = $luongRecord ? $luongRecord->KhauTruBaoHiem : ($luong['tong_khau_tru_bh'] ?? 0);
+    $thueTNCN = $luongRecord ? $luongRecord->ThueTNCN : ($luong['thue_tncn'] ?? 0);
+    $tamUng = $luongRecord ? $luongRecord->TamUng : ($luong['tam_ung'] ?? 0);
+    $kyLuat = $luongRecord ? $luongRecord->KyLuat : 0;
+    $khenThuong = $luongRecord ? $luongRecord->KhenThuong : 0;
+    $phuCapRecord = $luongRecord ? $luongRecord->PhuCap : $tongPhuCap;
+
+    $tongKhauTru = $luongRecord ? ($tongKhauTruBH + $thueTNCN + $tamUng + $kyLuat) : ($luong['tong_khau_tru'] ?? 0);
+    $luongThucNhan = $luongRecord ? $luongRecord->Luong : ($luong['luong_thuc_nhan'] ?? 0);
 
     // Ngày công
     $ngayCongThucTe = $luong['ngay_cong_thuc_te'] ?? 0;
@@ -66,13 +72,21 @@
         font-size: 13px;
         color: #000;
         line-height: 1.5;
-        padding: 4px;
+        padding: 0;
         background: #fff;
+        border: 1.5px solid #2e59d9;
+        max-width: 820px;
+        margin: 0 auto;
+    }
+
+    .slip-inner {
+        padding: 0;
     }
 
     .slip-wrap table {
         width: 100%;
         border-collapse: collapse;
+        margin-top: -1px; /* Overlap borders */
     }
 
     .slip-wrap td,
@@ -85,8 +99,10 @@
     .slip-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 6px;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1.5px solid #2e59d9;
+        background: #f8faff;
     }
 
     .slip-title {
@@ -136,8 +152,7 @@
     body.dark-theme .slip-wrap {
         background: #111827 !important;
         color: #e5e7eb !important;
-        padding: 15px;
-        border-radius: 8px;
+        border-color: #374151 !important;
     }
 
     body.dark-theme .slip-wrap td,
@@ -149,6 +164,11 @@
     body.dark-theme .slip-title {
         color: #10b981 !important; /* Brand Green */
         text-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+    }
+
+    body.dark-theme .slip-header {
+        background: #1f2937 !important;
+        border-bottom-color: #374151 !important;
     }
 
     body.dark-theme .slip-bold {
@@ -181,8 +201,9 @@
 </style>
 
 <div class="slip-wrap">
-    {{-- Header --}}
-    <div class="slip-header">
+    <div class="slip-inner">
+        {{-- Header --}}
+        <div class="slip-header">
         <div style="font-size:13px; max-width:200px; font-weight: bold;">
             {{ \App\Models\SystemConfig::getValue('company_name', 'Vietnam Rubber Group') }}<br>
             <span style="font-size: 11px; font-weight: normal; color: #666;">
@@ -194,32 +215,33 @@
     </div>
 
     {{-- Thông tin nhân viên --}}
-    <table style="margin-bottom:0; border-bottom:none;">
+    <table style="border:none;">
         <tr>
             <td colspan="2">Họ tên: <span class="slip-bold">{{ $hoTen }}</span></td>
             <td>Mã NV: <span class="slip-bold">{{ $maNV }}</span></td>
         </tr>
         <tr>
-            <td>Chức danh: {{ $chucVu }}</td>
-            <td>Số TK: <span class="slip-bold">{{ $soTK }}</span></td>
-            <td>Mã BP: <span class="slip-bold">{{ $maBP }}</span></td>
+            <td>Chức danh: <span class="slip-bold">{{ $chucVu }}</span></td>
+            <td>Số HĐ: <span class="slip-bold">{{ $soHopDong }}</span></td>
+            <td>Kì lương: <span class="slip-bold">{{ $thang }}/{{ $nam }}</span></td>
         </tr>
         <tr>
-            <td>Nhận việc: {{ $ngayNhanViec }}</td>
+            <td>Tham gia: {{ $ngayNhanViec }}</td>
             <td style="text-align:center;">MST TNCN:<br><span class="slip-bold">{{ $mstTNCN }}</span></td>
-            <td>Số người phụ thuộc: <span class="slip-bold">{{ $soNguoiPT }}</span></td>
+            <td>Nghi phép: <span class="slip-bold">{{ number_format($soNgayNghi, 1) }}</span></td>
             <td>Lương HĐLĐ: <span class="slip-bold">{{ number_format($luongCoBan, 0, ',', '.') }}</span></td>
         </tr>
     </table>
 
+
     {{-- 3 cột chính --}}
-    <table style="margin-top:0; border-top:none;">
+    <table style="border:none;">
         <tr>
             <td width="34%" class="slip-bold">
-                Công chính hưởng P/C
+                Số ngày đi làm
                 <span style="float:right; color:#dc2626;">{{ number_format($ngayCongThucTe, 2) }}/{{ $ngayCongChuan }}</span>
             </td>
-            <td width="33%" style="text-align:center;" class="slip-bold">Hỗ trợ phụ cấp</td>
+            <td width="33%" style="text-align:center;" class="slip-bold">Phụ cấp hợp đồng</td>
             <td width="33%" style="text-align:center;" class="slip-bold">Các khoản khấu trừ</td>
         </tr>
         <tr>
@@ -253,32 +275,30 @@
                         <span class="slip-bold">{{ number_format($tongTangCa, 0, ',', '.') }}</span>
                     </div>
                 @endif
-                <div class="slip-row-sub">
-                    <span>Thu nhập khác</span>
-                    <span>—</span>
-                </div>
+                @if($khenThuong > 0)
+                    <div class="slip-row-sub">
+                        <span>Thưởng</span>
+                        <span class="slip-bold">{{ number_format($khenThuong, 0, ',', '.') }}</span>
+                    </div>
+                @else
+                    <div class="slip-row-sub">
+                        <span>Thưởng</span>
+                        <span>—</span>
+                    </div>
+                @endif
             </td>
 
             {{-- Cột 2: Phụ cấp --}}
             <td>
-                @if($isContractMode)
-                    <div style="color:#0BAA4B; font-style:italic; font-size:12px; text-align:center; padding-top:10px;">
-                        Các khoản phụ cấp đã được gộp chung vào Lương hợp đồng
+                @if($phuCapRecord > 0)
+                    <div class="slip-row-sub">
+                        <span>Phụ cấp hợp đồng</span>
+                        <span class="slip-bold">{{ number_format($phuCapRecord, 0, ',', '.') }}</span>
                     </div>
                 @else
-                    @php $hasAllowance = false; @endphp
-                    @foreach($allowances as $tenPC => $soTienPC)
-                        @if($soTienPC > 0)
-                            @php $hasAllowance = true; @endphp
-                            <div class="slip-row-sub">
-                                <span>{{ $tenPC }}</span>
-                                <span class="slip-bold">{{ number_format($soTienPC, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-                    @endforeach
-                    @if(!$hasAllowance)
-                        <div style="color:#9ca3af; font-style:italic;">Không có phụ cấp</div>
-                    @endif
+                    <div style="color:#9ca3af; font-style:italic; text-align:center; padding-top:10px;">
+                        Không có phụ cấp
+                    </div>
                 @endif
             </td>
 
@@ -311,25 +331,28 @@
                     <span>Thuế TNCN</span>
                     <span class="slip-bold">{{ $thueTNCN > 0 ? number_format($thueTNCN, 0, ',', '.') : '—' }}</span>
                 </div>
+                @if($tamUng > 0)
+                    <div class="slip-row-sub">
+                        <span>Lương tạm ứng</span>
+                        <span class="slip-bold" style="color:#dc2626;">{{ number_format($tamUng, 0, ',', '.') }}</span>
+                    </div>
+                @endif
                 <div class="slip-row-sub">
-                    <span>Khác</span>
-                    <span>—</span>
+                    <span>Phạt/Kỷ luật</span>
+                    <span class="slip-bold">{{ $kyLuat > 0 ? number_format($kyLuat, 0, ',', '.') : '—' }}</span>
                 </div>
             </td>
         </tr>
     </table>
 
+
     {{-- Tổng cộng --}}
-    <table style="border-top:none; margin-top:0;">
+    <table style="border:none;">
         <tr>
-            <td width="34%"><span class="slip-blue slip-bold">Thực lĩnh lương (1)</span></td>
-            <td width="16%" class="slip-bold">{{ number_format($luongThucNhan, 0, ',', '.') }}</td>
-            <td colspan="2"><span class="slip-blue slip-bold">P/cấp công tác (2)</span></td>
-            <td>—</td>
-        </tr>
-        <tr>
-            <td class="slip-total-label">Tổng cộng (1)+(2)</td>
-            <td colspan="4" class="slip-total-val">{{ number_format($luongThucNhan, 0, ',', '.') }} đ</td>
+            <td width="34%"><span class="slip-blue slip-bold">Thực lĩnh lương</span></td>
+            <td colspan="4" class="slip-total-val" style="text-align: right;">
+                {{ number_format($luongThucNhan, 0, ',', '.') }}
+            </td>
         </tr>
         <tr>
             <td style="height:38px; vertical-align:middle;"><span class="slip-bold">Ghi chú</span></td>
@@ -338,4 +361,5 @@
             </td>
         </tr>
     </table>
+    </div>
 </div>

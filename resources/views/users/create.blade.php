@@ -2,7 +2,7 @@
 
 
 
-@section('title', 'Thêm người dùng mới - Vietnam Rubber Group')
+@section('title', 'Thêm người dùng mới - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('scripts')
     <script>

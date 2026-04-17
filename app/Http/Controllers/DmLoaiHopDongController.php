@@ -107,26 +107,8 @@ class DmLoaiHopDongController extends Controller
         }
     }
 
-    public function destroy($id)
-    {
-        try {
-            $item = DmLoaiHopDong::findOrFail($id);
-            $name = $item->TenLoai;
-            
-            // Check if there are any contracts using this type
-            $count = \App\Models\HopDong::where('loai_hop_dong_id', $id)->count();
-            if ($count > 0) {
-                return response()->json(['success' => false, 'message' => "Không thể xóa loại hợp đồng này vì đang có {$count} hợp đồng sử dụng!"], 400);
-            }
+        // Nút xóa đã bị loại bỏ theo yêu cầu
 
-            $item->delete();
-            SystemLogService::log('Xóa', 'DmLoaiHopDong', $id, "Xóa loại hợp đồng: {$name}");
-
-            return response()->json(['success' => true, 'message' => 'Xóa loại hợp đồng thành công!']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()], 500);
-        }
-    }
 
     public function toggleStatus($id)
     {

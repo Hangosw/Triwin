@@ -27,8 +27,8 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasAnyRole(['Super Admin', 'System Admin']) ? true : null;
         });
 
-        // if ($this->app->environment('local')) {
-        //     URL::forceScheme('https');
-        // }
+        if ($this->app->environment('local')) {
+            URL::forceScheme('https');
+        }
     }
 }

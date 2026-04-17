@@ -77,11 +77,25 @@ class QuanLyPhepNam extends Model
 
         // Ưu tiên lấy từ hợp đồng đang hiệu lực
         $activeContract = $nhanVien->hopDongs()->where('TrangThai', 1)->latest()->first();
+        $ngayTuyenDung = $nhanVien->ttCongViec->NgayTuyenDung;
+        $joinDate = $ngayTuyenDung ? ($ngayTuyenDung instanceof Carbon ? $ngayTuyenDung : Carbon::parse($ngayTuyenDung)) : null;
         
-        if ($activeContract && isset($activeContract->NgayPhepNam)) {
-            $tongPhep = (float) $activeContract->NgayPhepNam;
+        $tongPhep = 12.0; // Mặc định
+        $fullYearPhep = 12.0;
+
+        if ($activeContract) {
+            $fullYearPhep = (float) ($activeContract->NgayPhepNam ?? 12);
+            $contractStartDate = Carbon::parse($activeContract->NgayBatDau);
+            
+            // Nếu năm đang khởi tạo là năm bắt đầu hợp đồng (thường là năm đầu tiên)
+            if ($nam == $contractStartDate->year) {
+                $tongPhep = (float) ($activeContract->NgayPhepKhaDung ?? $fullYearPhep);
+            } else {
+                // Các năm tiếp theo tự động lấy NgayPhepNam
+                $tongPhep = $fullYearPhep;
+            }
         } else {
-            // Nếu không có hợp đồng, lấy theo cấu hình thâm niên cũ (hoặc mặc định 12)
+            // Logic cũ nếu không có hợp đồng
             $config = CauHinhPhepNam::getCurrentConfig();
             $soNgayCoBan = (float) \App\Models\SystemConfig::getValue('annual_leave_days', 12);
             
@@ -93,37 +107,52 @@ class QuanLyPhepNam extends Model
                 ]);
             }
 
-            $ngayTuyenDung = $nhanVien->ttCongViec->NgayTuyenDung;
             $soNamCongTac = 0;
-            if ($ngayTuyenDung) {
-                $dtTuyenDung = $ngayTuyenDung instanceof \Carbon\Carbon ? $ngayTuyenDung : Carbon::parse((string) $ngayTuyenDung);
-                $soNamCongTac = $dtTuyenDung->diffInYears(Carbon::now());
+            if ($joinDate) {
+                $soNamCongTac = $joinDate->diffInYears(Carbon::now());
             }
             $tongPhep = (float) $config->calculateTotalLeave($soNamCongTac);
+            $fullYearPhep = $tongPhep;
         }
 
-        // Tính số phép khả dụng tại thời điểm khởi tạo
+        // Tính số phép tích lũy (KhaDung) theo tháng
         $now = Carbon::now();
         $startMonth = 1;
-        $ngayTuyenDung = $nhanVien->ttCongViec->NgayTuyenDung;
-        $joinDate = $ngayTuyenDung ? ($ngayTuyenDung instanceof Carbon ? $ngayTuyenDung : Carbon::parse($ngayTuyenDung)) : null;
-
-        if ($joinDate && $joinDate->year == $nam) {
+        
+        if ($activeContract) {
+            $contractStartDate = Carbon::parse($activeContract->NgayBatDau);
+            if ($contractStartDate->year == $nam) {
+                $startMonth = $contractStartDate->month;
+            }
+        } elseif ($joinDate && $joinDate->year == $nam) {
             $startMonth = $joinDate->month;
         }
-        $monthsWorked = max(0, $now->month - $startMonth + 1);
-        $monthsWorked = min(12, $monthsWorked);
+
+        // Số tháng đã làm việc tính đến hiện tại trong năm đang xét
+        $monthsInYear = 0;
+        if ($now->year > $nam) {
+            $monthsInYear = 12; // Năm cũ đã qua
+        } elseif ($now->year < $nam) {
+            $monthsInYear = 0; // Năm tương lai chưa tới
+        } else {
+            // Năm hiện tại: tính từ startMonth đến tháng hiện tại
+            $monthsInYear = max(0, $now->month - $startMonth + 1);
+        }
+        $monthsInYear = min(12, $monthsInYear);
         
-        // Nếu là 12 ngày/năm thì là đúng 1 ngày/tháng, 
-        // Nếu nhiều hơn 12 thì ta vẫn khởi tạo tỷ lệ (Tổng/12) cho chính xác ban đầu
-        $accrued = ($tongPhep / 12) * $monthsWorked;
+        // Phép tích lũy = (Quota cả năm / 12) * Số tháng làm việc
+        $accrued = ($fullYearPhep / 12) * $monthsInYear;
+
+        // Lấy số ngày đã nghỉ (nếu đã có bản ghi)
+        $existing = self::where(['NhanVienId' => $nhanVienId, 'Nam' => $nam])->first();
+        $daNghi = (float) ($existing->DaNghi ?? 0);
 
         return self::updateOrCreate(
             ['NhanVienId' => $nhanVienId, 'Nam' => $nam],
             [
                 'TongPhepDuocNghi' => $tongPhep,
-                'KhaDung' => round($accrued - (float) (self::where(['NhanVienId' => $nhanVienId, 'Nam' => $nam])->first()->DaNghi ?? 0), 1),
-                'ConLai' => $tongPhep - (float) (self::where(['NhanVienId' => $nhanVienId, 'Nam' => $nam])->first()->DaNghi ?? 0)
+                'KhaDung' => round($accrued - $daNghi, 1),
+                'ConLai' => round($tongPhep - $daNghi, 1)
             ]
         );
     }

@@ -98,6 +98,14 @@ class HopDong extends Model
     }
 
     /**
+     * Alias for phuLucs() — used by HopDongController and views.
+     */
+    public function appendices()
+    {
+        return $this->hasMany(PhuLucHopDong::class, 'HopDongGocId');
+    }
+
+    /**
      * Relationship: Link to the root contract if this is an appendix
      */
     public function parentLink()

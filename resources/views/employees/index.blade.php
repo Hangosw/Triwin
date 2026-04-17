@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Quản lý nhân viên - Vietnam Rubber Group')
+@section('title', 'Quản lý nhân viên - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
     <div class="page-header">
@@ -50,10 +50,10 @@
                     <label class="form-label"
                         style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Trạng
                         thái</label>
-                    <div class="dropdown custom-filter-dropdown" data-default="Tất cả trạng thái">
+                    <div class="dropdown custom-filter-dropdown" data-default="Đang làm việc">
                         <input type="hidden" name="trang_thai" id="filterTrangThai" value="">
                         <div class="form-control" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="dropdown-text" style="color: #6c757d;">Tất cả trạng thái</span>
+                            <span class="dropdown-text" style="color: #212529;">Đang làm việc</span>
                             <span class="dropdown-icon">
                                 <i class="bi bi-chevron-down ms-2 text-muted" style="font-size: 14px;"></i>
                             </span>
@@ -65,10 +65,12 @@
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 4px;">
                                 <button type="button" class="btn btn-sm btn-primary filter-btn fw-bold shadow-sm"
-                                    data-val="" data-label="Tất cả trạng thái"
+                                    data-val="" data-label="Đang làm việc"
                                     onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="background-color: #3b82f6; color: #fff; text-align: left;">Tất cả trạng
-                                    thái</button>
+                                    style="background-color: #3b82f6; color: #fff; text-align: left;">Đang làm việc</button>
+                                <button type="button" class="btn btn-sm btn-light filter-btn" data-val="tat_ca"
+                                    data-label="Tất cả trạng thái" onclick="applyFilterAJAX('filterTrangThai', this)"
+                                    style="text-align: left;">Tất cả trạng thái</button>
                                 <button type="button" class="btn btn-sm btn-light filter-btn" data-val="dang_lam"
                                     data-label="Làm tại công ty" onclick="applyFilterAJAX('filterTrangThai', this)"
                                     style="text-align: left;">Làm tại công ty</button>
@@ -142,7 +144,7 @@
                         <th style="width: 250px;">Thông tin nhân viên</th>
                         <th style="width: 220px;">Liên hệ</th>
                         <th style="width: 180px;">Công việc</th>
-                        <th style="width: 120px;">Loại NV</th>
+
                         <th style="width: 150px;">Trạng thái</th>
                     </tr>
                 </thead>
@@ -339,17 +341,7 @@
                                                                                                                                                         `;
                             }
                         },
-                        {
-                            data: null,
-                            render: function (data, type, row) {
-                                const loaiNV = row.tt_cong_viec?.LoaiNhanVien;
-                                if (loaiNV === 1) {
-                                    return '<span class="badge badge-info">Văn phòng</span>';
-                                } else {
-                                    return '<span class="badge badge-warning">Công nhân</span>';
-                                }
-                            }
-                        },
+
                         {
                             data: null,
                             render: function (data, type, row) {
@@ -443,13 +435,13 @@
                         if (ids.length === 0) return;
 
                         Swal.fire({
-                            title: 'Xác nhận xóa?',
-                            text: `Bạn có chắc muốn xóa ${ids.length} nhân viên đã chọn? Hành động này sẽ áp dụng cho tất cả dữ liệu được chọn trên mọi trang.`,
+                            title: 'Xác nhận cho nghỉ việc?',
+                            text: `Bạn có chắc muốn chuyển trạng thái ${ids.length} nhân viên đã chọn sang Nghỉ việc?`,
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#d33',
                             cancelButtonColor: '#3085d6',
-                            confirmButtonText: 'Xóa',
+                            confirmButtonText: 'Đồng ý',
                             cancelButtonText: 'Hủy'
                         }).then((result) => {
                             if (result.isConfirmed) {
@@ -465,7 +457,7 @@
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.success) {
-                                            Swal.fire('Đã xóa!', data.message, 'success');
+                                            Swal.fire('Thành công!', data.message, 'success');
                                             table.ajax.reload();
                                             $('#selectAll').prop('checked', false);
                                             isSelectAllPages = false;
@@ -481,7 +473,7 @@
                     if (isSelectAllPages) {
                         Swal.fire({
                             title: 'Đang tải dữ liệu...',
-                            text: 'Hệ thống đang thu thập danh sách nhân viên cần xóa',
+                            text: 'Hệ thống đang thu thập danh sách nhân viên cần chuyển trạng thái',
                             allowOutsideClick: false,
                             didOpen: () => { Swal.showLoading(); }
                         });

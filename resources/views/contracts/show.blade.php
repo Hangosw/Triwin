@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chi tiết hợp đồng - Vietnam Rubber Group')
+@section('title', 'Chi tiết hợp đồng - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <style>
@@ -939,8 +939,8 @@
                                     <a href="{{ route('hop-dong.info', $pl->id) }}" class="btn btn-sm btn-outline-secondary" style="font-size: 11px; padding: 2px 10px; border-radius: 20px;">
                                         <i class="bi bi-eye me-1"></i> Chi tiết
                                     </a>
-                                    <a href="{{ route('hop-dong.print', $pl->id) }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 11px; padding: 2px 10px; border-radius: 20px;">
-                                        <i class="bi bi-printer me-1"></i> In
+                                    <a href="{{ route('hop-dong.print-phu-luc', $rootHopDong->id) }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 11px; padding: 2px 10px; border-radius: 20px;">
+                                        <i class="bi bi-printer me-1"></i> In phụ lục
                                     </a>
                                 </div>
                             </div>

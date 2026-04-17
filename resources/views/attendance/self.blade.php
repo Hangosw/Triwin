@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chấm công cá nhân - Vietnam Rubber Group')
+@section('title', 'Chấm công cá nhân - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <style>

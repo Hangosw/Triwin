@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Quản lý nghỉ phép - Vietnam Rubber Group')
+@section('title', 'Quản lý nghỉ phép - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Import nhân viên - Vietnam Rubber Group')
+@section('title', 'Import nhân viên - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
     <div class="page-header">

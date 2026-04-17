@@ -51,7 +51,7 @@
                                 @endif
                             </td>
                             <td style="color: #dc2626;">
-                                -{{ number_format(($luong->KhauTruBaoHiem ?? 0) + ($luong->ThueTNCN ?? 0), 0, ',', '.') }} đ
+                                -{{ number_format(($luong->KhauTruBaoHiem ?? 0) + ($luong->ThueTNCN ?? 0) + ($luong->TamUng ?? 0), 0, ',', '.') }} đ
                             </td>
                             <td>
                                 <strong style="color: #0BAA4B;">{{ number_format($luong->Luong, 0, ',', '.') }} đ</strong>

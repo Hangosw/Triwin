@@ -14,8 +14,9 @@ use App\Http\Controllers\CongTacController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\CauHinhController;
+use App\Http\Controllers\TamUngController;
 
-use App\Http\Controllers\DmPlHopDongController;
+
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -130,13 +131,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tai-ki/{id}', [HopDongController::class, 'RenewView'])->name('renew')->middleware('permission:Sửa Hợp Đồng');
         Route::post('/save-signature', [HopDongController::class, 'saveSignature'])->name('save-signature');
 
-        // Danh mục phụ lục
-        Route::prefix('dm-phu-luc')->name('dm-phu-luc.')->group(function () {
-            Route::get('/', [DmPlHopDongController::class, 'index'])->name('index');
-            Route::get('/data', [DmPlHopDongController::class, 'data'])->name('data');
-            Route::post('/store', [DmPlHopDongController::class, 'store'])->name('store');
-            Route::post('/update/{id}', [DmPlHopDongController::class, 'update'])->name('update');
-        });
+
 
         // Danh mục loại hợp đồng
         Route::prefix('dm-loai-hop-dong')->name('loai-hop-dong.')->group(function () {
@@ -144,7 +139,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/data', [\App\Http\Controllers\DmLoaiHopDongController::class, 'data'])->name('data');
             Route::post('/store', [\App\Http\Controllers\DmLoaiHopDongController::class, 'store'])->name('store');
             Route::post('/update/{id}', [\App\Http\Controllers\DmLoaiHopDongController::class, 'update'])->name('update');
-            Route::post('/delete/{id}', [\App\Http\Controllers\DmLoaiHopDongController::class, 'destroy'])->name('destroy');
+
             Route::post('/toggle-status/{id}', [\App\Http\Controllers\DmLoaiHopDongController::class, 'toggleStatus'])->name('toggle-status');
         });
     });
@@ -200,7 +195,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/config', [NghiPhepController::class, 'ConfigView'])->name('config')->middleware('permission:Xem Danh Sách Nghỉ Phép');
         Route::post('/config/save', [NghiPhepController::class, 'SaveLoaiPhep'])->name('config.save')->middleware('permission:Xem Danh Sách Nghỉ Phép');
-        Route::post('/config/delete/{id}', [NghiPhepController::class, 'DeleteLoaiPhep'])->name('config.delete')->middleware('permission:Xem Danh Sách Nghỉ Phép');
+        Route::post('/config/toggle-status/{id}', [NghiPhepController::class, 'ToggleLoaiPhepStatus'])->name('config.toggle-status')->middleware('permission:Xem Danh Sách Nghỉ Phép');
         Route::get('/api/limits', [NghiPhepController::class, 'getEmployeeLeaveLimits'])->name('api.limits');
     });
 
@@ -231,12 +226,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tinh-luong/{id}', [LuongController::class, 'TinhLuong'])->name('tinh-luong')->middleware('permission:Xem Danh Sách Lương');
         Route::post('/tinh-luong-update/{id}', [LuongController::class, 'UpdateSingleSalary'])->name('update-single')->middleware('permission:Xem Danh Sách Lương');
         Route::post('/tinh-luong-hang-loat', [LuongController::class, 'TinhLuongHangLoat'])->name('tinh-luong-hang-loat')->middleware('permission:Xem Danh Sách Lương');
-        Route::get('/config-global', [LuongController::class, 'ConfigGlobalView'])->name('config-global')->middleware('permission:Xem Danh Sách Lương');
-        Route::post('/config-global', [LuongController::class, 'SaveConfigGlobal'])->name('config-global.save')->middleware('permission:Xem Danh Sách Lương');
-        Route::post('/config-global/save-params', [LuongController::class, 'SaveThamSoLuong'])->name('config-global.save-params')->middleware('permission:Xem Danh Sách Lương');
+
         Route::post('/gui-mail', [LuongController::class, 'GuiMailLuong'])->name('gui-mail')->middleware('permission:Xem Danh Sách Lương');
+        Route::get('/export', [LuongController::class, 'export'])->name('export');
+        Route::get('/edit-manual/{id}', [LuongController::class, 'ManualEditView'])->name('edit-manual')->middleware('permission:Xem Danh Sách Lương');
+        Route::post('/update-manual/{id}', [LuongController::class, 'UpdateManual'])->name('update-manual')->middleware('permission:Xem Danh Sách Lương');
 
+    });
 
+    Route::prefix('tam-ung')->name('tam-ung.')->group(function () {
+        Route::get('/', [TamUngController::class, 'index'])->name('index');
+        Route::get('/tao', [TamUngController::class, 'create'])->name('create');
+        Route::post('/store', [TamUngController::class, 'store'])->name('store');
+        Route::post('/update-status/{id}', [TamUngController::class, 'updateStatus'])->name('update-status');
+        Route::get('/api/max-advance', [TamUngController::class, 'getMaxAdvanceAPI'])->name('api.max-advance');
     });
 
     Route::middleware('permission:Quản lý hệ thống')->group(function () {

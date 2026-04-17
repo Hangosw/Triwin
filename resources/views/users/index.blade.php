@@ -13,7 +13,7 @@
     </script>
 @endpush
 
-@section('title', 'Quản lý người dùng - Vietnam Rubber Group')
+@section('title', 'Quản lý người dùng - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <style>

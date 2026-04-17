@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', (isset($isRenew) ? 'Tái ký hợp đồng' : 'Tạo hợp đồng mới') . ' - Vietnam Rubber Group')
+@section('title', (isset($isRenew) ? 'Tái ký hợp đồng' : 'Tạo hợp đồng mới') . ' - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

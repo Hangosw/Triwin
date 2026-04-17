@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Cấu hình hệ thống - Vietnam Rubber Group')
+@section('title', 'Cấu hình hệ thống - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
     <div class="page-header">
@@ -15,28 +15,7 @@
         </div>
     @endif
 
-    <!-- Appearance Settings Redesign -->
-    <div class="card" style="margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-            <i class="bi bi-palette text-primary" style="font-size: 20px;"></i>
-            <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Giao diện hệ thống</h3>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label" style="margin-bottom: 12px; color: #6b7280;">Lựa chọn chế độ hiển thị ưa thích của bạn</label>
-            <div style="display: flex; gap: 24px; align-items: center;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; padding: 12px 24px; border: 1px solid #d1d5db; border-radius: 10px; transition: all 0.2s;" id="label-theme-light">
-                    <input type="radio" name="theme_option" value="light" style="width: 18px; height: 18px; accent-color: #0BAA4B;">
-                    <i class="bi bi-sun"></i> Chế độ Sáng
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; padding: 12px 24px; border: 1px solid #d1d5db; border-radius: 10px; transition: all 0.2s;" id="label-theme-dark">
-                    <input type="radio" name="theme_option" value="dark" style="width: 18px; height: 18px; accent-color: #0BAA4B;">
-                    <i class="bi bi-moon-stars"></i> Chế độ Tối
-                </label>
-            </div>
-            <p style="color: #6b7280; font-size: 13px; margin-top: 12px; margin-bottom: 0;">* Thay đổi sẽ được áp dụng ngay lập tức mà không cần tải lại trang.</p>
-        </div>
-    </div>
+
 
     <form action="{{ route('config.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -54,7 +33,7 @@
                     <div class="form-group">
                         <label class="form-label">Tên công ty / Đơn vị</label>
                         <input type="text" name="company_name" class="form-control"
-                            value="{{ $configs['company_name'] ?? 'Vietnam Rubber Group' }}" placeholder="Nhập tên đầy đủ">
+                            value="{{ $configs['company_name'] ?? '' }}" placeholder="Nhập tên đầy đủ">
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -421,38 +400,6 @@
         });
     });
 
-    $(document).ready(function() {
-        // Theme selector logic
-        $('input[name="theme_option"]').on('change', function() {
-            var selectedTheme = $(this).val();
-            
-            // Xoá style cũ
-            $('#label-theme-light, #label-theme-dark').css({
-                'border-color': '#d1d5db',
-                'background-color': 'transparent'
-            });
-            
-            // Thêm style mới
-            if (selectedTheme === 'dark') {
-                $('#label-theme-dark').css({
-                    'border-color': '#0BAA4B',
-                    'background-color': 'rgba(11, 170, 75, 0.1)'
-                });
-                $('body').addClass('dark-theme');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                $('#label-theme-light').css({
-                    'border-color': '#0BAA4B',
-                    'background-color': '#f0fdf4'
-                });
-                $('body').removeClass('dark-theme');
-                localStorage.setItem('theme', 'light');
-            }
-        });
 
-        // Init
-        var currentTheme = localStorage.getItem('theme') || 'light';
-        $('input[name="theme_option"][value="' + currentTheme + '"]').prop('checked', true).trigger('change');
-    });
 </script>
 @endpush

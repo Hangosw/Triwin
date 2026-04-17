@@ -24,7 +24,9 @@ class NhanVienController extends Controller
     public function DataNhanVien(Request $request)
     {
         $query = NhanVien::with(['ttCongViec.phongBan', 'ttCongViec.chucVu'])
-        ;
+            ->leftJoin('tt_nhan_vien_cong_viecs', 'nhan_viens.id', '=', 'tt_nhan_vien_cong_viecs.NhanVienId')
+            ->leftJoin('dm_chuc_vus', 'tt_nhan_vien_cong_viecs.ChucVuId', '=', 'dm_chuc_vus.id')
+            ->select('nhan_viens.*');
 
         // Server-side processing
         $totalRecords = $query->count();
@@ -33,10 +35,10 @@ class NhanVienController extends Controller
         if ($request->has('search') && $request->search['value']) {
             $searchValue = $request->search['value'];
             $query->where(function ($q) use ($searchValue) {
-                $q->where('Ten', 'like', "%{$searchValue}%")
+                $q->where('nhan_viens.Ten', 'like', "%{$searchValue}%")
                     ->orWhere('SoCCCD', 'like', "%{$searchValue}%")
-                    ->orWhere('Email', 'like', "%{$searchValue}%")
-                    ->orWhere('SoDienThoai', 'like', "%{$searchValue}%");
+                    ->orWhere('nhan_viens.Email', 'like', "%{$searchValue}%")
+                    ->orWhere('nhan_viens.SoDienThoai', 'like', "%{$searchValue}%");
             });
         }
 
@@ -47,7 +49,13 @@ class NhanVienController extends Controller
 
         // Filter by Status
         if ($request->has('trang_thai') && $request->trang_thai !== null && $request->trang_thai !== '') {
-            $query->where('TrangThai', $request->trang_thai);
+            if ($request->trang_thai !== 'tat_ca') {
+                $query->where('TrangThai', $request->trang_thai);
+            }
+            // If 'tat_ca', we don't apply any filter on TrangThai
+        } else {
+            // Default: Only show working and maternity leave
+            $query->whereIn('TrangThai', ['dang_lam', 'nghi_thai_san']);
         }
 
         $filteredRecords = $query->count();
@@ -56,7 +64,7 @@ class NhanVienController extends Controller
         if ($request->has('order')) {
             $columnIndex = $request->order[0]['column'];
             $columnDir = $request->order[0]['dir'];
-            $columns = ['id', 'Ten', 'SoDienThoai', 'phong_ban_id', 'Nhom', 'id'];
+            $columns = ['nhan_viens.id', 'Ten', 'SoDienThoai', 'dm_chuc_vus.Ten', 'TrangThai'];
             if (isset($columns[$columnIndex])) {
                 $query->orderBy($columns[$columnIndex], $columnDir);
             }
@@ -758,60 +766,36 @@ class NhanVienController extends Controller
     {
         try {
             \Illuminate\Support\Facades\DB::beginTransaction();
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
             $nhanVien = NhanVien::findOrFail($id);
             $nguoiDungId = $nhanVien->NguoiDungId;
 
-            // Xóa dữ liệu liên quan
-            \App\Models\TtNhanVienCongViec::where('NhanVienId', $id)->delete();
-            \App\Models\ThanNhan::where('NhanVienId', $id)->delete();
-            \App\Models\DienBienLuong::where('NhanVienId', $id)->delete();
-            \App\Models\Luong::where('NhanVienId', $id)->delete();
-            \App\Models\ChamCong::where('NhanVienId', $id)->delete();
-            \App\Models\WorkFromHome::where('NhanVienId', $id)->delete();
-            \App\Models\QuanLyPhepNam::where('NhanVienId', $id)->delete();
-            \App\Models\DangKyNghiPhep::where('NhanVienId', $id)->delete();
-            \App\Models\QuaTrinhCongTac::where('NhanVienId', $id)->delete();
+            // Chuyển trạng thái nhân viên sang nghỉ việc thay vì xóa cứng
+            $nhanVien->update(['TrangThai' => 'nghi_viec']);
 
-            // Xử lý giữ lại hợp đồng khi nhân viên nghỉ việc: Đánh dấu hết hạn, lưu Tên + Mã nhân viên, và gỡ foreign key NhanVienId
-            \App\Models\HopDong::where('NhanVienId', $id)->update([
-                'TenNhanVien' => $nhanVien->Ten . ' - ' . $nhanVien->Ma,
-                'TrangThai' => 0, // 0 = Hết hạn
-                'NhanVienId' => null
-            ]);
-
-            // Set các ID tham chiếu sang null để bảo toàn dữ liệu lịch sử
-            \App\Models\HopDong::where('NguoiKyId', $id)->update(['NguoiKyId' => null]);
-            \App\Models\WorkFromHome::where('NguoiDuyetId', $id)->update(['NguoiDuyetId' => null]);
-            \App\Models\DangKyNghiPhep::where('NguoiDuyetId', $id)->update(['NguoiDuyetId' => null]);
-
-            // Xóa file ảnh đại diện nếu có
-            if ($nhanVien->AnhDaiDien && file_exists(public_path($nhanVien->AnhDaiDien))) {
-                unlink(public_path($nhanVien->AnhDaiDien));
-            }
-
-            // Xóa nhân viên
-            $nhanVien->delete();
-
-            // Xóa người dùng tương ứng
+            // Vô hiệu hóa tài khoản người dùng tương ứng
             if ($nguoiDungId) {
-                \App\Models\NguoiDung::where('id', $nguoiDungId)->delete();
+                \App\Models\NguoiDung::where('id', $nguoiDungId)->update(['TrangThai' => 0]);
             }
 
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            // Đánh dấu các hợp đồng đang hoạt động thành hết hạn, nhưng GIỮ LẠI liên kết NhanVienId để xem lịch sử
+            \App\Models\HopDong::where('NhanVienId', $id)
+                ->where('TrangThai', 1)
+                ->update([
+                    'TrangThai' => 0 // 0 = Hết hạn
+                ]);
+
             \Illuminate\Support\Facades\DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Đã xóa nhân viên và các dữ liệu liên quan thành công!'
+                'message' => 'Nhân viên đã được chuyển trạng thái sang Nghỉ việc thành công!'
             ]);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             \Illuminate\Support\Facades\DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi xóa nhân viên: ' . $e->getMessage()
+                'message' => 'Lỗi khi thực hiện: ' . $e->getMessage()
             ], 422);
         }
     }
@@ -825,64 +809,34 @@ class NhanVienController extends Controller
             if (!$request->has('ids') || !is_array($request->ids) || count($request->ids) === 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Vui lòng chọn ít nhất một nhân viên để xóa.'
+                    'message' => 'Vui lòng chọn ít nhất một nhân viên để cho nghỉ việc.'
                 ], 400);
             }
 
             $ids = $request->ids;
 
             \Illuminate\Support\Facades\DB::beginTransaction();
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
+            // Chuyển trạng thái sang nghỉ việc
+            NhanVien::whereIn('id', $ids)->update(['TrangThai' => 'nghi_viec']);
+
+            // Vô hiệu hóa tài khoản liên kết
             $nhanViens = NhanVien::whereIn('id', $ids)->get();
             $nguoiDungIds = $nhanViens->pluck('NguoiDungId')->filter()->toArray();
-
-            // Xóa dữ liệu liên quan cho tất cả nhân viên được chọn
-            \App\Models\TtNhanVienCongViec::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\ThanNhan::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\DienBienLuong::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\Luong::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\ChamCong::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\WorkFromHome::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\QuanLyPhepNam::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\DangKyNghiPhep::whereIn('NhanVienId', $ids)->delete();
-            \App\Models\QuaTrinhCongTac::whereIn('NhanVienId', $ids)->delete();
-
-            // Xử lý giữ lại hợp đồng khi nhân viên nghỉ việc: Đánh dấu hết hạn, lưu Tên + Mã nhân viên, và gỡ foreign key NhanVienId
-            foreach ($nhanViens as $nv) {
-                \App\Models\HopDong::where('NhanVienId', $nv->id)->update([
-                    'TenNhanVien' => $nv->Ten . ' - ' . $nv->Ma,
-                    'TrangThai' => 0, // 0 = Hết hạn
-                    'NhanVienId' => null
-                ]);
-            }
-
-            // Cập nhật tham chiếu
-            \App\Models\HopDong::whereIn('NguoiKyId', $ids)->update(['NguoiKyId' => null]);
-            \App\Models\WorkFromHome::whereIn('NguoiDuyetId', $ids)->update(['NguoiDuyetId' => null]);
-            \App\Models\DangKyNghiPhep::whereIn('NguoiDuyetId', $ids)->update(['NguoiDuyetId' => null]);
-
-            // Xóa ảnh đại diện
-            foreach ($nhanViens as $nv) {
-                if ($nv->AnhDaiDien && file_exists(public_path($nv->AnhDaiDien))) {
-                    unlink(public_path($nv->AnhDaiDien));
-                }
-            }
-
-            // Xóa nhân viên
-            NhanVien::whereIn('id', $ids)->delete();
-
-            // Xóa người dùng tương ứng
             if (!empty($nguoiDungIds)) {
-                \App\Models\NguoiDung::whereIn('id', $nguoiDungIds)->delete();
+                \App\Models\NguoiDung::whereIn('id', $nguoiDungIds)->update(['TrangThai' => 0]);
             }
 
-            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            // Đánh dấu các hợp đồng đang hoạt động thành hết hạn
+            \App\Models\HopDong::whereIn('NhanVienId', $ids)
+                ->where('TrangThai', 1)
+                ->update(['TrangThai' => 0]);
+
             \Illuminate\Support\Facades\DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Đã xóa ' . count($ids) . ' nhân viên và các dữ liệu liên quan thành công!'
+                'message' => 'Các nhân viên đã chọn đã được chuyển sang trạng thái Nghỉ việc!'
             ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');

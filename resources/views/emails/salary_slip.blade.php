@@ -19,9 +19,9 @@
         </div>
 
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 13px; color: #777;">
-            <p>Đây là email tự động từ hệ thống quản lý nhân sự Vietnam Rubber Group. Vui lòng không trả lời email này.</p>
+            <p>Đây là email tự động từ hệ thống quản lý nhân sự {{ \App\Models\SystemConfig::getValue('company_name') }}. Vui lòng không trả lời email này.</p>
             <p>Nếu có bất kỳ thắc mắc nào về lương, vui lòng liên hệ phòng Nhân sự để được giải đáp.</p>
-            <p>Trân trọng,<br>Phòng Nhân sự - Vietnam Rubber Group</p>
+            <p>Trân trọng,<br>Phòng Nhân sự - {{ \App\Models\SystemConfig::getValue('company_name') }}</p>
         </div>
     </div>
 </body>

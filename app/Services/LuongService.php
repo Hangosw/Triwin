@@ -116,7 +116,10 @@ class LuongService
         $thuNhapTinhThue = max(0, $thuNhapChiuThue - $tongGiamTru);
         $thueTNCN = self::tinhThueLuyTien($thuNhapTinhThue);
 
-        $tongKhauTru = $tongKhauTruBH + $thueTNCN;
+        // --- Tạm ứng ---
+        $tamUngAmount = self::getApprovedTamUngAmount($nhanVien->id, $thang, $nam);
+
+        $tongKhauTru = $tongKhauTruBH + $thueTNCN + $tamUngAmount;
         $luongThucNhan = max(0, $tongThuNhap - $tongKhauTru);
 
         return [
@@ -138,12 +141,14 @@ class LuongService
             'thu_nhap_chiu_thue' => $thuNhapChiuThue,
             'thu_nhap_tinh_thue' => $thuNhapTinhThue,
             'thue_tncn' => $thueTNCN,
+            'tam_ung' => $tamUngAmount,
             'tong_khau_tru' => $tongKhauTru,
             // Kết quả
             'luong_thuc_nhan' => $luongThucNhan,
             // Meta
             'thang' => $thang,
             'nam' => $nam,
+            'so_ngay_nghi' => self::tinhSoNgayNghi($nhanVien->id, $thang, $nam),
             'hop_dong' => $hopDong,
             'bao_hiems' => $baoHiems,
         ];
@@ -196,7 +201,10 @@ class LuongService
         $thuNhapTinhThue = max(0, $thuNhapChiuThue - $tongGiamTru);
         $thueTNCN = self::tinhThueLuyTien($thuNhapTinhThue);
 
-        $tongKhauTru = $tongKhauTruBH + $thueTNCN;
+        // --- Tạm ứng ---
+        $tamUngAmount = self::getApprovedTamUngAmount($nhanVien->id, $thang, $nam);
+
+        $tongKhauTru = $tongKhauTruBH + $thueTNCN + $tamUngAmount;
         $luongThucNhan = max(0, $tongThuNhap - $tongKhauTru);
 
         return [
@@ -218,12 +226,14 @@ class LuongService
             'thu_nhap_chiu_thue' => $thuNhapChiuThue,
             'thu_nhap_tinh_thue' => $thuNhapTinhThue,
             'thue_tncn' => $thueTNCN,
+            'tam_ung' => $tamUngAmount,
             'tong_khau_tru' => $tongKhauTru,
             // Kết quả
             'luong_thuc_nhan' => $luongThucNhan,
             // Meta
             'thang' => $thang,
             'nam' => $nam,
+            'so_ngay_nghi' => self::tinhSoNgayNghi($nhanVien->id, $thang, $nam),
             'hop_dong' => $hopDong,
             'bao_hiems' => $baoHiems,
         ];
@@ -232,6 +242,18 @@ class LuongService
     // =========================================================
     // HELPERS
     // =========================================================
+
+    /**
+     * Tính tổng tiền tạm ứng đã được duyệt trong tháng/năm.
+     */
+    public static function getApprovedTamUngAmount(int $nhanVienId, int $thang, int $nam): float
+    {
+        return (float) \App\Models\TamUng::where('NhanVienId', $nhanVienId)
+            ->where('TrangThai', 1) // Đã duyệt
+            ->whereYear('created_at', $nam)
+            ->whereMonth('created_at', $thang)
+            ->sum('SoTien');
+    }
 
     /**
      * Tính số ngày làm việc chuẩn trong tháng dựa theo cau_hinh_lich_lam_viecs.
@@ -276,6 +298,17 @@ class LuongService
             ->whereMonth('Vao', $thang)
             ->whereNotNull('Ra')
             ->sum('Cong');
+    }
+
+    /**
+     * Đếm số ngày nghỉ phép đã được duyệt trong tháng.
+     */
+    public static function tinhSoNgayNghi(int $nhanVienId, int $thang, int $nam): float
+    {
+        return (float) \App\Models\DangKyNghiPhep::daDuyet()
+            ->where('NhanVienId', $nhanVienId)
+            ->thang($thang, $nam)
+            ->sum('SoNgayNghi');
     }
 
     /**

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Danh sách lương - Vietnam Rubber Group')
+@section('title', 'Danh sách lương - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
     <div class="page-header">
@@ -172,6 +172,15 @@
 
         .salary-table .salary-row td {
             line-height: 1.4;
+        }
+
+        .salary-row {
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .salary-row:hover {
+            background-color: #f1f5f9 !important;
         }
 
         /* Ki luong plain text style */
@@ -381,7 +390,7 @@
             <div class="buttons-row">
 
                 <button id="btnXuatBaoCao" class="btn btn-primary d-flex align-items-center gap-2"
-                    style="background-color: #1D6F42; border-color: #1D6F42;">
+                    style="background-color: #1D6F42; border-color: #1D6F42;" onclick="xuatBaoCao()">
                     <i class="bi bi-file-earmark-excel-fill"></i>
                     <span>Xuất báo cáo</span>
                 </button>
@@ -411,13 +420,13 @@
             style="padding: 16px 20px; margin-bottom: 0; background: linear-gradient(135deg, #0BAA4B, #088c3d); color: white;">
             <div style="font-size: 13px; opacity: 0.85;">Tổng thực nhận tháng {{ $thang }}/{{ $nam }}</div>
             <div style="font-size: 22px; font-weight: 700; margin-top: 4px;">
-                {{ number_format($tongThucNhan, 0, ',', '.') }} đ
+                {{ number_format($tongThucNhan, 0, ',', '.') }}
             </div>
         </div>
         <div class="card" style="padding: 16px 20px; margin-bottom: 0;">
             <div style="font-size: 13px; color: #6b7280;">Tổng lương cơ bản</div>
             <div style="font-size: 22px; font-weight: 700; color: #1e293b; margin-top: 4px;">
-                {{ number_format($tongLuongCoBan, 0, ',', '.') }} đ
+                {{ number_format($tongLuongCoBan, 0, ',', '.') }}
             </div>
         </div>
         <div class="card" style="padding: 16px 20px; margin-bottom: 0;">
@@ -449,7 +458,8 @@
                             <th class="ins-detail" style="width: 9%;">BHXH</th>
                             <th class="ins-detail" style="width: 7%;">BHYT</th>
                             <th class="ins-detail" style="width: 7%;">BHTN</th>
-                            <th class="ins-detail" style="width: 9%;">Thuế TNCN</th>
+                            <th class="ins-detail" style="width: 8%;">Thuế TNCN</th>
+                            <th class="ins-detail" style="width: 8%;">Tạm ứng</th>
                             <th class="col-thuc-nhan" style="width: 13%;">Thực nhận</th>
                         </tr>
                     </thead>
@@ -464,7 +474,7 @@
 
                         @foreach ($groupedLuongs as $chucVu => $groupLuongs)
                             <tr class="group-header-row">
-                                <td colspan="10" class="pos-header"
+                                <td colspan="11" class="pos-header"
                                     style="padding: 7px 16px; font-weight: 700; color: #1e293b; background: #f1f5f9; font-size: 12px;">
                                     <div class="d-flex align-items-center">
                                         <div
@@ -478,6 +488,7 @@
                                 <td style="display: none;"></td>
                                 <td style="display: none;"></td>
                                 <td style="display: none;"></td>
+                                 <td style="display: none;"></td>
                                 <td style="display: none;"></td>
                                 <td style="display: none;"></td>
                                 <td style="display: none;"></td>
@@ -502,7 +513,7 @@
                                             $bhtn = $detail['so_tien'];
                                     }
                                 @endphp
-                                <tr class="salary-row">
+                                <tr class="salary-row" onclick="window.location='{{ route('salary.edit-manual', $luong->id) }}'">
                                     <td style="text-align: center;">
                                         <span class="ki-luong-text">{{ $thang }}/{{ $nam }}</span>
                                     </td>
@@ -514,26 +525,29 @@
                                         <div style="font-size: 11px; color: #64748b;">{{ $nv?->Ma }}</div>
                                     </td>
                                     <td style="text-align: right; font-weight: 500;">
-                                        {{ number_format($luong->LuongCoBan, 0, ',', '.') }} đ
+                                        {{ number_format($luong->LuongCoBan, 0, ',', '.') }}
                                     </td>
                                     <td class="col-phu-cap" style="text-align: right; font-weight: 500; color: #0369a1;">
-                                        {{ number_format($luong->PhuCap, 0, ',', '.') }} đ
+                                        {{ number_format($luong->PhuCap, 0, ',', '.') }}
                                     </td>
                                     <td class="col-khau-tru" style="text-align: right; font-weight: 600; color: #be123c;">
-                                        -{{ number_format(($luong->KhauTruBaoHiem ?? 0) + ($luong->ThueTNCN ?? 0), 0, ',', '.') }} đ
+                                        -{{ number_format(($luong->KhauTruBaoHiem ?? 0) + ($luong->ThueTNCN ?? 0) + ($luong->TamUng ?? 0), 0, ',', '.') }}
                                     </td>
 
                                     {{-- Detailed Insurance Cells --}}
-                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhxh, 0, ',', '.') }} đ</td>
-                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhyt, 0, ',', '.') }} đ</td>
-                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhtn, 0, ',', '.') }} đ</td>
+                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhxh, 0, ',', '.') }}</td>
+                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhyt, 0, ',', '.') }}</td>
+                                    <td class="ins-detail" style="color: #9f1239;">{{ number_format($bhtn, 0, ',', '.') }}</td>
                                     <td class="ins-detail" style="color: #9f1239;">
-                                        {{ number_format($luong->ThueTNCN ?? 0, 0, ',', '.') }} đ
+                                        {{ number_format($luong->ThueTNCN ?? 0, 0, ',', '.') }}
+                                    </td>
+                                    <td class="ins-detail" style="color: #9f1239;">
+                                        {{ number_format($luong->TamUng ?? 0, 0, ',', '.') }}
                                     </td>
 
                                     <td class="col-thuc-nhan btn-show-slip" data-nv-id="{{ $nv?->id }}" data-thang="{{ $thang }}"
-                                        data-nam="{{ $nam }}">
-                                        <strong>{{ number_format($luong->Luong, 0, ',', '.') }} đ</strong>
+                                        data-nam="{{ $nam }}" onclick="event.stopPropagation();">
+                                        <strong>{{ number_format($luong->Luong, 0, ',', '.') }}</strong>
                                     </td>
                                 </tr>
                             @endforeach
@@ -584,6 +598,12 @@
             function selectFilter(inputId, val) {
                 document.getElementById(inputId).value = val;
                 document.getElementById('filterForm').submit();
+            }
+
+            function xuatBaoCao() {
+                const thang = document.getElementById('inputMonth').value;
+                const nam = document.getElementById('inputYear').value;
+                window.location.href = `/salary/export?thang=${thang}&nam=${nam}`;
             }
         </script>
         <script>

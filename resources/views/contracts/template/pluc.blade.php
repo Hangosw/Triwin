@@ -3,12 +3,13 @@
     $nguoiKy = $hopDong->nguoiKy;
     $ngayKy = $phuLuc->ngay_ky ? \Carbon\Carbon::parse($phuLuc->ngay_ky) : now();
     $ngayKyHopDong = \Carbon\Carbon::parse($hopDong->NgayBatDau);
-    
+
     // Tính tổng phụ cấp từ hợp đồng (phiên bản hiện tại)
     $tongPhuCap = collect($hopDong->PhuCap ?? [])->sum('amount');
 @endphp
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Phụ lục hợp đồng - {{ $nv->Ten ?? 'N/A' }}</title>
@@ -35,25 +36,28 @@
             padding: 25mm;
             box-sizing: border-box;
             background: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .header {
             text-align: center;
             margin-bottom: 30px;
         }
+
         .title {
             font-weight: bold;
             font-size: 16pt;
             text-transform: uppercase;
         }
+
         .section {
             margin-bottom: 20px;
         }
+
         .bold {
             font-weight: bold;
         }
-        
+
         /* Signature styles */
         .footer-sign {
             margin-top: 50px;
@@ -61,27 +65,36 @@
             grid-template-columns: 1fr 1fr;
             text-align: center;
         }
+
         .signature-display {
             height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .signature-img {
             max-height: 100px;
             max-width: 200px;
         }
 
         @media print {
-            body { background: none; padding: 0; }
-            .container { 
-                margin: 0; 
-                padding: 15mm 20mm; 
-                box-shadow: none; 
+            body {
+                background: none;
+                padding: 0;
+            }
+
+            .container {
+                margin: 0;
+                padding: 15mm 20mm;
+                box-shadow: none;
                 width: 100%;
                 max-width: none;
             }
-            .no-print { display: none !important; }
+
+            .no-print {
+                display: none !important;
+            }
         }
 
         /* UI Controls */
@@ -92,6 +105,7 @@
             justify-content: center;
             gap: 10px;
         }
+
         .print-btn {
             padding: 10px 25px;
             font-size: 15px;
@@ -101,34 +115,43 @@
             border: none;
             border-radius: 6px;
             font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.2s;
         }
+
         .sign-btn {
             background: #0BAA4B;
         }
-        .print-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .print-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
 
         /* Signature Modal Styles (Synced with NDA) */
         .signature-modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
             z-index: 1050;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(2px);
         }
+
         .signature-modal-content {
             background: white;
             padding: 24px;
             border-radius: 12px;
             width: 95%;
             max-width: 500px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
+
         .signature-pad-wrapper {
             border: 2px dashed #d1d5db;
             border-radius: 8px;
@@ -136,13 +159,22 @@
             margin: 15px 0;
             touch-action: none;
         }
-        #signature-pad { width: 100%; height: 200px; cursor: crosshair; }
-        .swal2-container { z-index: 3000 !important; }
+
+        #signature-pad {
+            width: 100%;
+            height: 200px;
+            cursor: crosshair;
+        }
+
+        .swal2-container {
+            z-index: 3000 !important;
+        }
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
+
 <body>
     <div class="no-print no-print-controls">
         <button onclick="window.print()" class="print-btn">In phụ lục</button>
@@ -175,10 +207,15 @@
             </div>
 
             <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                <button onclick="closeSignatureModal()" style="background:#f3f4f6; border:1px solid #d1d5db; padding:8px 16px; border-radius:6px; cursor:pointer;">Hủy</button>
+                <button onclick="closeSignatureModal()"
+                    style="background:#f3f4f6; border:1px solid #d1d5db; padding:8px 16px; border-radius:6px; cursor:pointer;">Hủy</button>
                 <div>
-                    <button onclick="clearSignature()" style="background:white; border:1px solid #d1d5db; padding:8px 16px; border-radius:6px; cursor:pointer; margin-right:8px;">Xóa trắng</button>
-                    <button onclick="saveSignature()" id="btn-save-signature" style="background:#0BAA4B; color:white; border:none; padding:8px 20px; border-radius:6px; cursor:pointer; font-weight:600;">Hoàn tất</button>
+                    <button onclick="clearSignature()"
+                        style="background:white; border:1px solid #d1d5db; padding:8px 16px; border-radius:6px; cursor:pointer; margin-right:8px;">Xóa
+                        trắng</button>
+                    <button onclick="saveSignature()" id="btn-save-signature"
+                        style="background:#0BAA4B; color:white; border:none; padding:8px 20px; border-radius:6px; cursor:pointer; font-weight:600;">Hoàn
+                        tất</button>
                 </div>
             </div>
         </div>
@@ -191,24 +228,30 @@
         </div>
 
         <div class="section">
-            <p>Hôm nay, ngày {{ $ngayKy->day }} tháng {{ $ngayKy->month }} năm {{ $ngayKy->year }}, Tại văn phòng {{ \App\Models\SystemConfig::getValue('company_name', 'công ty TNHH TRIWIN') }}</p>
+            <p>Hôm nay, ngày {{ $ngayKy->day }} tháng {{ $ngayKy->month }} năm {{ $ngayKy->year }}, Tại văn phòng
+                {{ \App\Models\SystemConfig::getValue('company_name', 'công ty TNHH TRIWIN') }}</p>
             <p>Chúng tôi gồm có:</p>
         </div>
 
         <div class="section">
             <div class="bold">BÊN SỬ DỤNG LAO ĐỘNG (BÊN A):</div>
-            <div>Bên A: <span class="bold">{{ mb_strtoupper(\App\Models\SystemConfig::getValue('company_name', 'CÔNG TY TNHH TRIWIN')) }}</span></div>
+            <div>Bên A: <span
+                    class="bold">{{ mb_strtoupper(\App\Models\SystemConfig::getValue('company_name', 'CÔNG TY TNHH TRIWIN')) }}</span>
+            </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Đại diện:</div>
                 <div class="bold">{{ $nguoiKy->Ten ?? '...' }}</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Chức vụ:</div>
-                <div>{{ $nguoiKy->ttCongViec->chucVu->TenChucVu ?? ($nguoiKy->ttCongViec->chucVu->Ten ?? 'Giám đốc') }}</div>
+                <div>{{ $nguoiKy->ttCongViec->chucVu->TenChucVu ?? ($nguoiKy->ttCongViec->chucVu->Ten ?? 'Giám đốc') }}
+                </div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Địa chỉ:</div>
-                <div>{{ \App\Models\SystemConfig::getValue('company_address', 'M2 đường số 5, KDC Cityland, Phường Tân Phú, Quận 7, TP.HCM') }}</div>
+                <div>
+                    {{ \App\Models\SystemConfig::getValue('company_address', 'M2 đường số 5, KDC Cityland, Phường Tân Phú, Quận 7, TP.HCM') }}
+                </div>
             </div>
         </div>
 
@@ -220,7 +263,8 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Sinh ngày:</div>
-                <div>{{ $nv->NgaySinh ? \Carbon\Carbon::parse($nv->NgaySinh)->format('d/m/Y') : '...' }} &nbsp;&nbsp;&nbsp; Quốc tịch: Việt Nam</div>
+                <div>{{ $nv->NgaySinh ? \Carbon\Carbon::parse($nv->NgaySinh)->format('d/m/Y') : '...' }}
+                    &nbsp;&nbsp;&nbsp; Quốc tịch: Việt Nam</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Địa chỉ:</div>
@@ -228,36 +272,44 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <div style="min-width: 100px;">Số CCCD:</div>
-                <div>{{ $nv->SoCCCD ?? '...' }}, cấp ngày {{ $nv->NgayCap ? \Carbon\Carbon::parse($nv->NgayCap)->format('d/m/Y') : '...' }}</div>
+                <div>{{ $nv->SoCCCD ?? '...' }}, cấp ngày
+                    {{ $nv->NgayCap ? \Carbon\Carbon::parse($nv->NgayCap)->format('d/m/Y') : '...' }}</div>
             </div>
         </div>
 
         <div class="section" style="text-align: justify;">
-            <p>Căn cứ Hợp đồng lao động số <span class="bold">{{ $hopDong->SoHopDong }}</span> ký ngày {{ $ngayKyHopDong->format('d/m/Y') }} và nhu cầu sử dụng lao động, hai bên cùng nhau thỏa thuận ký kết Phụ lục hợp đồng lao động (PLHĐ) với các điều khoản như sau:</p>
-            
+            <p>Căn cứ Hợp đồng lao động số <span class="bold">{{ $hopDong->SoHopDong }}</span> ký ngày
+                {{ $ngayKyHopDong->format('d/m/Y') }} và nhu cầu sử dụng lao động, hai bên cùng nhau thỏa thuận ký kết
+                Phụ lục hợp đồng lao động (PLHĐ) với các điều khoản như sau:</p>
+
             <p><span class="bold">ĐIỀU 1: CÁC NỘI DUNG THAY ĐỔI, BỔ SUNG</span></p>
             <p>1.1 Thay đổi về mức phụ cấp phúc lợi:</p>
             @php
-                $tongPhuCapDisplay = collect($hopDong->PhuCap ?? [])->sum('amount');
+                $plContract = $phuLuc->hopDongPL ?? $hopDong;
+                $tongPhuCapDisplay = collect($plContract->PhuCap ?? [])->sum('amount');
             @endphp
-            <p>- Tổng các khoản phụ cấp: <span class="bold">{{ number_format($tongPhuCapDisplay, 0, ',', '.') }} VNĐ/tháng</span>.</p>
+            <p>- Tổng các khoản phụ cấp: <span class="bold">{{ number_format($tongPhuCapDisplay, 0, ',', '.') }}
+                    VNĐ/tháng</span>.</p>
             <p>Chi tiết các khoản phụ cấp bao gồm:</p>
             <div style="margin-left: 20px; margin-top: 10px;">
-                @if(!empty($hopDong->PhuCap))
-                    @foreach($hopDong->PhuCap as $index => $pc)
-                        <p style="margin: 5px 0;">1.1.{{ $index + 1 }} {{ $pc['name'] }}: <span class="bold">{{ number_format($pc['amount'], 0, ',', '.') }} đồng/ tháng</span></p>
+                @if(!empty($plContract->PhuCap))
+                    @foreach($plContract->PhuCap as $index => $pc)
+                        <p style="margin: 5px 0;">1.1.{{ $index + 1 }} {{ $pc['name'] }}: <span
+                                class="bold">{{ number_format($pc['amount'], 0, ',', '.') }} đồng/ tháng</span></p>
                     @endforeach
+                @else
+                    <p style="color: #6b7280; font-style: italic;">Không có khoản phụ cấp nào.</p>
                 @endif
             </div>
-            
-            <p>1.2 Tiền thưởng cuối năm: Lương tháng 13 (Theo quy định của công ty).</p>
-            
+
+
             <p><span class="bold">ĐIỀU 2: THỜI GIAN THỰC HIỆN</span></p>
             <p>- Áp dụng từ ngày {{ $ngayKyHopDong->format('d/m/Y') }} đến khi có phụ lục hợp đồng điều chỉnh mới.</p>
         </div>
 
         <div class="section" style="text-align: justify;">
-            <p>Phụ lục này là bộ phận không tách rời của hợp đồng lao động số {{ $hopDong->SoHopDong }} được làm thành hai bản có giá trị pháp lý như nhau, mỗi bên giữ một bản.</p>
+            <p>Phụ lục này là bộ phận không tách rời của hợp đồng lao động số {{ $hopDong->SoHopDong }} được làm thành
+                hai bản có giá trị pháp lý như nhau, mỗi bên giữ một bản.</p>
         </div>
 
         <div class="footer-sign">
@@ -360,7 +412,7 @@
                     const areaId = position === 'employee' ? 'employee-signature-area' : 'company-signature-area';
                     const displayArea = document.querySelector(`#${areaId} .signature-display`);
                     displayArea.innerHTML = `<img src="${result.image_url}" class="signature-img">`;
-                    
+
                     Swal.fire({
                         icon: 'success',
                         title: 'Thành công',
@@ -392,4 +444,5 @@
         window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
+
 </html>

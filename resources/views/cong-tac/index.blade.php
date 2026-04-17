@@ -56,7 +56,7 @@
                 <table class="table" id="congTacTable" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th style="width: 50px;"><strong>STT</strong></th>
+                            <th style="width: 50px; text-align: center;"><strong>STT</strong></th>
                             <th>Nhân viên</th>
                             <th>Phòng ban, Chức vụ</th>
                             <th>Nội dung</th> {{-- New Column --}}
@@ -85,7 +85,7 @@
                                 data-diadiem="{{ $qt->DiaDiem }}"
                                 data-ghichu="{{ $qt->GhiChu }}"
                                 style="cursor: pointer;">
-                                <td><strong>{{ $index + 1 }}</strong></td>
+                                <td style="text-align: center;"><strong>{{ $index + 1 }}</strong></td>
                                 <td>
                                     <div style="font-weight: 600; color: var(--text-primary);">
                                         {{ $nv?->Ten ?? '—' }}
@@ -233,7 +233,11 @@
                     responsive: true,
                     autoWidth: false,
                     pageLength: 10,
-                    dom: 'rtip'
+                    dom: 'rtip',
+                    order: [[1, 'asc']], // Sắp xếp mặc định theo cột Nhân viên (index 1)
+                    columnDefs: [
+                        { targets: 0, orderable: false }
+                    ]
                 });
 
                 // Khởi tạo Select2 cho Modal

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Danh sách nghỉ phép còn lại - Vietnam Rubber Group')
+@section('title', 'Danh sách nghỉ phép còn lại - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <style>
@@ -144,6 +144,7 @@
                             <td style="vertical-align: middle; color: #4b5563;">{{ $nv->ttCongViec->phongBan->Ten ?? 'N/A' }}</td>
                             
                             @foreach($loaiNghiPheps as $lp)
+                                <td style="text-align: right; vertical-align: middle;">
                                     @if($lp->Ten == 'Nghỉ phép năm')
                                         @php
                                             $phepNam = $nv->quanLyPhepNams->first();

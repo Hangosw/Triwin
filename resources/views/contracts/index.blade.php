@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Quản lý hợp đồng - Vietnam Rubber Group')
+@section('title', 'Quản lý hợp đồng - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <style>
@@ -572,12 +572,12 @@
             $('#deleteSelectedBtn').on('click', function () {
                 const ids = $('.contract-checkbox:checked').map(function () { return $(this).val(); }).get();
                 Swal.fire({
-                    title: 'Xác nhận xóa?',
-                    text: `Bạn có chắc chắn muốn xóa ${ids.length} hợp đồng đã chọn?`,
+                    title: 'Xác nhận hủy hợp đồng?',
+                    text: `Hành động này sẽ hủy hợp đồng gốc và toàn bộ phụ lục liên quan của ${ids.length} mục đã chọn.`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
-                    confirmButtonText: 'Xóa',
+                    confirmButtonText: 'Đồng ý',
                     cancelButtonText: 'Hủy'
                 }).then((r) => {
                     if (r.isConfirmed) {

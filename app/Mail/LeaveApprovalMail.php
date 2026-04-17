@@ -23,7 +23,7 @@ class LeaveApprovalMail extends Mailable implements ShouldQueue
     public function __construct($leave)
     {
         $this->leave = $leave;
-        $this->companyName = SystemConfig::getValue('company_name', 'Vietnam Rubber Group');
+        $this->companyName = SystemConfig::getValue('company_name', \App\Models\SystemConfig::getValue('company_name') );
     }
 
     /**

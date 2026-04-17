@@ -10,7 +10,45 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = Permission::withCount('roles')->get();
-        return view('permissions.index', compact('permissions'));
+        
+        // Specific groups requested by the user
+        $configGroups = [
+            'Nhân viên'      => ['nhân viên', 'thông tin'],
+            'Người dùng'     => ['người dùng'],
+            'Hợp đồng'       => ['hợp đồng'],
+            'Chấm công'      => ['chấm công'],
+            'Work From Home' => ['wfh', 'work from home'],
+            'Nghỉ phép'      => ['nghỉ phép', 'phép'],
+            'Lương'          => ['lương'],
+            'Công tác'       => ['công tác'],
+        ];
+
+        $groupedPermissions = [];
+        $assignedIds = [];
+
+        foreach ($configGroups as $label => $keywords) {
+            $matched = $permissions->filter(function($p) use ($keywords, $assignedIds) {
+                if (in_array($p->id, $assignedIds)) return false;
+                $nameLower = mb_strtolower($p->name);
+                foreach ($keywords as $kw) {
+                    if (str_contains($nameLower, mb_strtolower($kw))) return true;
+                }
+                return false;
+            });
+
+            if ($matched->isNotEmpty()) {
+                $groupedPermissions[$label] = $matched;
+                $assignedIds = array_merge($assignedIds, $matched->pluck('id')->toArray());
+            }
+        }
+
+        // Add remaining permissions to 'Khác'
+        $remaining = $permissions->filter(fn($p) => !in_array($p->id, $assignedIds));
+        if ($remaining->isNotEmpty()) {
+            $groupedPermissions['Khác'] = $remaining;
+        }
+
+        return view('permissions.index', compact('groupedPermissions'));
     }
 
     public function create()

@@ -17,6 +17,7 @@ class SalarySlipMail extends Mailable implements ShouldQueue
     public $nam;
     public $hopDong;
     public $baoHiems;
+    public $luongRecord;
 
     public $companyName;
     public $thanhPhan;
@@ -26,19 +27,20 @@ class SalarySlipMail extends Mailable implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($nhanVien, $luong, $thang, $nam)
+    public function __construct($nhanVien, $luong, $thang, $nam, $luongRecord = null)
     {
         $this->nhanVien = $nhanVien;
         $this->luong = $luong;
         $this->thang = $thang;
         $this->nam = $nam;
-        
+        $this->luongRecord = $luongRecord;
+
         // Extract data for consistency with slip_partial
         $this->hopDong = $luong['hop_dong'] ?? null;
         $this->baoHiems = $luong['bao_hiems'] ?? [];
-        
+
         // Fetch company name from SystemConfig
-        $this->companyName = \App\Models\SystemConfig::getValue('company_name', 'Vietnam Rubber Group');
+        $this->companyName = \App\Models\SystemConfig::getValue('company_name', \App\Models\SystemConfig::getValue('company_name'));
     }
 
     /**
@@ -49,6 +51,6 @@ class SalarySlipMail extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject("Phiếu lương tháng {$this->thang}/{$this->nam} - {$this->companyName}")
-                    ->view('emails.salary_slip_v2');
+            ->view('emails.salary_slip_v2');
     }
 }

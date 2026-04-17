@@ -243,11 +243,7 @@
                                 <button class="btn-icon" onclick="toggleStatus(${row.id}, '${row.TrangThai}')" title="${toggleTitle}" style="color: ${toggleColor};">
                                     ${toggleIcon}
                                 </button>
-                                <button class="btn-icon" onclick="deleteItem(${row.id}, '${row.TenLoai}')" title="Xóa" style="color: #dc2626;">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+
                             </div>
                         `;
                     }
@@ -332,40 +328,7 @@
             $('#loaiHopDongModal').removeClass('show');
         }
 
-        function deleteItem(id, name) {
-            Swal.fire({
-                title: 'Xác nhận xóa',
-                text: `Bạn có chắc chắn muốn xóa loại hợp đồng "${name}"?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Xác nhận xóa',
-                cancelButtonText: 'Hủy',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `{{ route('hop-dong.loai-hop-dong.index') }}/delete/${id}`,
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function (res) {
-                            if (res.success) {
-                                Swal.fire('Thành công!', res.message, 'success');
-                                table.ajax.reload();
-                            } else {
-                                Swal.fire('Lỗi!', res.message, 'error');
-                            }
-                        },
-                        error: function (xhr) {
-                            Swal.fire('Lỗi!', xhr.responseJSON?.message || 'Có lỗi xảy ra', 'error');
-                        }
-                    });
-                }
-            });
-        }
+
         function toggleStatus(id, currentStatus) {
             const action = currentStatus === 'mo' ? 'Khóa' : 'Mở';
             const confirmBtnColor = currentStatus === 'mo' ? '#dc2626' : '#0BAA4B';

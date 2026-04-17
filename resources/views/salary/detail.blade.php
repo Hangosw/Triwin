@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chi tiết lương nhân viên - Vietnam Rubber Group')
+@section('title', 'Chi tiết lương nhân viên - ' . \App\Models\SystemConfig::getValue('company_name'))
 @push('styles')
     <style>
         /* Dark Mode Overrides */
@@ -140,6 +140,9 @@
             $thueTNCN = $luongRecord->ThueTNCN ?? $thueTNCN;
             $luongThucNhan = $luongRecord->Luong ?? $luongThucNhan;
             $soNguoiPT = $luongRecord->SoNguoiPhuThuoc ?? $soNguoiPT;
+            $tamUng = $luongRecord->TamUng ?? 0;
+        } else {
+            $tamUng = $luong['tam_ung'] ?? 0;
         }
 
         $giamTruBanThan = \App\Services\LuongService::GIAM_TRU_BAN_THAN;
@@ -401,14 +404,40 @@
                     <td class="font-medium" style="color: #dc2626;">-{{ number_format($thueTNCN, 0, ',', '.') }}</td>
                     <td>Đã trừ giảm trừ gia cảnh</td>
                 </tr>
+                {{-- F. TẠM ỨNG --}}
+                @if($tamUng > 0)
+                    <tr style="background-color: #f9fafb;">
+                        <td colspan="4"><strong>F. TẠM ỨNG LƯƠNG</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 32px;">Tiền đã tạm ứng trong tháng</td>
+                        <td>Đã duyệt chi</td>
+                        <td class="font-medium" style="color: #dc2626;">-{{ number_format($tamUng, 0, ',', '.') }}</td>
+                        <td>Chi trong tháng {{ $thang }}/{{ $nam }}</td>
+                    </tr>
+                @endif
+
                 <tr style="background-color: #fee2e2;">
                     <td><strong>Tổng khấu trừ</strong></td>
-                    <td></td>
-                    <td class="font-bold" style="color: #dc2626;">-{{ number_format($tongKhauTru, 0, ',', '.') }}</td>
+                    <td>BHXH + Thuế + Tạm ứng</td>
+                    <td class="font-bold" style="color: #dc2626;">-{{ number_format($tongKhauTruBH + $thueTNCN + $tamUng, 0, ',', '.') }}</td>
                     <td></td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    {{-- G. TỔNG CỘNG THỰC LĨNH --}}
+    <div class="card" style="background: linear-gradient(135deg, #0BAA4B, #088c3d); color: white; margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+            <div>
+                <h3 style="color: white; margin-bottom: 4px; font-size: 18px;">THỰC LĨNH CUỐI CÙNG</h3>
+                <p style="font-size: 13px; opacity: 0.9; margin: 0;">Số tiền thực thanh toán qua chuyển khoản/tiền mặt</p>
+            </div>
+            <div style="text-align: right;">
+                <h2 style="color: white; font-size: 32px; font-weight: 800; margin: 0;">{{ number_format($luongThucNhan, 0, ',', '.') }}</h2>
+            </div>
+        </div>
     </div>
 
         </div>
