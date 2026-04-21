@@ -3,7 +3,33 @@
 @section('title', 'Lịch sử lương - ' . $nv->Ten)
 
 @section('content')
+    <style>
+        body.dark-theme .card {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+        }
+        body.dark-theme th {
+            color: var(--text-secondary) !important;
+            border-bottom-color: var(--border-color) !important;
+        }
+        body.dark-theme td {
+            color: var(--text-primary) !important;
+            border-bottom-color: var(--border-color) !important;
+        }
+        body.dark-theme .table-container {
+            border-color: var(--border-color);
+        }
+        /* Modal Dark Theme */
+        body.dark-theme .slip-modal-container {
+            background-color: #1a1d27 !important;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6) !important;
+        }
+        body.dark-theme #slipContent {
+            background-color: #1a1d27 !important;
+        }
+    </style>
     <div class="page-header">
+
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
             <div>
                 <h1>Lịch sử lương</h1>
@@ -85,8 +111,9 @@
     </div>
 
     {{-- ========== MODAL PHIẾU LƯƠNG (Copy from index.blade.php) ========== --}}
-    <div id="slipModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; overflow-y:auto; padding:24px 16px;">
-        <div style="background:#fff; border-radius:12px; width:100%; max-width:860px; margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; max-height:90vh;">
+    <div id="slipModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; overflow-y:auto; padding:24px 16px;">
+        <div class="slip-modal-container" style="background:#fff; border-radius:12px; width:100%; max-width:860px; margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; max-height:90vh;">
+
             <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #e5e7eb; background:linear-gradient(135deg,#0BAA4B,#088c3d); border-radius:12px 12px 0 0;">
                 <div style="color:#fff; font-size:16px; font-weight:700;"><i class="bi bi-file-earmark-text"></i> Phiếu Lương</div>
                 <div style="display:flex; gap:10px; align-items:center;">

@@ -31,6 +31,25 @@
             margin-bottom: 20px;
         }
 
+        .form-row-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .form-row-3col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row-3col {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .form-row-3 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -467,8 +486,8 @@
                 <div class="form-group">
                     <label>Trạng thái nhân viên</label>
                     <select name="TrangThai" id="TrangThai" class="select2">
-                        <option value="dang_lam" {{ ($employee->TrangThai ?? 'dang_lam') == 'dang_lam' ? 'selected' : '' }}>Làm tại công ty</option>
-                        <option value="nghi_viec" {{ ($employee->TrangThai ?? 'dang_lam') == 'nghi_viec' ? 'selected' : '' }}>Nghỉ làm</option>
+                        <option value="dang_lam" {{ ($employee->TrangThai ?? 'dang_lam') == 'dang_lam' ? 'selected' : '' }}>Đang làm việc</option>
+                        <option value="nghi_viec" {{ ($employee->TrangThai ?? 'dang_lam') == 'nghi_viec' ? 'selected' : '' }}>Đã nghỉ việc</option>
                         <option value="nghi_thai_san" {{ ($employee->TrangThai ?? 'dang_lam') == 'nghi_thai_san' ? 'selected' : '' }}>Nghỉ thai sản</option>
                     </select>
                     <input type="hidden" name="sync_account_status" id="syncAccountStatus" value="0">
@@ -588,7 +607,7 @@
                 Thông tin ngân hàng
             </h2>
 
-            <div class="form-row-3">
+            <div class="form-row-3col">
                 <div class="form-group">
                     <label>Tên ngân hàng</label>
                     <select name="TenNganHang" class="select2">
@@ -689,23 +708,12 @@
                 Thông tin công việc
             </h2>
 
-            <div class="form-row">
+            <div class="form-row-3col">
                 <div class="form-group">
-                    <label>Loại nhân viên</label>
-                    <select name="LoaiNhanVien" class="select2" {{ $isRestricted ? 'disabled' : '' }}>
-                        <option value="">-- Chọn loại nhân viên --</option>
-                        <option value="1" {{ $employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien == 1 ? 'selected' : '' }}>Văn phòng</option>
-                        <option value="0" {{ $employee->ttCongViec && $employee->ttCongViec->LoaiNhanVien == 0 ? 'selected' : '' }}>Công nhân</option>
-                    </select>
-                    @if($isRestricted)
-                        <input type="hidden" name="LoaiNhanVien" value="{{ $employee->ttCongViec->LoaiNhanVien ?? '' }}">
-                    @endif
+                    <label>Mã nhân viên</label>
+                    <input type="text" disabled value="{{ $employee->Ma }}" style="background-color: #f3f4f6; color: #6b7280;">
                 </div>
 
-
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
                     <label>Phòng ban</label>
                     <select name="PhongBanId" id="phongBanSelect" class="select2" {{ $isRestricted ? 'disabled' : '' }}>
@@ -739,12 +747,12 @@
                 </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row-3col">
                 <div class="form-group">
-                    <label>Ngày tuyển dụng</label>
+                    <label>Ngày vào làm</label>
                     <input type="text" name="NgayTuyenDung" class="datepicker" 
                         value="{{ $employee->ttCongViec && $employee->ttCongViec->NgayTuyenDung ? \Carbon\Carbon::parse($employee->ttCongViec->NgayTuyenDung)->format('d-m-Y') : '' }}" 
-                        placeholder="Chọn ngày tuyển dụng" {{ $isRestricted ? 'disabled' : '' }}>
+                        placeholder="Chọn ngày vào làm" {{ $isRestricted ? 'disabled' : '' }}>
                     @if($isRestricted)
                         <input type="hidden" name="NgayTuyenDung" value="{{ $employee->ttCongViec && $employee->ttCongViec->NgayTuyenDung ? \Carbon\Carbon::parse($employee->ttCongViec->NgayTuyenDung)->format('d-m-Y') : '' }}">
                     @endif
@@ -759,47 +767,34 @@
                         <input type="hidden" name="NgayVaoBienChe" value="{{ $employee->ttCongViec && $employee->ttCongViec->NgayVaoBienChe ? \Carbon\Carbon::parse($employee->ttCongViec->NgayVaoBienChe)->format('d-m-Y') : '' }}">
                     @endif
                 </div>
-            </div>
-        </div>
 
-        <!-- Trình độ học vấn & Chuyên môn -->
-        <div class="form-section">
-            <h2>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-                Trình độ học vấn & Chuyên môn
-            </h2>
-
-            <div class="form-row">
                 <div class="form-group">
                     <label>Trình độ học vấn</label>
+                    @php
+                        $levels = ['Trung học cơ sở', 'Trung học phổ thông', 'Trung cấp', 'Cao đẳng', 'Đại học', 'Thạc sĩ', 'Tiến sĩ'];
+                    @endphp
                     <select name="TrinhDoHocVan" class="select2">
                         <option value="">-- Chọn trình độ --</option>
-                        @php
-                            $levels = ['Trung học cơ sở', 'Trung học phổ thông', 'Trung cấp', 'Cao đẳng', 'Đại học', 'Thạc sĩ', 'Tiến sĩ'];
-                        @endphp
                         @foreach($levels as $level)
                             <option value="{{ $level }}" {{ ($employee->ttCongViec->TrinhDoHocVan ?? '') == $level ? 'selected' : '' }}>{{ $level }}</option>
                         @endforeach
                     </select>
                 </div>
+            </div>
 
+            <div class="form-row-3col">
                 <div class="form-group">
                     <label>Chuyên ngành</label>
                     <input type="text" name="ChuyenNganh" 
                         value="{{ $employee->ttCongViec->ChuyenNganh ?? '' }}" 
-                        placeholder="Công nghệ thông tin">
+                        placeholder="Kế toán, CNTT...">
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
                     <label>Trình độ chuyên môn</label>
                     <input type="text" name="TrinhDoChuyenMon" 
                         value="{{ $employee->ttCongViec->TrinhDoChuyenMon ?? '' }}" 
-                        placeholder="Kỹ sư">
+                        placeholder="Kỹ sư, Cử nhân...">
                 </div>
 
                 <div class="form-group">

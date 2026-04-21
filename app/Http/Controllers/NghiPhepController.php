@@ -91,7 +91,11 @@ class NghiPhepController extends Controller
             'quanLyPhepNams' => function ($q) use ($nam) {
                 $q->where('Nam', $nam);
             }
-        ])->has('ttCongViec');
+        ])
+        ->whereHas('hopDongs', function($q) {
+            $q->where('TrangThai', 1); // Chỉ lấy nhân viên có hợp đồng còn hiệu lực
+        })
+        ->has('ttCongViec');
 
         if ($phongBanId) {
             $query->whereHas('ttCongViec', function ($q) use ($phongBanId) {
@@ -99,6 +103,14 @@ class NghiPhepController extends Controller
             });
         }
 
+        $nhanViens = $query->get();
+
+        // Đồng bộ/Khởi tạo bảng phép năm dựa trên hợp đồng cho những nhân viên này
+        foreach ($nhanViens as $nv) {
+            \App\Models\QuanLyPhepNam::khoiTaoPhepNam($nv->id, $nam);
+        }
+
+        // Reload lại dữ liệu sau khi đồng bộ
         $nhanViens = $query->get();
         $phongBans = DmPhongBan::all();
 
@@ -113,9 +125,22 @@ class NghiPhepController extends Controller
         $nhanVienId = $request->nhanVienId;
         $currentYear = date('Y');
 
+        // Kiểm tra xem nhân viên có hợp đồng còn hiệu lực (TrangThai = 1) hay không
+        $hasActiveContract = \App\Models\HopDong::where('NhanVienId', $nhanVienId)
+            ->where('TrangThai', 1)
+            ->exists();
+
         $limits = LoaiNghiPhep::where('TrangThai', '1')
             ->get()
-            ->mapWithKeys(function ($type) use ($nhanVienId, $currentYear) {
+            ->mapWithKeys(function ($type) use ($nhanVienId, $currentYear, $hasActiveContract) {
+                // Nếu không có hợp đồng active, tất cả hạn mức là 0
+                if (!$hasActiveContract) {
+                    return [$type->id => [
+                        'kha_dung' => 0,
+                        'con_lai' => 0
+                    ]];
+                }
+
                 if ($type->Ten == 'Nghỉ phép năm') {
                     $phepNam = QuanLyPhepNam::where('NhanVienId', $nhanVienId)->where('Nam', $currentYear)->first();
                     return [$type->id => [
@@ -220,13 +245,18 @@ class NghiPhepController extends Controller
                 }
             })->toArray();
 
+        $hasActiveContract = \App\Models\HopDong::where('NhanVienId', $nhanVien->id)
+            ->where('TrangThai', 1)
+            ->exists();
+
         return view('leave.self', compact(
             'nghiPheps',
             'phepNam',
             'loaiNghiPheps',
             'workingSchedule',
             'otherLeaveStats',
-            'leaveLimitsMap'
+            'leaveLimitsMap',
+            'hasActiveContract'
         ));
     }
 
@@ -311,13 +341,18 @@ class NghiPhepController extends Controller
                 }
             })->toArray();
 
+        $hasActiveContract = \App\Models\HopDong::where('NhanVienId', $nhanVien->id)
+            ->where('TrangThai', 1)
+            ->exists();
+
         return view('leave.register', compact(
             'phepNam',
             'loaiNghiPheps',
             'workingSchedule',
             'leaveLimitsMap',
             'annualLeaveLimit',
-            'annualLeaveId'
+            'annualLeaveId',
+            'hasActiveContract'
         ));
     }
 
@@ -377,6 +412,18 @@ class NghiPhepController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy thông tin nhân viên để đăng ký.'
+                ]);
+            }
+
+            // Kiểm tra hợp đồng còn hiệu lực trước khi cho phép lưu
+            $hasActiveContract = \App\Models\HopDong::where('NhanVienId', $nhanVienId)
+                ->where('TrangThai', 1)
+                ->exists();
+
+            if (!$hasActiveContract) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nhân viên hiện không có hợp đồng còn hiệu lực. Không thể đăng ký nghỉ phép.'
                 ]);
             }
 

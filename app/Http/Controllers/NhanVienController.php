@@ -80,6 +80,14 @@ class NhanVienController extends Controller
             $data = $query->get();
         }
 
+        // Verify avatar existence
+        $data->transform(function ($item) {
+            if ($item->AnhDaiDien && !file_exists(public_path($item->AnhDaiDien))) {
+                $item->AnhDaiDien = null;
+            }
+            return $item;
+        });
+
         return response()->json([
             'draw' => intval($request->draw),
             'recordsTotal' => $totalRecords,
@@ -134,6 +142,7 @@ class NhanVienController extends Controller
             'luongs' => function ($q) {
                 $q->orderBy('ThoiGian', 'desc');
             },
+            'taiSans'
         ])->findOrFail($id);
 
         // Ownership / Permission check
@@ -184,7 +193,6 @@ class NhanVienController extends Controller
 
             'PhongBanId' => 'required|integer',
             'ChucVuId' => 'required|integer',
-            'Nhom' => 'required|string',
             'NgayTuyenDung' => 'required|date',
             'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cropped_avatar' => 'nullable|string',
@@ -216,7 +224,6 @@ class NhanVienController extends Controller
 
             'PhongBanId.required' => 'Vui lòng chọn phòng ban.',
             'ChucVuId.required' => 'Vui lòng chọn chức vụ.',
-            'Nhom.required' => 'Vui lòng chọn loại nhân viên.',
             'NgayTuyenDung.required' => 'Vui lòng chọn ngày vào làm.',
             'NgayTuyenDung.date' => 'Ngày vào làm không hợp lệ.',
 
@@ -364,8 +371,6 @@ class NhanVienController extends Controller
                 ]);
 
                 // 5. Tạo record trong bảng tt_nhan_vien_cong_viecs (thông tin công việc)
-                // Chuyển đổi Nhom sang LoaiNhanVien: van_phong = 1, cong_nhan = 0
-                $loaiNhanVien = ($request->Nhom === 'van_phong') ? 1 : 0;
                 $ngayTuyenDung = $this->convertDateFormat($request->NgayTuyenDung);
                 $ngayVaoBienChe = $this->convertDateFormat($request->NgayVaoBienChe);
 
@@ -373,7 +378,6 @@ class NhanVienController extends Controller
                 \Log::info('Creating TtNhanVienCongViec', [
                     'nhan_vien_id' => $nhanVien->id,
                     'ma_nhan_vien' => $Ma,
-                    'loai_nhan_vien' => $loaiNhanVien
                 ]);
 
                 // Temporarily disable foreign key checks to bypass MySQL temp file issue
@@ -381,8 +385,6 @@ class NhanVienController extends Controller
 
                 TtNhanVienCongViec::create([
                     'NhanVienId' => $nhanVien->id,
-                    'LoaiNhanVien' => $loaiNhanVien,
-
                     'PhongBanId' => $request->PhongBanId,
                     'ChucVuId' => $request->ChucVuId,
                     'NgayTuyenDung' => $ngayTuyenDung,
@@ -455,7 +457,6 @@ class NhanVienController extends Controller
                 'GioiTinh' => 'required|in:0,1',
                 'Email' => 'nullable|email|max:255',
                 'SoDienThoai' => 'nullable|string|max:15',
-                'LoaiNhanVien' => 'required|in:0,1',
                 'PhongBanId' => 'required|exists:dm_phong_bans,id',
                 'ChucVuId' => 'required|exists:dm_chuc_vus,id',
                 'AnhDaiDien' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -471,7 +472,6 @@ class NhanVienController extends Controller
                 'PhongBanId.exists' => 'Phòng ban không tồn tại',
                 'ChucVuId.required' => 'Vui lòng chọn chức vụ',
                 'ChucVuId.exists' => 'Chức vụ không tồn tại',
-                'LoaiNhanVien.required' => 'Vui lòng chọn loại nhân viên',
                 'anh_cccd.*.image' => 'File tải lên CCCD phải là hình ảnh.',
                 'anh_cccd.*.max' => 'Kích thước mỗi ảnh CCCD không được vượt quá 5MB.',
                 'anh_bhxh.*.image' => 'File tải lên BHXH phải là hình ảnh.',
@@ -593,8 +593,6 @@ class NhanVienController extends Controller
             TtNhanVienCongViec::updateOrCreate(
                 ['NhanVienId' => $employee->id],
                 [
-                    'LoaiNhanVien' => $request->LoaiNhanVien,
-
                     'PhongBanId' => $request->PhongBanId,
                     'ChucVuId' => $request->ChucVuId,
                     'NgayTuyenDung' => $this->convertDateFormat($request->NgayTuyenDung),

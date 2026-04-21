@@ -381,6 +381,16 @@
             </a>
         </div>
 
+        @if(!$hasActiveContract && !(isset($isAdmin) && $isAdmin))
+            <div class="alert alert-danger" style="background-color: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; padding: 24px; border-radius: 20px; margin-bottom: 32px; display: flex; align-items: flex-start; gap: 16px;">
+                <i class="bi bi-exclamation-octagon-fill" style="font-size: 24px; margin-top: -2px;"></i>
+                <div>
+                    <h4 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 700;">Bạn chưa có hợp đồng còn hiệu lực</h4>
+                    <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #b91c1c;">Theo quy định của công ty, chỉ nhân viên có hợp đồng còn hiệu lực mới được phép đăng ký nghỉ phép. Vui lòng liên hệ bộ phận nhân sự để cập nhật thông tin hợp đồng của bạn.</p>
+                </div>
+            </div>
+        @endif
+
         <form id="leaveRegistrationForm" onsubmit="submitForm(event)">
             @csrf
             
@@ -406,7 +416,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                     <div class="form-group">
                         <label class="form-label">Loại nghỉ phép <span style="color: #ef4444;">*</span></label>
-                        <select class="form-control" name="LoaiNghiPhepId" id="loaiNghiPhepSelect">
+                        <select class="form-control" name="LoaiNghiPhepId" id="loaiNghiPhepSelect" {{ !$hasActiveContract && !(isset($isAdmin) && $isAdmin) ? 'disabled' : '' }}>
                             <option value="">-- Chọn loại nghỉ --</option>
                             @foreach($loaiNghiPheps as $type)
                                 @php
@@ -432,7 +442,7 @@
                     
                     <div class="form-group">
                         <label class="form-label">Khoảng thời gian nghỉ <span style="color: #ef4444;">*</span></label>
-                        <input type="text" class="form-control" id="dateRange" placeholder="Chọn từ ngày - đến ngày" readonly>
+                        <input type="text" class="form-control" id="dateRange" placeholder="Chọn từ ngày - đến ngày" readonly {{ !$hasActiveContract && !(isset($isAdmin) && $isAdmin) ? 'disabled' : '' }}>
                         <input type="hidden" name="TuNgay" id="tuNgayHidden">
                         <input type="hidden" name="DenNgay" id="denNgayHidden">
                     </div>
@@ -517,8 +527,8 @@
                 </div>
 
                 <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        Gửi đơn đăng ký nghỉ phép
+                    <button type="submit" class="btn btn-primary" id="submitBtn" {{ !$hasActiveContract && !(isset($isAdmin) && $isAdmin) ? 'disabled' : '' }}>
+                        {{ !$hasActiveContract && !(isset($isAdmin) && $isAdmin) ? 'Không thể đăng ký' : 'Gửi đơn đăng ký nghỉ phép' }}
                     </button>
                 </div>
             </div>

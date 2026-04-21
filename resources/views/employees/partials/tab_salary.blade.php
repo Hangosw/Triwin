@@ -1,17 +1,20 @@
 <div class="tab-content" id="tab-salary">
     <div class="detail-section">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0" style="color: var(--text-primary);">
-                <i class="bi bi-file-earmark-text me-2"></i>Lịch sử phiếu lương
-            </h2>
-            <div class="d-flex gap-2">
-                <select id="monthFilter" class="form-select form-select-sm" style="width: 130px; background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-color);">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="section-icon-circle">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <h2 class="mb-0" style="color: var(--accent-color); font-size: 1.2rem; font-weight: 700; line-height: 1.2;">Lịch sử phiếu lương</h2>
+            </div>
+            <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
+                <select id="monthFilter" class="form-select form-select-sm" style="flex: 1; min-width: 130px; background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-color); border-radius: 8px;">
                     <option value="">Tháng (Tất cả)</option>
                     @for($m = 1; $m <= 12; $m++)
                         <option value="{{ $m }}">Tháng {{ $m }}</option>
                     @endfor
                 </select>
-                <select id="yearFilter" class="form-select form-select-sm" style="width: 120px; background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-color);">
+                <select id="yearFilter" class="form-select form-select-sm" style="flex: 1; min-width: 120px; background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-color); border-radius: 8px;">
                     <option value="">Năm (Tất cả)</option>
                     @php $currentYear = date('Y'); @endphp
                     @for($y = $currentYear; $y >= 2022; $y--)

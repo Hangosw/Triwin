@@ -169,7 +169,6 @@ class NhanVienImport implements ToCollection, WithStartRow
                     'PhongBanId' => $phongBanModel->id,
                     'ChucVuId' => $chucVuModel->id,
                     'NgayTuyenDung' => $ngayTuyenDung,
-                    'LoaiNhanVien' => 1,
                 ]);
 
                 // Khởi tạo phép năm

@@ -181,37 +181,42 @@
         </div>
     </div>
 
-    <!-- History Table Section -->
     <div class="detail-section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2 style="margin-bottom: 0; border-bottom: none;">
-                <i class="bi bi-clock-history"></i>
-                Lịch sử hợp đồng lao động
-            </h2>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="section-icon-circle">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <h2 style="margin: 0; border-bottom: none; font-size: 1.25rem; font-weight: 700; color: #1f2937;">
+                    Lịch sử hợp đồng lao động
+                </h2>
+            </div>
             @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
-                <a href="{{ route('hop-dong.taoView') }}?nhanVienId={{ $employee->id }}" class="btn btn-primary"
-                    style="border-radius: 8px; padding: 10px 20px; font-weight: 500;">
-                    <i class="bi bi-plus-lg"></i> Ký hợp đồng mới
+                <a href="{{ route('hop-dong.taoView') }}?nhanVienId={{ $employee->id }}" class="btn-premium-add text-decoration-none">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Ký hợp đồng mới</span>
                 </a>
             @endcanany
         </div>
 
-        <div class="table-responsive premium-table">
-            <table class="table mb-0">
+        <div class="premium-table">
+            <table class="table mb-0" id="contractsTable" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>Số hợp đồng</th>
-                        <th>Loại hợp đồng</th>
-                        <th>Chức vụ</th>
-                        <th>Ngày bắt đầu</th>
-                        <th>Ngày kết thúc</th>
-                        <th style="text-align: center;">Trạng thái</th>
-                        <th style="text-align: right;">Hành động</th>
+                        <th style="width: 50px;" class="all">STT</th>
+                        <th class="all">Số hợp đồng</th>
+                        <th class="all">Loại hợp đồng</th>
+                        <th class="min-tablet">Chức vụ</th>
+                        <th class="min-tablet">Ngày bắt đầu</th>
+                        <th class="none">Ngày kết thúc</th>
+                        <th style="text-align: center;" class="all">Trạng thái</th>
+                        <th style="width: 120px; text-align: center;" class="all">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($laborContracts as $hd)
+                    @foreach($laborContracts as $index => $hd)
                         <tr>
+                            <td class="text-center font-bold">{{ $index + 1 }}</td>
                             <td style="font-weight: 600;" class="text-primary-hr">{{ $hd->SoHopDong }}</td>
                             <td>{{ $hd->loaiHopDong->TenLoai ?? 'Hợp đồng lao động' }}</td>
                             <td>{{ $hd->chucVu->Ten ?? 'N/A' }}</td>
@@ -226,20 +231,20 @@
                                     <span class="badge badge-danger">Đã hủy</span>
                                 @endif
                             </td>
-                            <td style="text-align: right;">
-                                <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                                    <a href="{{ route('hop-dong.info', $hd->id) }}" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                            <td style="text-align: center;">
+                                <div style="display: flex; justify-content: center; gap: 4px;">
+                                    <a href="{{ route('hop-dong.info', $hd->id) }}" class="action-icon-btn text-info" title="Xem chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
-                                        <a href="{{ route('hop-dong.suaView', $hd->id) }}" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                        <a href="{{ route('hop-dong.suaView', $hd->id) }}" class="action-icon-btn text-primary" title="Sửa">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                     @endcanany
                                     @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
                                         {{-- Re-sign button if expired --}}
                                         @if($hd->TrangThai == 0 || ($hd->NgayKetThuc && \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($hd->NgayKetThuc), false) <= 25))
-                                            <a href="{{ route('hop-dong.renew', $hd->id) }}" class="btn btn-sm btn-outline-warning" title="Tái ký">
+                                            <a href="{{ route('hop-dong.renew', $hd->id) }}" class="action-icon-btn text-warning" title="Tái ký">
                                                 <i class="bi bi-arrow-repeat"></i>
                                             </a>
                                         @endif
@@ -247,16 +252,7 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 48px;" class="empty-state-cell">
-                                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                                    <i class="bi bi-file-earmark-x" style="font-size: 48px; color: #d1d5db;"></i>
-                                    <div style="color: #6b7280; font-size: 15px;">Dữ liệu hợp đồng đang trống</div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

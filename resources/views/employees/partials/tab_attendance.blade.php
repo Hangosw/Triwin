@@ -2,7 +2,6 @@
 <div class="tab-content" id="tab-attendance">
     <div class="detail-section">
         <h2>
-            <i class="bi bi-clock-history"></i>
             Lịch sử chấm công
         </h2>
 
@@ -11,7 +10,6 @@
             {{-- Month/Year picker --}}
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="display:flex; align-items:center; gap:8px; background:#f3f4f6; border:1px solid #e5e7eb; border-radius:8px; padding:6px 14px; font-size:14px; font-weight:600; color:#374151; cursor:pointer;" id="attendanceDateDisplay" onclick="document.getElementById('attendanceMonthPicker').showPicker()">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     <span id="attendanceDateLabel">--/----</span>
                     <input type="month" id="attendanceMonthPicker" style="position:absolute;opacity:0;width:0;height:0;" onchange="onAttendanceMonthChange(this.value)">
                 </div>
@@ -35,22 +33,21 @@
             </div>
             <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px 16px; text-align:center;">
                 <div style="font-size:22px; font-weight:700; color:#0BAA4B;" id="statOnTime">--</div>
-                <div style="font-size:12px; color:#6b7280; margin-top:2px;">✅ Đúng giờ</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:2px;">Đúng giờ</div>
             </div>
             <div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; text-align:center;">
                 <div style="font-size:22px; font-weight:700; color:#ea580c;" id="statLate">--</div>
-                <div style="font-size:12px; color:#6b7280; margin-top:2px;">⏰ Đi muộn</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:2px;">Đi muộn</div>
             </div>
             <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:14px 16px; text-align:center;">
                 <div style="font-size:22px; font-weight:700; color:#2563eb;" id="statEarly">--</div>
-                <div style="font-size:12px; color:#6b7280; margin-top:2px;">🏃 Về sớm</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:2px;">Về sớm</div>
             </div>
         </div>
 
         {{-- Table --}}
         <div id="attendanceTableWrap">
             <div style="text-align:center; padding:40px; color:#9ca3af; font-size:14px;">
-                <div style="font-size:32px; margin-bottom:8px;">📅</div>
                 Chọn tháng để xem lịch sử chấm công
             </div>
         </div>
@@ -74,17 +71,17 @@
         const isDark = document.body.classList.contains('dark-theme');
         const map = {
             'dung_gio': {
-                label: '✅ Đúng giờ',
+                label: 'Đúng giờ',
                 bg: isDark ? 'rgba(74, 222, 128, 0.15)' : '#dcfce7',
                 color: isDark ? '#4ade80' : '#166534'
             },
             'tre': {
-                label: '⏰ Đi muộn',
+                label: 'Đi muộn',
                 bg: isDark ? 'rgba(251, 146, 60, 0.15)' : '#fff7ed',
                 color: isDark ? '#fb923c' : '#c2410c'
             },
             've_som': {
-                label: '🏃 Về sớm',
+                label: 'Về sớm',
                 bg: isDark ? 'rgba(96, 165, 250, 0.15)' : '#eff6ff',
                 color: isDark ? '#60a5fa' : '#1d4ed8'
             }
@@ -106,7 +103,7 @@
         updateLabel(month, year);
 
         const wrap = document.getElementById('attendanceTableWrap');
-        wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#6b7280;font-size:14px;"><div style="font-size:32px;margin-bottom:8px;">⏳</div>Đang tải...</div>`;
+        wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#6b7280;font-size:14px;">Đang tải...</div>`;
 
         // Reset stats
         ['statTotal','statOnTime','statLate','statEarly'].forEach(id => document.getElementById(id).textContent = '--');
@@ -125,7 +122,7 @@
             document.getElementById('statEarly').textContent  = rows.filter(r => r.TrangThai === 've_som').length;
 
             if (rows.length === 0) {
-                wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px;"><div style="font-size:32px;margin-bottom:8px;">📭</div>Không có dữ liệu chấm công tháng này</div>`;
+                wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px;">Không có dữ liệu chấm công tháng này</div>`;
                 return;
             }
 
@@ -156,9 +153,9 @@
                             <td style="padding:14px 16px;font-size:14px;${timeColor(r.TrangThai,'out')}">${gioRa}</td>
                             <td style="padding:14px 16px;">${statusBadge(r.TrangThai)}</td>
                             <td style="padding:14px 16px;text-align:center;">
-                                ${r.HinhAnh ? `<button onclick="showAttendanceImg('${r.HinhAnh}')" style="background:none;border:none;cursor:pointer;color:#6b7280;" title="Xem ảnh">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                </button>` : '<span style="color:#e5e7eb;font-size:16px;">⊘</span>'}
+                                ${r.HinhAnh ? `<button onclick="showAttendanceImg('${r.HinhAnh}')" style="background:none;border:none;cursor:pointer;color:#0BAA4B;font-size:13px;font-weight:600;text-decoration:underline;" title="Xem ảnh">
+                                    [Xem ảnh]
+                                </button>` : '<span style="color:#e5e7eb;font-size:16px;">—</span>'}
                             </td>
                         </tr>`;
             });
@@ -167,7 +164,7 @@
             wrap.innerHTML = html;
         })
         .catch(() => {
-            wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#dc2626;font-size:14px;"><div style="font-size:32px;margin-bottom:8px;">⚠️</div>Không thể tải dữ liệu</div>`;
+            wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#dc2626;font-size:14px;">Không thể tải dữ liệu</div>`;
         });
     }
 

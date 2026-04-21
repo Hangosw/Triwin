@@ -6,7 +6,7 @@
             <div class="info-card">
                 <div class="profile-overview" style="display: flex; gap: 24px; align-items: center; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #f1f5f9;">
                     @php
-                        $avatar = $employee->AnhDaiDien
+                        $avatar = ($employee->AnhDaiDien && file_exists(public_path($employee->AnhDaiDien)))
                             ? asset($employee->AnhDaiDien)
                             : 'https://ui-avatars.com/api/?name=' . urlencode($employee->Ten) . '&background=0BAA4B&color=fff&size=128';
                     @endphp
@@ -17,7 +17,7 @@
                     </div>
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                            <h2 style="font-size: 22px; font-weight: 700; color: #1e293b; margin: 0;">{{ $employee->Ten }}</h2>
+                            <h2 class="profile-name">{{ $employee->Ten }}</h2>
                             @php
                                 $status = $employee->TrangThai ?? 'dang_lam';
                                 if ($status === 'dang_lam') {
@@ -25,19 +25,18 @@
                                 } elseif ($status === 'nghi_thai_san') {
                                     $statusData = ['text' => 'Nghỉ thai sản', 'class' => 'bg-info'];
                                 } else {
-                                    $statusData = ['text' => 'Nghỉ làm', 'class' => 'bg-secondary'];
+                                    $statusData = ['text' => 'Đã nghỉ việc', 'class' => 'bg-danger'];
                                 }
                             @endphp
                             <span class="badge {{ $statusData['class'] }}" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">
                                 {{ $statusData['text'] }}
                             </span>
                         </div>
-                        <p style="color: #64748b; font-size: 14px; margin-bottom: 12px; font-weight: 500;">
+                        <p class="profile-subtitle">
                             <i class="bi bi-briefcase" style="margin-right: 4px;"></i>
                             {{ $employee->ttCongViec->chucVu->Ten ?? 'Chưa có chức vụ' }} | {{ $employee->ttCongViec->phongBan->Ten ?? 'Chưa có phòng ban' }}
                         </p>
-                        <a href="{{ route('nhan-vien.suaView', $employee->id) }}" class="btn btn-light btn-sm"
-                            style="border: 1px solid #e2e8f0; font-weight: 600; color: #0BAA4B; background: white; border-radius: 8px;">
+                        <a href="{{ route('nhan-vien.suaView', $employee->id) }}" class="btn btn-light btn-sm btn-edit-profile">
                             <i class="bi bi-pencil-square" style="margin-right: 5px;"></i>
                             Chỉnh sửa hồ sơ
                         </a>

@@ -34,11 +34,15 @@ class LuongController extends Controller
             'nhanVien.thanNhans',
         ])
             ->where('ThoiGian', $thoiGian)
+            ->whereHas('nhanVien') // Chỉ lấy bản ghi có nhân viên tồn tại (Lọc rác)
             ->get();
 
         // Tính sẵn insurance details để tránh gọi service trong blade
         $insuranceDetails = [];
         foreach ($luongs as $luong) {
+            if (!$luong->nhanVien) {
+                continue;
+            }
             try {
                 $detail = LuongService::tinhLuong($luong->nhanVien, $thang, $nam);
                 $insuranceDetails[$luong->nhanVien->id] = $detail['bao_hiems_detail'] ?? [];
@@ -550,7 +554,7 @@ class LuongController extends Controller
             return redirect()->route('salary.index', [
                 'thang' => \Carbon\Carbon::parse($luong->ThoiGian)->month,
                 'nam' => \Carbon\Carbon::parse($luong->ThoiGian)->year
-            ])->with('success', "Đã điều chỉnh lương thủ công cho nhân viên {$luong->nhanVien->Ten} thành công.");
+            ])->with('success', "Đã điều chỉnh lương thủ công cho nhân viên " . ($luong->nhanVien->Ten ?? '—') . " thành công.");
         });
     }
 }

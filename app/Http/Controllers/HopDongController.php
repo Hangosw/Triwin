@@ -210,17 +210,19 @@ class HopDongController extends Controller
         $phongban = DmPhongBan::all();
         $chucvu = DmChucVu::all();
 
-        // Lấy danh sách nhân viên có vai trò 'Nhân viên'
-        $nhanvien = NhanVien::whereHas('nguoiDung', function ($q) {
-            $q->whereHas('roles', function ($rq) {
-                $rq->where('name', 'Nhân viên');
-            });
-        })->with(['ttCongViec.chucVu', 'ttCongViec.phongBan'])
+        // Lấy danh sách toàn bộ nhân viên đang làm việc
+        $nhanvien = NhanVien::where('TrangThai', 'dang_lam')
+            ->with(['ttCongViec.chucVu', 'ttCongViec.phongBan'])
             ->withCount([
                 'thanNhans as phu_thuoc_count' => function ($query) {
                     $query->where('TrangThai', 1);
+                },
+                'hopDongs as active_contract_count' => function ($query) {
+                    $query->where('TrangThai', 1)->where('Loai', 'not like', 'nda%');
                 }
-            ])->get();
+            ])
+            ->orderBy('Ten')
+            ->get();
 
         // Lấy danh sách toàn bộ nhân viên để ký tên (đã gỡ bỏ giới hạn System Admin)
         $nguoiKyList = NhanVien::orderBy('Ten')->get();

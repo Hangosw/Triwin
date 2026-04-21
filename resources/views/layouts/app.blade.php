@@ -36,6 +36,10 @@
             --swal-text: #e8eaf0;
         }
 
+        body.dark-theme .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
         *,
         *::before,
         *::after {
@@ -49,8 +53,8 @@
             height: 100%;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f9fafb;
-            color: #1f2937;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
         }
 
         .app-container {
@@ -156,8 +160,8 @@
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
+            gap: 10px;
+            padding: 6px 16px !important;
             color: #4b5563;
             text-decoration: none;
             transition: all 0.2s;
@@ -205,8 +209,8 @@
         .submenu-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 24px 10px 56px;
+            gap: 10px;
+            padding: 4px 16px 4px 44px;
             color: #6b7280;
             text-decoration: none;
             transition: all 0.2s;
@@ -333,22 +337,23 @@
         }
 
         .page-header {
-            margin-bottom: 32px;
+            margin-bottom: 12px !important;
         }
 
         .page-header h1 {
-            font-size: 30px;
+            margin: 0;
+            font-size: 26px;
             font-weight: 700;
             color: #1f2937;
         }
 
         .page-header p {
             color: #6b7280;
-            margin-top: 8px;
+            margin: 4px 0 0 0;
         }
 
         .content-wrapper {
-            padding: 32px;
+            padding: 16px 20px !important;
         }
 
         /* Card Styles */
@@ -356,8 +361,8 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 24px;
-            margin-bottom: 24px;
+            padding: 12px !important;
+            margin-bottom: 12px !important;
         }
 
         /* Button Styles */
@@ -385,15 +390,15 @@
         }
 
         .btn-secondary {
-            background-color: white;
-            color: #374151;
-            border: 1px solid #d1d5db;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
 
         .btn-secondary:hover {
-            background-color: #f3f4f6;
-            color: #111827;
-            border-color: #9ca3af;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
         }
 
         /* Input Styles */
@@ -440,7 +445,7 @@
         }
 
         .table th {
-            padding: 16px 24px;
+            padding: 8px 16px !important;
             text-align: left;
             font-weight: 600;
             color: #374151;
@@ -458,7 +463,7 @@
         }
 
         .table td {
-            padding: 16px 24px;
+            padding: 8px 16px !important;
             font-size: 14px;
         }
 
@@ -798,6 +803,88 @@
 
         /* Search Input Styling */
         .dataTables_wrapper .dataTables_filter label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        /* ========================================
+           DATATABLES RESPONSIVE - CUSTOM BAR STYLE
+           ======================================== */
+        @media (max-width: 768px) {
+            table.dataTable.collapsed tbody tr {
+                position: relative !important;
+            }
+            
+            table.dataTable.collapsed tbody tr > td.dtr-control,
+            table.dataTable.collapsed tbody tr > th.dtr-control {
+                padding-bottom: 30px !important;
+                position: relative !important;
+                padding-left: 0.75rem !important; /* Standard padding */
+            }
+
+            /* The horizontal bar */
+            table.dataTable.collapsed tbody tr > td.dtr-control:before,
+            table.dataTable.collapsed tbody tr > th.dtr-control:before {
+                content: "" !important;
+                position: absolute !important;
+                bottom: 6px !important;
+                left: 8px !important;
+                right: 8px !important;
+                width: auto !important;
+                height: 16px !important;
+                background-color: #f3f4f6 !important; /* light gray */
+                border-radius: 4px !important;
+                border: 1px solid #e5e7eb !important;
+                top: auto !important;
+                margin: 0 !important;
+                transform: none !important;
+                box-shadow: none !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                z-index: 1;
+            }
+
+            /* The chevron icon */
+            table.dataTable.collapsed tbody tr > td.dtr-control:after,
+            table.dataTable.collapsed tbody tr > th.dtr-control:after {
+                font-family: "bootstrap-icons" !important;
+                content: "\F282" !important; /* bi-chevron-down */
+                position: absolute !important;
+                bottom: 6px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                font-size: 11px !important;
+                color: #64748b !important;
+                z-index: 2 !important;
+                line-height: 16px !important;
+                transition: all 0.2s ease !important;
+                display: block !important;
+            }
+
+            /* Expanded state */
+            table.dataTable.collapsed tbody tr.parent > td.dtr-control:after,
+            table.dataTable.collapsed tbody tr.parent > th.dtr-control:after {
+                content: "\F286" !important; /* bi-chevron-up */
+                color: #0BAA4B !important;
+            }
+            
+            /* Dark Theme Support */
+            body.dark-theme table.dataTable.collapsed tbody tr > td.dtr-control:before,
+            body.dark-theme table.dataTable.collapsed tbody tr > th.dtr-control:before {
+                background-color: #2e3349 !important;
+                border-color: #3d445e !important;
+            }
+            
+            body.dark-theme table.dataTable.collapsed tbody tr > td.dtr-control:after,
+            body.dark-theme table.dataTable.collapsed tbody tr > th.dtr-control:after {
+                color: #8b93a8 !important;
+            }
+        }
             display: flex;
             align-items: center;
             gap: 8px;
@@ -2690,6 +2777,17 @@
                     </div>
                 @endcanany
 
+                @can('Quản lý tài sản')
+                    <a href="{{ route('tai-san.index') }}"
+                        class="nav-item {{ request()->routeIs('tai-san.*') ? 'active' : '' }}">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span>Tài sản</span>
+                    </a>
+                @endcan
+
                 @can('Quản lý hệ thống')
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'active' : '' }}"
@@ -2805,6 +2903,8 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <!-- Moment JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

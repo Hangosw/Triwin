@@ -1,31 +1,36 @@
 <div class="tab-content" id="tab-relatives">
     <div class="detail-section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2 style="margin-bottom: 0; border-bottom: none;">
-                <i class="bi bi-people-fill"></i>
-                Danh sách người phụ thuộc
-            </h2>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRelativeModal"
-                style="border-radius: 8px; padding: 10px 20px; font-weight: 500;">
-                <i class="bi bi-plus-lg"></i> Thêm người phụ thuộc
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="section-icon-circle">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <h2 style="margin: 0; border-bottom: none; font-size: 1.25rem; font-weight: 700; color: #1f2937;">
+                    Danh sách người phụ thuộc
+                </h2>
+            </div>
+            <button class="btn-premium-add" data-bs-toggle="modal" data-bs-target="#addRelativeModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Thêm người phụ thuộc</span>
             </button>
         </div>
 
-        <div class="table-responsive premium-table">
-            <table class="table mb-0" id="relativesTable">
+        <div class="premium-table">
+            <table class="table mb-0" id="relativesTable" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="width: 200px;">Họ và tên</th>
-                        <th>Mối quan hệ</th>
-                        <th>Thông tin</th>
-                        <th style="text-align: center;">Giảm trừ</th>
-                        <th style="text-align: center;">Trạng thái</th>
-                        <th>Ghi chú</th>
-                        <th style="width: 120px; text-align: center;">Thao tác</th>
+                        <th style="width: 50px;" class="all">STT</th>
+                        <th class="all">Họ và tên</th>
+                        <th class="min-tablet">Mối quan hệ</th>
+                        <th class="none">Thông tin</th>
+                        <th class="min-tablet">Giảm trừ</th>
+                        <th class="none">Trạng thái</th>
+                        <th class="none">Ghi chú</th>
+                        <th style="width: 100px; text-align: center;" class="all">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($employee->thanNhans as $tn)
+                    @foreach($employee->thanNhans as $index => $tn)
                         @php
                             $relClass = match ($tn->QuanHe) {
                                 'bo_de', 'me_de' => 'badge-bo-me',
@@ -43,6 +48,7 @@
                             };
                         @endphp
                         <tr>
+                            <td class="text-center font-bold">{{ $index + 1 }}</td>
                             <td style="font-weight: 500;">{{ $tn->HoTen }}</td>
                             <td>
                                 <span class="badge-relationship {{ $relClass }}">
@@ -109,16 +115,7 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 48px;" class="empty-state-cell">
-                                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                                    <i class="bi bi-people" style="font-size: 48px; color: #d1d5db;"></i>
-                                    <div style="color: #6b7280; font-size: 15px;">Chưa có thông tin người phụ thuộc</div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

@@ -31,6 +31,25 @@
             margin-bottom: 20px;
         }
 
+        .form-row-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .form-row-3col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row-3col {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .form-row-3 {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -597,8 +616,8 @@
                 <div class="form-group">
                     <label>Trạng thái nhân viên</label>
                     <select name="TrangThai" class="select2">
-                        <option value="dang_lam" selected>Làm tại công ty</option>
-                        <option value="nghi_viec">Nghỉ làm</option>
+                        <option value="dang_lam" selected>Đang làm việc</option>
+                        <option value="nghi_viec">Đã nghỉ việc</option>
                         <option value="nghi_thai_san">Nghỉ thai sản</option>
                     </select>
                 </div>
@@ -615,26 +634,13 @@
                 Thông tin công việc
             </h2>
 
-            <div class="form-row">
+            <div class="form-row-3col">
                 <div class="form-group">
                     <label>Mã nhân viên <span style="color: #6b7280; font-weight: normal; font-size: 13px;">(Tự động
                             tạo)</span></label>
                     <input type="text" disabled value="Mã sẽ được tạo tự động"
                         style="background-color: #f3f4f6; color: #6b7280;">
                 </div>
-
-                <div class="form-group">
-                    <label>Loại nhân viên <span class="required">*</span></label>
-                    <select name="Nhom" class="select2" required>
-                        <option value="">-- Chọn loại nhân viên --</option>
-                        <option value="van_phong">Văn phòng</option>
-                        <option value="cong_nhan">Công nhân</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-row">
-
 
                 <div class="form-group">
                     <label>Phòng ban <span class="required">*</span></label>
@@ -645,9 +651,7 @@
                         @endforeach
                     </select>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
                     <label>Chức vụ <span class="required">*</span></label>
                     <select name="ChucVuId" id="ChucVuId" class="select2" required disabled>
@@ -657,7 +661,6 @@
                         @endforeach
                     </select>
 
-                    <!-- Thông báo lỗi validation -->
                     <div id="chuc-vu-error" class="validation-error" style="display: none;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -666,14 +669,19 @@
                         <span id="chuc-vu-error-message"></span>
                     </div>
                 </div>
+            </div>
 
+            <div class="form-row-3col">
                 <div class="form-group">
                     <label>Ngày vào làm <span class="required">*</span></label>
                     <input type="text" name="NgayTuyenDung" class="datepicker" placeholder="Chọn ngày vào làm" required>
                 </div>
-            </div>
 
-            <div class="form-row">
+                <div class="form-group">
+                    <label>Ngày vào biên chế</label>
+                    <input type="text" name="NgayVaoBienChe" class="datepicker" placeholder="Chọn ngày vào biên chế">
+                </div>
+
                 <div class="form-group">
                     <label>Trình độ học vấn</label>
                     <select name="TrinhDoHocVan" class="select2">
@@ -687,15 +695,15 @@
                         <option value="Tiến sĩ">Tiến sĩ</option>
                     </select>
                 </div>
+            </div>
 
+            <div class="form-row-3col">
                 <div class="form-group">
                     <label>Chuyên ngành</label>
                     <input type="text" name="ChuyenNganh"
                         placeholder="Quản trị kinh doanh, Kế toán, Công nghệ thông tin...">
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
                     <label>Trình độ chuyên môn</label>
                     <input type="text" name="TrinhDoChuyenMon" placeholder="Kỹ sư, Cử nhân, Kỹ thuật viên...">
@@ -718,7 +726,7 @@
                 Thông tin ngân hàng (để chi trả lương)
             </h2>
 
-            <div class="form-row">
+            <div class="form-row-3col">
                 <div class="form-group">
                     <label>Tên ngân hàng</label>
                     <select name="TenNganHang" class="select2">
@@ -740,11 +748,11 @@
                     <label>Số tài khoản</label>
                     <input type="text" name="SoTaiKhoan" placeholder="1234567890">
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label>Chi nhánh ngân hàng</label>
-                <input type="text" name="ChiNhanhNganHang" placeholder="Chi nhánh TP. Hồ Chí Minh">
+                <div class="form-group">
+                    <label>Chi nhánh ngân hàng</label>
+                    <input type="text" name="ChiNhanhNganHang" placeholder="Chi nhánh TP. Hồ Chí Minh">
+                </div>
             </div>
         </div>
 

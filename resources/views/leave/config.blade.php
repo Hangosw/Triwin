@@ -170,12 +170,13 @@
         }
 
         .modal-content {
-            background: white;
+            background: var(--card-bg);
             width: 500px;
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             animation: slideIn 0.3s ease-out;
+            border: 1px solid var(--card-border);
         }
 
         @keyframes slideIn {
@@ -192,8 +193,8 @@
 
         .modal-header {
             padding: 24px;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--card-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -211,7 +212,7 @@
             display: block;
             font-size: 14px;
             font-weight: 500;
-            color: #374151;
+            color: var(--text-main);
             margin-bottom: 6px;
         }
 
@@ -219,7 +220,9 @@
             width: 100%;
             padding: 10px 14px;
             border-radius: 10px;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-main);
             font-size: 14px;
             transition: var(--transition);
         }
@@ -365,9 +368,8 @@
                     </div>
                 </div>
                 <div
-                    style="padding: 16px 24px; background: #f9fafb; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #e5e7eb;">
-                    <button type="button" class="btn" style="background: #e5e7eb; color: #374151;"
-                        onclick="closeModal()">Hủy</button>
+                    style="padding: 16px 24px; background: var(--header-bg); display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--card-border);">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
                     <button type="submit" class="btn btn-primary">Lưu cấu hình</button>
                 </div>
             </form>

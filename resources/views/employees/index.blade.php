@@ -30,16 +30,16 @@
                             <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
                                 <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN GIỚI TÍNH</span>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr; gap: 4px;">
-                                <button type="button" class="btn btn-sm btn-primary filter-btn fw-bold shadow-sm"
-                                    data-val="" data-label="Tất cả giới tính"
-                                    onclick="applyFilterAJAX('filterGioiTinh', this)"
-                                    style="background-color: #3b82f6; color: #fff; text-align: left;">Tất cả giới
-                                    tính</button>
-                                <button type="button" class="btn btn-sm btn-light filter-btn" data-val="1" data-label="Nam"
-                                    onclick="applyFilterAJAX('filterGioiTinh', this)" style="text-align: left;">Nam</button>
-                                <button type="button" class="btn btn-sm btn-light filter-btn" data-val="0" data-label="Nữ"
-                                    onclick="applyFilterAJAX('filterGioiTinh', this)" style="text-align: left;">Nữ</button>
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <button type="button" class="btn btn-sm filter-btn active" data-val="" data-label="Tất cả giới tính" onclick="applyFilterAJAX('filterGioiTinh', this)">
+                                    Tất cả giới tính
+                                </button>
+                                <button type="button" class="btn btn-sm filter-btn" data-val="1" data-label="Nam" onclick="applyFilterAJAX('filterGioiTinh', this)">
+                                    Nam
+                                </button>
+                                <button type="button" class="btn btn-sm filter-btn" data-val="0" data-label="Nữ" onclick="applyFilterAJAX('filterGioiTinh', this)">
+                                    Nữ
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -63,23 +63,22 @@
                             <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
                                 <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN TRẠNG THÁI</span>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr; gap: 4px;">
-                                <button type="button" class="btn btn-sm btn-primary filter-btn fw-bold shadow-sm"
-                                    data-val="" data-label="Đang làm việc"
-                                    onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="background-color: #3b82f6; color: #fff; text-align: left;">Đang làm việc</button>
-                                <button type="button" class="btn btn-sm btn-light filter-btn" data-val="tat_ca"
-                                    data-label="Tất cả trạng thái" onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="text-align: left;">Tất cả trạng thái</button>
-                                <button type="button" class="btn btn-sm btn-light filter-btn" data-val="dang_lam"
-                                    data-label="Làm tại công ty" onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="text-align: left;">Làm tại công ty</button>
-                                <button type="button" class="btn btn-sm btn-light filter-btn" data-val="nghi_thai_san"
-                                    data-label="Nghỉ thai sản" onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="text-align: left;">Nghỉ thai sản</button>
-                                <button type="button" class="btn btn-sm btn-light filter-btn" data-val="nghi_viec"
-                                    data-label="Nghỉ làm" onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="text-align: left;">Nghỉ làm</button>
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <button type="button" class="btn btn-sm filter-btn active" data-val="" data-label="Đang làm việc" onclick="applyFilterAJAX('filterTrangThai', this)">
+                                    Đang làm việc
+                                </button>
+                                <button type="button" class="btn btn-sm filter-btn" data-val="tat_ca" data-label="Tất cả trạng thái" onclick="applyFilterAJAX('filterTrangThai', this)">
+                                    Tất cả trạng thái
+                                </button>
+                                <button type="button" class="btn btn-sm filter-btn" data-val="dang_lam" data-label="Đang làm việc" onclick="applyFilterAJAX('filterTrangThai', this)">
+                                    Đang làm việc
+                                </button>
+                                <button type="button" class="btn btn-sm filter-btn" data-val="nghi_thai_san" data-label="Nghỉ thai sản" onclick="applyFilterAJAX('filterTrangThai', this)">
+                                    Nghỉ thai sản
+                                </button>
+                                <button type="button" class="btn btn-sm filter-btn" data-val="nghi_viec" data-label="Đã nghỉ việc" onclick="applyFilterAJAX('filterTrangThai', this)">
+                                    Đã nghỉ việc
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -185,11 +184,11 @@
 
             /* Filter Bar Styles */
             .filter-bar-container {
-                margin-bottom: 24px;
+                margin-bottom: 12px;
             }
 
             .action-bar {
-                padding: 16px 24px;
+                padding: 8px 12px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -199,7 +198,7 @@
 
             .filter-group {
                 display: flex;
-                gap: 12px;
+                gap: 8px;
                 align-items: flex-end;
                 flex-wrap: wrap;
             }
@@ -261,6 +260,61 @@
                 background-color: rgba(220, 38, 38, 0.2);
                 color: #f87171;
             }
+
+            .row-resigned {
+                background-color: #f8fafc !important;
+                opacity: 0.65;
+            }
+
+            body.dark-theme .row-resigned {
+                background-color: #13161f !important;
+                opacity: 0.5;
+            }
+
+            .row-resigned .employee-name-link {
+                color: #64748b;
+            }
+
+            /* Filter Button Styles */
+            .filter-btn {
+                text-align: left;
+                padding: 8px 12px;
+                border-radius: 6px;
+                background-color: #f3f4f6;
+                color: #374151;
+                border: 1px solid transparent;
+                transition: all 0.2s;
+                font-size: 13px !important;
+                display: block;
+                width: 100%;
+            }
+
+            .filter-btn:hover {
+                background-color: #e5e7eb;
+                color: #111827;
+            }
+
+            .filter-btn.active {
+                background-color: #3b82f6 !important;
+                color: #fff !important;
+                font-weight: 600;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            body.dark-theme .filter-btn {
+                background-color: #2e3349;
+                color: #c3c8da;
+            }
+
+            body.dark-theme .filter-btn:hover {
+                background-color: #3d4461;
+                color: #fff;
+            }
+
+            body.dark-theme .filter-btn.active {
+                background-color: #3b82f6 !important;
+                color: #fff !important;
+            }
         </style>
 
         <script>
@@ -273,6 +327,11 @@
                         data: function (d) {
                             d.gioi_tinh = $('#filterGioiTinh').val();
                             d.trang_thai = $('#filterTrangThai').val();
+                        }
+                    },
+                    createdRow: function (row, data, dataIndex) {
+                        if (data.TrangThai === 'nghi_viec') {
+                            $(row).addClass('row-resigned');
                         }
                     },
                     columns: [
@@ -300,7 +359,8 @@
 
                                 return `
                                                                                                                                                                     <div style="display: flex; align-items: center; gap: 16px;">
-                                                                                                                                                                        <img src="${avatar}" alt="${data}" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                                                                                                                                                        <img src="${avatar}" alt="${data}" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;"
+                                                                                                                                                                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data)}&background=0F5132&color=fff&size=48'">
                                                                                                                                                                         <div>
                                                                                                                                                                             <a href="/nhan-vien/info/${row.id}" class="employee-name-link">${data}</a>
                                                                                                                                                                             <div class="text-gray" style="font-size: 14px; margin-top: 4px;">Ngày sinh: ${ngaySinh}</div>
@@ -347,11 +407,11 @@
                             render: function (data, type, row) {
                                 const status = row.TrangThai ?? 'dang_lam';
                                 if (status === 'dang_lam') {
-                                    return '<span class="badge badge-success">Làm tại công ty</span>';
+                                    return '<span class="badge badge-success">Đang làm việc</span>';
                                 } else if (status === 'nghi_thai_san') {
                                     return '<span class="badge badge-info">Nghỉ thai sản</span>';
                                 } else if (status === 'nghi_viec') {
-                                    return '<span class="badge badge-secondary">Nghỉ làm</span>';
+                                    return '<span class="badge badge-danger">Đã nghỉ việc</span>';
                                 }
                                 return '<span class="badge badge-secondary">' + status + '</span>';
                             }
@@ -536,17 +596,11 @@
                     dropdown.find('.filter-btn').each(function () {
                         const b = $(this);
                         const bVal = b.data('val');
-                        b.removeClass('btn-primary fw-bold shadow-sm').addClass('btn-light').css({
-                            'background-color': isDark ? '#2e3349' : '#f9fafb',
-                            'color': isDark ? '#c3c8da' : '#374151'
-                        });
-
-                        // Highlight choice
+                        
                         if (String(bVal) === String(val)) {
-                            b.removeClass('btn-light').addClass('btn-primary fw-bold shadow-sm').css({
-                                'background-color': '#3b82f6',
-                                'color': '#fff'
-                            });
+                            b.addClass('active');
+                        } else {
+                            b.removeClass('active');
                         }
                     });
 

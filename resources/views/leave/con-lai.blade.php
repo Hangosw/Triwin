@@ -150,13 +150,14 @@
                                             $phepNam = $nv->quanLyPhepNams->first();
                                             $khaDung = $phepNam ? (float)$phepNam->PhepKhaDung : 0;
                                             $tong = $phepNam ? (float)$phepNam->TongPhepDuocNghi : 0;
+                                            $colorClass = $khaDung <= 0 ? 'text-danger' : ($khaDung < 1 ? 'text-warning' : 'text-success');
                                         @endphp
                                         <div style="text-align: right;">
-                                            <span class="badge {{ $khaDung <= 0 ? 'badge-danger' : ($khaDung < 1 ? 'badge-warning' : 'badge-success') }}" title="Phép khả dụng">
+                                            <span class="{{ $colorClass }}" style="font-weight: 600; font-size: 14px;" title="Phép khả dụng">
                                                 {{ $khaDung }}
                                             </span>
-                                            <span style="font-size: 11px; color: #64748b; margin: 0 2px;">/</span>
-                                            <span style="font-size: 12px; color: #64748b;" title="Tổng phép năm">
+                                            <span style="font-size: 12px; color: #94a3b8; margin: 0 2px;">/</span>
+                                            <span style="font-size: 13px; color: #64748b;" title="Tổng phép năm">
                                                 {{ $tong }}
                                             </span>
                                         </div>
@@ -164,8 +165,9 @@
                                         @php
                                             $used = $nv->dangKyNghiPheps->where('LoaiNghiPhepId', $lp->id)->sum('SoNgayNghi');
                                             $conLai = max(0, $lp->HanMucToiDa - $used);
+                                            $colorClass = $conLai <= 0 ? 'text-danger' : ($conLai < 3 ? 'text-warning' : 'text-success');
                                         @endphp
-                                        <span class="badge {{ $conLai <= 0 ? 'badge-danger' : ($conLai < 3 ? 'badge-warning' : 'badge-success') }}" style="font-size: 13px; font-weight: 600;">
+                                        <span class="{{ $colorClass }}" style="font-size: 14px; font-weight: 600;">
                                             {{ (float)$conLai }}
                                         </span>
                                     @endif

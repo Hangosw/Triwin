@@ -242,6 +242,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/api/max-advance', [TamUngController::class, 'getMaxAdvanceAPI'])->name('api.max-advance');
     });
 
+    Route::prefix('tai-san')->name('tai-san.')->middleware('permission:Quản lý tài sản')->group(function () {
+        Route::get('/', [\App\Http\Controllers\TaiSanController::class, 'index'])->name('index');
+        Route::get('/data', [\App\Http\Controllers\TaiSanController::class, 'data'])->name('data');
+        Route::get('/tao', [\App\Http\Controllers\TaiSanController::class, 'create'])->name('create');
+        Route::post('/store', [\App\Http\Controllers\TaiSanController::class, 'store'])->name('store');
+        Route::get('/sua/{id}', [\App\Http\Controllers\TaiSanController::class, 'edit'])->name('edit');
+        Route::post('/update/{id}', [\App\Http\Controllers\TaiSanController::class, 'update'])->name('update');
+        Route::post('/xoa/{id}', [\App\Http\Controllers\TaiSanController::class, 'destroy'])->name('xoa');
+        Route::post('/cap-phat/{id}', [\App\Http\Controllers\TaiSanController::class, 'capPhat'])->name('cap-phat');
+        Route::post('/thu-hoi/{id}', [\App\Http\Controllers\TaiSanController::class, 'thuHoi'])->name('thu-hoi');
+    });
+
     Route::middleware('permission:Quản lý hệ thống')->group(function () {
         // Phân quyền (Roles)
         Route::prefix('phan-quyen')->name('roles.')->group(function () {

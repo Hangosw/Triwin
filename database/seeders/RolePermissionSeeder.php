@@ -19,7 +19,7 @@ class RolePermissionSeeder extends Seeder
             'Quản lý người dùng',
 
             // Nhân viên
-            'Xem nhân viên',
+            'Xem Nhân Viên',
             'Thêm nhân viên',
             'Sửa nhân viên',
             'Xóa nhân viên',
@@ -53,6 +53,9 @@ class RolePermissionSeeder extends Seeder
             'Xem công tác',
             'Quản lý công tác',
 
+            // Tài sản
+            'Quản lý tài sản',
+
             // Hệ thống
             'Quản lý hệ thống',
         ];
@@ -72,7 +75,7 @@ class RolePermissionSeeder extends Seeder
         // 2. Nhân viên (Quyền cơ bản)
         $employee = Role::firstOrCreate(['name' => 'Nhân viên']);
         $employee->syncPermissions([
-            'Xem nhân viên',
+            'Xem Nhân Viên',
             'Xem chấm công',
             'Xem tăng ca nghỉ phép',
             'Xem lương',

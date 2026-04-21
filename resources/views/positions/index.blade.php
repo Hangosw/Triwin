@@ -8,72 +8,85 @@
         <p>Danh sách các chức vụ trong công ty</p>
     </div>
 
-    <div class="card">
-        <div class="action-bar" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-            <div class="bulk-actions">
-                <button id="btnDeleteSelected" class="btn btn-danger" style="display: none; background-color: #ef4444; color: white;">
+    <!-- Actions Bar -->
+    <div class="card filter-bar-container">
+        <div class="action-bar">
+            <div class="filter-group">
+                {{-- Placeholder / Future filters --}}
+            </div>
+
+            <div class="action-buttons">
+                <button id="btnDeleteSelected" class="btn btn-danger"
+                    style="display: none; background-color: #dc2626; color: white;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                     Xóa đã chọn (<span id="selectedCount">0</span>)
                 </button>
-            </div>
-            <a href="{{ route('chuc-vu.taoView') }}" class="btn btn-primary">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Thêm chức vụ
-            </a>
-        </div>
 
-        <table id="positionsTable" class="table table-hover" style="width: 100%; table-layout: fixed;">
-            <thead>
-                <tr>
-                    <th style="width: 60px;">
-                        <div style="text-align: center;">
-                            <div><strong>STT</strong></div>
-                            <div style="margin-top: 4px;">
-                                <input type="checkbox" id="selectAll" style="cursor: pointer;">
-                            </div>
-                        </div>
-                    </th>
-                    <th style="width: 15%;">Mã chức vụ</th>
-                    <th style="width: 40%;">Tên chức vụ</th>
-                    <th style="width: 15%;">Loại</th>
-                    <th style="width: 18%;">Phụ cấp (VNĐ)</th>
-                    <th style="width: 7%;">Số nhân viên</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($chucVus ?? [] as $chucVu)
+                <a href="{{ route('chuc-vu.taoView') }}" class="btn btn-primary d-flex align-items-center gap-2">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Thêm chức vụ
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card">
+        <div class="table-container">
+            <table id="positionsTable" class="table table-hover" style="width: 100%;">
+                <thead>
                     <tr>
-                        <td class="stt-checkbox-col">
+                        <th class="col-stt">
                             <div style="text-align: center;">
-                                <div><strong class="stt-value"></strong></div>
+                                <div><strong>STT</strong></div>
                                 <div style="margin-top: 4px;">
-                                    <input type="checkbox" class="pos-checkbox" value="{{ $chucVu->id }}" style="cursor: pointer;">
+                                    <input type="checkbox" id="selectAll" style="cursor: pointer;">
                                 </div>
                             </div>
-                        </td>
-                        <td><span class="font-medium" style="color: #0BAA4B;">{{ $chucVu->Ma }}</span></td>
-                        <td>
-                            <a href="{{ url('/chuc-vu/info/' . $chucVu->id) }}" class="pos-name-link" style="display: block; width: 100%;">
-                                {{ $chucVu->Ten }}
-                            </a>
-                        </td>
-                        <td>
-                            @if($chucVu->Loai == 1)
-                                <span class="badge" style="background-color: #fef3c7; color: #92400e; font-size: 11px;">Trưởng phòng</span>
-                            @else
-                                <span class="badge" style="background-color: #f3f4f6; color: #4b5563; font-size: 11px;">Nhân viên</span>
-                            @endif
-                        </td>
-                        <td>{{ number_format($chucVu->PhuCapChucVu ?? 0, 0, ',', '.') }}</td>
-                        <td>{{ $chucVu->nhan_viens_count ?? 0 }}</td>
+                        </th>
+                        <th class="col-ma">Mã chức vụ</th>
+                        <th class="col-ten">Tên chức vụ</th>
+                        <th class="col-loai">Loại</th>
+                        <th class="col-phucap">Phụ cấp (VNĐ)</th>
+                        <th class="col-count">Số nhân viên</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach($chucVus ?? [] as $chucVu)
+                        <tr>
+                            <td class="stt-checkbox-col">
+                                <div style="text-align: center;">
+                                    <div><strong class="stt-value"></strong></div>
+                                    <div style="margin-top: 4px;">
+                                        <input type="checkbox" class="pos-checkbox" value="{{ $chucVu->id }}" style="cursor: pointer;">
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="font-medium" style="color: #0BAA4B;">{{ $chucVu->Ma }}</span></td>
+                            <td>
+                                <a href="{{ url('/chuc-vu/info/' . $chucVu->id) }}" class="pos-name-link" style="display: block; width: 100%;">
+                                    {{ $chucVu->Ten }}
+                                </a>
+                            </td>
+                            <td>
+                                @if($chucVu->Loai == 1)
+                                    <span class="badge" style="background-color: #fef3c7; color: #92400e; font-size: 11px;">Trưởng phòng</span>
+                                @else
+                                    <span class="badge" style="background-color: #f3f4f6; color: #4b5563; font-size: 11px;">Nhân viên</span>
+                                @endif
+                            </td>
+                            <td>{{ number_format($chucVu->PhuCapChucVu ?? 0, 0, ',', '.') }}</td>
+                            <td>{{ $chucVu->nhan_viens_count ?? 0 }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection
 
@@ -95,19 +108,50 @@
         text-decoration: underline;
         color: #09933f;
     }
-    /* DataTables Overrides */
-    .dataTables_wrapper .dataTables_length select {
-        padding: 4px 8px;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
+
+    #positionsTable tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s;
     }
-    .dataTables_wrapper .dataTables_filter input {
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        margin-left: 8px;
+
+    body.dark-theme #positionsTable tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
     }
-</style>
+
+    #positionsTable tbody tr:hover {
+        background-color: rgba(11, 170, 75, 0.05) !important;
+    }
+
+    /* Filter Bar Styles from Employee Module */
+    .filter-bar-container {
+        margin-bottom: 12px;
+    }
+
+    .action-bar {
+        padding: 8px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .col-stt {
+        width: 60px;
+        text-align: center;
+    }
+
+    .col-ma {
+        width: 100px;
+    }
+    </style>
 @endpush
 
 @push('scripts')
@@ -147,18 +191,36 @@
             autoWidth: false,
             pageLength: 10,
             columnDefs: [
-                { orderable: false, targets: [0] }
+                { orderable: false, targets: [0], responsivePriority: 1 },
+                { targets: 1, responsivePriority: 3 },
+                { targets: 2, responsivePriority: 2 },
+                { targets: 3, responsivePriority: 4 },
+                { targets: 4, responsivePriority: 5 },
+                { targets: 5, responsivePriority: 6 }
             ],
-            order: [[1, 'asc']] // Default sort by Ma Chuc Vu
+            order: [[1, 'asc']], // Default sort by Ma Chuc Vu
         });
 
         // STT Logic - Sequential numbers
         table.on('order.dt search.dt', function () {
-            let i = 1;
+            let info = table.page.info();
             table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, index) {
-                $(cell).find('.stt-value').html(index + 1);
+                $(cell).find('.stt-value').html(index + 1 + info.start);
             });
         }).draw();
+
+        // Row click navigation
+        $('#positionsTable tbody').on('click', 'tr', function (e) {
+            // Don't trigger if clicking on checkbox, action button, or link
+            if ($(e.target).closest('.pos-checkbox, #selectAll, .dtr-control, a').length) {
+                return;
+            }
+
+            const link = $(this).find('.pos-name-link');
+            if (link.length) {
+                window.location.href = link.attr('href');
+            }
+        });
 
         // Select All checkboxes (Cross-page)
         $('#selectAll').on('change', function() {

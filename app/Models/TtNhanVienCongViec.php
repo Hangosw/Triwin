@@ -10,7 +10,6 @@ class TtNhanVienCongViec extends Model
 
     protected $fillable = [
         'NhanVienId',        // Foreign key to nhan_viens
-        'LoaiNhanVien',      // 0: công nhân, 1: văn phòng
         'ChucVuId',
         'PhongBanId',
         'NgayTuyenDung',
@@ -22,7 +21,6 @@ class TtNhanVienCongViec extends Model
     ];
 
     protected $casts = [
-        'LoaiNhanVien' => 'integer',
         'ChucVuId' => 'integer',
         'PhongBanId' => 'integer',
         'TrinhDoHocVan' => 'integer',
@@ -35,8 +33,6 @@ class TtNhanVienCongViec extends Model
      * Relationships
      * =====================
      */
-
-
 
     // Chức vụ
     public function chucVu()
@@ -61,26 +57,6 @@ class TtNhanVienCongViec extends Model
      * Helpers
      * =====================
      */
-
-    // Là công nhân?
-    public function isCongNhan()
-    {
-        return $this->LoaiNhanVien === 0;
-    }
-
-    // Là nhân viên văn phòng?
-    public function isVanPhong()
-    {
-        return $this->LoaiNhanVien === 1;
-    }
-
-    /**
-     * Accessor: Text loại nhân viên
-     */
-    public function getLoaiNhanVienTextAttribute()
-    {
-        return $this->LoaiNhanVien === 1 ? 'Văn phòng' : 'Công nhân';
-    }
 
     /**
      * Tính số năm công tác

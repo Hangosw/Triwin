@@ -8,7 +8,7 @@
         <p>Cập nhật thông tin chức vụ ID: {{ $chucVu->id }}</p>
     </div>
 
-    <div class="card" style="max-width: 800px;">
+    <div class="card p-4 mb-5">
         <form action="{{ route('chuc-vu.cap-nhat', $chucVu->id) }}" method="POST">
             @csrf
 
@@ -61,14 +61,15 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 32px;">
-                <button type="submit" class="btn btn-primary">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
+            <div class="mt-5 d-flex flex-column flex-md-row gap-3">
+                <button type="submit" class="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-check-lg"></i>
                     Cập nhật thông tin
                 </button>
-                <a href="{{ route('chuc-vu.danh-sach') }}" class="btn btn-secondary">Hủy bỏ</a>
+                <a href="{{ route('chuc-vu.danh-sach') }}" class="btn btn-secondary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-arrow-left"></i>
+                    Quay lại danh sách
+                </a>
             </div>
         </form>
     </div>

@@ -400,6 +400,16 @@
         <p style="font-size: 16px; color: var(--text-muted);">Quản lý hạn mức và theo dõi lịch sử nghỉ phép của bạn</p>
     </div>
 
+    @if(!$hasActiveContract)
+        <div class="alert alert-warning" style="background-color: #fffbeb; border: 1px solid #fef3c7; color: #92400e; padding: 20px; border-radius: 24px; margin-bottom: 32px; display: flex; align-items: flex-start; gap: 12px; box-shadow: var(--shadow-sm);">
+            <i class="bi bi-info-circle-fill" style="font-size: 20px; margin-top: 1px;"></i>
+            <div>
+                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700;">Lưu ý về hợp đồng</h4>
+                <p style="margin: 0; font-size: 14px;">Hệ thống ghi nhận bạn hiện không có hợp đồng còn hiệu lực. Các số liệu về ngày phép bên dưới có thể không khả dụng cho việc đăng ký nghỉ mới.</p>
+            </div>
+        </div>
+    @endif
+
     <style>
         .stats-highlight-container {
             display: grid;

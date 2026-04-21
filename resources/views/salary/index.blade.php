@@ -25,6 +25,18 @@
             gap: 16px;
         }
 
+        @media (max-width: 768px) {
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .search-bar {
+                min-width: 100% !important;
+            }
+        }
+
         .filter-row {
             display: flex;
             justify-content: space-between;
@@ -125,7 +137,7 @@
 
         .search-bar {
             flex: 1;
-            min-width: 300px;
+            min-width: 250px;
         }
 
         /* Dark mode specific fixes */
@@ -138,6 +150,54 @@
             color: #6ee7b7 !important;
         }
 
+        /* Phụ cấp - Dark Mode (Jewel Tone) */
+        body.dark-theme .col-phu-cap {
+            background-color: #1e3a8a !important; /* Deep Blue */
+            color: #bfdbfe !important; /* Light Blue Text */
+        }
+        
+        body.dark-theme th.col-phu-cap {
+            background-color: #1e40af !important; /* Slightly distinct for header */
+        }
+
+        /* Khấu trừ - Dark Mode (Jewel Tone) */
+        body.dark-theme .col-khau-tru {
+            background-color: #7f1d1d !important; /* Deep Red */
+            color: #fecaca !important; /* Light Red Text */
+        }
+
+        body.dark-theme th.col-khau-tru {
+            background-color: #991b1b !important;
+        }
+
+        body.dark-theme .col-khau-tru:hover {
+            background-color: #991b1b !important;
+        }
+
+        /* Insurance Details - Dark Mode (Jewel Tone) */
+        body.dark-theme .ins-detail {
+            background-color: #5b21b6 !important; /* Deep Purple/Violet instead of Rose for better distinction */
+            color: #ddd6fe !important; /* Light Purple Text */
+        }
+        
+        body.dark-theme th.ins-detail {
+            background-color: #6d28d9 !important;
+        }
+
+        /* Group Headers - Dark Mode Fix */
+        .pos-header {
+            padding: 7px 16px;
+            font-weight: 700;
+            color: #1e293b;
+            background: #f1f5f9;
+            font-size: 12px;
+        }
+
+        body.dark-theme .pos-header {
+            background-color: #1e293b !important;
+            color: #cbd5e1 !important;
+        }
+
         /* Table overrides */
         .table-container {
             overflow-x: auto;
@@ -146,7 +206,8 @@
         .salary-table {
             border-collapse: collapse !important;
             width: 100% !important;
-            table-layout: fixed !important;
+            min-width: 1200px !important;
+            table-layout: auto !important;
             border: 1px solid #e5e7eb !important;
         }
 
@@ -181,6 +242,10 @@
 
         .salary-row:hover {
             background-color: #f1f5f9 !important;
+        }
+
+        body.dark-theme .salary-row:hover {
+            background-color: #21263a !important;
         }
 
         /* Ki luong plain text style */
@@ -299,6 +364,15 @@
 
         body.dark-theme .card[style*="color: #6b7280"] {
             color: #8b93a8 !important;
+        }
+
+        /* Slip Modal Dark Theme */
+        body.dark-theme .slip-modal-container {
+            background-color: #1a1d27 !important;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6) !important;
+        }
+        body.dark-theme #slipContent {
+            background-color: #1a1d27 !important;
         }
     </style>
 
@@ -474,8 +548,7 @@
 
                         @foreach ($groupedLuongs as $chucVu => $groupLuongs)
                             <tr class="group-header-row">
-                                <td colspan="11" class="pos-header"
-                                    style="padding: 7px 16px; font-weight: 700; color: #1e293b; background: #f1f5f9; font-size: 12px;">
+                                <td colspan="11" class="pos-header">
                                     <div class="d-flex align-items-center">
                                         <div
                                             style="width: 4px; height: 14px; background: #0BAA4B; border-radius: 2px; margin-right: 8px;">
@@ -560,9 +633,10 @@
 
     {{-- ========== MODAL PHIẾU LƯƠNG ========== --}}
     <div id="slipModal"
-        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; overflow-y:auto; padding:24px 16px;">
-        <div
+        style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; overflow-y:auto; padding:24px 16px;">
+        <div class="slip-modal-container"
             style="background:#fff; border-radius:12px; width:100%; max-width:860px; margin:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; max-height:90vh;">
+
             {{-- Modal Header --}}
             <div
                 style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #e5e7eb; background:linear-gradient(135deg,#0BAA4B,#088c3d); border-radius:12px 12px 0 0;">
@@ -623,7 +697,7 @@
                         }
                     },
                     responsive: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     pageLength: 100,
                     dom: 'rtip',
                     ordering: false, // Disable ordering to keep PHP groups together

@@ -87,11 +87,13 @@ class QuanLyPhepNam extends Model
             $fullYearPhep = (float) ($activeContract->NgayPhepNam ?? 12);
             $contractStartDate = Carbon::parse($activeContract->NgayBatDau);
             
-            // Nếu năm đang khởi tạo là năm bắt đầu hợp đồng (thường là năm đầu tiên)
+            // Logic mới: Tỉ lệ theo số tháng còn lại nếu kí trong năm nay
             if ($nam == $contractStartDate->year) {
-                $tongPhep = (float) ($activeContract->NgayPhepKhaDung ?? $fullYearPhep);
+                // Số tháng tính từ tháng kí đến tháng 12
+                $remainingMonths = 12 - $contractStartDate->month + 1;
+                $tongPhep = round(($fullYearPhep / 12) * $remainingMonths, 1);
             } else {
-                // Các năm tiếp theo tự động lấy NgayPhepNam
+                // Kí từ năm trước thì năm nay hưởng trọn vẹn
                 $tongPhep = $fullYearPhep;
             }
         } else {

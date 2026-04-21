@@ -3,18 +3,18 @@
 @section('title', 'Thêm chức vụ mới - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
-    <div class="page-header">
+    <div class="page-header mb-4">
         <h1>Thêm chức vụ mới</h1>
         <p>Nhập thông tin chức vụ cần thêm vào hệ thống</p>
     </div>
 
-    <div class="card" style="max-width: 800px;">
+    <div class="card p-4 mb-5">
         <form action="{{ route('chuc-vu.tao') }}" method="POST">
             @csrf
 
             @if ($errors->any())
-                <div class="alert alert-danger" style="margin-bottom: 24px;">
-                    <ul style="margin: 0; padding-left: 20px;">
+                <div class="alert alert-danger mb-4">
+                    <ul class="mb-0 ps-3">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -22,38 +22,48 @@
                 </div>
             @endif
 
-            <div class="form-group">
-                <label class="form-label">Tên chức vụ <span style="color: #dc2626;">*</span></label>
-                <input type="text" name="Ten" class="form-control" value="{{ old('Ten') }}"
-                    placeholder="Nhập tên chức vụ" required>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <div class="form-group">
-                    <label class="form-label">Loại chức vụ <span style="color: #dc2626;">*</span></label>
-                    <select name="Loai" class="form-control" required>
-                        <option value="">-- Chọn loại --</option>
-                        <option value="0" {{ old('Loai') == '0' ? 'selected' : '' }}>Nhân viên</option>
-                        <option value="1" {{ old('Loai') == '1' ? 'selected' : '' }}>Trưởng phòng</option>
-                    </select>
+            <div class="row g-4">
+                {{-- Tên chức vụ --}}
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label fw-bold">Tên chức vụ <span class="text-danger">*</span></label>
+                        <input type="text" name="Ten" class="form-control" value="{{ old('Ten') }}"
+                            placeholder="Nhập tên chức vụ (Ví dụ: Kế toán trưởng)" required>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Phụ cấp chức vụ (VNĐ)</label>
-                    <input type="text" name="PhuCapChucVu" class="form-control currency-input" 
-                        value="{{ number_format(old('PhuCapChucVu', 0), 0, ',', '.') }}"
-                        placeholder="0">
+                {{-- Loại chức vụ --}}
+                <div class="col-12 col-md-3 col-sm-6">
+                    <div class="form-group">
+                        <label class="form-label fw-bold">Loại chức vụ <span class="text-danger">*</span></label>
+                        <select name="Loai" class="form-select" required>
+                            <option value="">-- Chọn loại --</option>
+                            <option value="0" {{ old('Loai') == '0' ? 'selected' : '' }}>Nhân viên</option>
+                            <option value="1" {{ old('Loai') == '1' ? 'selected' : '' }}>Trưởng phòng</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Phụ cấp chức vụ --}}
+                <div class="col-12 col-md-3 col-sm-6">
+                    <div class="form-group">
+                        <label class="form-label fw-bold">Phụ cấp chức vụ (VNĐ)</label>
+                        <input type="text" name="PhuCapChucVu" class="form-control currency-input" 
+                            value="{{ number_format(old('PhuCapChucVu', 0), 0, ',', '.') }}"
+                            placeholder="0">
+                    </div>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 32px;">
-                <button type="submit" class="btn btn-primary">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
+            <div class="mt-5 d-flex flex-column flex-md-row gap-3">
+                <button type="submit" class="btn btn-primary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-check-lg"></i>
                     Thêm chức vụ
                 </button>
-                <a href="{{ route('chuc-vu.danh-sach') }}" class="btn btn-secondary">Hủy bỏ</a>
+                <a href="{{ route('chuc-vu.danh-sach') }}" class="btn btn-secondary px-4 py-2 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-arrow-left"></i>
+                    Quay lại danh sách
+                </a>
             </div>
         </form>
     </div>

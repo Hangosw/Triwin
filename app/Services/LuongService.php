@@ -51,12 +51,11 @@ class LuongService
     {
         $salaryCalculationType = \App\Models\SystemConfig::getValue('salary_calculation_type', 'contract');
         
-        // Theo chấm công cho tất cả hoặc nếu là Công nhân (trong chế độ mặc định)
+        // Theo chấm công nếu cấu hình hệ thống yêu cầu
         $isAttendanceMode = ($salaryCalculationType === 'attendance');
-        $isWorker = ($nhanVien->ttCongViec?->LoaiNhanVien === 0);
 
-        if ($isAttendanceMode || ($salaryCalculationType === 'contract' && $isWorker)) {
-            return self::tinhLuongCongNhan($nhanVien, $thang, $nam, $isAttendanceMode);
+        if ($isAttendanceMode) {
+            return self::tinhLuongCongNhan($nhanVien, $thang, $nam, true);
         }
 
         // Mặc định hoặc theo hợp đồng: Lương văn phòng (không pro-rate)

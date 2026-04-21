@@ -131,7 +131,12 @@
                     </svg>
                     Bắt đầu Import
                 </button>
-                <a href="{{ route('nhan-vien.danh-sach') }}" class="btn btn-secondary">Hủy bỏ</a>
+                <a href="{{ route('nhan-vien.danh-sach') }}" class="btn btn-secondary d-flex align-items-center gap-2">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Hủy bỏ
+                </a>
             </div>
         </form>
     </div>

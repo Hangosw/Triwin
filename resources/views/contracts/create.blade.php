@@ -411,7 +411,7 @@
                                 data-phongban-id="{{ $nv->ttCongViec?->PhongBanId }}"
                                 data-chucvu-id="{{ $nv->ttCongViec?->ChucVuId }}"
                                 data-phuthuoc="{{ $nv->phu_thuoc_count }}">
-                                {{ $nv->Ma }} - {{ $nv->Ten }} - {{ $nv->phongBan?->Ten }}
+                                {{ $nv->Ma }} - {{ $nv->Ten }}{{ $nv->active_contract_count > 0 ? ' (Đã có hợp đồng)' : '' }}
                             </option>
                         @endforeach
                     </select>

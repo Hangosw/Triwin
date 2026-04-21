@@ -250,6 +250,14 @@ class NhanVien extends Model
     }
 
     /**
+     * Relationship: Nhân viên có nhiều tài sản đang mượn
+     */
+    public function taiSans()
+    {
+        return $this->hasMany(TaiSan::class, 'nhan_vien_id');
+    }
+
+    /**
      * Relationship: Nhân viên có nhiều người phụ thuộc
      */
     public function thanNhans()

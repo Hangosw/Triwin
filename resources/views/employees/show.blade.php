@@ -175,6 +175,35 @@
             object-fit: cover;
         }
 
+        .profile-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .profile-subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .btn-edit-profile {
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #0BAA4B;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-edit-profile:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #088c3d;
+        }
+
         .profile-info h1 {
             font-size: 32px;
             font-weight: 700;
@@ -518,6 +547,25 @@
             color: #e8eaf0;
         }
 
+        body.dark-theme .profile-name {
+            color: #f8fafc;
+        }
+
+        body.dark-theme .profile-subtitle {
+            color: #94a3b8;
+        }
+
+        body.dark-theme .btn-edit-profile {
+            background: #1a1d27;
+            border-color: #2e3349;
+            color: #4ade80;
+        }
+
+        body.dark-theme .btn-edit-profile:hover {
+            background: #21263a;
+            border-color: #3b4261;
+        }
+
         body.dark-theme .tabs {
             border-bottom-color: #2e3349;
         }
@@ -759,6 +807,72 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
             border-color: #0BAA4B !important;
         }
+
+        /* Premium UI Components */
+        .section-icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #f0fdf4;
+            color: #16a34a;
+            display: flex; /* Hiển thị mặc định cho mobile */
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.1);
+        }
+
+        /* Ẩn icon trên desktop theo yêu cầu */
+        @media (min-width: 768px) {
+            .section-icon-circle {
+                display: none !important;
+            }
+        }
+
+        .btn-premium-add {
+            background: linear-gradient(135deg, #0BAA4B 0%, #088c3d 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 99px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 15px -3px rgba(11, 170, 75, 0.25);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-premium-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(11, 170, 75, 0.3);
+            color: white;
+            filter: brightness(1.1);
+        }
+
+        .btn-premium-add:active {
+            transform: translateY(0);
+        }
+
+        body.dark-theme .section-icon-circle {
+            background: rgba(22, 163, 74, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(22, 163, 74, 0.2);
+        }
+
+        body.dark-theme .btn-premium-add {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .detail-section h2 {
+            color: #0BAA4B !important;
+        }
+
+        body.dark-theme .detail-section h2 {
+            color: #4ade80 !important;
+        }
     </style>
 @endpush
 
@@ -853,6 +967,11 @@
                 } else {
                     location.hash = tabName;
                 }
+
+                // Recalculate DataTables responsive if switching to a tab with a table
+                setTimeout(() => {
+                    $.fn.dataTable.tables({ visible: true, api: true }).responsive.recalc();
+                }, 100);
             }
 
             // Auto-restore tab from hash on page load
@@ -1101,6 +1220,7 @@
             $(document).ready(function () {
                 if ($('#salarySlipsTable').length) {
                     const slipsTable = $('#salarySlipsTable').DataTable({
+                        responsive: true,
                         pageLength: 5,
                         lengthMenu: [5, 10, 25, 50],
                         language: {
@@ -1119,7 +1239,12 @@
                             }
                         },
                         dom: 'rtip',
-                        order: [] // Giữ nguyên thứ tự từ server
+                        order: [], // Giữ nguyên thứ tự từ server
+                        columnDefs: [
+                            { responsivePriority: 1, targets: [0, 6, 8] }, // Kỳ lương, Thực nhận, In phiếu
+                            { responsivePriority: 2, targets: [7] },       // Trạng thái
+                            { orderable: false, targets: [8] }             // Không sắp xếp cột in phiếu
+                        ]
                     });
 
                     // Custom filtering logic for Month and Year
@@ -1142,6 +1267,66 @@
 
                     $('#monthFilter, #yearFilter').on('change', function () {
                         slipsTable.draw();
+                    });
+                }
+
+                if ($('#relativesTable').length) {
+                    $('#relativesTable').DataTable({
+                        responsive: true,
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50],
+                        language: {
+                            "sProcessing": "Đang xử lý...",
+                            "sLengthMenu": "Hiển thị _MENU_ mục",
+                            "sZeroRecords": "Không tìm thấy dữ liệu",
+                            "sInfo": "Đang xem _START_ đến _END_ (Tổng _TOTAL_)",
+                            "sInfoEmpty": "Không có dữ liệu",
+                            "sInfoFiltered": "(lọc từ _MAX_ mục)",
+                            "sSearch": "Tìm kiếm:",
+                            "oPaginate": {
+                                "sFirst": "Đầu",
+                                "sPrevious": "Trước",
+                                "sNext": "Tiếp",
+                                "sLast": "Cuối"
+                            }
+                        },
+                        dom: 'rtip',
+                        order: [[0, 'asc']], // Sắp xếp theo STT
+                        columnDefs: [
+                            { responsivePriority: 1, targets: [0, 1, -1] }, // STT, Họ tên, Thao tác giữ lại
+                            { responsivePriority: 2, targets: [2, 4] },    // Quan hệ, Giảm trừ giữ lại sau đó
+                            { orderable: false, targets: [-1] }            // Không sắp xếp cột thao tác
+                        ]
+                    });
+                }
+
+                if ($('#contractsTable').length) {
+                    $('#contractsTable').DataTable({
+                        responsive: true,
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50],
+                        language: {
+                            "sProcessing": "Đang xử lý...",
+                            "sLengthMenu": "Hiển thị _MENU_ mục",
+                            "sZeroRecords": "Không tìm thấy dữ liệu",
+                            "sInfo": "Đang xem _START_ đến _END_ (Tổng _TOTAL_)",
+                            "sInfoEmpty": "Không có dữ liệu",
+                            "sInfoFiltered": "(lọc từ _MAX_ mục)",
+                            "sSearch": "Tìm kiếm:",
+                            "oPaginate": {
+                                "sFirst": "Đầu",
+                                "sPrevious": "Trước",
+                                "sNext": "Tiếp",
+                                "sLast": "Cuối"
+                            }
+                        },
+                        dom: 'rtip',
+                        order: [[1, 'desc']], 
+                        columnDefs: [
+                            { responsivePriority: 1, targets: [0, 1, 2, -1] }, // STT, Số HĐ, Loại HĐ, Thao tác
+                            { responsivePriority: 2, targets: [3, 4] },       // Chức vụ, Ngày BĐ
+                            { orderable: false, targets: [0, -1] }             // Không sắp xếp cột STT và thao tác
+                        ]
                     });
                 }
             });

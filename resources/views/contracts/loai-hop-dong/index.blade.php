@@ -178,6 +178,10 @@
         body.dark-theme .btn-close {
             color: #e8eaf0;
         }
+
+        body.dark-theme .text-muted {
+            color: #a0aec0 !important;
+        }
     </style>
 @endpush
 

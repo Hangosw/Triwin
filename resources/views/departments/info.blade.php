@@ -9,7 +9,7 @@
     </div>
 
     <div class="card">
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+        <div class="info-grid">
             <div class="form-group">
                 <label class="form-label">Mã phòng ban</label>
                 <div style="padding: 10px 16px; background-color: #f9fafb; border-radius: 8px; font-weight: 500;">
@@ -34,8 +34,8 @@
                 </div>
             </div>
         </div>
-
-        <div style="display: flex; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+        
+        <div class="action-footer">
             <a href="{{ route('phong-ban.suaView', $phongBan->id) }}" class="btn btn-primary">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -68,9 +68,9 @@
 
     <!-- Employee List Card -->
     <div class="card" style="margin-top: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="font-size: 18px; font-weight: 600;">Danh sách nhân viên thuộc phòng</h3>
-            <div class="search-bar" style="width: 300px;">
+        <div class="card-header-flex">
+            <h3 class="card-title">Danh sách nhân viên thuộc phòng</h3>
+            <div class="search-bar-container">
                 <input type="text" class="form-control" placeholder="Tìm kiếm nhân viên..." id="empSearch">
             </div>
         </div>
@@ -124,6 +124,70 @@
         background-color: #fee2e2;
         color: #991b1b;
     }
+
+    /* Responsive Improvements */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .action-footer {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+        flex-wrap: wrap;
+    }
+
+    .card-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 16px;
+    }
+
+    .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .search-bar-container {
+        width: 300px;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .card-header-flex {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-bar-container {
+            width: 100%;
+        }
+
+        .action-footer {
+            flex-direction: column;
+        }
+
+        .action-footer a, 
+        .action-footer button,
+        .action-footer form {
+            width: 100%;
+        }
+
+        .action-footer form button {
+            width: 100% !important;
+        }
+    }
 </style>
 @endpush
 
@@ -148,6 +212,13 @@
                 autoWidth: false,
                 pageLength: 10,
                 dom: 'rtip',
+                columnDefs: [
+                    { targets: 0, responsivePriority: 1 }, // STT
+                    { targets: 1, responsivePriority: 3 }, // Mã NV
+                    { targets: 2, responsivePriority: 2 }, // Họ tên
+                    { targets: 3, responsivePriority: 4 }, // Chức vụ
+                    { targets: 4, responsivePriority: 5 }  // Trạng thái
+                ],
             });
 
             $('#empSearch').on('keyup', function () {
