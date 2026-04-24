@@ -2,7 +2,7 @@
 <div class="tab-content" id="tab-attendance">
     <div class="detail-section">
         <h2>
-            Lịch sử chấm công
+            {{ __('Lịch sử chấm công') }}
         </h2>
 
         {{-- Filter bar --}}
@@ -17,10 +17,10 @@
             {{-- Quick buttons --}}
             <div style="display:flex; gap:8px;">
                 <button type="button" onclick="loadAttendancePrevMonth()" style="padding:7px 16px; border:1px solid #d1d5db; border-radius:8px; background:white; font-size:13px; font-weight:600; color:#374151; cursor:pointer; transition:all .15s;" onmouseover="this.style.borderColor='#0BAA4B';this.style.color='#0BAA4B'" onmouseout="this.style.borderColor='#d1d5db';this.style.color='#374151'">
-                    ← Tháng trước
+                    ← {{ __('Tháng trước') }}
                 </button>
                 <button type="button" onclick="loadAttendanceThisMonth()" style="padding:7px 16px; border:1px solid #0BAA4B; border-radius:8px; background:#0BAA4B; font-size:13px; font-weight:600; color:white; cursor:pointer; transition:all .15s;" onmouseover="this.style.background='#088c3d'" onmouseout="this.style.background='#0BAA4B'">
-                    Tháng này
+                    {{ __('Tháng này') }}
                 </button>
             </div>
         </div>
@@ -29,26 +29,26 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-bottom:20px;" id="attendanceStats">
             <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px 16px; text-align:center;">
                 <div style="font-size:22px; font-weight:700; color:#0BAA4B;" id="statTotal">--</div>
-                <div style="font-size:12px; color:#6b7280; margin-top:2px;">Tổng ngày</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:2px;">{{ __('Tổng ngày') }}</div>
             </div>
             <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px 16px; text-align:center;">
                 <div style="font-size:22px; font-weight:700; color:#0BAA4B;" id="statOnTime">--</div>
-                <div style="font-size:12px; color:#6b7280; margin-top:2px;">Đúng giờ</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:2px;">{{ __('Đúng giờ') }}</div>
             </div>
             <div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; text-align:center;">
                 <div style="font-size:22px; font-weight:700; color:#ea580c;" id="statLate">--</div>
-                <div style="font-size:12px; color:#6b7280; margin-top:2px;">Đi muộn</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:2px;">{{ __('Đi muộn') }}</div>
             </div>
             <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:14px 16px; text-align:center;">
                 <div style="font-size:22px; font-weight:700; color:#2563eb;" id="statEarly">--</div>
-                <div style="font-size:12px; color:#6b7280; margin-top:2px;">Về sớm</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:2px;">{{ __('Về sớm') }}</div>
             </div>
         </div>
 
         {{-- Table --}}
         <div id="attendanceTableWrap">
             <div style="text-align:center; padding:40px; color:#9ca3af; font-size:14px;">
-                Chọn tháng để xem lịch sử chấm công
+                {{ __('Chọn tháng để xem lịch sử chấm công') }}
             </div>
         </div>
     </div>
@@ -71,17 +71,17 @@
         const isDark = document.body.classList.contains('dark-theme');
         const map = {
             'dung_gio': {
-                label: 'Đúng giờ',
+                label: "{{ __('Đúng giờ') }}",
                 bg: isDark ? 'rgba(74, 222, 128, 0.15)' : '#dcfce7',
                 color: isDark ? '#4ade80' : '#166534'
             },
             'tre': {
-                label: 'Đi muộn',
+                label: "{{ __('Đi muộn') }}",
                 bg: isDark ? 'rgba(251, 146, 60, 0.15)' : '#fff7ed',
                 color: isDark ? '#fb923c' : '#c2410c'
             },
             've_som': {
-                label: 'Về sớm',
+                label: "{{ __('Về sớm') }}",
                 bg: isDark ? 'rgba(96, 165, 250, 0.15)' : '#eff6ff',
                 color: isDark ? '#60a5fa' : '#1d4ed8'
             }
@@ -103,7 +103,7 @@
         updateLabel(month, year);
 
         const wrap = document.getElementById('attendanceTableWrap');
-        wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#6b7280;font-size:14px;">Đang tải...</div>`;
+        wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#6b7280;font-size:14px;">{{ __('Đang tải...') }}</div>`;
 
         // Reset stats
         ['statTotal','statOnTime','statLate','statEarly'].forEach(id => document.getElementById(id).textContent = '--');
@@ -122,7 +122,7 @@
             document.getElementById('statEarly').textContent  = rows.filter(r => r.TrangThai === 've_som').length;
 
             if (rows.length === 0) {
-                wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px;">Không có dữ liệu chấm công tháng này</div>`;
+                wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px;">{{ __('Không có dữ liệu chấm công tháng này') }}</div>`;
                 return;
             }
 
@@ -130,10 +130,10 @@
                 <table style="width:100%;border-collapse:collapse;">
                     <thead>
                         <tr style="background:#f8fafc;border-bottom:2px solid #e5e7eb;">
-                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">Ngày</th>
-                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">Giờ vào</th>
-                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">Giờ ra</th>
-                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">Trạng thái</th>
+                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">{{ __('Ngày') }}</th>
+                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">{{ __('Giờ vào') }}</th>
+                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">{{ __('Giờ ra') }}</th>
+                            <th style="padding:14px 16px;text-align:left;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">{{ __('Trạng thái') }}</th>
                             <th style="padding:14px 16px;text-align:center;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;"></th>
                         </tr>
                     </thead>
@@ -144,7 +144,7 @@
                 const ra  = r.Ra  ? new Date(r.Ra)  : null;
                 const ngay = vao ? vao.toLocaleDateString('vi-VN', {day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
                 const gioVao = vao ? vao.toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-                const gioRa  = ra  ? ra.toLocaleTimeString('vi-VN',  {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '<span style="color:#9ca3af">Chưa ra</span>';
+                const gioRa  = ra  ? ra.toLocaleTimeString('vi-VN',  {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : `<span style="color:#9ca3af">${"{{ __('Chưa ra') }}"}</span>`;
 
                 html += `
                         <tr style="border-bottom:1px solid #f1f5f9;transition:background .15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
@@ -153,8 +153,8 @@
                             <td style="padding:14px 16px;font-size:14px;${timeColor(r.TrangThai,'out')}">${gioRa}</td>
                             <td style="padding:14px 16px;">${statusBadge(r.TrangThai)}</td>
                             <td style="padding:14px 16px;text-align:center;">
-                                ${r.HinhAnh ? `<button onclick="showAttendanceImg('${r.HinhAnh}')" style="background:none;border:none;cursor:pointer;color:#0BAA4B;font-size:13px;font-weight:600;text-decoration:underline;" title="Xem ảnh">
-                                    [Xem ảnh]
+                                ${r.HinhAnh ? `<button onclick="showAttendanceImg('${r.HinhAnh}')" style="background:none;border:none;cursor:pointer;color:#0BAA4B;font-size:13px;font-weight:600;text-decoration:underline;" title="${"{{ __('Xem ảnh') }}"}">
+                                    ${"{{ __(' [Xem ảnh]') }}"}
                                 </button>` : '<span style="color:#e5e7eb;font-size:16px;">—</span>'}
                             </td>
                         </tr>`;
@@ -164,7 +164,7 @@
             wrap.innerHTML = html;
         })
         .catch(() => {
-            wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#dc2626;font-size:14px;">Không thể tải dữ liệu</div>`;
+            wrap.innerHTML = `<div style="text-align:center;padding:40px;color:#dc2626;font-size:14px;">{{ __('Không thể tải dữ liệu') }}</div>`;
         });
     }
 

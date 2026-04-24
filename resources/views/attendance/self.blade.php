@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chấm công cá nhân - ' . \App\Models\SystemConfig::getValue('company_name'))
+@section('title', __('Chấm công cá nhân - :company', ['company' => \App\Models\SystemConfig::getValue('company_name')]))
 
 @push('styles')
     <style>
@@ -118,8 +118,8 @@
 
 @section('content')
     <div class="page-header">
-        <h1>Chấm công cá nhân</h1>
-        <p>Ghi nhận thời gian làm việc hàng ngày của bạn</p>
+        <h1>{{ __('Chấm công cá nhân') }}</h1>
+        <p>{{ __('Ghi nhận thời gian làm việc hàng ngày của bạn') }}</p>
     </div>
 
     @if(isset($error))
@@ -133,23 +133,23 @@
             </div>
             <div class="user-details">
                 <h2>{{ $nhanVien->Ten }}</h2>
-                <p>Mã nhân viên: <strong>{{ $nhanVien->Ma }}</strong></p>
+                <p>{{ __('Mã nhân viên:') }} <strong>{{ $nhanVien->Ma }}</strong></p>
                 @if($latestAttendance)
                     <div class="status-badge">
-                        Trạng thái:
+                        {{ __('Trạng thái:') }}
                         @if(!$latestAttendance->Ra)
-                            <span class="badge badge-primary">Đang làm việc ({{ $latestAttendance->Loai == 1 ? 'Tăng ca' : 'Hành chính' }})</span>
+                            <span class="badge badge-primary">{{ __('Đang làm việc (:type)', ['type' => $latestAttendance->Loai == 1 ? __('Tăng ca') : __('Hành chính')]) }}</span>
                         @else
                             @if($approvedOT && $latestAttendance->Loai == 0)
-                                <span class="badge badge-warning">Đã xong ca HC - Chờ vào ca Tăng ca</span>
+                                <span class="badge badge-warning">{{ __('Đã xong ca HC - Chờ vào ca Tăng ca') }}</span>
                             @else
-                                <span class="badge badge-success">Đã hoàn thành công việc</span>
+                                <span class="badge badge-success">{{ __('Đã hoàn thành công việc') }}</span>
                             @endif
                         @endif
                     </div>
                 @else
                     <div class="status-badge">
-                        Trạng thái: <span class="badge badge-gray">Chưa chấm công</span>
+                        {{ __('Trạng thái:') }} <span class="badge badge-gray">{{ __('Chưa chấm công') }}</span>
                     </div>
                 @endif
             </div>
@@ -168,14 +168,14 @@
                         </svg>
                         <h3>
                             @if(!$latestAttendance)
-                                Chấm công VÀO
+                                {{ __('Chấm công VÀO') }}
                             @elseif($latestAttendance->Ra && $approvedOT)
-                                Chấm công VÀO TĂNG CA
+                                {{ __('Chấm công VÀO TĂNG CA') }}
                             @else
-                                Chấm công RA
+                                {{ __('Chấm công RA') }}
                             @endif
                         </h3>
-                        <p>Nhấp vào đây để ghi nhận thời gian</p>
+                        <p>{{ __('Nhấp vào đây để ghi nhận thời gian') }}</p>
                     </div>
                 @else
                     <div class="alert alert-success" style="width: 100%; max-width: 400px; margin: 0 auto;">
@@ -183,7 +183,7 @@
                             style="width: 24px; height: 24px; display: inline-block; margin-right: 8px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        Bạn đã hoàn thành chấm công cho ngày hôm nay.
+                        {{ __('Bạn đã hoàn thành chấm công cho ngày hôm nay.') }}
                     </div>
                 @endif
             </div>
@@ -192,14 +192,14 @@
         @if($todayAttendances->count() > 0)
             <div class="recent-activity"
                 style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
-                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Chi tiết chấm công hôm nay</h3>
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">{{ __('Chi tiết chấm công hôm nay') }}</h3>
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Loại</th>
-                            <th>Giờ vào</th>
-                            <th>Giờ ra</th>
-                            <th>Trạng thái</th>
+                            <th>{{ __('Loại') }}</th>
+                            <th>{{ __('Giờ vào') }}</th>
+                            <th>{{ __('Giờ ra') }}</th>
+                            <th>{{ __('Trạng thái') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -207,20 +207,20 @@
                         <tr>
                             <td>
                                 @if($att->Loai == 1)
-                                    <span class="badge" style="background:#6366f1; color:white;">Tăng ca</span>
+                                    <span class="badge" style="background:#6366f1; color:white;">{{ __('Tăng ca') }}</span>
                                 @else
-                                    <span class="badge" style="background:#3b82f6; color:white;">Hành chính</span>
+                                    <span class="badge" style="background:#3b82f6; color:white;">{{ __('Hành chính') }}</span>
                                 @endif
                             </td>
                             <td>{{ $att->Vao->format('H:i:s') }}</td>
                             <td>{{ $att->Ra ? $att->Ra->format('H:i:s') : '-' }}</td>
                             <td>
                                 @if($att->TrangThai === 'dung_gio')
-                                    <span class="badge badge-success">Đúng giờ</span>
+                                    <span class="badge badge-success">{{ __('Đúng giờ') }}</span>
                                 @elseif($att->TrangThai === 'tre')
-                                    <span class="badge badge-warning">Đi muộn</span>
+                                    <span class="badge badge-warning">{{ __('Đi muộn') }}</span>
                                 @elseif($att->TrangThai === 've_som')
-                                    <span class="badge badge-orange">Về sớm</span>
+                                    <span class="badge badge-orange">{{ __('Về sớm') }}</span>
                                 @endif
                             </td>
                         </tr>
@@ -239,10 +239,10 @@
             const clock = document.getElementById('live-clock');
             const dateEl = document.getElementById('live-date');
 
-            if (clock) clock.textContent = now.toLocaleTimeString('vi-VN');
+            if (clock) clock.textContent = now.toLocaleTimeString('{{ app()->getLocale() == 'en' ? 'en-US' : 'vi-VN' }}');
 
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            if (dateEl) dateEl.textContent = now.toLocaleDateString('vi-VN', options);
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('{{ app()->getLocale() == 'en' ? 'en-US' : 'vi-VN' }}', options);
         }
 
         setInterval(updateClock, 1000);
@@ -254,23 +254,23 @@
             try {
                 // Check for camera support
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    Swal.fire('Lỗi', 'Trình duyệt của bạn không hỗ trợ truy cập camera.', 'error');
+                    Swal.fire('{{ __('Lỗi') }}', '{{ __('Trình duyệt của bạn không hỗ trợ truy cập camera.') }}', 'error');
                     return;
                 }
 
                 // Request camera permission and show preview in Swal
                 const result = await Swal.fire({
-                    title: 'Chụp ảnh chấm công',
+                    title: '{{ __('Chụp ảnh chấm công') }}',
                     html: `
                         <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 4/3;">
                             <video id="attendance-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
                             <canvas id="attendance-canvas" style="display: none;"></canvas>
                         </div>
-                        <p style="margin-top: 10px; font-size: 14px; color: #6b7280;">Vui lòng giữ khung hình rõ mặt để chấm công</p>
+                        <p style="margin-top: 10px; font-size: 14px; color: #6b7280;">{{ __('Vui lòng giữ khung hình rõ mặt để chấm công') }}</p>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: 'Chụp ảnh & Chấm công',
-                    cancelButtonText: 'Hủy',
+                    confirmButtonText: '{{ __('Chụp ảnh & Chấm công') }}',
+                    cancelButtonText: '{{ __('Hủy') }}',
                     confirmButtonColor: '#0BAA4B',
                     didOpen: async () => {
                         try {
@@ -285,7 +285,7 @@
                             video.srcObject = stream;
                         } catch (err) {
                             console.error("Camera error:", err);
-                            Swal.showValidationMessage(`Không thể mở camera: ${err.message}`);
+                            Swal.showValidationMessage(`{{ __('Không thể mở camera:') }} ${err.message}`);
                         }
                     },
                     willClose: () => {
@@ -298,7 +298,7 @@
                         const canvas = document.getElementById('attendance-canvas');
                         
                         if (!video.srcObject) {
-                            Swal.showValidationMessage('Vui lòng đợi camera sẵn sàng');
+                            Swal.showValidationMessage('{{ __('Vui lòng đợi camera sẵn sàng') }}');
                             return false;
                         }
 
@@ -316,7 +316,7 @@
                     const imageData = result.value;
                     
                     Swal.fire({
-                        title: 'Đang xử lý...',
+                        title: '{{ __('Đang xử lý...') }}',
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
@@ -338,7 +338,7 @@
                         if (data.success) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Thành công',
+                                title: '{{ __('Thành công') }}',
                                 text: data.message,
                                 timer: 2000,
                                 showConfirmButton: false
@@ -348,7 +348,7 @@
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Lỗi',
+                                title: '{{ __('Lỗi') }}',
                                 text: data.message,
                                 confirmButtonColor: '#0BAA4B'
                             });
@@ -358,15 +358,15 @@
                         console.error('Error:', error);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Lỗi hệ thống',
-                            text: 'Có lỗi xảy ra, vui lòng thử lại sau!',
+                            title: '{{ __('Lỗi hệ thống') }}',
+                            text: '{{ __('Có lỗi xảy ra, vui lòng thử lại sau!') }}',
                             confirmButtonColor: '#0BAA4B'
                         });
                     });
                 }
             } catch (error) {
                 console.error("Attendance process error:", error);
-                Swal.fire('Lỗi', 'Có lỗi xảy ra trong quá trình chấm công.', 'error');
+                Swal.fire('{{ __('Lỗi') }}', '{{ __('Có lỗi xảy ra trong quá trình chấm công.') }}', 'error');
             }
         }
     </script>

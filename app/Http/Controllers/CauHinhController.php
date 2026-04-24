@@ -18,6 +18,7 @@ class CauHinhController extends Controller
 
     public function update(Request $request)
     {
+        $hasPermission = auth()->user()->can('Quản lý hệ thống');
         $data = $request->except(['_token', 'company_logo']);
 
         // Handle text-based configs
@@ -25,14 +26,28 @@ class CauHinhController extends Controller
             if ($value === 'on') {
                 $value = 1;
             }
-            \App\Models\SystemConfig::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value]
-            );
+
+            // Save theme and language to the authenticated user
+            // This is allowed for all regular users
+            if ($key === 'default_theme' || $key === 'default_language') {
+                $user = auth()->user();
+                if ($user) {
+                    $column = ($key === 'default_theme') ? 'theme' : 'language';
+                    $user->update([$column => $value]);
+                }
+            }
+
+            // ONLY update system-wide config if user has permission
+            if ($hasPermission) {
+                \App\Models\SystemConfig::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $value]
+                );
+            }
         }
 
-        // Handle file upload for company logo
-        if ($request->hasFile('company_logo')) {
+        // Handle file upload for company logo - ONLY if has permission
+        if ($hasPermission && $request->hasFile('company_logo')) {
             $file = $request->file('company_logo');
             $filename = 'company_logo_' . time() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/company'), $filename);
@@ -44,9 +59,11 @@ class CauHinhController extends Controller
             );
         }
 
-        \App\Services\SystemLogService::log('Cập nhật', 'SystemConfig', null, 'Cập nhật cấu hình hệ thống chung');
+        if ($hasPermission) {
+            \App\Services\SystemLogService::log('Cập nhật', 'SystemConfig', null, __('Cập nhật cấu hình hệ thống chung'));
+        }
 
-        return redirect()->back()->with('success', 'Đã lưu cấu hình hệ thống thành công!');
+        return redirect()->back()->with('success', $hasPermission ? __('Đã lưu cấu hình hệ thống thành công!') : __('Đã cập nhật tùy chọn cá nhân thành công!'));
     }
 
     public function updateCaLamViec(Request $request)
@@ -75,9 +92,9 @@ class CauHinhController extends Controller
             }
         }
 
-        \App\Services\SystemLogService::log('Cập nhật', 'DmCaLamViec', null, 'Cập nhật thông tin ca làm việc');
+        \App\Services\SystemLogService::log('Cập nhật', 'DmCaLamViec', null, __('Cập nhật thông tin ca làm việc'));
 
-        return redirect()->back()->with('success', 'Đã cập nhật thông tin ca làm việc thành công!');
+        return redirect()->back()->with('success', __('Đã cập nhật thông tin ca làm việc thành công!'));
     }
 
     public function updateLichLamViec(Request $request)
@@ -106,8 +123,8 @@ class CauHinhController extends Controller
             }
         }
 
-        \App\Services\SystemLogService::log('Cập nhật', 'CauHinhLichLamViec', null, 'Cập nhật cấu hình ngày làm việc');
+        \App\Services\SystemLogService::log('Cập nhật', 'CauHinhLichLamViec', null, __('Cập nhật cấu hình ngày làm việc'));
 
-        return redirect()->back()->with('success', 'Đã cập nhật cấu hình ngày làm việc thành công!');
+        return redirect()->back()->with('success', __('Đã cập nhật cấu hình ngày làm việc thành công!'));
     }
 }

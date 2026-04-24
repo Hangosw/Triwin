@@ -575,18 +575,18 @@
 
 @section('content')
     <!-- Back Button & Actions -->
-    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center;">
         @can('Xem Danh Sách Hợp Đồng')
-        <a href="{{ route('hop-dong.danh-sach') }}" class="btn btn-secondary">
+        <a href="{{ route('hop-dong.danh-sach') }}" class="btn btn-secondary" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
-            Quay lại danh sách
+            Quay lại
         </a>
         @endcan
-        <div style="display: flex; gap: 12px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
             @can('Sửa Hợp Đồng')
-            <a href="{{ route('hop-dong.suaView', $hopDong->id) }}" class="btn btn-secondary">
+            <a href="{{ route('hop-dong.suaView', $hopDong->id) }}" class="btn btn-secondary" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -595,7 +595,7 @@
             </a>
             @endcan
             @if(!str_starts_with($hopDong->Loai ?? '', 'nda'))
-                <a href="{{ route('hop-dong.download-word', $hopDong->id) }}" class="btn btn-success">
+                <a href="{{ route('hop-dong.download-word', $hopDong->id) }}" class="btn btn-success" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -603,7 +603,7 @@
                     Tải Word
                 </a>
             @endif
-            <a href="{{ route('hop-dong.print', $hopDong->id) }}" target="_blank" class="btn btn-primary">
+            <a href="{{ route('hop-dong.print', $hopDong->id) }}" target="_blank" class="btn btn-primary" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />

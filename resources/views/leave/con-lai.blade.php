@@ -117,8 +117,7 @@
                 <thead style="background-color: #f9fafb;">
                     <tr>
                         <th style="width: 60px; text-align: center;">STT</th>
-                        <th style="width: 250px;">Nhân viên</th>
-                        <th style="width: 200px;">Phòng ban</th>
+                        <th style="width: 300px;">Nhân viên</th>
                         @foreach($loaiNghiPheps as $lp)
                             <th style="text-align: right; min-width: 140px; width: 140px;">
                                 {{ $lp->Ten }} <br>
@@ -139,9 +138,7 @@
                                         {{ substr($nv->Ten, 0, 1) }}
                                     </div>
                                     <div class="font-medium" style="color: #1f2937;">{{ $nv->Ten }} <br><small style="color: #6b7280;">{{ $nv->Ma }}</small></div>
-                                </div>
                             </td>
-                            <td style="vertical-align: middle; color: #4b5563;">{{ $nv->ttCongViec->phongBan->Ten ?? 'N/A' }}</td>
                             
                             @foreach($loaiNghiPheps as $lp)
                                 <td style="text-align: right; vertical-align: middle;">

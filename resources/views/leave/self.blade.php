@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nghỉ phép cá nhân')
+@section('title', __('Nghỉ phép cá nhân'))
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -184,6 +184,41 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(11, 170, 75, 0.35);
+        }
+
+        .btn-back {
+            background: white;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: var(--text-main);
+            transform: translateX(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        body.dark-theme .btn-back {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da;
+        }
+
+        body.dark-theme .btn-back:hover {
+            background: #2e3349;
+            border-color: #39405a;
+            color: #fff;
         }
 
         /* Modal & Table styling updates */
@@ -395,17 +430,22 @@
 @endpush
 
 @section('content')
-    <div class="page-header" style="margin-bottom: 40px;">
-        <h1 style="font-size: 32px; font-weight: 850; letter-spacing: -0.03em;">Nghỉ phép cá nhân</h1>
-        <p style="font-size: 16px; color: var(--text-muted);">Quản lý hạn mức và theo dõi lịch sử nghỉ phép của bạn</p>
+    <div class="page-header" style="margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h1 style="font-size: 32px; font-weight: 850; letter-spacing: -0.03em;">{{ __('Nghỉ phép cá nhân') }}</h1>
+            <p style="font-size: 16px; color: var(--text-muted);">{{ __('Manage your leave limits and track your leave history') }}</p>
+        </div>
+        <a href="{{ route('home') }}" class="btn btn-back">
+            <i class="bi bi-arrow-left"></i> Quay lại Trang chủ
+        </a>
     </div>
 
     @if(!$hasActiveContract)
         <div class="alert alert-warning" style="background-color: #fffbeb; border: 1px solid #fef3c7; color: #92400e; padding: 20px; border-radius: 24px; margin-bottom: 32px; display: flex; align-items: flex-start; gap: 12px; box-shadow: var(--shadow-sm);">
             <i class="bi bi-info-circle-fill" style="font-size: 20px; margin-top: 1px;"></i>
             <div>
-                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700;">Lưu ý về hợp đồng</h4>
-                <p style="margin: 0; font-size: 14px;">Hệ thống ghi nhận bạn hiện không có hợp đồng còn hiệu lực. Các số liệu về ngày phép bên dưới có thể không khả dụng cho việc đăng ký nghỉ mới.</p>
+                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700;">{{ __('Contract Note') }}</h4>
+                <p style="margin: 0; font-size: 14px;">{{ __('The system records that you currently do not have a valid contract. The leave day figures below may not be available for new leave registration.') }}</p>
             </div>
         </div>
     @endif
@@ -607,31 +647,31 @@
             <div class="hero-stat-header">
                 <div class="hero-label">
                     <i class="bi bi-rocket-takeoff"></i>
-                    Phép khả dụng hiện tại
+                    {{ __('Current Available Leave') }}
                 </div>
                 <div class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: none; font-size: 11px;">
-                    Tháng {{ now()->month }}/{{ now()->year }}
+                    {{ __('Month :month/:year', ['month' => now()->month, 'year' => now()->year]) }}
                 </div>
             </div>
 
             <div class="hero-value-group">
                 <div class="hero-value">
-                    {{ number_format($khaDung, 1) }}<span class="hero-unit">ngày</span>
+                    {{ number_format($khaDung, 1) }}<span class="hero-unit">{{ __('days') }}</span>
                 </div>
-                <p style="color: #64748b; font-size: 13px; margin: 0; font-weight: 500;">Số ngày phép bạn có thể sử dụng để đăng ký nghỉ ngay bây giờ.</p>
+                <p style="color: #64748b; font-size: 13px; margin: 0; font-weight: 500;">{{ __('Number of leave days you can use to register for leave now.') }}</p>
             </div>
 
             <div class="hero-footer">
                 <div class="usage-stats-row">
-                    <span>Tiến độ sử dụng phép đã tích lũy</span>
+                    <span>{{ __('Accumulated leave usage progress') }}</span>
                     <span>{{ round($usagePercent) }}%</span>
                 </div>
                 <div class="usage-progress-container">
                     <div class="usage-progress-bar" style="width: {{ $usagePercent }}%"></div>
                 </div>
                 <div class="usage-stats-row" style="font-size: 11px;">
-                    <span>Đã nghỉ: {{ $daNghi }} ngày</span>
-                    <span>Tổng tích lũy: {{ number_format($totalEarned, 1) }} ngày</span>
+                    <span>{{ __('Took leave: :days days', ['days' => $daNghi]) }}</span>
+                    <span>{{ __('Total accumulated: :days days', ['days' => number_format($totalEarned, 1)]) }}</span>
                 </div>
             </div>
         </div>
@@ -643,8 +683,8 @@
                     <i class="bi bi-calendar-check"></i>
                 </div>
                 <div class="mini-info">
-                    <div class="label">Tổng quỹ phép cả năm</div>
-                    <div class="value">{{ number_format($tongPhep, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">ngày</span></div>
+                    <div class="label">{{ __('Total annual leave entitlement') }}</div>
+                    <div class="value">{{ number_format($tongPhep, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">{{ __('days') }}</span></div>
                 </div>
             </div>
 
@@ -653,8 +693,8 @@
                     <i class="bi bi-calendar-minus"></i>
                 </div>
                 <div class="mini-info">
-                    <div class="label">Tổng số ngày đã nghỉ</div>
-                    <div class="value">{{ number_format($daNghi, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">ngày</span></div>
+                    <div class="label">{{ __('Total leave days taken') }}</div>
+                    <div class="value">{{ number_format($daNghi, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">{{ __('days') }}</span></div>
                 </div>
             </div>
 
@@ -663,8 +703,8 @@
                     <i class="bi bi-calendar-event"></i>
                 </div>
                 <div class="mini-info">
-                    <div class="label">Còn lại của năm (Dự kiến)</div>
-                    <div class="value">{{ number_format($conLai, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">ngày</span></div>
+                    <div class="label">{{ __('Remaining for the year (Estimated)') }}</div>
+                    <div class="value">{{ number_format($conLai, 1) }} <span style="font-size: 13px; font-weight: 500; color: var(--text-muted)">{{ __('days') }}</span></div>
                 </div>
             </div>
         </div>
@@ -674,18 +714,18 @@
     <div class="card" style="padding: 32px;">
         <h2 class="section-title">
             <i class="bi bi-grid-1x2 text-primary" style="color: var(--primary-green)"></i>
-            Theo dõi các loại nghỉ khác ({{ now()->year }})
+            {{ __('Track other leave types (:year)', ['year' => now()->year]) }}
         </h2>
         <div class="leave-type-grid">
             @foreach($otherLeaveStats as $stat)
                 <div class="leave-type-item">
-                    <div class="leave-type-name">{{ $stat['ten'] }}</div>
+                    <div class="leave-type-name">{{ __($stat['ten']) }}</div>
                     <div class="leave-type-value">
                         <span class="number">{{ number_format($stat['da_dung'], 1) }}</span>
                         @if($stat['co_han_muc'])
-                            <span class="label-text">/ {{ number_format($stat['han_muc'], 1) }} ngày</span>
+                            <span class="label-text">/ {{ number_format($stat['han_muc'], 1) }} {{ __('days') }}</span>
                         @else
-                            <span class="label-text">ngày đã dùng</span>
+                            <span class="label-text">{{ __('days used') }}</span>
                         @endif
                     </div>
                 </div>
@@ -695,25 +735,25 @@
 
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Danh sách đơn nghỉ phép</h3>
+            <h3 class="card-title">{{ __('Danh sách đơn nghỉ phép') }}</h3>
             <a href="{{ route('nghi-phep.dang-ky') }}" class="btn btn-primary">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Đăng ký nghỉ phép
+                {{ __('Register for leave') }}
             </a>
         </div>
         <div class="table-container">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>STT</th>
-                        <th>Loại nghỉ</th>
-                        <th>Thời gian</th>
-                        <th>Số ngày</th>
-                        <th>Lý do</th>
-                        <th>Người duyệt</th>
-                        <th>Trạng thái</th>
+                        <th>{{ __('No.') }}</th>
+                        <th>{{ __('Loại nghỉ') }}</th>
+                        <th>{{ __('Time') }}</th>
+                        <th>{{ __('Số ngày') }}</th>
+                        <th>{{ __('Lý do') }}</th>
+                        <th>{{ __('Người duyệt') }}</th>
+                        <th>{{ __('Trạng thái') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -722,27 +762,27 @@
                             <td>{{ $index + 1 }}</td>
                             <td class="font-medium">{{ $np->loaiNghiPhep->Ten }}</td>
                             <td>
-                                <div>{{ $np->TuNgay->format('d/m/Y') }} @if($np->TuBuoi != 'ca_ngay') <span style="font-size: 11px; color: var(--text-muted);">({{ $np->TuBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</span> @endif</div>
-                                <div style="font-size: 10px; color: var(--text-muted); margin: 2px 0;">đến</div>
-                                <div>{{ $np->DenNgay->format('d/m/Y') }} @if($np->DenBuoi != 'ca_ngay') <span style="font-size: 11px; color: var(--text-muted);">({{ $np->DenBuoi == 'sang' ? 'Sáng' : 'Chiều' }})</span> @endif</div>
+                                <div>{{ $np->TuNgay->format('d/m/Y') }} @if($np->TuBuoi != 'ca_ngay') <span style="font-size: 11px; color: var(--text-muted);">({{ $np->TuBuoi == 'sang' ? __('Morning') : __('Afternoon') }})</span> @endif</div>
+                                <div style="font-size: 10px; color: var(--text-muted); margin: 2px 0;">{{ __('to') }}</div>
+                                <div>{{ $np->DenNgay->format('d/m/Y') }} @if($np->DenBuoi != 'ca_ngay') <span style="font-size: 11px; color: var(--text-muted);">({{ $np->DenBuoi == 'sang' ? __('Morning') : __('Afternoon') }})</span> @endif</div>
                             </td>
                             <td class="font-medium" style="text-align: center;">{{ number_format((float)$np->SoNgayNghi, 1) }}</td>
                             <td>{{ $np->LyDo }}</td>
                             <td>{{ $np->nguoiDuyet->Ten ?? '-' }}</td>
                             <td>
                                 @if($np->TrangThai === 2)
-                                    <span class="badge badge-warning">Đang chờ</span>
+                                    <span class="badge badge-warning">{{ __('Đang chờ') }}</span>
                                 @elseif($np->TrangThai === 1)
-                                    <span class="badge badge-success">Đã duyệt</span>
+                                    <span class="badge badge-success">{{ __('Đã duyệt') }}</span>
                                 @else
-                                    <span class="badge badge-danger">Từ chối</span>
+                                    <span class="badge badge-danger">{{ __('Từ chối') }}</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                                Bạn chưa có đơn nghỉ phép nào.
+                                {{ __("You don't have any leave requests yet.") }}
                             </td>
                         </tr>
                     @endforelse
@@ -755,7 +795,7 @@
     <div class="modal" id="leaveModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 style="font-size: 20px; font-weight: 700;">Đăng ký nghỉ phép</h2>
+                <h2 style="font-size: 20px; font-weight: 700;">{{ __('Register for Leave') }}</h2>
                 <button onclick="closeLeaveModal()" style="border: none; background: none; cursor: pointer;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -766,7 +806,7 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label">Loại nghỉ phép <span style="color: #ef4444;">*</span></label>
+                        <label class="form-label">{{ __('Loại nghỉ phép') }} <span style="color: #ef4444;">*</span></label>
                         <select class="form-control" name="LoaiNghiPhepId">
                             @foreach($loaiNghiPheps as $type)
                                 <option value="{{ $type->id }}">{{ $type->Ten }}</option>
@@ -775,24 +815,24 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label">Từ ngày <span style="color: #ef4444;">*</span></label>
+                            <label class="form-label">{{ __('Từ ngày') }} <span style="color: #ef4444;">*</span></label>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 <input type="text" class="form-control" id="startDate" name="TuNgay" readonly>
                                 <select class="form-control" name="TuBuoi" onchange="calculateDays()">
-                                    <option value="ca_ngay">Cả ngày</option>
-                                    <option value="sang">Nghỉ Sáng</option>
-                                    <option value="chieu">Nghỉ Chiều</option>
+                                    <option value="ca_ngay">{{ __('Cả ngày') }}</option>
+                                    <option value="sang">{{ __('Morning Off') }}</option>
+                                    <option value="chieu">{{ __('Afternoon Off') }}</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label">Đến ngày <span style="color: #ef4444;">*</span></label>
+                            <label class="form-label">{{ __('Đến ngày') }} <span style="color: #ef4444;">*</span></label>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 <input type="text" class="form-control" id="endDate" name="DenNgay" readonly>
                                 <select class="form-control" name="DenBuoi" onchange="calculateDays()">
-                                    <option value="ca_ngay">Cả ngày</option>
-                                    <option value="sang">Nghỉ Sáng</option>
-                                    <option value="chieu">Nghỉ Chiều</option>
+                                    <option value="ca_ngay">{{ __('Cả ngày') }}</option>
+                                    <option value="sang">{{ __('Morning Off') }}</option>
+                                    <option value="chieu">{{ __('Afternoon Off') }}</option>
                                 </select>
                             </div>
                         </div>

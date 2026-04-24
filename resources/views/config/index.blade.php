@@ -1,11 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Cấu hình hệ thống - ' . \App\Models\SystemConfig::getValue('company_name'))
+@section('title', __('Cấu hình hệ thống') . ' - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
     <div class="page-header">
-        <h1>Cấu hình hệ thống</h1>
-        <p>Quản lý các cấu hình và tham số hệ thống</p>
+        @can('Quản lý hệ thống')
+            <h1>{{ __('Cấu hình hệ thống') }}</h1>
+            <p>{{ __('Quản lý các cấu hình và tham số hệ thống') }}</p>
+        @else
+            <h1>{{ __('Cài đặt cá nhân') }}</h1>
+            <p>{{ __('Tùy chỉnh giao diện và ngôn ngữ của bạn') }}</p>
+        @endcan
     </div>
 
     @if(session('success'))
@@ -20,39 +25,108 @@
     <form action="{{ route('config.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
+        <!-- Language & Interface Settings -->
+        <div class="config-grid-2" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <!-- Language Card -->
+            <div class="card" style="margin-bottom: 0 !important;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <i class="bi bi-translate text-primary" style="font-size: 20px;"></i>
+                    <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">{{ __('Cấu hình ngôn ngữ') }}</h3>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <label class="config-option" style="cursor: pointer;">
+                        <input type="radio" name="default_language" value="vi" {{ (auth()->user()->language ?? $configs['default_language'] ?? 'vi') == 'vi' ? 'checked' : '' }} style="display: none;">
+                        <div class="option-content">
+                            <span style="font-size: 24px;">🇻🇳</span>
+                            <span style="font-weight: 500;">{{ __('Tiếng Việt') }}</span>
+                            <i class="bi bi-check-circle-fill check-icon"></i>
+                        </div>
+                    </label>
+                    <label class="config-option" style="cursor: pointer;">
+                        <input type="radio" name="default_language" value="en" {{ (auth()->user()->language ?? $configs['default_language'] ?? '') == 'en' ? 'checked' : '' }} style="display: none;">
+                        <div class="option-content">
+                            <span style="font-size: 24px;">🇺🇸</span>
+                            <span style="font-weight: 500;">{{ __('Tiếng Anh') }}</span>
+                            <i class="bi bi-check-circle-fill check-icon"></i>
+                        </div>
+                    </label>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> {{ __('Lưu cài đặt này') }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theme Card -->
+            <div class="card" style="margin-bottom: 0 !important;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <i class="bi bi-palette text-primary" style="font-size: 20px;"></i>
+                    <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">{{ __('Cấu hình giao diện') }}</h3>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <label class="config-option" style="cursor: pointer;">
+                        <input type="radio" name="default_theme" value="light" {{ (auth()->user()->theme ?? $configs['default_theme'] ?? 'light') == 'light' ? 'checked' : '' }} style="display: none;">
+                        <div class="option-content">
+                            <i class="bi bi-sun" style="font-size: 24px; color: #f59e0b;"></i>
+                            <span style="font-weight: 500;">{{ __('Sáng (Light)') }}</span>
+                            <i class="bi bi-check-circle-fill check-icon"></i>
+                        </div>
+                    </label>
+                    <label class="config-option" style="cursor: pointer;">
+                        <input type="radio" name="default_theme" value="dark" {{ (auth()->user()->theme ?? $configs['default_theme'] ?? '') == 'dark' ? 'checked' : '' }} style="display: none;">
+                        <div class="option-content">
+                            <i class="bi bi-moon-stars" style="font-size: 24px; color: #6366f1;"></i>
+                            <span style="font-weight: 500;">{{ __('Tối (Dark)') }}</span>
+                            <i class="bi bi-check-circle-fill check-icon"></i>
+                        </div>
+                    </label>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> {{ __('Lưu cài đặt này') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        @can('Quản lý hệ thống')
         <!-- General Settings Redesign -->
         <div class="card">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Thông tin đơn vị & Người đại diện</h3>
-                <span class="badge" style="background: #f0fdf4; color: #166534; padding: 6px 12px; border-radius: 6px; font-size: 12px;">Cấu hình chung</span>
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">{{ __('Thông tin đơn vị & Người đại diện') }}</h3>
+                <span class="badge" style="background: #f0fdf4; color: #166534; padding: 6px 12px; border-radius: 6px; font-size: 12px;">{{ __('Cấu hình chung') }}</span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            <div class="config-grid-2" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
                 <!-- Left Column: Company Info -->
                 <div style="display: flex; flex-direction: column; gap: 20px;">
                     <div class="form-group">
-                        <label class="form-label">Tên công ty / Đơn vị</label>
+                        <label class="form-label">{{ __('Tên công ty / Đơn vị') }}</label>
                         <input type="text" name="company_name" class="form-control"
-                            value="{{ $configs['company_name'] ?? '' }}" placeholder="Nhập tên đầy đủ">
+                            value="{{ $configs['company_name'] ?? '' }}" placeholder="{{ __('Nhập tên đầy đủ') }}">
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="config-grid-2-inner" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
-                            <label class="form-label">Mã số thuế</label>
+                            <label class="form-label">{{ __('Mã số thuế') }}</label>
                             <input type="text" name="company_tax_code" class="form-control"
                                 value="{{ $configs['company_tax_code'] ?? '' }}" placeholder="0123456789">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Số điện thoại (Hotline)</label>
+                            <label class="form-label">{{ __('Số điện thoại (Hotline)') }}</label>
                             <input type="text" name="company_hotline" class="form-control"
                                 value="{{ $configs['company_hotline'] ?? '' }}" placeholder="028.xxxx.xxxx">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Địa chỉ trụ sở</label>
+                        <label class="form-label">{{ __('Địa chỉ trụ sở') }}</label>
                         <textarea name="company_address" class="form-control"
-                            rows="2" placeholder="Số nhà, tên đường, quận/huyện...">{{ $configs['company_address'] ?? '' }}</textarea>
+                            rows="2" placeholder="{{ __('Số nhà, tên đường, quận/huyện...') }}">{{ $configs['company_address'] ?? '' }}</textarea>
                     </div>
                 </div>
 
@@ -60,9 +134,9 @@
                 <div style="display: flex; flex-direction: column; gap: 20px;">
                     <div class="form-group">
                         <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
-                            <i class="bi bi-person-badge"></i> Người đại diện ký tên
+                            <i class="bi bi-person-badge"></i> {{ __('Người đại diện ký tên') }}
                         </label>
-                        <select name="signer_id" class="form-control select2" data-placeholder="Chọn nhân viên ký tên">
+                        <select name="signer_id" class="form-control select2" data-placeholder="{{ __('Chọn nhân viên ký tên') }}">
                             <option value=""></option>
                             @foreach($nhanViens as $nv)
                                 <option value="{{ $nv->id }}" {{ ($configs['signer_id'] ?? '') == $nv->id ? 'selected' : '' }}>
@@ -70,11 +144,11 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small style="color: #6b7280; font-size: 12px; margin-top: 4px;">* Nhân viên này sẽ xuất hiện trên các văn bản, hợp đồng của hệ thống.</small>
+                        <small style="color: #6b7280; font-size: 12px; margin-top: 4px;">{{ __('* Nhân viên này sẽ xuất hiện trên các văn bản, hợp đồng của hệ thống.') }}</small>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Logo công ty</label>
+                        <label class="form-label">{{ __('Logo công ty') }}</label>
                         <div style="display: flex; align-items: center; gap: 20px; padding: 16px; border: 1px dashed #d1d5db; border-radius: 12px; background: #f9fafb;">
                             @if(isset($configs['company_logo']))
                                 <div style="position: relative; width: 80px; height: 80px;">
@@ -83,12 +157,12 @@
                                 </div>
                             @else
                                 <div style="width: 80px; height: 80px; border: 1px solid #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: white; color: #9ca3af; font-size: 12px; text-align: center;">
-                                    Chưa có logo
+                                    {{ __('Chưa có logo') }}
                                 </div>
                             @endif
                             <div style="flex: 1;">
                                 <input type="file" name="company_logo" class="form-control" accept="image/*" style="font-size: 13px;">
-                                <p style="font-size: 11px; color: #6b7280; margin-top: 6px; margin-bottom: 0;">Khuyên dùng ảnh PNG trong suốt. Tối đa 2MB.</p>
+                                <p style="font-size: 11px; color: #6b7280; margin-top: 6px; margin-bottom: 0;">{{ __('Khuyên dùng ảnh PNG trong suốt. Tối đa 2MB.') }}</p>
                             </div>
                         </div>
                     </div>
@@ -97,7 +171,7 @@
 
             <div style="display: flex; justify-content: flex-end; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                 <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">
-                    <i class="bi bi-check2-circle"></i> Lưu cấu hình đơn vị
+                    <i class="bi bi-check2-circle"></i> {{ __('Lưu cấu hình đơn vị') }}
                 </button>
             </div>
         </div>
@@ -106,37 +180,37 @@
         <div class="card">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
                 <i class="bi bi-clock-history text-primary" style="font-size: 20px;"></i>
-                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Cấu hình thời gian & Nghỉ phép</h3>
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">{{ __('Cấu hình thời gian & Nghỉ phép') }}</h3>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="config-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 <div class="form-group">
-                    <label class="form-label">Giờ bắt đầu làm việc</label>
+                    <label class="form-label">{{ __('Giờ bắt đầu làm việc') }}</label>
                     <input type="time" name="work_time_start" class="form-control"
                         value="{{ $configs['work_time_start'] ?? '08:00' }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giờ kết thúc ca</label>
+                    <label class="form-label">{{ __('Giờ kết thúc ca') }}</label>
                     <input type="time" name="work_time_end" class="form-control"
                         value="{{ $configs['work_time_end'] ?? '17:30' }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nghỉ trưa (phút)</label>
+                    <label class="form-label">{{ __('Nghỉ trưa (phút)') }}</label>
                     <input type="number" name="lunch_break_minutes" class="form-control"
                         value="{{ $configs['lunch_break_minutes'] ?? 60 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label text-truncate" title="Số ngày công chuẩn (1 tháng)">Công chuẩn / tháng</label>
+                    <label class="form-label text-truncate" title="{{ __('Số ngày công chuẩn (1 tháng)') }}">{{ __('Công chuẩn / tháng') }}</label>
                     <input type="number" name="standard_work_days" class="form-control"
                         value="{{ $configs['standard_work_days'] ?? 26 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Phép năm mặc định</label>
+                    <label class="form-label">{{ __('Phép năm mặc định') }}</label>
                     <input type="number" name="annual_leave_days" class="form-control"
                         value="{{ $configs['annual_leave_days'] ?? 12 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giới hạn nghỉ / lần</label>
+                    <label class="form-label">{{ __('Giới hạn nghỉ / lần') }}</label>
                     <input type="number" name="annual_leave_limit_per_request" class="form-control"
                         value="{{ $configs['annual_leave_limit_per_request'] ?? 5 }}">
                 </div>
@@ -144,7 +218,7 @@
 
             <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Lưu cài đặt thời gian
+                    <i class="bi bi-save"></i> {{ __('Lưu cài đặt thời gian') }}
                 </button>
             </div>
         </div>
@@ -153,37 +227,37 @@
         <div class="card">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
                 <i class="bi bi-cash-stack text-primary" style="font-size: 20px;"></i>
-                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Định mức lương & Khấu trừ</h3>
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">{{ __('Định mức lương & Khấu trừ') }}</h3>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="config-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 <div class="form-group">
-                    <label class="form-label">Lương cơ sở (VNĐ)</label>
+                    <label class="form-label">{{ __('Lương cơ sở (VNĐ)') }}</label>
                     <input type="number" name="base_salary" class="form-control"
                         value="{{ $configs['base_salary'] ?? 2340000 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giảm trừ cá nhân</label>
+                    <label class="form-label">{{ __('Giảm trừ cá nhân') }}</label>
                     <input type="number" name="tax_deduction_personal" class="form-control"
                         value="{{ $configs['tax_deduction_personal'] ?? 11000000 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Giảm trừ phụ thuộc</label>
+                    <label class="form-label">{{ __('Giảm trừ phụ thuộc') }}</label>
                     <input type="number" name="tax_deduction_dependent" class="form-control"
                         value="{{ $configs['tax_deduction_dependent'] ?? 4400000 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Bảo hiểm XH (%)</label>
+                    <label class="form-label">{{ __('Bảo hiểm XH (%)') }}</label>
                     <input type="number" name="insurance_bhxh_emp" class="form-control"
                         value="{{ $configs['insurance_bhxh_emp'] ?? 8 }}" step="0.1">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Bảo hiểm Y tế (%)</label>
+                    <label class="form-label">{{ __('Bảo hiểm Y tế (%)') }}</label>
                     <input type="number" name="insurance_bhyt_emp" class="form-control"
                         value="{{ $configs['insurance_bhyt_emp'] ?? 1.5 }}" step="0.1">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Bảo hiểm TN (%)</label>
+                    <label class="form-label">{{ __('Bảo hiểm TN (%)') }}</label>
                     <input type="number" name="insurance_bhtn_emp" class="form-control"
                         value="{{ $configs['insurance_bhtn_emp'] ?? 1 }}" step="0.1">
                 </div>
@@ -191,7 +265,7 @@
 
             <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Lưu thông số tài chính
+                    <i class="bi bi-save"></i> {{ __('Lưu thông số tài chính') }}
                 </button>
             </div>
         </div>
@@ -200,17 +274,17 @@
         <div class="card">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
                 <i class="bi bi-laptop text-primary" style="font-size: 20px;"></i>
-                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">Cấu hình Work From Home</h3>
+                <h3 style="font-size: 18px; font-weight: 600; color: #0BAA4B; margin: 0;">{{ __('Cấu hình Work From Home') }}</h3>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <div class="config-grid-2" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                 <div class="form-group">
-                    <label class="form-label">Số ngày WFH tối đa / tháng</label>
+                    <label class="form-label">{{ __('Số ngày WFH tối đa / tháng') }}</label>
                     <input type="number" name="max_wfh_days_per_month" class="form-control"
                         value="{{ $configs['max_wfh_days_per_month'] ?? 4 }}">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Quy chuẩn hưởng lương (%)</label>
+                    <label class="form-label">{{ __('Quy chuẩn hưởng lương (%)') }}</label>
                     <input type="number" name="wfh_salary_rate" class="form-control"
                         value="{{ $configs['wfh_salary_rate'] ?? 100 }}">
                 </div>
@@ -218,46 +292,46 @@
 
             <div style="display: flex; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Lưu cài đặt WFH
+                    <i class="bi bi-save"></i> {{ __('Lưu cài đặt WFH') }}
                 </button>
             </div>
         </div>
-
+        @endcan
     </form>
-
+        @can('Quản lý hệ thống')
     <form action="{{ route('config.lich-lam-viec.update') }}" method="POST">
         @csrf
         <div class="card" style="margin-top: 20px;">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Cấu hình ngày làm việc trong tuần</h3>
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">{{ __('Cấu hình ngày làm việc trong tuần') }}</h3>
             
             <div class="table-container">
                 <table class="table table-bordered table-hover config-table" id="scheduleTable" style="width: 100%;">
                     <thead style="background-color: #f8f9fa;">
                         <tr>
-                            <th style="width: 200px;">Thứ</th>
-                            <th>Hình thức làm việc</th>
+                            <th style="width: 200px;">{{ __('Thứ') }}</th>
+                            <th>{{ __('Hình thức làm việc') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($lichLamViecs as $lich)
                             <tr>
-                                <td style="font-weight: 500;">{{ $lich->MoTa }}</td>
+                                <td style="font-weight: 500;">{{ __($lich->MoTa) }}</td>
                                 <td>
-                                    <div style="display: flex; gap: 30px; align-items: center;">
+                                    <div class="schedule-radios" style="display: flex; gap: 30px; align-items: center;">
                                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
                                             <input type="radio" name="lich_lam_viecs[{{ $lich->id }}][type]" value="full" 
                                                 {{ ($lich->CoLamViec == 1 && $lich->HeSoNgayCong == 1) ? 'checked' : '' }}>
-                                            Làm cả ngày (1.0)
+                                            {{ __('Làm cả ngày (1.0)') }}
                                         </label>
                                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
                                             <input type="radio" name="lich_lam_viecs[{{ $lich->id }}][type]" value="half" 
                                                 {{ ($lich->CoLamViec == 1 && $lich->HeSoNgayCong == 0.5) ? 'checked' : '' }}>
-                                            Làm nửa ngày (0.5)
+                                            {{ __('Làm nửa ngày (0.5)') }}
                                         </label>
                                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
                                             <input type="radio" name="lich_lam_viecs[{{ $lich->id }}][type]" value="off" 
                                                 {{ $lich->CoLamViec == 0 ? 'checked' : '' }}>
-                                            Nghỉ (0.0)
+                                            {{ __('Nghỉ (0.0)') }}
                                         </label>
                                     </div>
                                 </td>
@@ -271,7 +345,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
-                Lưu cấu hình ngày làm việc
+                {{ __('Lưu cấu hình ngày làm việc') }}
             </button>
         </div>
     </form>
@@ -281,21 +355,21 @@
     <form action="{{ route('config.ca-lam-viec.update') }}" method="POST">
         @csrf
         <div class="card">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">Lịch trình ca làm việc</h3>
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0BAA4B;">{{ __('Lịch trình ca làm việc') }}</h3>
 
             <div class="table-container">
                 <table class="table table-bordered table-hover config-table" id="shiftTable" style="width: 100%;">
                     <thead style="background-color: #f8f9fa;">
                         <tr>
-                            <th>Mã Ca</th>
-                            <th>Tên Ca</th>
-                            <th>Giờ Vào</th>
-                            <th>Giờ Ra</th>
-                            <th>Bắt Đầu Nghỉ</th>
-                            <th>Kết Thúc Nghỉ</th>
-                            <th>Qua Đêm?</th>
-                            <th>Phụ Cấp Đêm (%)</th>
-                            <th>Ghi Chú</th>
+                            <th>{{ __('Mã Ca') }}</th>
+                            <th>{{ __('Tên Ca') }}</th>
+                            <th>{{ __('Giờ Vào') }}</th>
+                            <th>{{ __('Giờ Ra') }}</th>
+                            <th>{{ __('Bắt Đầu Nghỉ') }}</th>
+                            <th>{{ __('Kết Thúc Nghỉ') }}</th>
+                            <th>{{ __('Qua Đêm?') }}</th>
+                            <th>{{ __('Phụ Cấp Đêm (%)') }}</th>
+                            <th>{{ __('Ghi Chú') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -346,11 +420,11 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
-                Lưu lịch trình ca làm việc
+                {{ __('Lưu lịch trình ca làm việc') }}
             </button>
         </div>
     </form>
-
+    @endcan
     <style>
         .config-table th {
             white-space: nowrap;
@@ -366,6 +440,85 @@
             padding: 6px 10px;
             height: auto;
         }
+
+        /* Config Option Styles */
+        .config-option .option-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            border: 2px solid var(--border-color, #e5e7eb);
+            border-radius: 12px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background: white;
+        }
+
+        .config-option:hover .option-content {
+            border-color: #0BAA4B;
+            background-color: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-option input:checked + .option-content {
+            border-color: #0BAA4B;
+            background-color: #f0fdf4;
+            box-shadow: 0 0 0 1px #0BAA4B;
+        }
+
+        .config-option .check-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #0BAA4B;
+            display: none;
+            font-size: 18px;
+        }
+
+        .config-option input:checked + .option-content .check-icon {
+            display: block;
+        }
+        
+        body.dark-theme .config-option .option-content {
+            background: #1a1d27;
+            border-color: #2e3349;
+        }
+        
+        body.dark-theme .config-option:hover .option-content {
+            background-color: rgba(11, 170, 75, 0.1);
+        }
+        
+        body.dark-theme .config-option input:checked + .option-content {
+            background-color: rgba(11, 170, 75, 0.15);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 992px) {
+            .config-grid-3 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .config-grid-2,
+            .config-grid-3,
+            .config-grid-2-inner {
+                grid-template-columns: 1fr !important;
+            }
+
+            .schedule-radios {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+        }
     </style>
 
 
@@ -374,23 +527,9 @@
 
 @push('scripts')
 <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
         $('#scheduleTable, #shiftTable').DataTable({
-            language: {
-                "sProcessing": "Đang xử lý...",
-                "sLengthMenu": "Hiển thị _MENU_ mục",
-                "sZeroRecords": "Không tìm thấy dữ liệu",
-                "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                "sSearch": "Tìm kiếm:",
-                "oPaginate": {
-                    "sFirst": "Đầu",
-                    "sPrevious": "Trước",
-                    "sNext": "Tiếp",
-                    "sLast": "Cuối"
-                }
-            },
+            
             responsive: true,
             autoWidth: false,
             paging: false,

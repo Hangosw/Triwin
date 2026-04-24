@@ -92,10 +92,7 @@ class NghiPhepController extends Controller
                 $q->where('Nam', $nam);
             }
         ])
-        ->whereHas('hopDongs', function($q) {
-            $q->where('TrangThai', 1); // Chỉ lấy nhân viên có hợp đồng còn hiệu lực
-        })
-        ->has('ttCongViec');
+        ->where('TrangThai', 'dang_lam'); // Lấy tất cả nhân viên đang làm việc
 
         if ($phongBanId) {
             $query->whereHas('ttCongViec', function ($q) use ($phongBanId) {
@@ -110,7 +107,7 @@ class NghiPhepController extends Controller
             \App\Models\QuanLyPhepNam::khoiTaoPhepNam($nv->id, $nam);
         }
 
-        // Reload lại dữ liệu sau khi đồng bộ
+        // Reload lại dữ liệu sau khi đồng bộ để lấy giá trị mới nhất
         $nhanViens = $query->get();
         $phongBans = DmPhongBan::all();
 
@@ -130,10 +127,11 @@ class NghiPhepController extends Controller
             ->where('TrangThai', 1)
             ->exists();
 
+        $limitConfig = (float) \App\Models\SystemConfig::getValue('annual_leave_limit_per_request', 5);
+
         $limits = LoaiNghiPhep::where('TrangThai', '1')
             ->get()
             ->mapWithKeys(function ($type) use ($nhanVienId, $currentYear, $hasActiveContract) {
-                // Nếu không có hợp đồng active, tất cả hạn mức là 0
                 if (!$hasActiveContract) {
                     return [$type->id => [
                         'kha_dung' => 0,
@@ -144,8 +142,9 @@ class NghiPhepController extends Controller
                 if ($type->Ten == 'Nghỉ phép năm') {
                     $phepNam = QuanLyPhepNam::where('NhanVienId', $nhanVienId)->where('Nam', $currentYear)->first();
                     return [$type->id => [
-                        'kha_dung' => (float) ($phepNam ? $phepNam->PhepKhaDung : 0),
-                        'con_lai' => (float) ($phepNam ? $phepNam->ConLai : 0)
+                        'kha_dung' => (float) ($phepNam ? $phepNam->KhaDung : 0),
+                        'con_lai' => (float) ($phepNam ? $phepNam->ConLai : 0),
+                        'phep_ung_toi_da' => (float) ($phepNam ? $phepNam->PhepUngToiDa : 0)
                     ]];
                 } else {
                     $used = DangKyNghiPhep::where('NhanVienId', $nhanVienId)
@@ -163,9 +162,12 @@ class NghiPhepController extends Controller
                         'con_lai' => $val
                     ]];
                 }
-            });
+            })->toArray();
 
-        return response()->json($limits);
+        return response()->json([
+            'limits' => $limits,
+            'limit_per_request' => $limitConfig
+        ]);
     }
 
     /**
@@ -265,7 +267,11 @@ class NghiPhepController extends Controller
      */
     public function AdminDangKyView()
     {
-        $nhanViens = \App\Models\NhanVien::with('ttCongViec.phongBan')->get();
+        $nhanViens = \App\Models\NhanVien::with('ttCongViec.phongBan')
+            ->whereHas('hopDongs', function($q) {
+                $q->where('TrangThai', 1); // Chỉ lấy nhân viên có hợp đồng còn hiệu lực
+            })
+            ->get();
         $loaiNghiPheps = LoaiNghiPhep::where('TrangThai', '1')->get();
         $workingSchedule = CauHinhLichLamViec::all();
 
@@ -276,6 +282,7 @@ class NghiPhepController extends Controller
         // Initialize with empty map, will be fetched via AJAX in view
         $leaveLimitsMap = [];
         $isAdmin = true;
+        $hasActiveContract = true;
 
         return view('leave.register', compact(
             'nhanViens',
@@ -284,7 +291,8 @@ class NghiPhepController extends Controller
             'leaveLimitsMap',
             'annualLeaveLimit',
             'annualLeaveId',
-            'isAdmin'
+            'isAdmin',
+            'hasActiveContract'
         ));
     }
 
@@ -587,9 +595,16 @@ class NghiPhepController extends Controller
                         ]);
                     }
 
+                    $splitType = LoaiNghiPhep::find($request->SplitLoaiNghiPhepId);
+                    $msg = "Đã tách thành 2 đơn nghỉ phép để phù hợp quy định hạn mức.\n";
+                    $msg .= "• Đơn 1: $actualDaysCount ngày $loaiNghiPhep->Ten\n";
+                    if ($soNgayConLai > 0) {
+                        $msg .= "• Đơn 2: $soNgayConLai ngày " . ($splitType ? $splitType->Ten : 'Nghỉ khác');
+                    }
+
                     return response()->json([
                         'success' => true,
-                        'message' => "Đã tách thành " . ($soNgayConLai > 0 ? "2" : "1") . " đơn nghỉ phép để phù hợp quy định hạn mức.\n (Đơn 1: $actualDaysCount ngày $loaiNghiPhep->Ten)"
+                        'message' => $msg
                     ]);
                 } else {
                     // LOGIC BÌNH THƯỜNG

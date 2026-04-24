@@ -4,264 +4,163 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+
 class NhanVien extends Model
 {
     protected $table = 'nhan_viens';
 
-    protected static function booted()
-    {
-        static::saved(function ($nhanVien) {
-            $user = $nhanVien->nguoiDung;
-            if ($user) {
-                $updates = [];
-                if ($nhanVien->wasChanged('Ten') && $user->Ten !== $nhanVien->Ten) {
-                    $updates['Ten'] = $nhanVien->Ten;
-                }
-                if ($nhanVien->wasChanged('Email') && $user->Email !== $nhanVien->Email) {
-                    $updates['Email'] = $nhanVien->Email;
-                }
-                if ($nhanVien->wasChanged('SoDienThoai') && $user->SoDienThoai !== $nhanVien->SoDienThoai) {
-                    $updates['SoDienThoai'] = $nhanVien->SoDienThoai;
-                }
-
-                if (!empty($updates)) {
-                    $user->update($updates);
-                }
-            }
-        });
-    }
-
-    protected $fillable = [
-        'Ma',  // Mã nhân viên: NV_YY_XXXXX
-        'Ten',  //
-        'NguoiDungId',  //
-        'Email',
-        'SoDienThoai',
-
-        'SoCCCD', //
-        'anh_cccd',
-        'anh_cccd_sau',
-        'NoiCap',
-        'NgayCap',
-        'NgaySinh',
-        'GioiTinh', // 1 là nam, 0 là nữ
-
-        'DiaChi',
-        'QueQuan',
-        'AnhDaiDien',
-        'DanToc',
-        'TonGiao',
-        'QuocTich',
-        'TinhTrangHonNhan',
-        'TenNganHang',
-        'SoTaiKhoan',
-        'ChiNhanhNganHang',
-        'BHXH',
-        'anh_bhxh',
-        'NoiCapBHXH',
-        'BHYT',
-        'NoiCapBHYT',
-        'Note',
-        'TrangThai',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'NgaySinh' => 'date',
         'GioiTinh' => 'integer',
+        'NguoiDungId' => 'integer',
         'anh_cccd' => 'array',
         'anh_bhxh' => 'array',
     ];
 
     /**
-     * Relationship: Nhân viên có thông tin công việc
+     * =====================
+     * Relationships
+     * =====================
      */
-    public function ttCongViec()
-    {
-        return $this->hasOne(TtNhanVienCongViec::class, 'NhanVienId');
-    }
 
-    /**
-     * Relationship: Nhân viên có một tài khoản người dùng
-     */
+    // Liên kết với tài khoản người dùng
     public function nguoiDung()
     {
         return $this->belongsTo(NguoiDung::class, 'NguoiDungId');
     }
 
-    /**
-     * Accessor: Get ChucVu through ttCongViec
-     */
-    public function getChucVuAttribute()
+    // Thông tin công việc (Phòng ban, chức vụ, ngày vào làm...)
+    public function ttCongViec()
     {
-        return $this->ttCongViec?->chucVu;
+        return $this->hasOne(TtNhanVienCongViec::class, 'NhanVienId');
     }
 
-    /**
-     * Accessor: Get PhongBan through ttCongViec
-     */
-    public function getPhongBanAttribute()
-    {
-        return $this->ttCongViec?->phongBan;
-    }
-
-
-
-    /**
-     * Accessor: Get Nhom (LoaiNhanVien) through ttCongViec
-     */
-    public function getNhomAttribute()
-    {
-        if (!$this->ttCongViec)
-            return null;
-        return $this->ttCongViec->LoaiNhanVien === 1 ? 'van_phong' : 'cong_nhan';
-    }
-
-    /**
-     * Relationship: Nhân viên có nhiều quá trình công tác
-     */
-    public function quaTrinhCongTacs()
-    {
-        return $this->hasMany(QuaTrinhCongTac::class, 'NhanVienId');
-    }
-
-    /**
-     * Relationship: Nhân viên có nhiều hợp đồng
-     */
+    // Danh sách hợp đồng
     public function hopDongs()
     {
         return $this->hasMany(HopDong::class, 'NhanVienId');
     }
 
-    /**
-     * Relationship: Hợp đồng do nhân viên ký (với tư cách người ký)
-     */
-    public function hopDongsNguoiKy()
-    {
-        return $this->hasMany(HopDong::class, 'NguoiKyId');
-    }
-
-
-
-    /**
-     * Relationship: Nhân viên có nhiều bảng lương
-     */
+    // Danh sách bảng lương
     public function luongs()
     {
         return $this->hasMany(Luong::class, 'NhanVienId');
     }
 
-    /**
-     * Relationship: Nhân viên có nhiều bản ghi chấm công
-     */
+    // Dữ liệu chấm công
     public function chamCongs()
     {
         return $this->hasMany(ChamCong::class, 'NhanVienId');
     }
 
-    /**
-     * Relationship: Nhân viên có nhiều đơn WFH
-     */
-    public function workFromHomes()
-    {
-        return $this->hasMany(WorkFromHome::class, 'NhanVienId');
-    }
-
-    /**
-     * Relationship: Đơn WFH do nhân viên duyệt
-     */
-    public function workFromHomesDuyet()
-    {
-        return $this->hasMany(WorkFromHome::class, 'NguoiDuyetId');
-    }
-
-    /**
-     * Relationship: Nhân viên có quản lý phép năm
-     */
-    public function quanLyPhepNams()
-    {
-        return $this->hasMany(QuanLyPhepNam::class, 'NhanVienId');
-    }
-
-    /**
-     * Relationship: Nhân viên có nhiều đơn nghỉ phép
-     */
+    // Đăng ký nghỉ phép
     public function dangKyNghiPheps()
     {
         return $this->hasMany(DangKyNghiPhep::class, 'NhanVienId');
     }
 
-    /**
-     * Relationship: Đơn nghỉ phép do nhân viên duyệt
-     */
-    public function nghiPhepsDuyet()
+    // Người thân / Người phụ thuộc
+    public function thanNhans()
     {
-        return $this->hasMany(DangKyNghiPhep::class, 'NguoiDuyetId');
+        return $this->hasMany(ThanNhan::class, 'NhanVienId');
     }
 
-    /**
-     * Check if employee is male
-     */
-    public function isNam()
+    // Đăng ký Work From Home (Làm việc từ xa)
+    public function workFromHomes()
     {
-        return $this->GioiTinh === 1;
+        return $this->hasMany(WorkFromHome::class, 'NhanVienId');
     }
 
-    /**
-     * Check if employee is office worker
-     */
-    public function isVanPhong()
+    // Các khoản tạm ứng
+    public function tamUngs()
     {
-        return $this->Nhom === 'van_phong';
+        return $this->hasMany(TamUng::class, 'NhanVienId');
     }
 
-    /**
-     * Check if employee is worker
-     */
-    public function isCongNhan()
+    // Quá trình công tác
+    public function quaTrinhCongTacs()
     {
-        return $this->Nhom === 'cong_nhan';
+        return $this->hasMany(QuaTrinhCongTac, 'NhanVienId');
     }
 
-    /**
-     * Calculate years of service
-     */
-    public function getYearsOfService()
-    {
-        if (!$this->NgayTuyenDung) {
-            return 0;
-        }
-        return Carbon::parse($this->NgayTuyenDung)->diffInYears(Carbon::now());
-    }
-
-    /**
-     * Scope: Office workers only
-     */
-    public function scopeVanPhong($query)
-    {
-        return $query->where('Nhom', 'van_phong');
-    }
-
-    /**
-     * Scope: Workers only
-     */
-    public function scopeCongNhan($query)
-    {
-        return $query->where('Nhom', 'cong_nhan');
-    }
-
-    /**
-     * Relationship: Nhân viên có nhiều tài sản đang mượn
-     */
+    // Danh sách tài sản đang mượn
     public function taiSans()
     {
         return $this->hasMany(TaiSan::class, 'nhan_vien_id');
     }
 
     /**
-     * Relationship: Nhân viên có nhiều người phụ thuộc
+     * =====================
+     * Accessors & Helpers
+     * =====================
      */
-    public function thanNhans()
+
+    // Lấy chức vụ hiện tại qua ttCongViec
+    public function getChucVuAttribute()
     {
-        return $this->hasMany(ThanNhan::class, 'NhanVienId');
+        return $this->ttCongViec?->chucVu;
+    }
+
+    // Lấy phòng ban hiện tại qua ttCongViec
+    public function getPhongBanAttribute()
+    {
+        return $this->ttCongViec?->phongBan;
+    }
+
+    /**
+     * Tính số năm công tác
+     */
+    public function getYearsOfService()
+    {
+        $ngayVaoLam = $this->ttCongViec?->NgayTuyenDung;
+        if (!$ngayVaoLam) {
+            return 0;
+        }
+
+        return Carbon::parse($ngayVaoLam)->diffInYears(Carbon::now());
+    }
+
+    /**
+     * =====================
+     * Scopes
+     * =====================
+     */
+    // Nhân viên đang hoạt động
+    public function scopeActive($query)
+    {
+        return $query->where('TrangThai', 'dang_lam');
+    }
+
+    // Nhân viên khối văn phòng
+    public function scopeVanPhong($query)
+    {
+        return $query->where('Nhom', 'van_phong');
+    }
+
+    // Nhân viên khối sản xuất (công nhân)
+    public function scopeCongNhan($query)
+    {
+        return $query->where('Nhom', 'cong_nhan');
+    }
+    /**
+     * Lấy hợp đồng gốc (Hợp đồng không phải là phụ lục)
+     */
+    public function hopDongGoc()
+    {
+        return $this->hasOne(HopDong::class, 'NhanVienId')
+            ->whereNotExists(function ($query) {
+                $query->select(\DB::raw(1))
+                    ->from('phu_luc_hop_dongs')
+                    ->whereColumn('phu_luc_hop_dongs.HopDongPLId', 'hop_dongs.id');
+            })
+            ->orderBy('NgayBatDau', 'asc');
+    }
+
+    // Quản lý phép năm
+    public function quanLyPhepNams()
+    {
+        return $this->hasMany(QuanLyPhepNam::class, 'NhanVienId');
     }
 }

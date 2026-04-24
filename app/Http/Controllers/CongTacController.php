@@ -18,28 +18,50 @@ class CongTacController extends Controller
         $query = QuaTrinhCongTac::with(['nhanVien', 'chucVu', 'phongBan'])
             ->orderBy('TuNgay', 'desc');
 
-        // Nếu là Nhân viên và không có quyền quản lý hệ thống, chỉ xem của chính mình
-        if ($user->hasRole('Nhân Viên') && !$user->can('Quản lý hệ thống')) {
+        // Khởi tạo query cho danh sách nhân viên để dùng trong dropdown (Modal)
+        $nhanVienQuery = NhanVien::select('id', 'Ten', 'Ma', 'SoCCCD');
+
+        // Nếu là Nhân viên và không có quyền quản lý công tác/hệ thống, chỉ cho phép xem chính mình
+        if ($user->hasAnyRole(['Nhân viên', 'Nhân Viên']) && !$user->can('Quản lý hệ thống') && !$user->can('Quản lý công tác')) {
             if ($user->nhanVien) {
+                // Chỉ xem data công tác của bản thân
                 $query->where('NhanVienId', $user->nhanVien->id);
+                // Trong dropdown chọn nhân viên, chỉ thấy chính mình
+                $nhanVienQuery->where('id', $user->nhanVien->id);
             } else {
+                // Nếu User chưa liên kết nhân viên, không thấy gì
                 $query->whereRaw('1=0');
+                $nhanVienQuery->whereRaw('1=0');
             }
         }
+
+        $nhanViens = $nhanVienQuery->get();
 
         $quatrinhs = $query->get();
         $chucVus = DmChucVu::all();
         $phongBans = DmPhongBan::all();
-        $nhanViens = NhanVien::select('id', 'Ten', 'Ma', 'SoCCCD')->get();
 
         return view('cong-tac.index', compact('quatrinhs', 'chucVus', 'nhanViens', 'phongBans'));
     }
 
     public function taoView()
     {
+        $user = Auth::user();
         $chucVus = DmChucVu::all();
         $phongBans = DmPhongBan::all();
-        $nhanViens = NhanVien::select('id', 'Ten', 'Ma', 'SoCCCD')->get();
+        
+        $nhanVienQuery = NhanVien::select('id', 'Ten', 'Ma', 'SoCCCD');
+
+        // Nếu là Nhân viên và không có quyền quản lý công tác/hệ thống
+        if ($user->hasAnyRole(['Nhân viên', 'Nhân Viên']) && !$user->can('Quản lý hệ thống') && !$user->can('Quản lý công tác')) {
+            if ($user->nhanVien) {
+                $nhanVienQuery->where('id', $user->nhanVien->id);
+            } else {
+                $nhanVienQuery->whereRaw('1=0');
+            }
+        }
+
+        $nhanViens = $nhanVienQuery->get();
         return view('cong-tac.add', compact('chucVus', 'nhanViens', 'phongBans'));
     }
 

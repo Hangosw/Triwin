@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Cài đặt tài khoản')
+@section('title', __('Cài đặt tài khoản'))
 
 @section('content')
 <div class="content-wrapper">
     <div class="page-header">
-        <h1>Cài đặt tài khoản</h1>
-        <p>Quản lý thông tin đăng nhập và bảo mật của bạn</p>
+        <h1>{{ __('Cài đặt tài khoản') }}</h1>
+        <p>{{ __('Manage your login credentials and security') }}</p>
     </div>
 
     @if(session('success'))
@@ -32,23 +32,23 @@
                         <div style="width: 48px; height: 48px; background: #ecfdf5; color: #059669; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px;">
                             <i class="bi bi-envelope"></i>
                         </div>
-                        <h4 class="mb-0" style="font-weight: 700; color: #1f2937;">Thông tin tài khoản</h4>
+                        <h4 class="mb-0" style="font-weight: 700; color: #1f2937;">{{ __('Account Information') }}</h4>
                     </div>
                     
                     <form action="{{ route('profile.update-email') }}" method="POST">
                         @csrf
                         <div class="form-group mb-4">
-                            <label class="form-label" style="font-weight: 600; color: #4b5563;">Địa chỉ Email đăng nhập</label>
+                            <label class="form-label" style="font-weight: 600; color: #4b5563;">{{ __('Login Email Address') }}</label>
                             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
                                    value="{{ old('email', $user->Email) }}" placeholder="example@triwin.vn">
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted mt-2 d-block">Lưu ý: Email này dùng để đăng nhập và nhận thông báo hệ thống.</small>
+                            <small class="text-muted mt-2 d-block">{{ __('Note: This email is used for login and receiving system notifications.') }}</small>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2" style="border-radius: 10px; font-weight: 600;">
-                            Cập nhật Email
+                            {{ __('Update Email') }}
                         </button>
                     </form>
                 </div>
@@ -63,13 +63,13 @@
                         <div style="width: 48px; height: 48px; background: #fffbeb; color: #d97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px;">
                             <i class="bi bi-shield-lock"></i>
                         </div>
-                        <h4 class="mb-0" style="font-weight: 700; color: #1f2937;">Bảo mật & Mật khẩu</h4>
+                        <h4 class="mb-0" style="font-weight: 700; color: #1f2937;">{{ __('Security & Password') }}</h4>
                     </div>
 
                     <form action="{{ route('profile.update-password') }}" method="POST">
                         @csrf
                         <div class="form-group mb-3">
-                            <label class="form-label" style="font-weight: 600; color: #4b5563;">Mật khẩu hiện tại</label>
+                            <label class="form-label" style="font-weight: 600; color: #4b5563;">{{ __('Current Password') }}</label>
                             <div class="position-relative">
                                 <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" 
                                        placeholder="••••••••">
@@ -80,22 +80,22 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label" style="font-weight: 600; color: #4b5563;">Mật khẩu mới</label>
+                            <label class="form-label" style="font-weight: 600; color: #4b5563;">{{ __('New Password') }}</label>
                             <input type="password" name="new_password" class="form-control @error('new_password') is-invalid @enderror" 
-                                   placeholder="Tối thiểu 6 ký tự">
+                                   placeholder="{{ __('Minimum 6 characters') }}">
                             @error('new_password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="form-label" style="font-weight: 600; color: #4b5563;">Xác nhận mật khẩu mới</label>
+                            <label class="form-label" style="font-weight: 600; color: #4b5563;">{{ __('Confirm New Password') }}</label>
                             <input type="password" name="new_password_confirmation" class="form-control" 
-                                   placeholder="Nhập lại mật khẩu mới">
+                                   placeholder="{{ __('Re-enter new password') }}">
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2" style="border-radius: 10px; font-weight: 600; background-color: #0d9488; border: none;">
-                            Đổi mật khẩu
+                            {{ __('Change Password') }}
                         </button>
                     </form>
                 </div>

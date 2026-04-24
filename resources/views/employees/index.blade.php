@@ -70,9 +70,6 @@
                                 <button type="button" class="btn btn-sm filter-btn" data-val="tat_ca" data-label="Tất cả trạng thái" onclick="applyFilterAJAX('filterTrangThai', this)">
                                     Tất cả trạng thái
                                 </button>
-                                <button type="button" class="btn btn-sm filter-btn" data-val="dang_lam" data-label="Đang làm việc" onclick="applyFilterAJAX('filterTrangThai', this)">
-                                    Đang làm việc
-                                </button>
                                 <button type="button" class="btn btn-sm filter-btn" data-val="nghi_thai_san" data-label="Nghỉ thai sản" onclick="applyFilterAJAX('filterTrangThai', this)">
                                     Nghỉ thai sản
                                 </button>
@@ -405,33 +402,19 @@
                         {
                             data: null,
                             render: function (data, type, row) {
-                                const status = row.TrangThai ?? 'dang_lam';
-                                if (status === 'dang_lam') {
+                                const status = row.TrangThai || 'dang_lam';
+                                if (status === 'dang_lam' || status == 1) {
                                     return '<span class="badge badge-success">Đang làm việc</span>';
-                                } else if (status === 'nghi_thai_san') {
+                                } else if (status === 'nghi_thai_san' || status == 2) {
                                     return '<span class="badge badge-info">Nghỉ thai sản</span>';
-                                } else if (status === 'nghi_viec') {
+                                } else if (status === 'nghi_viec' || status == 0) {
                                     return '<span class="badge badge-danger">Đã nghỉ việc</span>';
                                 }
                                 return '<span class="badge badge-secondary">' + status + '</span>';
                             }
                         }
                     ],
-                    language: {
-                        "sProcessing": "Đang xử lý...",
-                        "sLengthMenu": "Hiển thị _MENU_ dòng",
-                        "sZeroRecords": "Không tìm thấy dữ liệu",
-                        "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                        "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                        "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                        "sSearch": "Tìm kiếm:",
-                        "oPaginate": {
-                            "sFirst": "Đầu",
-                            "sPrevious": "Trước",
-                            "sNext": "Tiếp",
-                            "sLast": "Cuối"
-                        }
-                    },
+                    
                     responsive: true,
                     autoWidth: false,
                     pageLength: 10,

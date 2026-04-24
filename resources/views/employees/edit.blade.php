@@ -390,16 +390,21 @@
         $isRestricted = auth()->user()->can('Chỉnh Sửa Một Phần Nhân Viên') && !auth()->user()->can('Sửa Nhân Viên');
     @endphp
     <!-- Header -->
-    <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
-        <div>
-            <h1 style="font-size: 30px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">Chỉnh sửa nhân viên</h1>
-            <p style="color: #6b7280;">{{ $employee->Ten }} - {{ $employee->Ma ?? 'Chưa có mã' }}</p>
-        </div>
-        <a href="{{ route('nhan-vien.info', $employee->id) }}" class="btn btn-secondary">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    <div style="margin-bottom: 24px; position: relative; z-index: 10; padding-top: 5px;">
+        <h1 style="font-size: 30px; font-weight: 800; color: #1f2937; margin-bottom: 8px; letter-spacing: -0.02em;">
+            Chỉnh sửa nhân viên
+        </h1>
+        <p style="color: #6b7280; font-size: 15px; margin-bottom: 20px;">
+            {{ $employee->Ten }} - {{ $employee->Ma ?? 'Chưa có mã' }}
+        </p>
+        <a href="{{ route('nhan-vien.info', $employee->id) }}" 
+           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; text-decoration: none; color: #1f2937; font-weight: 600; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s;"
+           onmouseover="this.style.borderColor='#d1d5db'; this.style.backgroundColor='#f9fafb';"
+           onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white';">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
-            Quay lại
+            <span>Quay lại</span>
         </a>
     </div>
 
@@ -422,7 +427,7 @@
                     <label>Ảnh đại diện</label>
                     <div style="margin-top: 10px; position: relative; display: inline-block;">
                         <img id="avatarPreview" src="{{ $employee->AnhDaiDien ? asset($employee->AnhDaiDien) : 'https://ui-avatars.com/api/?name='.urlencode($employee->Ten).'&background=f0fdf4&color=0BAA4B&size=128' }}" 
-                             alt="Avatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #0BAA4B; padding: 3px; background: white;">
+                             alt="Avatar" class="profile-avatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #0BAA4B; padding: 3px; background: white;">
                         <label for="avatarInput" style="position: absolute; bottom: 5px; right: 5px; background: #0BAA4B; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.2s; border: 2px solid white;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Thay đổi ảnh đại diện">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -552,7 +557,7 @@
                     <input type="file" name="anh_cccd" id="anh_cccd" accept="image/*" onchange="previewImages(this, 'cccd-front-preview', 'cccd-front-existing')">
                     <div class="help-text">Chọn ảnh mới để thay thế mặt trước (nếu muốn).</div>
                     <div id="cccd-front-preview" class="preview-container"></div>
-                    @if($employee->anh_cccd && count($employee->anh_cccd) > 0)
+                    @if(is_array($employee->anh_cccd) && count($employee->anh_cccd) > 0)
                         <div id="cccd-front-existing" style="margin-top: 10px;">
                             <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Mặt trước hiện tại:</p>
                             <img src="{{ asset($employee->anh_cccd[0]) }}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
@@ -672,7 +677,7 @@
                     <input type="file" name="anh_bhxh[]" id="anh_bhxh" multiple accept="image/*" onchange="previewImages(this, 'bhxh-preview', 'bhxh-existing')">
                     <div class="help-text">Chọn ảnh mới để thay thế ảnh cũ (nếu muốn).</div>
                     <div id="bhxh-preview" class="preview-container"></div>
-                    @if($employee->anh_bhxh && count($employee->anh_bhxh) > 0)
+                    @if(is_array($employee->anh_bhxh) && count($employee->anh_bhxh) > 0)
                         <div id="bhxh-existing" style="margin-top: 10px;">
                             <p style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Ảnh hiện tại:</p>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -939,15 +944,15 @@
                 e.preventDefault();
 
                 const statusField = document.getElementById('TrangThai');
-                const initialStatus = parseInt("{{ $employee->TrangThai ?? 1 }}");
-                const currentStatus = parseInt(statusField.value);
+                const initialStatus = "{{ $employee->TrangThai ?? 'dang_lam' }}";
+                const currentStatus = statusField.value;
 
-                // Group 1 & 2 together as "Working", 0 as "Off"
-                const wasWorking = (initialStatus === 1 || initialStatus === 2);
-                const isWorking = (currentStatus === 1 || currentStatus === 2);
+                // Check if transitioning from working to off (or vice versa)
+                const wasWorking = (initialStatus === 'dang_lam' || initialStatus === 'nghi_thai_san');
+                const isWorking = (currentStatus === 'dang_lam' || currentStatus === 'nghi_thai_san');
 
                 if (wasWorking !== isWorking) {
-                    const actionText = currentStatus === 0 ? 'KHÓA' : 'MỞ KHÓA';
+                    const actionText = currentStatus === 'nghi_viec' ? 'KHÓA' : 'MỞ KHÓA';
                     const result = await Swal.fire({
                         title: 'Đổi trạng thái nhân viên',
                         text: `Bạn đã đổi trạng thái nhân viên. Bạn có muốn đồng thời ${actionText} tài khoản liên kết của nhân viên này luôn không?`,

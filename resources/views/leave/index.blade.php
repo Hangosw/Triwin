@@ -260,6 +260,7 @@
             text-decoration: none;
             border: 1px solid #fee2e2;
             height: 42px;
+            white-space: nowrap;
         }
 
         .btn-clear-filter:hover {
@@ -272,6 +273,34 @@
             height: 16px;
         }
 
+        @media (max-width: 768px) {
+            .action-bar {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 16px !important;
+            }
+            .filter-group-mobile {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+            .filter-group-mobile > div {
+                flex: 1 1 auto;
+                min-width: 120px;
+            }
+            .filter-group-mobile .btn-clear-filter {
+                width: 100%;
+                justify-content: center;
+            }
+            .action-buttons {
+                width: 100%;
+                display: flex;
+            }
+            .action-buttons > * {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
         body.dark-theme .btn-clear-filter {
             background-color: rgba(220, 38, 38, 0.1);
             color: #ef4444;
@@ -282,13 +311,54 @@
             background-color: rgba(220, 38, 38, 0.2);
             color: #f87171;
         }
+
+        .btn-back {
+            background: white;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-back:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #111827;
+            transform: translateX(-4px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        body.dark-theme .btn-back {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da;
+        }
+
+        body.dark-theme .btn-back:hover {
+            background: #2e3349;
+            border-color: #39405a;
+            color: #fff;
+        }
     </style>
 @endpush
 
 @section('content')
-    <div class="page-header">
-        <h1>Quản lý nghỉ phép</h1>
-        <p>Theo dõi và phê duyệt đơn xin nghỉ phép</p>
+    <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+        <div>
+            <h1>Quản lý nghỉ phép</h1>
+            <p>Theo dõi và phê duyệt đơn xin nghỉ phép</p>
+        </div>
+        <a href="{{ route('home') }}" class="btn btn-back">
+            <i class="bi bi-arrow-left"></i> Quay lại Trang chủ
+        </a>
     </div>
 
     <!-- Stats Cards -->
@@ -333,10 +403,10 @@
     <!-- Filter and Action Bar -->
     <div class="card">
         <form action="{{ route('nghi-phep.danh-sach') }}" method="GET" class="action-bar" id="filterForm">
-            <div style="display: flex; gap: 12px; align-items: flex-end;">
-                <div class="form-group" style="margin-bottom: 0;">
+            <div class="filter-group-mobile" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 140px;">
                     <label class="form-label" style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Phòng ban</label>
-                    <select name="phong_ban_id" class="form-control" style="width: auto; margin-bottom: 0;"
+                    <select name="phong_ban_id" class="form-control" style="width: 100%; margin-bottom: 0;"
                         onchange="this.form.submit()">
                         <option value="">Tất cả phòng ban</option>
                         @foreach($phongBans as $pb)
@@ -346,9 +416,9 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 140px;">
                     <label class="form-label" style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Loại phép</label>
-                    <select name="loai_phep_id" class="form-control" style="width: auto; margin-bottom: 0;"
+                    <select name="loai_phep_id" class="form-control" style="width: 100%; margin-bottom: 0;"
                         onchange="this.form.submit()">
                         <option value="">Tất cả loại phép</option>
                         @foreach($loaiNghiPheps as $lp)
@@ -380,7 +450,7 @@
                     Xuất Excel
                 </button>
 --}}
-                <a href="{{ route('nghi-phep.admin-dang-ky') }}" class="btn btn-primary">
+                <a href="{{ route('nghi-phep.admin-dang-ky') }}" class="btn btn-primary" style="white-space: nowrap;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -393,13 +463,13 @@
     <!-- Tabs -->
     <div class="card">
         <div class="tabs">
-            <button class="tab {{ !request('trang_thai') ? 'active' : '' }}" onclick="filterStatus('')">Tất cả
+            <button class="tab {{ request('trang_thai') === null || request('trang_thai') === '' ? 'active' : '' }}" onclick="filterStatus('')">Tất cả
                 ({{ $totalCount }})</button>
-            <button class="tab {{ request('trang_thai') == '2' ? 'active' : '' }}" onclick="filterStatus('2')">Chờ duyệt
+            <button class="tab {{ request('trang_thai') === '2' ? 'active' : '' }}" onclick="filterStatus('2')">Chờ duyệt
                 ({{ $pendingCount }})</button>
-            <button class="tab {{ request('trang_thai') == '1' ? 'active' : '' }}" onclick="filterStatus('1')">Đã duyệt
+            <button class="tab {{ request('trang_thai') === '1' ? 'active' : '' }}" onclick="filterStatus('1')">Đã duyệt
                 ({{ $approvedCount }})</button>
-            <button class="tab {{ request('trang_thai') == '0' ? 'active' : '' }}" onclick="filterStatus('0')">Từ chối
+            <button class="tab {{ request('trang_thai') === '0' ? 'active' : '' }}" onclick="filterStatus('0')">Từ chối
                 ({{ $rejectedCount }})</button>
         </div>
 
@@ -414,7 +484,6 @@
                                 <input type="checkbox" id="selectAll" style="cursor: pointer;">
                             </th>
                             <th>Nhân viên</th>
-                            <th>Phòng ban</th>
                             <th>Loại phép</th>
                             <th>Thời gian</th>
                             <th>Lý do</th>
@@ -434,27 +503,17 @@
                                 </td>
                                 <td>
                                     @if($leave->nhanVien)
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="avatar"
-                                                style="width: 40px; height: 40px; flex-shrink: 0; min-width: 40px; min-height: 40px; background: #0BAA4B; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; overflow: hidden;">
-                                                @if($leave->nhanVien->AnhDaiDien)
-                                                    <img src="{{ asset($leave->nhanVien->AnhDaiDien) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
-                                                @else
-                                                    {{ substr($leave->nhanVien->Ten, 0, 1) }}
-                                                @endif
+                                        <div style="display: flex; flex-direction: column;">
+                                            <div class="font-medium" style="color: var(--text-primary); font-weight: 600;">{{ $leave->nhanVien->Ten }}</div>
+                                            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                                <i class="bi bi-diagram-3" style="font-size: 11px;"></i> 
+                                                {{ $leave->nhanVien?->ttCongViec?->phongBan?->Ten ?? 'Chưa có phòng ban' }}
                                             </div>
-                                            <div class="font-medium">{{ $leave->nhanVien->Ten }}</div>
                                         </div>
                                     @else
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="avatar" style="width: 40px; height: 40px; flex-shrink: 0; min-width: 40px; min-height: 40px; background: #9ca3af; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">
-                                                ?
-                                            </div>
-                                            <div class="font-medium text-danger">Nhân viên đã xóa</div>
-                                        </div>
+                                        <div class="font-medium text-danger">Nhân viên đã xóa</div>
                                     @endif
                                 </td>
-                                <td>{{ $leave->nhanVien?->ttCongViec?->phongBan?->Ten ?? 'N/A' }}</td>
                                 <td>
                                     @if($leave->loaiNghiPhep)
                                         <span
@@ -566,7 +625,11 @@
                 "responsive": true,
                 "autoWidth": false,
                 "columnDefs": [
-                    { "orderable": false, "targets": [0 @can('Duyệt Nghỉ Phép'), 7 @endcan] }
+                    { "orderable": false, "targets": [0 @can('Duyệt Nghỉ Phép'), 6 @endcan] },
+                    // Phần Hành động sẽ tự động vào child row khi màn hình nhỏ
+                    @can('Duyệt Nghỉ Phép')
+                    { "responsivePriority": 1, "targets": [6] }
+                    @endcan
                 ]
             });
 

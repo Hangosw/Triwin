@@ -2,12 +2,50 @@
 
 @section('title', 'Quản lý tài sản')
 
+@push('styles')
+<style>
+    .table th, .table td {
+        padding: 12px 16px !important;
+    }
+    
+    @media (min-width: 769px) {
+        .table th, .table td {
+            white-space: nowrap;
+        }
+    }
+    
+    .table-container {
+        width: 100%;
+        overflow-x: hidden !important;
+    }
+
+    #tai-san-table {
+        width: 100% !important;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 16px;
+        }
+        .action-buttons {
+            width: 100%;
+        }
+        .action-buttons > .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="content-wrapper">
-    <div class="page-header">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h1>Quản lý tài sản</h1>
-            <p>Quản lý và theo dõi tài sản của công ty</p>
+            <p style="margin-bottom: 0;">Quản lý và theo dõi tài sản của công ty</p>
         </div>
         <div class="action-buttons">
             <a href="{{ route('tai-san.create') }}" class="btn btn-primary">
@@ -18,7 +56,7 @@
 
     <div class="card">
         <div class="table-container">
-            <table class="table" id="tai-san-table">
+            <table class="table" id="tai-san-table" style="width: 100%;">
                 <thead>
                     <tr>
                         <th class="text-center">STT</th>
@@ -80,17 +118,23 @@
         $('#tai-san-table').DataTable({
             processing: true,
             serverSide: true,
+            responsive: true,
+            autoWidth: false,
             ajax: "{{ route('tai-san.data') }}",
             order: [[2, 'asc']],
+            columnDefs: [
+                { targets: '_all', className: 'dt-nowrap' }
+            ],
             columns: [
                 { 
                     data: null, 
                     render: (data, type, row, meta) => meta.row + 1 + meta.settings._iDisplayStart, 
-                    class: 'stt-checkbox-col text-center',
+                    className: 'stt-checkbox-col text-center all dtr-control',
                     orderable: false
                 },
                 { 
                     data: 'hinh_anh', 
+                    className: 'min-tablet',
                     render: function(data) {
                         if (data) {
                             return `<img src="/${data}" class="avatar" style="border-radius: 4px; width: 50px; height: 50px; object-fit: cover;">`;
@@ -98,15 +142,17 @@
                         return '<div class="avatar" style="border-radius: 4px; width: 50px; height: 50px; background: #eee; display: flex; align-items: center; justify-content: center;"><i class="bi bi-box"></i></div>';
                     }
                 },
-                { data: 'ten_tai_san' },
+                { data: 'ten_tai_san', className: 'all' },
                 { 
                     data: 'ngay_nhap_kho',
+                    className: 'min-desktop',
                     render: function(data) {
                         return data ? moment(data).format('DD/MM/YYYY') : '';
                     }
                 },
                 { 
                     data: 'trang_thai',
+                    className: 'min-tablet',
                     render: function(data) {
                         const statusMap = {
                             'SanSang': { label: 'Sẵn sàng', class: 'badge-success' },
@@ -120,6 +166,7 @@
                 },
                 { 
                     data: 'nhan_vien',
+                    className: 'min-desktop',
                     render: function(data, type, row) {
                         if (data) {
                             return `<div>
@@ -133,6 +180,7 @@
                 {
                     data: 'id',
                     orderable: false,
+                    className: 'min-tablet',
                     render: function(data, type, row) {
                         let buttons = `
                             <div class="flex gap-2">
@@ -165,10 +213,7 @@
                     }
                 }
             ],
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json"
-            }
-        });
+            });
 
         // Xử lý submit form cấp phát
         $('#formCapPhat').submit(function(e) {

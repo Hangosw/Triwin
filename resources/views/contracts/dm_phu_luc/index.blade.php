@@ -204,22 +204,7 @@
                     }
                 }
                 ],
-                language: {
-                    "sProcessing": "Đang xử lý...",
-                    "sLengthMenu": "Hiển thị _MENU_ dòng",
-                    "sZeroRecords": "Không tìm thấy dữ liệu",
-                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                    "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                    "sSearch": "Tìm kiếm:",
-                    "oPaginate": {
-                        "sFirst": "Đầu",
-                        "sPrevious": "Trước",
-                        "sNext": "Tiếp",
-                        "sLast": "Cuối"
-                    }
-                }
-            });
+                });
 
             // Đảm bảo số thứ tự luôn bắt đầu từ 1 khi sort hoặc search (server-side)
             table.on('draw.dt', function () {

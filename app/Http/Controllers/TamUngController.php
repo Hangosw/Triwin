@@ -18,6 +18,16 @@ class TamUngController extends Controller
     {
         $query = TamUng::with(['nhanVien.ttCongViec.phongBan', 'nguoiDuyet'])->latest();
 
+        $user = Auth::user();
+        // Nếu là Nhân viên và không có quyền Quản lý hệ thống/Duyệt phiếu ứng lương, chỉ cho phép xem chính mình
+        if ($user->hasAnyRole(['Nhân viên', 'Nhân Viên']) && !$user->can('Quản lý hệ thống') && !$user->can('Duyệt Phiếu Ứng Lương')) {
+            if ($user->nhanVien) {
+                $query->where('NhanVienId', $user->nhanVien->id);
+            } else {
+                $query->whereRaw('1=0'); // Không có hồ sơ nhân viên thì ko thấy gì
+            }
+        }
+
         // Lọc theo trạng thái
         if ($request->has('trang_thai') && $request->trang_thai !== '') {
             $query->where('TrangThai', $request->trang_thai);
@@ -26,9 +36,9 @@ class TamUngController extends Controller
         // Search by employee name
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->whereHas('nhanVien', function($q) use ($search) {
+            $query->whereHas('nhanVien', function ($q) use ($search) {
                 $q->where('Ten', 'like', "%{$search}%")
-                  ->orWhere('Ma', 'like', "%{$search}%");
+                    ->orWhere('Ma', 'like', "%{$search}%");
             });
         }
 
@@ -42,10 +52,25 @@ class TamUngController extends Controller
      */
     public function create()
     {
-        // Danh sách nhân viên đang có hợp đồng hiệu lực (Trạng thái = 1)
-        $nhanViens = NhanVien::whereHas('hopDongs', function($q) {
-            $q->conHieuLuc();
-        })->get();
+        $user = Auth::user();
+
+        // Nếu là Nhân viên và không có quyền quản lý, kiểm tra hợp đồng trước
+        if ($user->hasAnyRole(['Nhân viên', 'Nhân Viên']) && !$user->can('Quản lý hệ thống') && !$user->can('Duyệt Phiếu Ứng Lương')) {
+            if (!$user->nhanVien || !$user->nhanVien->hasActiveContract()) {
+                return redirect()->route('tam-ung.index')->with('error', __('No contract or limit reached'));
+            }
+        }
+
+        $nhanVienQuery = NhanVien::whereHas('hopDongs', function ($q) {
+            $q->where('TrangThai', 1)->where('Loai', 'not like', 'nda%');
+        });
+
+        // Nếu là Nhân viên và không có quyền quản lý, chỉ thấy chính mình trong dropdown
+        if ($user->hasAnyRole(['Nhân viên', 'Nhân Viên']) && !$user->can('Quản lý hệ thống') && !$user->can('Duyệt Phiếu Ứng Lương')) {
+            $nhanVienQuery->where('id', $user->nhanVien->id);
+        }
+
+        $nhanViens = $nhanVienQuery->get();
 
         return view('tam_ung.create', compact('nhanViens'));
     }
@@ -66,10 +91,24 @@ class TamUngController extends Controller
             'Lydo.required' => 'Vui lòng nhập lý do tạm ứng.',
         ]);
 
+        $user = Auth::user();
+        $targetNhanVien = NhanVien::find($request->NhanVienId);
+        
+        if (!$targetNhanVien || !$targetNhanVien->hasActiveContract()) {
+            return redirect()->back()->withInput()->with('error', __('No contract or limit reached'));
+        }
+
+        // Bảo mật server-side: Nếu là nhân viên thường, không được tạo hộ người khác
+        if ($user->hasAnyRole(['Nhân viên', 'Nhân Viên']) && !$user->can('Quản lý hệ thống') && !$user->can('Duyệt Phiếu Ứng Lương')) {
+            if ($request->NhanVienId != ($user->nhanVien->id ?? 0)) {
+                return redirect()->back()->with('error', 'Bạn không có quyền yêu cầu tạm ứng cho nhân viên khác.');
+            }
+        }
+
         $maxLimit = $this->getRemainingAdvanceLimit($request->NhanVienId);
 
         if ($request->SoTien > $maxLimit) {
-            return redirect()->back()->withInput()->with('error', 'Số tiền tạm ứng (' . number_format($request->SoTien) . 'đ) vượt quá hạn mức còn lại cho phép trong tháng là ' . number_format($maxLimit) . 'đ.');
+            return redirect()->back()->withInput()->with('error', __('Salary advance (:amount) exceeds the remaining monthly limit of :limit.', ['amount' => number_format($request->SoTien), 'limit' => number_format($maxLimit)]));
         }
 
         TamUng::create([
@@ -81,7 +120,7 @@ class TamUngController extends Controller
             'GhiChu' => $request->GhiChu,
         ]);
 
-        return redirect()->route('tam-ung.index')->with('success', 'Đã tạo yêu cầu tạm ứng lương thành công.');
+        return redirect()->route('tam-ung.index')->with('success', __('Salary advance request created successfully.'));
     }
 
     /**
@@ -95,15 +134,15 @@ class TamUngController extends Controller
         ]);
 
         $tamUng = TamUng::findOrFail($id);
-        
+
         $tamUng->TrangThai = $request->TrangThai;
         $tamUng->GhiChu = $request->GhiChu;
         $tamUng->NguoiDuyetId = Auth::user()->nhanVien->id ?? null;
         $tamUng->save();
 
-        $statusName = $request->TrangThai == 1 ? 'duyệt' : 'từ chối';
+        $statusName = $request->TrangThai == 1 ? __('approved') : __('rejected');
 
-        return redirect()->route('tam-ung.index')->with('success', "Đã $statusName yêu cầu tạm ứng.");
+        return redirect()->route('tam-ung.index')->with('success', __('Salary advance request :status successfully.', ['status' => $statusName]));
     }
 
     /**
@@ -112,7 +151,7 @@ class TamUngController extends Controller
     public function getMaxAdvanceAPI(Request $request)
     {
         $nhanVienId = $request->nhan_vien_id;
-        
+
         if (!$nhanVienId) {
             return response()->json(['success' => false, 'message' => 'Missing nhan_vien_id'], 400);
         }
@@ -164,8 +203,9 @@ class TamUngController extends Controller
     {
         // 1. Lấy hạn mức lương gốc
         $rawLimit = $this->getRawSalaryLimit($nhanVienId);
-        
-        if ($rawLimit <= 0) return 0;
+
+        if ($rawLimit <= 0)
+            return 0;
 
         // 2. Tính tổng các khoản đã ứng trong tháng hiện tại (Chờ duyệt: 0, Đã duyệt: 1)
         // Loại bỏ các khoản bị Từ chối (2)
@@ -175,8 +215,6 @@ class TamUngController extends Controller
             ->whereYear('created_at', now()->year)
             ->sum('SoTien');
 
-        $remaining = $rawLimit - $usedInMonth;
-
-        return $remaining > 0 ? $remaining : 0;
+        return max(0, $rawLimit - $usedInMonth);
     }
 }

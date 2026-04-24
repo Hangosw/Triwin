@@ -83,6 +83,17 @@
         background: #fdfdfd;
     }
     body.dark-theme .perm-group-body { background: #13161f; }
+
+    .perm-group-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: #111827;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    body.dark-theme .perm-group-title {
+        color: #e8eaf0;
+    }
 </style>
 @endpush
 
@@ -153,7 +164,7 @@
                             <div class="perm-group-card">
                                 <div class="perm-group-header">
                                     <div style="display:flex; align-items:center; gap:10px;">
-                                        <span style="font-size:15px; font-weight:800; color:#111827; text-transform: uppercase; letter-spacing: 0.5px;">{{ $group['label'] }}</span>
+                                        <span class="perm-group-title">{{ $group['label'] }}</span>
                                     </div>
                                     <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#6b7280; cursor:pointer;">
                                         <input type="checkbox" class="group-select-all" data-group="{{ $gi }}" style="width:14px; height:14px;">
@@ -178,7 +189,7 @@
                         <div class="perm-group-card">
                             <div class="perm-group-header">
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <span style="font-size:15px; font-weight:800; color:#111827; text-transform: uppercase; letter-spacing: 0.5px;">Khác</span>
+                                    <span class="perm-group-title">Khác</span>
                                 </div>
                             </div>
                             <div class="perm-group-body">

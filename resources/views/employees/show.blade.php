@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chi tiết nhân viên - ' . \App\Models\SystemConfig::getValue('company_name'))
+@section('title', __('Chi tiết nhân viên') . ' - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <style>
@@ -483,21 +483,83 @@
         }
 
         .action-icon-btn {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            transition: all 0.2s;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
-            background: #fee2e2;
-            color: #dc2626;
+            text-decoration: none !important;
+            font-size: 1.1rem;
         }
 
-        .action-icon-btn:hover {
-            background: #ef4444;
-            color: white;
+        /* Semantic variants for action buttons */
+        .action-icon-btn.text-info {
+            background-color: #e0f2fe;
+            color: #0369a1 !important;
+        }
+        .action-icon-btn.text-info:hover {
+            background-color: #0369a1;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(3, 105, 161, 0.2);
+        }
+
+        .action-icon-btn.text-primary {
+            background-color: #eef2ff;
+            color: #4338ca !important;
+        }
+        .action-icon-btn.text-primary:hover {
+            background-color: #4338ca;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.2);
+        }
+
+        .action-icon-btn.text-warning {
+            background-color: #fff7ed;
+            color: #c2410c !important;
+        }
+        .action-icon-btn.text-warning:hover {
+            background-color: #c2410c;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(194, 65, 12, 0.2);
+        }
+
+        .action-icon-btn.text-danger {
+            background-color: #fef2f2;
+            color: #b91c1c !important;
+        }
+        .action-icon-btn.text-danger:hover {
+            background-color: #b91c1c;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(185, 28, 28, 0.2);
+        }
+
+        .action-icon-btn.text-success {
+            background-color: #f0fdf4;
+            color: #15803d !important;
+        }
+        .action-icon-btn.text-success:hover {
+            background-color: #15803d;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(21, 128, 61, 0.2);
+        }
+
+        .action-icon-btn.text-secondary {
+            background-color: #f9fafb;
+            color: #4b5563 !important;
+        }
+        .action-icon-btn.text-secondary:hover {
+            background-color: #4b5563;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(75, 85, 99, 0.2);
         }
 
         @media (max-width: 768px) {
@@ -884,7 +946,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Quay lại danh sách
+                {{ __('Quay lại danh sách') }}
             </a>
         </div>
     @endcan
@@ -893,31 +955,32 @@
     <!-- Tabs Navigation -->
     <div class="tabs">
         <button class="tab active" onclick="switchTab(event, 'basic')">
-            <i class="bi bi-person-lines-fill"></i> Thông tin
+            <i class="bi bi-person-lines-fill"></i> {{ __('Thông tin') }}
         </button>
         <button class="tab" onclick="switchTab(event, 'work')">
-            <i class="bi bi-briefcase-fill"></i> Công việc
+            <i class="bi bi-briefcase-fill"></i> {{ __('Công việc') }}
         </button>
         <button class="tab" onclick="switchTab(event, 'relatives')">
-            <i class="bi bi-people-fill"></i> Người phụ thuộc
+            <i class="bi bi-people-fill"></i> {{ __('Người phụ thuộc') }}
         </button>
         <button class="tab" onclick="switchTab(event, 'salary')">
-            <i class="bi bi-cash-coin"></i> Lương
+            <i class="bi bi-cash-coin"></i> {{ __('Lương') }}
         </button>
         <button class="tab" onclick="switchTab(event, 'contracts')">
-            <i class="bi bi-file-earmark-text-fill"></i> Hợp đồng
+            <i class="bi bi-file-earmark-text-fill"></i> {{ __('Hợp đồng') }}
             @if($employee->hopDongs->isNotEmpty())
                 <span class="badge"
                     style="background:#0BAA4B;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">
                     {{ $employee->hopDongs->count() }}
                 </span>
             @endif
-            <button class="tab" onclick="switchTab(event, 'attendance')" data-tab="attendance">
-                <i class="bi bi-clock-history"></i> Chấm công
-            </button>
-            <button class="tab" onclick="switchTab(event, 'asset')">
-                <i class="bi bi-pc-display"></i> Tài sản
-            </button>
+        </button>
+        <button class="tab" onclick="switchTab(event, 'attendance')" data-tab="attendance">
+            <i class="bi bi-clock-history"></i> {{ __('Chấm công') }}
+        </button>
+        <button class="tab" onclick="switchTab(event, 'asset')">
+            <i class="bi bi-pc-display"></i> {{ __('Tài sản') }}
+        </button>
     </div>
 
     {{-- Tab Contents --}}
@@ -1223,21 +1286,7 @@
                         responsive: true,
                         pageLength: 5,
                         lengthMenu: [5, 10, 25, 50],
-                        language: {
-                            "sProcessing": "Đang xử lý...",
-                            "sLengthMenu": "Hiển thị _MENU_ mục",
-                            "sZeroRecords": "Không tìm thấy dữ liệu",
-                            "sInfo": "Đang xem _START_ đến _END_ (Tổng _TOTAL_)",
-                            "sInfoEmpty": "Không có dữ liệu",
-                            "sInfoFiltered": "(lọc từ _MAX_ mục)",
-                            "sSearch": "Tìm kiếm:",
-                            "oPaginate": {
-                                "sFirst": "Đầu",
-                                "sPrevious": "Trước",
-                                "sNext": "Tiếp",
-                                "sLast": "Cuối"
-                            }
-                        },
+                        
                         dom: 'rtip',
                         order: [], // Giữ nguyên thứ tự từ server
                         columnDefs: [
@@ -1275,27 +1324,14 @@
                         responsive: true,
                         pageLength: 10,
                         lengthMenu: [5, 10, 25, 50],
-                        language: {
-                            "sProcessing": "Đang xử lý...",
-                            "sLengthMenu": "Hiển thị _MENU_ mục",
-                            "sZeroRecords": "Không tìm thấy dữ liệu",
-                            "sInfo": "Đang xem _START_ đến _END_ (Tổng _TOTAL_)",
-                            "sInfoEmpty": "Không có dữ liệu",
-                            "sInfoFiltered": "(lọc từ _MAX_ mục)",
-                            "sSearch": "Tìm kiếm:",
-                            "oPaginate": {
-                                "sFirst": "Đầu",
-                                "sPrevious": "Trước",
-                                "sNext": "Tiếp",
-                                "sLast": "Cuối"
-                            }
-                        },
+                        
                         dom: 'rtip',
                         order: [[0, 'asc']], // Sắp xếp theo STT
                         columnDefs: [
-                            { responsivePriority: 1, targets: [0, 1, -1] }, // STT, Họ tên, Thao tác giữ lại
-                            { responsivePriority: 2, targets: [2, 4] },    // Quan hệ, Giảm trừ giữ lại sau đó
-                            { orderable: false, targets: [-1] }            // Không sắp xếp cột thao tác
+                            { responsivePriority: 1, targets: [0, 1] },        // STT, Họ tên giữ lại
+                            { responsivePriority: 2, targets: [2, 4] },        // Quan hệ, Giảm trừ giữ lại sau đó
+                            { responsivePriority: 3, targets: [-1] },          // Thao tác chuyển vào child row trên mobile
+                            { orderable: false, targets: [-1] }                // Không sắp xếp cột thao tác
                         ]
                     });
                 }
@@ -1305,27 +1341,30 @@
                         responsive: true,
                         pageLength: 10,
                         lengthMenu: [5, 10, 25, 50],
-                        language: {
-                            "sProcessing": "Đang xử lý...",
-                            "sLengthMenu": "Hiển thị _MENU_ mục",
-                            "sZeroRecords": "Không tìm thấy dữ liệu",
-                            "sInfo": "Đang xem _START_ đến _END_ (Tổng _TOTAL_)",
-                            "sInfoEmpty": "Không có dữ liệu",
-                            "sInfoFiltered": "(lọc từ _MAX_ mục)",
-                            "sSearch": "Tìm kiếm:",
-                            "oPaginate": {
-                                "sFirst": "Đầu",
-                                "sPrevious": "Trước",
-                                "sNext": "Tiếp",
-                                "sLast": "Cuối"
-                            }
-                        },
+                        
                         dom: 'rtip',
                         order: [[1, 'desc']], 
                         columnDefs: [
-                            { responsivePriority: 1, targets: [0, 1, 2, -1] }, // STT, Số HĐ, Loại HĐ, Thao tác
-                            { responsivePriority: 2, targets: [3, 4] },       // Chức vụ, Ngày BĐ
-                            { orderable: false, targets: [0, -1] }             // Không sắp xếp cột STT và thao tác
+                            { responsivePriority: 1, targets: [0, 1] },        // STT, Số HĐ giữ lại ưu tiên nhất
+                            { responsivePriority: 2, targets: [2, 3, 4] },     // Loại HĐ, Chức vụ, Ngày BĐ
+                            { responsivePriority: 3, targets: [6, -1] },       // Trạng thái, Thao tác
+                            { orderable: false, targets: [0, -1] }              // Không sắp xếp cột STT và thao tác
+                        ]
+                    });
+                }
+
+                if ($('#assetsTable').length) {
+                    $('#assetsTable').DataTable({
+                        responsive: true,
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50],
+                        
+                        dom: 'rtip',
+                        order: [[0, 'asc']],
+                        columnDefs: [
+                            { responsivePriority: 1, targets: [0, 2, 4] }, // STT, Tên, Tình trạng
+                            { responsivePriority: 2, targets: [1, 3] },    // Hình ảnh, Ngày bàn giao
+                            { orderable: false, targets: [1] }             // Không sắp xếp cột hình ảnh
                         ]
                     });
                 }

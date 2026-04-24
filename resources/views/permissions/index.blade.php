@@ -109,6 +109,17 @@
     body.dark-theme .perm-pill { background: #2e3349; border-color: #3f4662; color: #e2e8f0; }
     body.dark-theme .perm-pill:hover { background: #3f4662; }
     body.dark-theme .perm-pill .role-badge { background: #1a1d27; color: #94a3b8; }
+
+    .perm-group-title {
+        font-size: 16px; 
+        font-weight: 800; 
+        color: #1e293b; 
+        text-transform: uppercase; 
+        letter-spacing: 1px;
+    }
+    body.dark-theme .perm-group-title {
+        color: #e8eaf0;
+    }
 </style>
 @endpush
 
@@ -144,7 +155,7 @@
             <div class="perm-group-card" data-group-name="{{ strtolower($groupName) }}">
                 <div class="perm-group-header">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 16px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 1px;">
+                        <span class="perm-group-title">
                             {{ $groupName }}
                         </span>
                         <span style="background: #e2e8f0; color: #475569; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">

@@ -133,13 +133,7 @@
     <script>
         $(document).ready(function() {
             $('#historyTable').DataTable({
-                language: {
-                    "sSearch": "Tìm nhanh:",
-                    "sLengthMenu": "Hiện _MENU_ dòng",
-                    "sInfo": "Dòng _START_ đến _END_ trong _TOTAL_ dòng",
-                    "sZeroRecords": "Không có dữ liệu",
-                    "oPaginate": { "sNext": "Sau", "sPrevious": "Trước" }
-                },
+                
                 order: [[1, 'desc']],
                 pageLength: 12
             });

@@ -61,8 +61,8 @@
 
     <!-- Actions Bar -->
     <div class="card filter-bar-container">
-        <div class="action-bar">
-            <div class="filter-group">
+        <div class="action-bar d-flex justify-content-between align-items-center flex-wrap gap-3" style="padding: 16px 24px;">
+            <div class="filter-group d-flex align-items-end flex-wrap gap-2">
                 {{-- Trạng thái --}}
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label"
@@ -98,16 +98,7 @@
                     </div>
                 </div>
 
-                {{-- Nút xóa bộ lọc --}}
-                <div class="form-group" style="margin-bottom: 0; display: none;" id="clearAllFiltersBtn">
-                    <button type="button" class="btn-clear-filter" onclick="resetAllFiltersAJAX()">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Xóa bộ lọc
-                    </button>
-                </div>
+
             </div>
             <div class="action-buttons">
                 <button id="btnDeleteSelected" class="btn btn-danger"
@@ -235,31 +226,17 @@
                         }
                     }
                 ],
-                language: {
-                    "sProcessing": "Đang xử lý...",
-                    "sLengthMenu": "Hiển thị _MENU_ dòng",
-                    "sZeroRecords": "Không tìm thấy dữ liệu",
-                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                    "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                    "sSearch": "Tìm kiếm:",
-                    "oPaginate": {
-                        "sFirst": "Đầu",
-                        "sPrevious": "Trước",
-                        "sNext": "Tiếp",
-                        "sLast": "Cuối"
-                    }
-                },
+                
                 responsive: true,
                 autoWidth: false,
                 columnDefs: [
-                    { orderable: false, targets: [0], responsivePriority: 1 }, // STT + Checkbox (Must stay)
-                    { targets: 1, responsivePriority: 2 }, // Họ tên (Visible on mobile)
-                    { targets: 2, responsivePriority: 3 }, // Tài khoản
-                    { targets: 3, responsivePriority: 10001 }, // Email (Hide early)
-                    { targets: 4, responsivePriority: 10002 }, // SDT
-                    { targets: 5, responsivePriority: 10003 }, // Trạng thái
-                    { targets: 6, responsivePriority: 10004 }  // Thao tác
+                    { orderable: false, targets: [0], responsivePriority: 1 }, // STT + Checkbox
+                    { targets: 1, responsivePriority: 2 }, // Họ tên
+                    { targets: 2, responsivePriority: 4 }, // Tài khoản
+                    { targets: 3, responsivePriority: 5 }, // Email
+                    { targets: 4, responsivePriority: 6 }, // SDT
+                    { targets: 5, responsivePriority: 7 }, // Trạng thái
+                    { targets: 6, responsivePriority: 3 }  // Thao tác (Keep visible if possible)
                 ],
                 order: [], // Respect server order (latest ID)
             });
@@ -327,8 +304,6 @@
                         });
                     }
                 });
-
-                checkClearAllBtn();
             };
 
             window.resetFilterAJAX = function (inputId) {
@@ -339,18 +314,7 @@
                 }
             };
 
-            window.resetAllFiltersAJAX = function () {
-                resetFilterAJAX('filterTrangThai');
-            };
 
-            function checkClearAllBtn() {
-                const valTrangThai = $('#filterTrangThai').val();
-                if (valTrangThai !== '') {
-                    $('#clearAllFiltersBtn').show();
-                } else {
-                    $('#clearAllFiltersBtn').hide();
-                }
-            }
 
             // Custom search logic for DataTables trang_thai if client-side
             $.fn.dataTable.ext.search.push(

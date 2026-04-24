@@ -219,6 +219,37 @@
             color: #475569;
         }
 
+        .btn-back {
+            background: white;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-back:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: var(--text-main);
+            transform: translateX(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        body.dark-theme .btn-back {
+            background: #21263a;
+            border-color: #2e3349;
+            color: #c3c8da;
+        }
+
+        body.dark-theme .btn-back:hover {
+            background: #2e3349;
+            border-color: #39405a;
+            color: #fff;
+        }
+
         .summary-box {
             background: #ecfdf5;
             border: 1px solid #d1e7dd;
@@ -366,6 +397,61 @@
             background: #39405a;
             color: #fff;
         }
+        @media (max-width: 768px) {
+            .registration-container {
+                padding: 0 4px;
+            }
+            
+            .step-card {
+                padding: 20px;
+                border-radius: 16px;
+                margin-bottom: 16px;
+            }
+            
+            .step-1-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+            
+            .summary-box {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 16px;
+            }
+            
+            .select-group {
+                flex-wrap: wrap;
+            }
+
+            .step-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 16px;
+            }
+
+            .page-header h1 {
+                font-size: 24px !important;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+
+            .session-table-container {
+                margin-left: -20px;
+                margin-right: -20px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+        }
     </style>
 @endpush
 
@@ -376,7 +462,7 @@
                 <h1 style="font-size: 32px; font-weight: 850; letter-spacing: -0.03em; margin: 0;">{{ isset($isAdmin) && $isAdmin ? 'Admin Đăng ký nghỉ phép' : 'Đăng ký nghỉ phép' }}</h1>
                 <p style="font-size: 16px; color: var(--text-muted); margin-top: 4px;">{{ isset($isAdmin) && $isAdmin ? 'Đăng ký nghỉ phép hộ nhân viên' : 'Chọn thời gian và các buổi nghỉ chi tiết' }}</p>
             </div>
-            <a href="{{ isset($isAdmin) && $isAdmin ? route('nghi-phep.danh-sach') : route('nghi-phep.ca-nhan') }}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 14px;">
+            <a href="{{ isset($isAdmin) && $isAdmin ? route('nghi-phep.danh-sach') : route('nghi-phep.ca-nhan') }}" class="btn btn-back">
                 <i class="bi bi-arrow-left"></i> Quay lại
             </a>
         </div>
@@ -407,13 +493,32 @@
                     <select class="form-control" name="NhanVienId" id="nhanVienSelect">
                         <option value="">-- Chọn nhân viên --</option>
                         @foreach($nhanViens as $nv)
-                            <option value="{{ $nv->id }}">{{ $nv->Ten }} - {{ $nv->ttCongViec->phongBan->Ten ?? 'N/A' }}</option>
+                            <option value="{{ $nv->id }}">{{ $nv->Ten }}</option>
                         @endforeach
                     </select>
+                    <div id="employeeLeaveInfo" style="display: none; margin-top: 12px; padding: 16px; background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                            <div>
+                                <div style="font-size: 11px; color: #166534; font-weight: 600; margin-bottom: 2px;">Phép tích lũy hiện tại</div>
+                                <div id="infoAccrued" style="font-size: 16px; font-weight: 800; color: #15803d;">0.0 ngày</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #166534; font-weight: 600; margin-bottom: 2px;">Ứng thêm (tối đa)</div>
+                                <div id="infoAdvance" style="font-size: 16px; font-weight: 800; color: #15803d;">0.0 ngày</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: #166534; font-weight: 600; margin-bottom: 2px;">Quỹ phép năm còn lại</div>
+                                <div id="infoTotalYear" style="font-size: 16px; font-weight: 800; color: #15803d;">0.0 ngày</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 11px; color: #166534; font-style: italic; border-top: 1px dashed #bbf7d0; padding-top: 8px;">
+                            * Dựa trên hợp đồng gốc và hạn mức hệ thống (tối đa <span id="infoLimitRequest">5</span> ngày/đơn).
+                        </div>
+                    </div>
                 </div>
                 @endif
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="step-1-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                     <div class="form-group">
                         <label class="form-label">Loại nghỉ phép <span style="color: #ef4444;">*</span></label>
                         <select class="form-control" name="LoaiNghiPhepId" id="loaiNghiPhepSelect" {{ !$hasActiveContract && !(isset($isAdmin) && $isAdmin) ? 'disabled' : '' }}>
@@ -487,6 +592,9 @@
                     <div class="summary-item">
                         <div class="label">Tổng số ngày nghỉ đăng ký:</div>
                         <div class="value" id="totalDaysDisplay">0.0 ngày</div>
+                        <div id="leaveBreakdown" style="font-size: 13px; color: #065f46; margin-top: 4px; display: none;">
+                            (<span id="breakdownAccrued">0.0</span> ngày tích lũy + <span id="breakdownAdvance" style="color: #c2410c; font-weight: 700;">0.0</span> ngày ứng)
+                        </div>
                         <input type="hidden" name="SoNgayNghi" id="soNgayNghiInput">
                     </div>
                     <div class="summary-item" id="balanceWarning" style="display: none;">
@@ -502,10 +610,10 @@
                         <i class="bi bi-exclamation-triangle-fill" style="font-size: 20px; margin-top: 2px;"></i>
                         <span>Thông báo: Quỹ phép năm của bạn không đủ hoặc vượt quá giới hạn mỗi lần sử dụng của hệ thống. Phần dư sẽ được tính vào loại nghỉ thay thế.</span>
                     </p>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label">Chọn loại nghỉ thay thế cho phần dư <span style="color: #ef4444;">*</span></label>
+                    <div id="splitTypeSelectContainer">
+                        <label class="form-label" style="font-size: 13px; font-weight: 600; color: #1e293b;">Chọn loại nghỉ thay thế cho phần dư <span style="color: #ef4444;">*</span></label>
                         <select class="form-control" name="SplitLoaiNghiPhepId" id="splitTypeSelect">
-                            <option value="">-- Chọn loại nghỉ thay thế --</option>
+                            <option value="">Chọn một mục</option>
                             @foreach($loaiNghiPheps as $type)
                                 <option value="{{ $type->id }}">{{ $type->Ten }}</option>
                             @endforeach
@@ -544,6 +652,7 @@
         let leaveLimitsMap = @json($leaveLimitsMap);
         const annualLeaveLimit = {{ $annualLeaveLimit }};
         const annualLeaveId = {{ $annualLeaveId ?? 'null' }};
+        let globalRequestLimit = {{ $annualLeaveLimit }};
         const isAdmin = {{ (isset($isAdmin) && $isAdmin) ? 'true' : 'false' }};
         let selectedDates = [];
 
@@ -573,13 +682,30 @@
             });
 
             if (isAdmin) {
-                document.getElementById('nhanVienSelect').addEventListener('change', function() {
+                $('#nhanVienSelect').on('change', function() {
                     const nhanVienId = this.value;
                     if (nhanVienId) {
                         fetch(`{{ route('nghi-phep.api.limits') }}?nhanVienId=${nhanVienId}`)
                             .then(res => res.json())
                             .then(data => {
-                                leaveLimitsMap = data;
+                                leaveLimitsMap = data.limits;
+                                globalRequestLimit = data.limit_per_request;
+                                
+                                // Update info box
+                                const annualData = leaveLimitsMap[annualLeaveId] || {kha_dung: 0, con_lai: 0, phep_ung_toi_da: 0};
+                                const accrued = parseFloat(annualData.kha_dung);
+                                const totalYear = parseFloat(annualData.con_lai);
+                                const yearlyAdvancePossible = parseFloat(annualData.phep_ung_toi_da);
+                                
+                                document.getElementById('infoAccrued').innerText = accrued.toFixed(1) + ' ngày';
+                                document.getElementById('infoTotalYear').innerText = totalYear.toFixed(1) + ' ngày';
+                                document.getElementById('infoLimitRequest').innerText = globalRequestLimit.toFixed(1);
+                                
+                                // Advance possible for THIS request = min(globalLimit - max(0, accrued), yearlyAdvancePossible)
+                                const canAdvance = Math.max(0, Math.min(globalRequestLimit - Math.max(0, accrued), yearlyAdvancePossible));
+                                document.getElementById('infoAdvance').innerText = canAdvance.toFixed(1) + ' ngày';
+                                document.getElementById('employeeLeaveInfo').style.display = 'block';
+
                                 // Update text in loaiNghiPhepSelect
                                 const typeSelect = document.getElementById('loaiNghiPhepSelect');
                                 Array.from(typeSelect.options).forEach(opt => {
@@ -595,10 +721,17 @@
                                         opt.dataset.totalRemaining = limits.con_lai;
                                     }
                                 });
+                                
+                                // Refresh Select2 if exists
+                                if ($.fn.select2 && $(typeSelect).data('select2')) {
+                                    $(typeSelect).select2('destroy').select2();
+                                }
+
                                 calculateTotal();
                             });
                     } else {
                         leaveLimitsMap = {};
+                        document.getElementById('employeeLeaveInfo').style.display = 'none';
                         calculateTotal();
                     }
                 });
@@ -710,48 +843,85 @@
             document.getElementById('totalDaysDisplay').innerText = total.toFixed(1) + ' ngày';
             document.getElementById('soNgayNghiInput').value = total;
 
-            // Kiểm tra tách đơn (Split Leave)
             const typeSelect = document.getElementById('loaiNghiPhepSelect');
+            const selectedTypeId = typeSelect.value;
+            const leaveBreakdown = document.getElementById('leaveBreakdown');
             const splitSection = document.getElementById('splitLeaveSection');
             const splitMessage = document.getElementById('splitMessage').querySelector('span');
             const splitTypeSelect = document.getElementById('splitTypeSelect');
-            
-            const selectedTypeId = typeSelect.value;
-            const limits = leaveLimitsMap[selectedTypeId] || {kha_dung: 999, con_lai: 999};
-            const accruedBalance = parseFloat(limits.kha_dung);
-            const totalRemainingBalance = parseFloat(limits.con_lai);
-            
-            // Tìm thông tin phép năm của nhân viên để ưu tiên
-            let annualLeaveData = null;
-            if (annualLeaveId && leaveLimitsMap[annualLeaveId]) {
-                annualLeaveData = leaveLimitsMap[annualLeaveId];
+
+            if (selectedTypeId != annualLeaveId && annualLeaveId && leaveLimitsMap[annualLeaveId] && parseFloat(leaveLimitsMap[annualLeaveId].con_lai) > 0 && total > 0) {
+                // Force switch to annual leave
+                typeSelect.value = annualLeaveId;
+                if ($.fn.select2 && $(typeSelect).data('select2')) {
+                    $(typeSelect).trigger('change.select2');
+                }
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Ưu tiên Phép năm',
+                    text: 'Hệ thống ưu tiên sử dụng hết quỹ phép năm trước khi chọn các loại nghỉ khác.',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                return; // Re-run through change event
             }
 
-            let message = "";
-            let showSplit = false;
+            if (selectedTypeId == annualLeaveId && total > 0) {
+                const limits = leaveLimitsMap[annualLeaveId] || {kha_dung: 0, con_lai: 0};
+                const accrued = parseFloat(limits.kha_dung);
+                const fromAccrued = Math.min(total, Math.max(0, accrued));
+                const fromAdvance = Math.max(0, total - fromAccrued);
 
-            // KIỂM TRA ƯU TIÊN PHÉP NĂM
-            if (annualLeaveId && selectedTypeId != annualLeaveId && annualLeaveData && annualLeaveData.con_lai > 0) {
-                message = `Hệ thống ưu tiên sử dụng Phép năm trước. Đơn này sẽ được chia làm 2 phần: Phần 1 dùng Phép năm (còn ${annualLeaveData.con_lai} ngày), Phần 2 dùng loại nghỉ bạn đã chọn.`;
-                showSplit = true;
-            } else if (selectedTypeId == annualLeaveId) {
-                const effectiveLimitForPart1 = Math.min(accruedBalance, annualLeaveLimit);
-                if (total > effectiveLimitForPart1) {
-                    message = total > totalRemainingBalance 
-                        ? `Quỹ phép năm của bạn không đủ cho toàn bộ yêu cầu (Cả năm còn ${totalRemainingBalance} ngày). Phần dư vượt quá quỹ năm sẽ được tính vào loại nghỉ khác.` 
-                        : `Số ngày đăng ký vượt quá giới hạn mỗi lần dùng (${annualLeaveLimit} ngày) hoặc hạn mức khả dụng hiện tại. Phần dư sẽ được tính vào Ứng phép năm.`;
-                    showSplit = true;
+                if (fromAdvance > 0) {
+                    document.getElementById('breakdownAccrued').innerText = fromAccrued.toFixed(1);
+                    document.getElementById('breakdownAdvance').innerText = fromAdvance.toFixed(1);
+                    leaveBreakdown.style.display = 'block';
+                } else {
+                    leaveBreakdown.style.display = 'none';
                 }
-            } else if (accruedBalance < total && accruedBalance !== 999) {
-                message = `Số ngày đăng ký vượt quá hạn mức tối đa còn lại của loại nghỉ này (${accruedBalance} ngày). Phần dư sẽ được tính vào loại nghỉ thay thế.`;
+            } else {
+                leaveBreakdown.style.display = 'none';
+            }
+
+            // KIỂM TRA CHIA ĐƠN (SPLIT)
+            const annualLeaveData = (annualLeaveId && leaveLimitsMap[annualLeaveId]) ? leaveLimitsMap[annualLeaveId] : {kha_dung: 0, con_lai: 0};
+            const annualConLai = parseFloat(annualLeaveData.con_lai);
+            const currentLimits = leaveLimitsMap[selectedTypeId] || {kha_dung: 999, con_lai: 999};
+            const currentConLai = parseFloat(currentLimits.con_lai);
+
+            let showSplit = false;
+            let message = "";
+
+            if (total > globalRequestLimit) {
+                // Trường hợp 1: Vượt hạn mức 1 đơn (VD: 5 ngày)
+                if (selectedTypeId == annualLeaveId) {
+                    if (annualConLai >= total) {
+                        // Vẫn đủ phép năm cho cả 2 phần -> Tách thành 2 đơn phép năm, không cần chọn loại khác
+                        message = `Đơn đăng ký (${total} ngày) vượt quá hạn mức mỗi lần dùng (${globalRequestLimit} ngày). Hệ thống sẽ tự động tách thành 2 đơn Phép năm để phù hợp quy định.`;
+                        showSplit = false; // Tự động xử lý ở backend, không cần hiện select
+                    } else {
+                        // Không đủ phép năm cho phần 2 -> Bắt buộc chọn loại khác cho phần dư
+                        const p1 = Math.min(annualConLai, globalRequestLimit);
+                        message = `Đơn vượt quá hạn mức đơn (${globalRequestLimit} ngày) và quỹ phép năm chỉ còn ${annualConLai} ngày. Phần dư vượt quá quỹ phép năm bắt buộc phải chọn loại nghỉ khác.`;
+                        showSplit = true;
+                    }
+                } else {
+                    // Loại nghỉ khác vượt hạn mức (hiếm nhưng vẫn xử lý)
+                    if (currentConLai < total && currentConLai !== 999) {
+                        message = `Số ngày vượt quá hạn mức loại nghỉ này (${currentConLai} ngày). Vui lòng chọn loại nghỉ thay thế cho phần dư.`;
+                        showSplit = true;
+                    }
+                }
+            } else if (selectedTypeId == annualLeaveId && total > annualConLai) {
+                // Trường hợp 2: Không vượt hạn mức đơn nhưng vượt QUỸ PHÉP NĂM (Scenario 2)
+                message = `Quỹ phép năm hiện tại (bao gồm cả ứng) chỉ còn ${annualConLai} ngày. Phần dư ${ (total - annualConLai).toFixed(1) } ngày bắt buộc phải chọn loại nghỉ thay thế.`;
                 showSplit = true;
             }
             
             if (showSplit) {
                 splitMessage.innerText = message;
                 splitSection.style.display = 'block';
-                $(splitTypeSelect).trigger('change');
-
+                
                 // Cập nhật danh sách loại nghỉ thay thế
                 Array.from(splitTypeSelect.options).forEach(opt => {
                     if (!opt.value) return;
@@ -759,7 +929,10 @@
                     const optConLai = parseFloat(optLimits.con_lai);
                     
                     if (opt.value == selectedTypeId && opt.value != annualLeaveId) {
-                        // Không cho chọn cùng 1 loại trừ khi là phép năm (vì phép năm có thể ứng)
+                        opt.disabled = true;
+                        opt.style.display = 'none';
+                    } else if (opt.value == annualLeaveId && total > annualConLai) {
+                        // Nếu đã hết quỹ phép năm thì không cho chọn lại phép năm ở phần 2
                         opt.disabled = true;
                         opt.style.display = 'none';
                     } else if (optConLai <= 0) {
@@ -768,25 +941,22 @@
                     } else {
                         opt.disabled = false;
                         opt.style.display = 'block';
-                        // Nếu là phép năm nhưng đang ứng phép, note lại
-                        if (opt.value == annualLeaveId) {
-                            const optAccrued = parseFloat(optLimits.kha_dung);
-                            if (optAccrued < total - Math.min(total, annualLeaveLimit)) {
-                                opt.innerText = "Sử dụng phép năm (Bao gồm ứng phép)";
-                            } else {
-                                opt.innerText = "Nghỉ phép năm";
-                            }
-                        }
                     }
                     if (splitTypeSelect.value == opt.value && opt.disabled) splitTypeSelect.value = "";
                 });
             } else {
                 splitSection.style.display = 'none';
                 splitTypeSelect.value = "";
+                if (message) {
+                    // Hiển thị thông báo tự động tách đơn nếu có
+                    splitMessage.innerText = message;
+                    splitSection.style.display = 'block';
+                    document.getElementById('splitTypeSelectContainer').style.display = 'none'; // Ẩn ô select vì tự động
+                }
             }
 
             // Check limits (old warning box)
-            if (total > accruedBalance && accruedBalance !== 999 && !showSplit) {
+            if (total > parseFloat(currentLimits.kha_dung) && currentLimits.kha_dung !== 999 && !showSplit) {
                 document.getElementById('balanceWarning').style.display = 'block';
             } else {
                 document.getElementById('balanceWarning').style.display = 'none';

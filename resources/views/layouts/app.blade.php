@@ -683,11 +683,11 @@
             }
 
             .main-content {
-                margin-top: 64px;
+                margin-top: 80px;
             }
 
             .content-wrapper {
-                padding: 16px;
+                padding: 16px 16px 100px 16px !important;
             }
 
             .page-header h1 {
@@ -702,39 +702,136 @@
             .action-bar {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 12px;
+                gap: 16px;
+            }
+
+            .filter-group {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+
+            .filter-group .form-group {
+                width: 100%;
+                margin: 0 !important;
+            }
+
+            .filter-group .dropdown,
+            .filter-group .form-control {
+                width: 100% !important;
             }
 
             .action-buttons {
-                flex-direction: row;
-                flex-wrap: nowrap;
-                justify-content: space-between;
+                display: flex;
+                flex-direction: column;
                 width: 100%;
-                gap: 8px;
+                gap: 10px;
             }
 
-            .btn {
-                flex: 1;
-                min-width: 0;
-                padding: 10px !important;
+            .action-buttons .btn {
+                width: 100% !important;
                 justify-content: center;
-                gap: 0 !important;
-                font-size: 0 !important;
+                padding: 12px 16px !important;
+                font-size: 15px !important;
+                display: flex;
+                align-items: center;
+                gap: 8px !important;
             }
 
             .btn svg,
             .btn i {
-                margin: 0 !important;
-                width: 20px !important;
-                height: 20px !important;
-                font-size: 18px !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
+                width: 18px !important;
+                height: 18px !important;
+                font-size: 16px !important;
+                flex-shrink: 0;
             }
 
-            .btn-secondary {
+            .action-buttons .btn,
+            .action-buttons .btn-secondary {
+                width: 100% !important;
+            }
+
+            /* Global: all visible buttons on mobile are centered and full-width.
+             * NOTE: We do NOT set display:flex !important here because that would
+             * override display:none on buttons hidden by JavaScript (e.g. "Xóa đã chọn").
+             * Instead we use :not([style*="display: none"]) to target only visible ones.
+             */
+            .btn:not([style*="display: none"]) {
+                width: 100% !important;
+                justify-content: center !important;
+                text-align: center !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+
+            .modal-footer {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                gap: 8px !important;
+            }
+
+            .modal-footer .btn {
+                flex: 1 !important;
                 width: auto !important;
+                margin: 0 !important;
+                padding: 10px 12px !important;
+                font-size: 14px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8px !important;
+            }
+
+            /* Fix modal scrolling on mobile
+             * Root cause: html/body have overflow:hidden globally,
+             * so Bootstrap's scroll mechanism is broken.
+             * Solution: give modal-body an explicit max-height so it
+             * gets its OWN scrollbar, independent of parent containers.
+             */
+
+            /* Mobile modal scroll fix */
+            @media (max-width: 768px) {
+                .modal-dialog {
+                    margin: 8px auto !important;
+                    width: calc(100% - 16px) !important;
+                    max-width: 100% !important;
+                }
+
+                .modal-content {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    border-radius: 12px !important;
+                    overflow: hidden !important;
+                }
+
+                .modal-header {
+                    flex-shrink: 0;
+                }
+
+                .modal-body {
+                    overflow-y: scroll !important;
+                    -webkit-overflow-scrolling: touch !important;
+                    overscroll-behavior: contain;
+                    /* 56px header + 64px footer approx */
+                    max-height: calc(100svh - 160px) !important;
+                    flex: 1 1 auto;
+                }
+
+                .modal-footer {
+                    flex-shrink: 0;
+                    position: sticky;
+                    bottom: 0;
+                    background: var(--bg-card, #fff);
+                    z-index: 10;
+                }
+            }
+
+            /* Select2 inside Modal Fix */
+            .select2-container--open {
+                z-index: 9999 !important;
             }
 
             .card {
@@ -818,17 +915,18 @@
             table.dataTable.collapsed tbody tr {
                 position: relative !important;
             }
-            
-            table.dataTable.collapsed tbody tr > td.dtr-control,
-            table.dataTable.collapsed tbody tr > th.dtr-control {
+
+            table.dataTable.collapsed tbody tr>td.dtr-control,
+            table.dataTable.collapsed tbody tr>th.dtr-control {
                 padding-bottom: 30px !important;
                 position: relative !important;
-                padding-left: 0.75rem !important; /* Standard padding */
+                padding-left: 0.75rem !important;
+                /* Standard padding */
             }
 
             /* The horizontal bar */
-            table.dataTable.collapsed tbody tr > td.dtr-control:before,
-            table.dataTable.collapsed tbody tr > th.dtr-control:before {
+            table.dataTable.collapsed tbody tr>td.dtr-control:before,
+            table.dataTable.collapsed tbody tr>th.dtr-control:before {
                 content: "" !important;
                 position: absolute !important;
                 bottom: 6px !important;
@@ -836,7 +934,8 @@
                 right: 8px !important;
                 width: auto !important;
                 height: 16px !important;
-                background-color: #f3f4f6 !important; /* light gray */
+                background-color: #f3f4f6 !important;
+                /* light gray */
                 border-radius: 4px !important;
                 border: 1px solid #e5e7eb !important;
                 top: auto !important;
@@ -850,10 +949,11 @@
             }
 
             /* The chevron icon */
-            table.dataTable.collapsed tbody tr > td.dtr-control:after,
-            table.dataTable.collapsed tbody tr > th.dtr-control:after {
+            table.dataTable.collapsed tbody tr>td.dtr-control:after,
+            table.dataTable.collapsed tbody tr>th.dtr-control:after {
                 font-family: "bootstrap-icons" !important;
-                content: "\F282" !important; /* bi-chevron-down */
+                content: "\F282" !important;
+                /* bi-chevron-down */
                 position: absolute !important;
                 bottom: 6px !important;
                 left: 50% !important;
@@ -867,30 +967,32 @@
             }
 
             /* Expanded state */
-            table.dataTable.collapsed tbody tr.parent > td.dtr-control:after,
-            table.dataTable.collapsed tbody tr.parent > th.dtr-control:after {
-                content: "\F286" !important; /* bi-chevron-up */
+            table.dataTable.collapsed tbody tr.parent>td.dtr-control:after,
+            table.dataTable.collapsed tbody tr.parent>th.dtr-control:after {
+                content: "\F286" !important;
+                /* bi-chevron-up */
                 color: #0BAA4B !important;
             }
-            
+
             /* Dark Theme Support */
-            body.dark-theme table.dataTable.collapsed tbody tr > td.dtr-control:before,
-            body.dark-theme table.dataTable.collapsed tbody tr > th.dtr-control:before {
+            body.dark-theme table.dataTable.collapsed tbody tr>td.dtr-control:before,
+            body.dark-theme table.dataTable.collapsed tbody tr>th.dtr-control:before {
                 background-color: #2e3349 !important;
                 border-color: #3d445e !important;
             }
-            
-            body.dark-theme table.dataTable.collapsed tbody tr > td.dtr-control:after,
-            body.dark-theme table.dataTable.collapsed tbody tr > th.dtr-control:after {
+
+            body.dark-theme table.dataTable.collapsed tbody tr>td.dtr-control:after,
+            body.dark-theme table.dataTable.collapsed tbody tr>th.dtr-control:after {
                 color: #8b93a8 !important;
             }
         }
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #374151;
-            font-weight: 500;
+
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #374151;
+        font-weight: 500;
         }
 
         .dataTables_wrapper .dataTables_filter input {
@@ -2310,6 +2412,41 @@
             color: #e8eaf0 !important;
             border-color: #2e3349 !important;
         }
+
+        /* Global image aspect ratio and distortion fix */
+        img {
+            max-width: 100%;
+        }
+
+        .avatar, 
+        .profile-avatar, 
+        .user-avatar, 
+        .nav-user-avatar,
+        .preview-image-circle,
+        img.rounded-circle,
+        [style*="border-radius: 50%"],
+        [style*="border-radius:50%"] {
+            aspect-ratio: 1 / 1 !important;
+            object-fit: cover !important;
+            flex-shrink: 0;
+            background-color: #f3f4f6; /* Fallback background */
+            overflow: hidden; /* Prevent alt text from stretching the circle */
+            display: inline-block;
+        }
+
+        body.dark-theme .avatar,
+        body.dark-theme .profile-avatar,
+        body.dark-theme .user-avatar,
+        body.dark-theme [style*="border-radius: 50%"] {
+            background-color: #13161f;
+        }
+
+        /* Prevent broken image icon from distorting the circle */
+        img:-moz-broken, img:not([src]), img[src=""] {
+            aspect-ratio: 1 / 1 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
     </style>
 
     <!-- DataTables CSS -->
@@ -2415,9 +2552,9 @@
     <script>
         (function () {
             try {
-                if (localStorage.getItem('theme') === 'dark') {
+                @if(isset($userTheme) && $userTheme === 'dark')
                     document.body.classList.add('dark-theme');
-                }
+                @endif
             } catch (e) { }
         })();
     </script>
@@ -2450,7 +2587,6 @@
                 style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
                 <img src="{{ asset(\App\Models\SystemConfig::getValue('company_logo', 'logo_triwin.png')) }}" alt="Logo"
                     style="height: 32px; width: auto;">
-                <span style="font-weight: 700; font-size: 18px; color: #0BAA4B;">TRIWIN</span>
             </a>
             <button class="mobile-toggle" onclick="toggleMobileMenu()">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2480,7 +2616,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    <span>Trang chủ</span>
+                    <span>{{ __('Trang chủ') }}</span>
                 </a>
 
                 @canany(['Xem Thông Tin Cá Nhân', 'Xem Hợp Đồng Cá Nhân'])
@@ -2493,7 +2629,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                 </svg>
-                                <span>Hồ sơ cá nhân</span>
+                                <span>{{ __('Hồ sơ cá nhân') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2503,18 +2639,18 @@
                             @can('Xem Thông Tin Cá Nhân')
                                 <a href="{{ $authNV ? route('nhan-vien.info', $authNV->id) : '#' }}"
                                     class="submenu-item {{ request()->routeIs('nhan-vien.info') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
-                                    <span>Thông tin cá nhân</span>
+                                    <span>{{ __('Thông tin cá nhân') }}</span>
                                 </a>
                             @endcan
                             @can('Xem Hợp Đồng Cá Nhân')
                                 <a href="{{ $activeContract ? route('hop-dong.info', $activeContract->id) : '#' }}"
                                     class="submenu-item {{ request()->routeIs('hop-dong.info') && request()->route('id') == ($activeContract?->id ?? 0) ? 'active' : '' }}">
-                                    <span>Hợp đồng cá nhân</span>
+                                    <span>{{ __('Hợp đồng cá nhân') }}</span>
                                 </a>
                             @endcan
                             <a href="{{ route('profile.settings') }}"
                                 class="submenu-item {{ request()->routeIs('profile.settings') ? 'active' : '' }}">
-                                <span>Cài đặt tài khoản</span>
+                                <span>{{ __('Cài đặt tài khoản') }}</span>
                             </a>
                         </div>
                     </div>
@@ -2527,7 +2663,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <span>Người dùng</span>
+                        <span>{{ __('Người dùng') }}</span>
                     </a>
                 @endcan
 
@@ -2542,7 +2678,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span>Cơ cấu tổ chức</span>
+                                <span>{{ __('Cơ cấu tổ chức') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2552,11 +2688,11 @@
 
                             <a href="{{ route('phong-ban.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('phong-ban.*') ? 'active' : '' }}">
-                                <span>Phòng ban</span>
+                                <span>{{ __('Phòng ban') }}</span>
                             </a>
                             <a href="{{ route('chuc-vu.index') }}"
                                 class="submenu-item {{ request()->routeIs('chuc-vu.*') ? 'active' : '' }}">
-                                <span>Chức vụ</span>
+                                <span>{{ __('Chức vụ') }}</span>
                             </a>
                         </div>
                     </div>
@@ -2571,7 +2707,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
-                                <span>Nhân viên</span>
+                                <span>{{ __('Nhân viên') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2581,14 +2717,14 @@
                             @can('Xem Nhân Viên')
                                 <a href="{{ route('nhan-vien.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('nhan-vien.danh-sach') ? 'active' : '' }}">
-                                    <span>Danh sách nhân viên</span>
+                                    <span>{{ __('Danh sách nhân viên') }}</span>
                                 </a>
                             @endcan
 
                             @canany(['Xem Danh Sách Công Tác', 'Tạo Yêu Cầu Công Tác', 'Xem Chi Tiết Công Tác', 'Điều Chuyển Công Tác'])
                                 <a href="{{ route('cong-tac.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('cong-tac.*') ? 'active' : '' }}">
-                                    <span>Công tác</span>
+                                    <span>{{ __('Công tác') }}</span>
                                 </a>
                             @endcanany
                         </div>
@@ -2604,7 +2740,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <span>Hợp đồng</span>
+                                <span>{{ __('Hợp đồng') }}</span>
                             </div>
                             <svg class="chevron-icon {{ request()->routeIs('hop-dong.*') ? 'rotate' : '' }}" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
@@ -2614,12 +2750,12 @@
                         <div class="submenu {{ request()->routeIs('hop-dong.*') ? 'open' : '' }}" id="contract-submenu">
                             <a href="{{ route('hop-dong.danh-sach') }}"
                                 class="submenu-item {{ request()->routeIs('hop-dong.danh-sach') ? 'active' : '' }}">
-                                <span>Danh sách hợp đồng</span>
+                                <span>{{ __('Danh sách hợp đồng') }}</span>
                             </a>
 
                             <a href="{{ route('hop-dong.loai-hop-dong.index') }}"
                                 class="submenu-item {{ request()->routeIs('hop-dong.loai-hop-dong.*') ? 'active' : '' }}">
-                                <span>Cấu hình hợp đồng</span>
+                                <span>{{ __('Cấu hình hợp đồng') }}</span>
                             </a>
                         </div>
                     </div>
@@ -2634,7 +2770,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span>Chấm công</span>
+                                <span>{{ __('Chấm công') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2644,19 +2780,19 @@
                             @can('Xem Danh Sách Chấm Công')
                                 <a href="{{ route('cham-cong.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('cham-cong.danh-sach') ? 'active' : '' }}">
-                                    <span>Danh sách chấm công</span>
+                                    <span>{{ __('Danh sách chấm công') }}</span>
                                 </a>
                             @endcan
                             @unlessrole('Employee|Nhân viên')
-                            <a href="{{ route('cham-cong.taoView') }}"
-                                class="submenu-item {{ request()->routeIs('cham-cong.taoView') ? 'active' : '' }}">
-                                <span>Chấm công (Admin)</span>
-                            </a>
+                             <a href="{{ route('cham-cong.taoView') }}"
+                                 class="submenu-item {{ request()->routeIs('cham-cong.taoView') ? 'active' : '' }}">
+                                 <span>{{ __('Chấm công (Admin)') }}</span>
+                             </a>
                             @endunlessrole
                             @can('Xem Chấm Công Cá Nhân')
                                 <a href="{{ route('cham-cong.ca-nhan') }}"
                                     class="submenu-item {{ request()->routeIs('cham-cong.ca-nhan') ? 'active' : '' }}">
-                                    <span>Chấm công cá nhân</span>
+                                    <span>{{ __('Chấm công cá nhân') }}</span>
                                 </a>
                             @endcan
                         </div>
@@ -2672,7 +2808,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
-                                <span>Work From Home</span>
+                                <span>{{ __('Work From Home') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2682,13 +2818,13 @@
                             @canany(['Xem Danh Sách WFH', 'Duyệt WFH'])
                                 <a href="{{ route('wfh.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('wfh.danh-sach') ? 'active' : '' }}">
-                                    <span>Danh sách WFH (Admin)</span>
+                                    <span>{{ __('Danh sách WFH (Admin)') }}</span>
                                 </a>
                             @endcanany
                             @can('Tạo Phiếu WFH Cá Nhân')
                                 <a href="{{ route('wfh.ca-nhan') }}"
                                     class="submenu-item {{ request()->routeIs('wfh.ca-nhan') ? 'active' : '' }}">
-                                    <span>Đăng ký WFH</span>
+                                    <span>{{ __('Đăng ký WFH') }}</span>
                                 </a>
                             @endcan
                         </div>
@@ -2704,7 +2840,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span>Nghỉ phép</span>
+                                <span>{{ __('Nghỉ phép') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2714,21 +2850,21 @@
                             @canany(['Xem Danh Sách Nghỉ Phép', 'Duyệt Nghỉ Phép'])
                                 <a href="{{ route('nghi-phep.danh-sach') }}"
                                     class="submenu-item {{ request()->routeIs('nghi-phep.danh-sach') ? 'active' : '' }}">
-                                    <span>Nghỉ phép (Admin)</span>
+                                    <span>{{ __('Nghỉ phép (Admin)') }}</span>
                                 </a>
                                 <a href="{{ route('nghi-phep.con-lai') }}"
                                     class="submenu-item {{ request()->routeIs('nghi-phep.con-lai') ? 'active' : '' }}">
-                                    <span>Danh sách phép còn lại</span>
+                                    <span>{{ __('Danh sách phép còn lại') }}</span>
                                 </a>
                                 <a href="{{ route('nghi-phep.config') }}"
                                     class="submenu-item {{ request()->routeIs('nghi-phep.config') ? 'active' : '' }}">
-                                    <span>Cấu hình nghỉ phép</span>
+                                    <span>{{ __('Cấu hình nghỉ phép') }}</span>
                                 </a>
                             @endcanany
                             @can('Tạo Phiếu Nghỉ Phép Cá Nhân')
                                 <a href="{{ route('nghi-phep.ca-nhan') }}"
                                     class="submenu-item {{ request()->routeIs('nghi-phep.ca-nhan') ? 'active' : '' }}">
-                                    <span>Đăng ký nghỉ phép</span>
+                                    <span>{{ __('Đăng ký nghỉ phép') }}</span>
                                 </a>
                             @endcan
                         </div>
@@ -2744,7 +2880,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span>Lương</span>
+                                <span>{{ __('Lương') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2754,14 +2890,14 @@
                             @can('Xem Danh Sách Lương')
                                 <a href="{{ route('salary.index') }}"
                                     class="submenu-item {{ request()->routeIs('salary.index') ? 'active' : '' }}">
-                                    <span>Danh sách lương</span>
+                                    <span>{{ __('Danh sách lương') }}</span>
                                 </a>
                             @endcan
                             @can('Xem Lương Cá Nhân')
                                 @unlessrole('System Admin')
                                 <a href="{{ $authNV ? route('salary.detail', $authNV->id) : '#' }}"
                                     class="submenu-item {{ request()->routeIs('salary.detail') && request()->route('id') == ($authNV?->id ?? 0) ? 'active' : '' }}">
-                                    <span>Lương cá nhân</span>
+                                    <span>{{ __('Lương cá nhân') }}</span>
                                 </a>
                                 @endunlessrole
                             @endcan
@@ -2769,7 +2905,7 @@
                             @canany(['Xem Danh Sách Lương', 'Xem Lương Cá Nhân', 'Quản lý hệ thống'])
                                 <a href="{{ route('tam-ung.index') }}"
                                     class="submenu-item {{ request()->routeIs('tam-ung.*') ? 'active' : '' }}">
-                                    <span>Tạm ứng lương</span>
+                                    <span>{{ __('Tạm ứng lương') }}</span>
                                 </a>
                             @endcanany
 
@@ -2784,37 +2920,40 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <span>Tài sản</span>
+                        <span>{{ __('Tài sản') }}</span>
                     </a>
                 @endcan
 
-                @can('Quản lý hệ thống')
-                    <div class="nav-item-parent">
-                        <div class="nav-item {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'active' : '' }}"
-                            onclick="toggleSubmenu('roles-submenu')" style="cursor: pointer;">
-                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                                <span>Phân quyền</span>
-                            </div>
-                            <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                        <div class="submenu" id="roles-submenu">
-                            <a href="{{ route('roles.index') }}"
-                                class="submenu-item {{ request()->routeIs('roles.*') ? 'active' : '' }}">
-                                <span>Quản lý nhóm quyền</span>
-                            </a>
-                            <a href="{{ route('permissions.index') }}"
-                                class="submenu-item {{ request()->routeIs('permissions.*') ? 'active' : '' }}">
-                                <span>Quản lý quyền</span>
-                            </a>
-                        </div>
-                    </div>
+                @canany(['Quản lý hệ thống', 'Tùy Chỉnh Theme Hệ Thống', 'Tùy Chỉnh Ngôn Ngữ Hệ Thống'])
+                    @can('Quản lý hệ thống')
+                        <div class="nav-item-parent">
 
+                            <div class="nav-item {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'active' : '' }}"
+                                onclick="toggleSubmenu('roles-submenu')" style="cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                    <span>{{ __('Phân quyền') }}</span>
+                                </div>
+                                <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+
+                            <div class="submenu" id="roles-submenu">
+                                <a href="{{ route('roles.index') }}"
+                                    class="submenu-item {{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                                    <span>{{ __('Quản lý nhóm quyền') }}</span>
+                                </a>
+                                <a href="{{ route('permissions.index') }}"
+                                    class="submenu-item {{ request()->routeIs('permissions.*') ? 'active' : '' }}">
+                                    <span>{{ __('Quản lý quyền') }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    @endcan
                     <div class="nav-item-parent">
                         <div class="nav-item {{ request()->routeIs('config.*') || request()->routeIs('lich-su.*') || request()->routeIs('settings.*') ? 'active' : '' }}"
                             onclick="toggleSubmenu('settings-main-submenu')" style="cursor: pointer;">
@@ -2825,7 +2964,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span>Cài đặt</span>
+                                <span>{{ __('Cài đặt') }}</span>
                             </div>
                             <svg class="chevron-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -2834,24 +2973,19 @@
                         <div class="submenu" id="settings-main-submenu">
                             <a href="{{ route('config.index') }}"
                                 class="submenu-item {{ request()->routeIs('config.*') ? 'active' : '' }}">
-                                <span>Cấu hình chung</span>
+                                <span>{{ __('Cấu hình chung') }}</span>
                             </a>
-                            <a href="{{ route('lich-su.index') }}"
-                                class="submenu-item {{ request()->routeIs('lich-su.*') ? 'active' : '' }}">
-                                <span>Lịch sử hệ thống</span>
-                            </a>
+                            @can('Quản lý hệ thống')
+                                <a href="{{ route('lich-su.index') }}"
+                                    class="submenu-item {{ request()->routeIs('lich-su.*') ? 'active' : '' }}">
+                                    <span>{{ __('Lịch sử hệ thống') }}</span>
+                                </a>
+                            @endcan
                         </div>
                     </div>
-                @endcan
+                @endcanany
             </nav>
             <div class="sidebar-footer">
-                <div class="theme-toggle-container">
-                    <label class="theme-toggle-label">Giao diện hệ thống</label>
-                    <select id="global-theme-selector" class="theme-select no-select2">
-                        <option value="light">Chế độ Sáng</option>
-                        <option value="dark">Chế độ Tối</option>
-                    </select>
-                </div>
                 <div class="user-info">
                     <div class="user-avatar">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
@@ -2862,34 +2996,21 @@
                     <div>
                         @php
                             $authUser = auth()->user();
-                            $authNV = $authUser?->nhanVien;
-                            $tenHienThi = $authNV?->Ten ?? $authUser?->TaiKhoan ?? 'Người dùng';
-                            $chucVu = $authNV?->ttCongViec?->chucVu?->Ten ?? 'Quản trị viên';
+                             $authNV = $authUser?->nhanVien;
+                             $tenHienThi = $authNV?->Ten ?? $authUser?->TaiKhoan ?? __('Người dùng');
+                             $chucVu = $authNV?->ttCongViec?->chucVu?->Ten ?? __('Quản trị viên');
                         @endphp
                         <div style="font-weight: 500; font-size: 14px;">{{ $tenHienThi }}</div>
                         <div style="font-size: 12px; color: #047857; font-weight: 500;">{{ $chucVu }}</div>
                     </div>
                 </div>
-                <a href="#" class="nav-item"
-                    style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); border-left: none;" onclick="event.preventDefault(); Swal.fire({
-                        title: 'Xác nhận',
-                        text: 'Bạn có chắc chắn muốn đăng xuất?',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#0BAA4B',
-                        cancelButtonColor: '#6b7280',
-                        confirmButtonText: 'Đăng xuất',
-                        cancelButtonText: 'Hủy'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '{{ route('logout') }}';
-                        }
-                    })">
+                <a href="{{ route('logout') }}" class="nav-item logout-link"
+                    style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); border-left: none;">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
-                    <span>Đăng xuất</span>
+                    <span>{{ __('Đăng xuất') }}</span>
                 </a>
             </div>
         </aside>
@@ -2981,6 +3102,47 @@
             });
         });
 
+        // Global Datatables Default Language
+        const currentLocale = '{{ app()->getLocale() }}';
+        const datatableTranslations = {
+            vi: {
+                "sProcessing": "Đang xử lý...",
+                "sLengthMenu": "Hiển thị _MENU_ mục",
+                "sZeroRecords": "Không tìm thấy dữ liệu",
+                "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
+                "sInfoFiltered": "(lọc từ _MAX_ mục)",
+                "sSearch": "Tìm kiếm:",
+                "sEmptyTable": "Không có dữ liệu trong bảng",
+                "oPaginate": {
+                    "sFirst": "Đầu",
+                    "sPrevious": "Trước",
+                    "sNext": "Tiếp",
+                    "sLast": "Cuối"
+                }
+            },
+            en: {
+                "sProcessing": "Processing...",
+                "sLengthMenu": "Show _MENU_ entries",
+                "sZeroRecords": "No matching records found",
+                "sInfo": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "sInfoEmpty": "Showing 0 to 0 of 0 entries",
+                "sInfoFiltered": "(filtered from _MAX_ entries)",
+                "sSearch": "Search:",
+                "sEmptyTable": "No data available in table",
+                "oPaginate": {
+                    "sFirst": "First",
+                    "sPrevious": "Previous",
+                    "sNext": "Next",
+                    "sLast": "Last"
+                }
+            }
+        };
+
+        $.extend(true, $.fn.dataTable.defaults, {
+            language: datatableTranslations[currentLocale] || datatableTranslations['vi']
+        });
+
         // Global Select2 Initialization
         $(document).ready(function () {
             function initSelect2(container) {
@@ -3017,14 +3179,14 @@
                 const message = $(this).data('message') || 'Bạn có chắc chắn muốn xóa mục này?';
 
                 Swal.fire({
-                    title: 'Xác nhận xóa',
+                    title: "{{ __('Xác nhận xóa') }}",
                     text: message,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Xác nhận xóa',
-                    cancelButtonText: 'Hủy',
+                    confirmButtonText: "{{ __('Xác nhận xóa') }}",
+                    cancelButtonText: "{{ __('Hủy') }}",
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -3032,27 +3194,32 @@
                     }
                 });
             });
-        });
 
-        // Global Theme Toggle
-        document.addEventListener('DOMContentLoaded', function () {
-            const themeSelector = document.getElementById('global-theme-selector');
-            if (themeSelector) {
-                const currentTheme = localStorage.getItem('theme') || 'light';
-                themeSelector.value = currentTheme;
+            // Global Logout Confirmation
+            $(document).on('click', '.logout-link', function (e) {
+                e.preventDefault();
+                const logoutUrl = $(this).attr('href');
 
-                themeSelector.addEventListener('change', function (e) {
-                    const selectedTheme = e.target.value;
-                    if (selectedTheme === 'dark') {
-                        document.body.classList.add('dark-theme');
-                        localStorage.setItem('theme', 'dark');
-                    } else {
-                        document.body.classList.remove('dark-theme');
-                        localStorage.setItem('theme', 'light');
+                Swal.fire({
+                    title: "{{ __('Xác nhận') }}",
+                    text: "{{ __('Bạn có chắc chắn muốn đăng xuất?') }}",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0BAA4B',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: "{{ __('Đăng xuất') }}",
+                    cancelButtonText: "{{ __('Hủy') }}",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = logoutUrl;
                     }
                 });
-            }
+            });
         });
+
+        // Theme management moved to configuration page
+        // Server side persistent theme handled by UserPreferencesMiddleware
 
     </script>
 </body>

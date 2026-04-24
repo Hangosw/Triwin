@@ -69,61 +69,73 @@
                     </select>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="form-group mb-4">
-                        <label class="form-label">Phòng ban công tác <span style="color:red">*</span></label>
-                        <select name="PhongBanId" class="form-control select2" style="width: 100%;" required>
-                            <option value="">-- Chọn Phòng ban --</option>
-                            @foreach($phongBans as $pb)
-                                <option value="{{ $pb->id }}" {{ old('PhongBanId') == $pb->id ? 'selected' : '' }}>
-                                    {{ $pb->Ten }}
-                                </option>
-                            @endforeach
-                        </select>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Phòng ban công tác <span style="color:red">*</span></label>
+                            <select name="PhongBanId" class="form-control select2" style="width: 100%;" required>
+                                <option value="">-- Chọn Phòng ban --</option>
+                                @foreach($phongBans as $pb)
+                                    <option value="{{ $pb->id }}" {{ old('PhongBanId') == $pb->id ? 'selected' : '' }}>
+                                        {{ $pb->Ten }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="form-group mb-4">
-                        <label class="form-label">Chức vụ phụ trách <span style="color:red">*</span></label>
-                        <select name="ChucVuId" class="form-control select2" style="width: 100%;" required>
-                            <option value="">-- Chọn Chức vụ --</option>
-                            @foreach($chucVus as $cv)
-                                <option value="{{ $cv->id }}" {{ old('ChucVuId') == $cv->id ? 'selected' : '' }}>
-                                    {{ $cv->Ten }}
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Chức vụ phụ trách <span style="color:red">*</span></label>
+                            <select name="ChucVuId" class="form-control select2" style="width: 100%;" required>
+                                <option value="">-- Chọn Chức vụ --</option>
+                                @foreach($chucVus as $cv)
+                                    <option value="{{ $cv->id }}" {{ old('ChucVuId') == $cv->id ? 'selected' : '' }}>
+                                        {{ $cv->Ten }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="form-group mb-4">
-                        <label class="form-label">Từ ngày <span style="color:red">*</span></label>
-                        <input type="text" name="TuNgay" class="form-control datepicker"
-                            value="{{ old('TuNgay', date('d/m/Y')) }}" placeholder="DD/MM/YYYY" required>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Từ ngày <span style="color:red">*</span></label>
+                            <input type="text" name="TuNgay" class="form-control datepicker"
+                                value="{{ old('TuNgay', date('d/m/Y')) }}" placeholder="DD/MM/YYYY" required>
+                        </div>
                     </div>
 
-                    <div class="form-group mb-4">
-                        <label class="form-label">Đến ngày</label>
-                        <input type="text" name="DenNgay" class="form-control datepicker" value="{{ old('DenNgay') }}"
-                            placeholder="DD/MM/YYYY (Để trống nếu chưa kết thúc)">
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Đến ngày</label>
+                            <input type="text" name="DenNgay" class="form-control datepicker" value="{{ old('DenNgay') }}"
+                                placeholder="DD/MM/YYYY (Để trống nếu chưa kết thúc)">
+                        </div>
                     </div>
 
-                    <div class="form-group mb-4" style="grid-column: span 2;">
-                        <label class="form-label">Địa điểm công tác</label>
-                        <input type="text" name="DiaDiem" class="form-control" value="{{ old('DiaDiem') }}"
-                            placeholder="Ví dụ: TP. Hồ Chí Minh, Hà Nội, Nhà máy X...">
+                    <div class="col-12">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Địa điểm công tác</label>
+                            <input type="text" name="DiaDiem" class="form-control" value="{{ old('DiaDiem') }}"
+                                placeholder="Ví dụ: TP. Hồ Chí Minh, Hà Nội, Nhà máy X...">
+                        </div>
                     </div>
 
-                    <div class="form-group mb-4" style="grid-column: span 2;">
-                        <label class="form-label">Ghi chú</label>
-                        <textarea name="GhiChu" class="form-control" rows="3"
-                            placeholder="Mô tả chi tiết nội dung công tác hoặc các lưu ý khác...">{{ old('GhiChu') }}</textarea>
+                    <div class="col-12">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="GhiChu" class="form-control" rows="3"
+                                placeholder="Mô tả chi tiết nội dung công tác hoặc các lưu ý khác...">{{ old('GhiChu') }}</textarea>
+                        </div>
                     </div>
                 </div>
 
-                <div style="margin-top: 24px;">
-                    <button type="submit" class="btn btn-primary" style="background:#0BAA4B; border-color:#0BAA4B;">
-                        <i class="bi bi-save" style="margin-right:8px;"></i> Lưu Nhiệm vụ Công tác
+                <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary w-100 w-md-auto" style="background:#0BAA4B; border-color:#0BAA4B; height: 44px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-save me-2"></i> Lưu Nhiệm vụ Công tác
                     </button>
-                    <a href="{{ route('cong-tac.danh-sach') }}" class="btn btn-secondary">Hủy</a>
+                    <a href="{{ route('cong-tac.danh-sach') }}" class="btn btn-secondary w-100 w-md-auto" style="height: 44px; display: flex; align-items: center; justify-content: center;">Hủy</a>
                 </div>
             </form>
         </div>

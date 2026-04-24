@@ -684,18 +684,7 @@
             $(document).ready(function () {
                 // Initialize DataTable without automatic sorting to respect our PHP grouping
                 const table = $('#salaryTable').DataTable({
-                    language: {
-                        "sProcessing": "Đang xử lý...",
-                        "sLengthMenu": "Hiển thị _MENU_ mục",
-                        "sZeroRecords": "Không tìm thấy dữ liệu",
-                        "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                        "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                        "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                        "sSearch": "Tìm kiếm:",
-                        "oPaginate": {
-                            "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối"
-                        }
-                    },
+                    
                     responsive: false,
                     autoWidth: true,
                     pageLength: 100,

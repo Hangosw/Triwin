@@ -43,6 +43,8 @@
             justify-content: space-between;
             align-items: center;
             background: var(--header-bg);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .card-title {
@@ -107,7 +109,7 @@
 
         .table th {
             background: var(--table-th-bg);
-            padding: 12px 24px;
+            padding: 12px 16px;
             text-align: left;
             font-size: 12px;
             font-weight: 600;
@@ -116,11 +118,26 @@
             border-bottom: 1px solid var(--row-border);
         }
 
-        .table td {
-            padding: 16px 24px;
+        .table th, .table td {
+            padding: 12px 16px;
             border-bottom: 1px solid var(--row-border);
             font-size: 14px;
             color: var(--text-main);
+        }
+
+        @media (min-width: 769px) {
+            .table th, .table td {
+                white-space: nowrap;
+            }
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: hidden !important;
+        }
+
+        #configTable {
+            width: 100% !important;
         }
 
         body.dark-theme .btn-outline-primary,
@@ -132,6 +149,26 @@
         .btn-outline-danger:hover {
             opacity: 1 !important;
             filter: none !important;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        body.dark-theme .btn-secondary {
+            background: #1f2937;
+            color: #e8eaf0;
+            border-color: #374151;
+        }
+
+        body.dark-theme .btn-secondary:hover {
+            background: #374151;
         }
 
         .badge {
@@ -258,22 +295,22 @@
             </button>
         </div>
         <div class="table-container">
-            <table class="table">
+            <table class="table" id="configTable" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">ID</th>
-                        <th>Tền loại nghỉ</th>
-                        <th>% Hưởng lương</th>
-                        <th>Hạn mức</th>
-                        <th style="width: 100px;">Hạn mức (ngày)</th>
-                        <th>Trạng thái</th>
-                        <th style="width: 200px; text-align: center;">Thao tác</th>
+                        <th class="all dtr-control" style="width: 60px; text-align: center;">STT</th>
+                        <th class="all">Tên loại nghỉ</th>
+                        <th class="min-tablet">% Hưởng lương</th>
+                        <th class="min-desktop">Hạn mức</th>
+                        <th class="min-desktop" style="width: 100px;">Hạn mức (ngày)</th>
+                        <th class="min-tablet">Trạng thái</th>
+                        <th class="min-tablet" style="width: 120px; text-align: center;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($loaiNghiPheps as $loai)
+                    @foreach($loaiNghiPheps as $index => $loai)
                         <tr>
-                            <td>{{ $loai->id }}</td>
+                            <td style="text-align: center;">{{ $index + 1 }}</td>
                             <td class="font-medium">{{ $loai->Ten }}</td>
                             <td>
                                 <span class="badge {{ $loai->HuongLuong > 0 ? 'badge-success' : 'badge-gray' }}">
@@ -302,21 +339,21 @@
                                 @endif
                             </td>
                             <td>
-                                <div style="display: flex; gap: 8px; justify-content: center;">
-                                    <button class="btn btn-outline-primary" style="padding: 8px 12px;"
+                                <div style="display: flex; gap: 4px; justify-content: center;">
+                                    <button class="action-icon-btn text-primary border-0 bg-transparent"
                                         onclick="editLoaiPhep({{ json_encode($loai) }})" title="Chỉnh sửa">
-                                        <i class="bi bi-pencil-square"></i>
+                                        <i class="bi bi-pencil"></i>
                                     </button>
                                     @if($loai->TrangThai == 1)
-                                    <button class="btn btn-outline-danger" style="padding: 8px 12px;"
-                                        onclick="toggleLoaiPhepStatus({{ $loai->id }}, 'lock')" title="Khóa loại nghỉ">
-                                        <i class="bi bi-lock"></i>
-                                    </button>
+                                        <button class="action-icon-btn text-danger border-0 bg-transparent"
+                                            onclick="toggleLoaiPhepStatus({{ $loai->id }}, 'lock')" title="Khóa loại nghỉ">
+                                            <i class="bi bi-lock"></i>
+                                        </button>
                                     @else
-                                    <button class="btn" style="padding: 8px 12px; background: rgba(59, 130, 246, 0.1); color: #3b82f6;" 
-                                        onclick="toggleLoaiPhepStatus({{ $loai->id }}, 'unlock')" title="Mở khóa loại nghỉ">
-                                        <i class="bi bi-unlock-fill"></i>
-                                    </button>
+                                        <button class="action-icon-btn text-info border-0 bg-transparent"
+                                            onclick="toggleLoaiPhepStatus({{ $loai->id }}, 'unlock')" title="Mở khóa loại nghỉ">
+                                            <i class="bi bi-unlock"></i>
+                                        </button>
                                     @endif
                                 </div>
                             </td>
@@ -393,8 +430,23 @@
         }
 
         // Sử dụng jQuery để bắt sự kiện change cho đồng bộ
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#inputCoHanMuc').on('change', toggleHanMucField);
+
+            // Khởi tạo DataTables cho Responsive Child Row
+            if ($.fn.DataTable) {
+                $('#configTable').DataTable({
+                    responsive: true,
+                    paging: false,
+                    info: false,
+                    searching: false,
+                    ordering: false,
+                    autoWidth: false,
+                    columnDefs: [
+                        { targets: '_all', className: 'dt-nowrap' }
+                    ]
+                });
+            }
         });
 
         function openModal() {

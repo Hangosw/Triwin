@@ -1,6 +1,9 @@
 @php
     $chucVu = $nhanVien->ttCongViec?->chucVu?->Ten ?? '—';
     $phongBan = $nhanVien->ttCongViec?->phongBan?->Ten ?? '—';
+    
+    $chucVu = __($chucVu);
+    $phongBan = __($phongBan);
     $maBP = $phongBan;
     $maNV = $nhanVien->Ma ?? '—';
     $hoTen = $nhanVien->Ten ?? '—';
@@ -35,16 +38,16 @@
 
     // Phụ cấp chi tiết từ hợp đồng
     $allowances = [
-        'Thưởng chuyên cần' => 0,
-        'Hỗ trợ nhà trọ' => $hopDong?->PhuCapKhuVuc ?? 0,
-        'Hỗ trợ đi lại' => $hopDong?->PhuCapXangXe ?? 0,
-        'Phụ cấp ăn trưa' => $hopDong?->PhuCapAnTrua ?? 0,
-        'Phụ cấp chức vụ' => $hopDong?->PhuCapChucVu ?? 0,
-        'Phụ cấp trách nhiệm' => $hopDong?->PhuCapTrachNhiem ?? 0,
-        'Phụ cấp độc hại' => $hopDong?->PhuCapDocHai ?? 0,
-        'Phụ cấp thâm niên' => $hopDong?->PhuCapThamNien ?? 0,
-        'Phụ cấp điện thoại' => $hopDong?->PhuCapDienThoai ?? 0,
-        'Phụ cấp khác' => $hopDong?->PhuCapKhac ?? 0,
+        __('Attendance Bonus') => 0,
+        __('Housing Support') => $hopDong?->PhuCapKhuVuc ?? 0,
+        __('Travel Support') => $hopDong?->PhuCapXangXe ?? 0,
+        __('Lunch Allowance') => $hopDong?->PhuCapAnTrua ?? 0,
+        __('Position Allowance') => $hopDong?->PhuCapChucVu ?? 0,
+        __('Responsibility Allowance') => $hopDong?->PhuCapTrachNhiem ?? 0,
+        __('Hazardous Allowance') => $hopDong?->PhuCapDocHai ?? 0,
+        __('Seniority Allowance') => $hopDong?->PhuCapThamNien ?? 0,
+        __('Phone Allowance') => $hopDong?->PhuCapDienThoai ?? 0,
+        __('Other Allowance') => $hopDong?->PhuCapKhac ?? 0,
     ];
 
     // Bảo hiểm chi tiết
@@ -210,26 +213,26 @@
                 {{ \App\Models\SystemConfig::getValue('company_address', '') }}
             </span>
         </div>
-        <div class="slip-title">PHIẾU LƯƠNG THÁNG {{ $thang }}/{{ $nam }}</div>
+        <div class="slip-title">{{ __('SALARY SLIP FOR MONTH') }} {{ $thang }}/{{ $nam }}</div>
         <div style="width:100px;"></div>
     </div>
 
     {{-- Thông tin nhân viên --}}
     <table style="border:none;">
         <tr>
-            <td colspan="2">Họ tên: <span class="slip-bold">{{ $hoTen }}</span></td>
-            <td>Mã NV: <span class="slip-bold">{{ $maNV }}</span></td>
+            <td colspan="2">{{ __('Full name:') }} <span class="slip-bold">{{ $hoTen }}</span></td>
+            <td>{{ __('Employee ID') }}: <span class="slip-bold">{{ $maNV }}</span></td>
         </tr>
         <tr>
-            <td>Chức danh: <span class="slip-bold">{{ $chucVu }}</span></td>
-            <td>Số HĐ: <span class="slip-bold">{{ $soHopDong }}</span></td>
-            <td>Kì lương: <span class="slip-bold">{{ $thang }}/{{ $nam }}</span></td>
+            <td>{{ __('Position') }}: <span class="slip-bold">{{ $chucVu }}</span></td>
+            <td>{{ __('Contract Number') }}: <span class="slip-bold">{{ $soHopDong }}</span></td>
+            <td>{{ __('Salary Period') }}: <span class="slip-bold">{{ $thang }}/{{ $nam }}</span></td>
         </tr>
         <tr>
-            <td>Tham gia: {{ $ngayNhanViec }}</td>
-            <td style="text-align:center;">MST TNCN:<br><span class="slip-bold">{{ $mstTNCN }}</span></td>
-            <td>Nghi phép: <span class="slip-bold">{{ number_format($soNgayNghi, 1) }}</span></td>
-            <td>Lương HĐLĐ: <span class="slip-bold">{{ number_format($luongCoBan, 0, ',', '.') }}</span></td>
+            <td>{{ __('Joined:') }} {{ $ngayNhanViec }}</td>
+            <td style="text-align:center;">{{ __('PIT Tax ID:') }}<br><span class="slip-bold">{{ $mstTNCN }}</span></td>
+            <td>{{ __('Leave:') }} <span class="slip-bold">{{ number_format($soNgayNghi, 1) }}</span></td>
+            <td>{{ __('Contract Salary:') }} <span class="slip-bold">{{ number_format($luongCoBan, 0, ',', '.') }}</span></td>
         </tr>
     </table>
 
@@ -238,51 +241,51 @@
     <table style="border:none;">
         <tr>
             <td width="34%" class="slip-bold">
-                Số ngày đi làm
+                {{ __('Workdays') }}
                 <span style="float:right; color:#dc2626;">{{ number_format($ngayCongThucTe, 2) }}/{{ $ngayCongChuan }}</span>
             </td>
-            <td width="33%" style="text-align:center;" class="slip-bold">Phụ cấp hợp đồng</td>
-            <td width="33%" style="text-align:center;" class="slip-bold">Các khoản khấu trừ</td>
+            <td width="33%" style="text-align:center;" class="slip-bold">{{ __('Contract allowance') }}</td>
+            <td width="33%" style="text-align:center;" class="slip-bold">{{ __('Deductions') }}</td>
         </tr>
         <tr>
             {{-- Cột 1: Lương công --}}
             <td>
                 @if($isContractMode)
                     <div class="slip-row-sub">
-                        <span>Tổng lương hợp đồng</span>
+                        <span>{{ __('Total contract salary') }}</span>
                         <span class="slip-bold">{{ number_format($luong['luong_ngay_cong'] ?? 0, 0, ',', '.') }}</span>
                     </div>
                 @else
                     @if($isCongNhan)
                         <div class="slip-row-sub">
-                            <span>Công thực tế</span>
+                            <span>{{ __('Actual Workdays') }}</span>
                             <span class="slip-bold">{{ number_format($ngayCongThucTe, 2) }}</span>
                         </div>
                         <div class="slip-row-sub">
-                            <span>Lương theo ngày công</span>
+                            <span>{{ __('Salary based on workdays') }}</span>
                             <span class="slip-bold">{{ number_format($luong['luong_ngay_cong'] ?? 0, 0, ',', '.') }}</span>
                         </div>
                     @else
                         <div class="slip-row-sub">
-                            <span>Lương cơ bản</span>
+                            <span>{{ __('Basic Salary') }}</span>
                             <span class="slip-bold">{{ number_format($luongCoBan, 0, ',', '.') }}</span>
                         </div>
                     @endif
                 @endif
                 @if($tongTangCa > 0)
                     <div class="slip-row-sub">
-                        <span>Lương làm thêm</span>
+                        <span>{{ __('Overtime salary') }}</span>
                         <span class="slip-bold">{{ number_format($tongTangCa, 0, ',', '.') }}</span>
                     </div>
                 @endif
                 @if($khenThuong > 0)
                     <div class="slip-row-sub">
-                        <span>Thưởng</span>
+                        <span>{{ __('Bonus') }}</span>
                         <span class="slip-bold">{{ number_format($khenThuong, 0, ',', '.') }}</span>
                     </div>
                 @else
                     <div class="slip-row-sub">
-                        <span>Thưởng</span>
+                        <span>{{ __('Bonus') }}</span>
                         <span>—</span>
                     </div>
                 @endif
@@ -292,12 +295,12 @@
             <td>
                 @if($phuCapRecord > 0)
                     <div class="slip-row-sub">
-                        <span>Phụ cấp hợp đồng</span>
+                        <span>{{ __('Contract allowance') }}</span>
                         <span class="slip-bold">{{ number_format($phuCapRecord, 0, ',', '.') }}</span>
                     </div>
                 @else
                     <div style="color:#9ca3af; font-style:italic; text-align:center; padding-top:10px;">
-                        Không có phụ cấp
+                        {{ __('No allowances') }}
                     </div>
                 @endif
             </td>
@@ -306,39 +309,39 @@
             <td>
                 @if($bhxhRate > 0)
                     <div class="slip-row-sub">
-                        <span>BHXH ({{ $bhxhRate }}%)</span>
+                        <span>{{ __('BHXH') }} ({{ $bhxhRate }}%)</span>
                         <span class="slip-bold">{{ number_format($bhxh, 0, ',', '.') }}</span>
                     </div>
                 @endif
                 @if($bhytRate > 0)
                     <div class="slip-row-sub">
-                        <span>BHYT ({{ $bhytRate }}%)</span>
+                        <span>{{ __('BHYT') }} ({{ $bhytRate }}%)</span>
                         <span class="slip-bold">{{ number_format($bhyt, 0, ',', '.') }}</span>
                     </div>
                 @endif
                 @if($bhtnRate > 0)
                     <div class="slip-row-sub">
-                        <span>BHTN ({{ $bhtnRate }}%)</span>
+                        <span>{{ __('BHTN') }} ({{ $bhtnRate }}%)</span>
                         <span class="slip-bold">{{ number_format($bhtn, 0, ',', '.') }}</span>
                     </div>
                 @endif
                 @if(count($baoHiems) === 0)
                     <div class="slip-row-sub">
-                        <span style="color:#9ca3af; font-style:italic;">Chưa cấu hình bảo hiểm</span>
+                        <span style="color:#9ca3af; font-style:italic;">{{ __('Insurance not configured') }}</span>
                     </div>
                 @endif
                 <div class="slip-row-sub">
-                    <span>Thuế TNCN</span>
+                    <span>{{ __('PIT') }}</span>
                     <span class="slip-bold">{{ $thueTNCN > 0 ? number_format($thueTNCN, 0, ',', '.') : '—' }}</span>
                 </div>
                 @if($tamUng > 0)
                     <div class="slip-row-sub">
-                        <span>Lương tạm ứng</span>
+                        <span>{{ __('Salary advance') }}</span>
                         <span class="slip-bold" style="color:#dc2626;">{{ number_format($tamUng, 0, ',', '.') }}</span>
                     </div>
                 @endif
                 <div class="slip-row-sub">
-                    <span>Phạt/Kỷ luật</span>
+                    <span>{{ __('Fine/Discipline') }}</span>
                     <span class="slip-bold">{{ $kyLuat > 0 ? number_format($kyLuat, 0, ',', '.') : '—' }}</span>
                 </div>
             </td>
@@ -349,15 +352,15 @@
     {{-- Tổng cộng --}}
     <table style="border:none;">
         <tr>
-            <td width="34%"><span class="slip-blue slip-bold">Thực lĩnh lương</span></td>
+            <td width="34%"><span class="slip-blue slip-bold">{{ __('Net Salary') }}</span></td>
             <td colspan="4" class="slip-total-val" style="text-align: right;">
                 {{ number_format($luongThucNhan, 0, ',', '.') }}
             </td>
         </tr>
         <tr>
-            <td style="height:38px; vertical-align:middle;"><span class="slip-bold">Ghi chú</span></td>
+            <td style="height:38px; vertical-align:middle;"><span class="slip-bold">{{ __('Notes') }}</span></td>
             <td colspan="4" style="color:#6b7280; font-size:12px;">
-                {{ $loaiNhanVienText }} — {{ number_format($ngayCongThucTe, 2) }} ngày công — Tính tự động {{ now()->format('d/m/Y') }}
+                {{ $loaiNhanVienText }} — {{ number_format($ngayCongThucTe, 2) }} {{ __('days') }} — {{ __('Auto Calculated') }} {{ now()->format('d/m/Y') }}
             </td>
         </tr>
     </table>

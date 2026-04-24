@@ -140,6 +140,18 @@
             margin-bottom: 24px;
         }
 
+        @media (max-width: 992px) {
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .form-group {
             margin-bottom: 0;
         }
@@ -300,12 +312,12 @@
 @endpush
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
             <h1 class="h3 mb-1 fw-bold text-gray-800">Chỉnh sửa hợp đồng</h1>
             <p class="text-muted mb-0">Cập nhật thông tin hợp đồng cho nhân viên: <strong>{{ $hopDong->nhanVien->Ten }}</strong></p>
         </div>
-        <a href="{{ route('hop-dong.info', $hopDong->id) }}" class="btn btn-secondary shadow-sm">
+        <a href="{{ route('hop-dong.info', $hopDong->id) }}" class="btn btn-secondary shadow-sm align-self-start align-self-md-auto text-nowrap">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -407,7 +419,7 @@
                 <div style="display: flex; gap: 16px; align-items: start;">
                     <div style="flex: 1;">
                         <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px; color: #1f2937;">Thông tin nhân viên</div>
-                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 14px;">
+                        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; font-size: 14px;">
                             <span style="color: #6b7280;">Mã NV:</span>
                             <span id="empMa" style="font-weight: 500; color: #1f2937;">{{ $hopDong->nhanVien->Ma ?? '-' }}</span>
                             <span style="color: #6b7280;">Họ tên:</span>
@@ -473,12 +485,12 @@
                             </div>
                         </div>
 
-            <div style="margin-top: 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="margin-top: 24px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;">
                 <div>
                     <strong style="color: #1f2937; font-size: 15px;">💰 Các khoản phụ cấp</strong>
                     <div class="help-text">Nhập tên điều khoản và số tiền phụ cấp</div>
                 </div>
-                <button type="button" class="btn btn-success btn-sm" id="add-allowance-btn" style="display: flex; align-items: center; gap: 6px; padding: 6px 16px; background-color: #0BAA4B; border-color: #0BAA4B; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 500;">
+                <button type="button" class="btn btn-success btn-sm" id="add-allowance-btn" style="display: flex; align-items: center; gap: 6px; padding: 6px 16px; background-color: #0BAA4B; border-color: #0BAA4B; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 500; white-space: nowrap;">
                     <i class="bi bi-plus-circle-fill"></i> Thêm hàng
                 </button>
             </div>

@@ -455,16 +455,7 @@
         $(document).ready(function () {
             // Khởi tạo DataTable
             const table = $('#ngachLuongTable').DataTable({
-                language: {
-                    "sProcessing": "Đang xử lý...",
-                    "sLengthMenu": "Hiển thị _MENU_ dòng",
-                    "sZeroRecords": "Không tìm thấy dữ liệu",
-                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                    "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                    "sSearch": "Tìm kiếm:",
-                    "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" }
-                },
+                
                 pageLength: 25,
                 columnDefs: [
                     { orderable: false, targets: [0, 6] },

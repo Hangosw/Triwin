@@ -243,26 +243,20 @@ class NhanVienController extends Controller
         try {
             // Sử dụng DB Transaction để tránh race condition khi tạo mã nhân viên
             $Ma = \DB::transaction(function () use ($request) {
-                // 1. Tự động tạo Mã nhân viên: NV_YY_XXXXX với row-level locking
-                $year = date('y'); // 2 số cuối của năm hiện tại, ví dụ 26
+                // 1. Tự động tạo Mã nhân viên: 3W[Number]_[NAME]
+                // Lấy ID lớn nhất hiện tại để xác định số thứ tự tiếp theo
+                $maxId = NhanVien::max('id') ?: 0;
+                $newNumber = $maxId + 1;
 
-                // Sử dụng lockForUpdate() để khóa row khi query, tránh 2 user cùng lấy mã cuối
-                $latestEmployee = NhanVien::where('Ma', 'like', "NV_{$year}_%")
-                    ->orderBy('Ma', 'desc')
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($latestEmployee) {
-                    // Lấy số thứ tự từ mã cuối cùng
-                    $lastNumber = intval(substr($latestEmployee->Ma, -5));
-                    $newNumber = $lastNumber + 1;
-                } else {
-                    $newNumber = 1;
-                }
-
-                // Format số thứ tự thành chuỗi 5 chữ số, ví dụ 00001
-                $sequence = str_pad($newNumber, 5, '0', STR_PAD_LEFT);
-                $Ma = "NV_{$year}_{$sequence}";
+                // Lấy tên cuối cùng
+                $full_name = trim($request->Ten);
+                $name_parts = explode(' ', $full_name);
+                $last_name = end($name_parts);
+                
+                // Loại bỏ dấu và viết hoa
+                $clean_name = $this->removeAccents($last_name);
+                
+                $Ma = "3W{$newNumber}_{$clean_name}";
 
                 // 2. Xử lý upload ảnh đại diện
                 $avatarPath = null;
@@ -317,12 +311,16 @@ class NhanVienController extends Controller
 
                 // 4. Tự động tạo tài khoản người dùng trước để lấy ID
                 $user = NguoiDung::create([
+                    'Ten' => $request->Ten,
                     'TaiKhoan' => $request->Email,
                     'Email' => $request->Email,
                     'SoDienThoai' => $request->SoDienThoai,
                     'MatKhau' => Hash::make($request->SoDienThoai),
                     'TrangThai' => 1, // Hoạt động
                 ]);
+
+                // Gán vai trò mặc định
+                $user->assignRole('Nhân viên');
 
                 // 5. Tạo record trong bảng nhan_viens (thông tin cá nhân)
                 $nhanVien = NhanVien::create([
@@ -665,7 +663,7 @@ class NhanVienController extends Controller
             return response()->json(['exists' => false, 'message' => '']);
         }
 
-        $query = NhanVien::where('SoBHXH', $bhxh);
+        $query = NhanVien::where('BHXH', $bhxh);
 
         if ($nhanVienId) {
             $query->where('id', '!=', $nhanVienId);
@@ -691,7 +689,7 @@ class NhanVienController extends Controller
             return response()->json(['exists' => false, 'message' => '']);
         }
 
-        $query = NhanVien::where('SoBHYT', $bhyt);
+        $query = NhanVien::where('BHYT', $bhyt);
 
         if ($nhanVienId) {
             $query->where('id', '!=', $nhanVienId);
@@ -844,5 +842,36 @@ class NhanVienController extends Controller
                 'message' => 'Lỗi khi xóa nhân viên: ' . $e->getMessage()
             ], 422);
         }
+    }
+
+    /**
+     * Loại bỏ dấu tiếng Việt và chuyển thành chữ hoa
+     */
+    private function removeAccents($str)
+    {
+        $accents = [
+            'a' => ['à', 'á', 'ạ', 'ả', 'ã', 'â', 'ầ', 'ấ', 'ậ', 'ẩ', 'ẫ', 'ă', 'ằ', 'ắ', 'ặ', 'ẳ', 'ẵ'],
+            'e' => ['è', 'é', 'ẹ', 'ẻ', 'ẽ', 'ê', 'ề', 'ế', 'ệ', 'ể', 'ễ'],
+            'i' => ['ì', 'í', 'ị', 'ỉ', 'ĩ'],
+            'o' => ['ò', 'ó', 'ọ', 'ỏ', 'õ', 'ô', 'ồ', 'ố', 'ộ', 'ổ', 'ỗ', 'ơ', 'ờ', 'ớ', 'ợ', 'ở', 'ỡ'],
+            'u' => ['ù', 'ú', 'ụ', 'ủ', 'ũ', 'ư', 'ừ', 'ứ', 'ự', 'ử', 'ữ'],
+            'y' => ['ỳ', 'ý', 'ỵ', 'ỷ', 'ỹ'],
+            'd' => ['đ'],
+            'A' => ['À', 'Á', 'Ạ', 'Ả', 'Ã', 'Â', 'Ầ', 'Ấ', 'Ậ', 'Ẩ', 'Ẫ', 'Ă', 'Ằ', 'Ắ', 'Ặ', 'Ẳ', 'Ẵ'],
+            'E' => ['È', 'É', 'Ẹ', 'Ẻ', 'Ẽ', 'Ê', 'Ề', 'Ế', 'Ệ', 'Ể', 'Ễ'],
+            'I' => ['Ì', 'Í', 'Ị', 'Ỉ', 'Ĩ'],
+            'O' => ['Ò', 'Ó', 'Ọ', 'Ỏ', 'Õ', 'Ô', 'Ồ', 'Ố', 'Ộ', 'Ổ', 'Ỗ', 'Ơ', 'Ờ', 'Ớ', 'Ợ', 'Ở', 'Ỡ'],
+            'U' => ['Ù', 'Ú', 'Ụ', 'Ủ', 'Ũ', 'Ư', 'Ừ', 'Ứ', 'Ự', 'Ử', 'Ữ'],
+            'Y' => ['Ỳ', 'Ý', 'Ỵ', 'Ỷ', 'Ỹ'],
+            'D' => ['Đ'],
+        ];
+
+        foreach ($accents as $nonAccent => $accentList) {
+            foreach ($accentList as $accent) {
+                $str = str_replace($accent, $nonAccent, $str);
+            }
+        }
+
+        return strtoupper($str);
     }
 }

@@ -525,25 +525,32 @@
                         }
                     }
                 ],
-                language: {
-                    "sProcessing": "Đang xử lý...",
-                    "sLengthMenu": "Hiển thị _MENU_ dòng",
-                    "sZeroRecords": "Không tìm thấy dữ liệu",
-                    "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                    "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                    "sSearch": "Tìm kiếm:",
-                    "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" }
-                },
+                
                 responsive: true,
                 autoWidth: false,
                 pageLength: 10,
-                order: [[0, 'desc']],
+                order: [[1, 'desc']], // Đổi mặc định sort sang cột 1 để xóa icon ở cột STT
+                columnDefs: [
+                    { orderable: false, targets: [0] },
+                    // Force STT and Employee Info to always display
+                    { className: 'all', targets: [0, 1] },
+                    // Trạng thái, Loại hợp đồng hiện trên Tablet/Desktop
+                    { className: 'min-tablet', targets: [2, 5] },
+                    // Thời hạn, Mức lương hiện trên Desktop
+                    { className: 'min-desktop', targets: [3, 4] }
+                ],
                 drawCallback: function () {
-                    $('#contractsTable tbody tr').css('cursor', 'pointer').off('click').on('click', function (e) {
-                        if ($(e.target).hasClass('contract-checkbox') || $(e.target).closest('a, button').length) return;
+                    $('#contractsTable tbody').off('click', 'tr').on('click', 'tr', function (e) {
+                        // Bỏ qua nếu click vào checkbox, nút bấm, thẻ a, child row toggle (dtr-control) hoặc đang ở trong child row
+                        if ($(e.target).hasClass('contract-checkbox') || 
+                            $(e.target).closest('a, button, .dtr-control').length || 
+                            $(this).hasClass('child')) {
+                            return;
+                        }
                         const data = table.row(this).data();
-                        window.location.href = `/hop-dong/info/${data.id}`;
+                        if (data && data.id) {
+                            window.location.href = `/hop-dong/info/${data.id}`;
+                        }
                     });
                     updateSelectedCount();
                 }

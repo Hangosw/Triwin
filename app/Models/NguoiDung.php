@@ -43,6 +43,8 @@ class NguoiDung extends Authenticatable
         'SoDienThoai',
         'Email',
         'TrangThai', // 0 là không hoạt động, 1 là hoạt động
+        'theme',
+        'language',
     ];
 
     protected $hidden = [

@@ -89,10 +89,13 @@
                 </div>
             </div>
 
-            <div class="mt-4 border-top pt-4">
+            <div class="mt-4 border-top pt-4" style="display: flex; gap: 12px; align-items: center;">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-save"></i> Lưu tài sản
                 </button>
+                <a href="{{ route('tai-san.index') }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Hủy
+                </a>
             </div>
         </form>
     </div>

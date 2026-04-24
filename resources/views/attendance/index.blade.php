@@ -101,7 +101,7 @@
     <!-- Filter Bar -->
     <div class="card">
         <form action="{{ route('cham-cong.danh-sach') }}" method="GET" class="action-bar" id="filterForm">
-            <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+            <div class="filter-group" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
                 {{-- Ngày --}}
                 <div class="form-group" style="margin-bottom: 0; min-width: 140px;">
                     <label class="form-label" style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Chọn ngày</label>
@@ -389,21 +389,7 @@
 <script>
     $(document).ready(function() {
         const table = $('#attendanceTable').DataTable({
-            language: {
-                "sProcessing": "Đang xử lý...",
-                "sLengthMenu": "Hiển thị _MENU_ dòng",
-                "sZeroRecords": "Không tìm thấy dữ liệu",
-                "sInfo": "Đang hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                "sInfoEmpty": "Đang hiển thị 0 đến 0 trong tổng số 0 mục",
-                "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-                "sSearch": "Tìm kiếm:",
-                "oPaginate": {
-                    "sFirst": "Đầu",
-                    "sPrevious": "Trước",
-                    "sNext": "Tiếp",
-                    "sLast": "Cuối"
-                }
-            },
+            
             responsive: true,
             autoWidth: false,
             pageLength: 25,

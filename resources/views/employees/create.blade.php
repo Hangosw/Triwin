@@ -452,16 +452,21 @@
 
 @section('content')
     <!-- Header -->
-    <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
-        <div>
-            <h1 style="font-size: 30px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">Thêm nhân viên mới</h1>
-            <p style="color: #6b7280;">Nhập thông tin đầy đủ để thêm nhân viên vào hệ thống</p>
-        </div>
-        <a href="{{ route('nhan-vien.danh-sach') }}" class="btn btn-secondary">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    <div style="margin-bottom: 24px; position: relative; z-index: 10; padding-top: 5px;">
+        <h1 style="font-size: 30px; font-weight: 800; color: #1f2937; margin-bottom: 8px; letter-spacing: -0.02em;">
+            Thêm nhân viên mới
+        </h1>
+        <p style="color: #6b7280; font-size: 15px; margin-bottom: 20px;">
+            Nhập thông tin đầy đủ để thêm nhân viên vào hệ thống
+        </p>
+        <a href="{{ route('nhan-vien.danh-sach') }}" 
+           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; text-decoration: none; color: #1f2937; font-weight: 600; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s;"
+           onmouseover="this.style.borderColor='#d1d5db'; this.style.backgroundColor='#f9fafb';"
+           onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white';">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
-            Quay lại
+            <span>Quay lại</span>
         </a>
     </div>
 

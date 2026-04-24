@@ -153,7 +153,7 @@
     <script>
         $(document).ready(function () {
             const table = $('#wfhTable').DataTable({
-                language: { "sProcessing": "Đang xử lý...", "sLengthMenu": "Hiển thị _MENU_ dòng", "sZeroRecords": "Không tìm thấy dữ liệu", "sInfo": "Hiển thị _START_ đến _END_ trên _TOTAL_", "sSearch": "Tìm kiếm:", "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" } },
+                
                 order: [[3, 'desc']],
                 dom: 'rtip',
                 columnDefs: [{ orderable: false, targets: [0, 7] }]

@@ -2,15 +2,60 @@
 
 @section('title', 'Tổng quan chấm công ngày ' . $dateObj->format('d/m/Y') . ' - ' . \App\Models\SystemConfig::getValue('company_name'))
 
+@push('styles')
+<style>
+    .overview-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+    .overview-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    @media (max-width: 992px) {
+        .overview-details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .overview-summary-grid {
+            grid-template-columns: 1fr;
+        }
+        .header-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+        .header-actions > * {
+            width: 100% !important;
+            justify-content: center;
+        }
+        .page-header-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+    <div class="page-header page-header-flex" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 16px;">
         <div>
             <h1 style="font-size: 28px; font-weight: 700; color: #111827; margin-bottom: 4px;">Tổng quan chấm công ngày {{ $dateObj->format('d/m/Y') }}</h1>
             <p style="color: #6B7280; font-size: 14px;">Tổng quan tình hình chấm công trong ngày</p>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
+        <div class="header-actions">
             <input type="text" id="dateSelector" class="form-control datepicker" value="{{ $dateObj->format('d/m/Y') }}" 
-                   style="width: 160px; height: 42px; border-radius: 8px; border: 1px solid #D1D5DB; background: white;">
+                   style="width: 160px; height: 42px; border-radius: 8px; border: 1px solid #D1D5DB; background: white; text-align: center;">
             <a href="{{ route('cham-cong.danh-sach', ['day' => $dateObj->day, 'month' => $dateObj->month, 'year' => $dateObj->year]) }}" 
                class="btn btn-secondary" style="height: 42px; display: flex; align-items: center;">
                 Quay lại danh sách
@@ -19,7 +64,7 @@
     </div>
 
     <!-- Tóm tắt đầu trang -->
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+    <div class="overview-summary-grid">
         <div class="card" style="padding: 24px; border-radius: 12px; border: 1px solid #E5E7EB; background: white;">
             <div style="color: #6B7280; font-size: 14px; font-weight: 600; margin-bottom: 12px;">Đã chấm công</div>
             <div style="display: flex; align-items: baseline; gap: 8px;">
@@ -46,7 +91,7 @@
     </div>
 
     <!-- Chi tiết 4 nhóm -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div class="overview-details-grid">
         <!-- Nhóm 1: Đi sớm -->
         <div class="card" style="background: white; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; display: flex; flex-direction: column;">
             <div style="padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center;">

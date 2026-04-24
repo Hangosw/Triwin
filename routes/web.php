@@ -253,7 +253,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/cap-phat/{id}', [\App\Http\Controllers\TaiSanController::class, 'capPhat'])->name('cap-phat');
         Route::post('/thu-hoi/{id}', [\App\Http\Controllers\TaiSanController::class, 'thuHoi'])->name('thu-hoi');
     });
-
+    Route::get('/config', [CauHinhController::class, 'index'])->name('config.index');
+    Route::post('/config', [CauHinhController::class, 'update'])->name('config.update');
     Route::middleware('permission:Quản lý hệ thống')->group(function () {
         // Phân quyền (Roles)
         Route::prefix('phan-quyen')->name('roles.')->group(function () {
@@ -275,9 +276,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/xoa/{id}', [PermissionController::class, 'destroy'])->name('destroy');
         });
 
-        Route::get('/config', [CauHinhController::class, 'index'])->name('config.index');
+
         Route::get('/lich-su', [\App\Http\Controllers\LichSuController::class, 'index'])->name('lich-su.index');
-        Route::post('/config', [CauHinhController::class, 'update'])->name('config.update');
         Route::post('/config/ca-lam-viec', [CauHinhController::class, 'updateCaLamViec'])->name('config.ca-lam-viec.update');
         Route::post('/config/lich-lam-viec', [CauHinhController::class, 'updateLichLamViec'])->name('config.lich-lam-viec.update');
         Route::get('/settings', function () {

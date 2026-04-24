@@ -31,16 +31,9 @@ class NhanVienImport implements ToCollection, WithStartRow
         $phongBans = DmPhongBan::all();
         $chucVus = DmChucVu::all();
 
-        // Chuẩn bị counter cho mã nhân viên tự động
-        $year = date('y');
-        $latestEmployee = NhanVien::where('Ma', 'like', "NV_{$year}_%")
-            ->orderBy('Ma', 'desc')
-            ->first();
-        
-        $currentSequence = 0;
-        if ($latestEmployee) {
-            $currentSequence = intval(substr($latestEmployee->Ma, -5));
-        }
+        // Mã nhân viên tự động sẽ dựa trên ID tiếp theo và tên nhân viên
+        $maxId = NhanVien::max('id') ?: 0;
+        $nextId = $maxId + 1;
 
         foreach ($rows as $index => $row) {
             $rowNumber = $index + 2; 
@@ -94,11 +87,12 @@ class NhanVienImport implements ToCollection, WithStartRow
             $ngayTuyenDungRaw = isset($row[10]) ? trim($row[10]) : null;
             $diaChi = isset($row[11]) ? trim($row[11]) : null;
 
-            // Tự động tạo mã nếu thiếu
+            // Tự động tạo mã nếu thiếu: 3W[ID]_[NAME]
             if (empty($maNV)) {
-                $currentSequence++;
-                $sequenceStr = str_pad($currentSequence, 5, '0', STR_PAD_LEFT);
-                $maNV = "NV_{$year}_{$sequenceStr}";
+                $nameParts = explode(' ', $hoTen);
+                $lastName = end($nameParts);
+                $cleanName = $this->removeAccents($lastName);
+                $maNV = "3W" . ($nextId++) . "_" . $cleanName;
             }
 
             // 1. Kiểm tra nhân viên đã tồn tại
@@ -149,6 +143,8 @@ class NhanVienImport implements ToCollection, WithStartRow
                     'MatKhau' => Hash::make($matKhau),
                     'TrangThai' => 1,
                 ]);
+
+                $user->assignRole('Nhân viên');
 
                 // Tạo nhân viên
                 $nhanVien = NhanVien::create([
@@ -202,5 +198,36 @@ class NhanVienImport implements ToCollection, WithStartRow
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Loại bỏ dấu tiếng Việt và chuyển thành chữ hoa
+     */
+    private function removeAccents($str)
+    {
+        $accents = [
+            'a' => ['à', 'á', 'ạ', 'ả', 'ã', 'â', 'ầ', 'ấ', 'ậ', 'ẩ', 'ẫ', 'ă', 'ằ', 'ắ', 'ặ', 'ẳ', 'ẵ'],
+            'e' => ['è', 'é', 'ẹ', 'ẻ', 'ẽ', 'ê', 'ề', 'ế', 'ệ', 'ể', 'ễ'],
+            'i' => ['ì', 'í', 'ị', 'ỉ', 'ĩ'],
+            'o' => ['ò', 'ó', 'ọ', 'ỏ', 'õ', 'ô', 'ồ', 'ố', 'ộ', 'ổ', 'ỗ', 'ơ', 'ờ', 'ớ', 'ợ', 'ở', 'ỡ'],
+            'u' => ['ù', 'ú', 'ụ', 'ủ', 'ũ', 'ư', 'ừ', 'ứ', 'ự', 'ử', 'ữ'],
+            'y' => ['ỳ', 'ý', 'ỵ', 'ỷ', 'ỹ'],
+            'd' => ['đ'],
+            'A' => ['À', 'Á', 'Ạ', 'Ả', 'Ã', 'Â', 'Ầ', 'Ấ', 'Ậ', 'Ẩ', 'Ẫ', 'Ă', 'Ằ', 'Ắ', 'Ặ', 'Ẳ', 'Ẵ'],
+            'E' => ['È', 'É', 'Ẹ', 'Ẻ', 'Ẽ', 'Ê', 'Ề', 'Ế', 'Ệ', 'Ể', 'Ễ'],
+            'I' => ['Ì', 'Í', 'Ị', 'Ỉ', 'Ĩ'],
+            'O' => ['Ò', 'Ó', 'Ọ', 'Ỏ', 'Õ', 'Ô', 'Ồ', 'Ố', 'Ộ', 'Ổ', 'Ỗ', 'Ơ', 'Ờ', 'Ớ', 'Ợ', 'Ở', 'Ỡ'],
+            'U' => ['Ù', 'Ú', 'Ụ', 'Ủ', 'Ũ', 'Ư', 'Ừ', 'Ứ', 'Ự', 'Ử', 'Ữ'],
+            'Y' => ['Ỳ', 'Ý', 'Ỵ', 'Ỷ', 'Ỹ'],
+            'D' => ['Đ'],
+        ];
+
+        foreach ($accents as $nonAccent => $accentList) {
+            foreach ($accentList as $accent) {
+                $str = str_replace($accent, $nonAccent, $str);
+            }
+        }
+
+        return strtoupper($str);
     }
 }

@@ -23,7 +23,6 @@ class TtNhanVienCongViec extends Model
     protected $casts = [
         'ChucVuId' => 'integer',
         'PhongBanId' => 'integer',
-        'TrinhDoHocVan' => 'integer',
         'NgayTuyenDung' => 'date',
         'NgayVaoBienChe' => 'date',
     ];

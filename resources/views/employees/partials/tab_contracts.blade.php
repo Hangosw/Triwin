@@ -57,37 +57,37 @@
                         <i class="bi bi-file-earmark-text"></i>
                     </div>
                     <div style="overflow: hidden;">
-                        <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">HĐ Lao động</div>
+                        <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">{{ __('HĐ Lao động') }}</div>
                         <div style="font-size: 15px; font-weight: 700; color: #111827; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             @if($latestLabor)
-                                {{ $latestLabor->loaiHopDong->TenLoai ?? 'HĐ Lao động' }}
+                                {{ $latestLabor->loaiHopDong->TenLoai ?? __('HĐ Lao động') }}
                                 @if($latestLabor->TrangThai == 1)
-                                    <span style="font-size: 9px; padding: 2px 8px; background: #dcfce7; color: #15803d; border-radius: 10px; margin-left: 4px; vertical-align: middle;">Active</span>
+                                    <span style="font-size: 9px; padding: 2px 8px; background: #dcfce7; color: #15803d; border-radius: 10px; margin-left: 4px; vertical-align: middle;">{{ __('Active') }}</span>
                                 @endif
                             @else
-                                <span style="color: #9ca3af;">Chưa có dữ liệu</span>
+                                <span style="color: #9ca3af;">{{ __('Chưa có dữ liệu') }}</span>
                             @endif
                         </div>
                     </div>
                 </div>
                 <div style="font-size: 13px; color: #4b5563;">
-                    Số: <span style="font-weight: 600; color: #111827;">{{ $latestLabor->SoHopDong ?? 'N/A' }}</span>
+                    {{ __('Số') }}: <span style="font-weight: 600; color: #111827;">{{ $latestLabor->SoHopDong ?? 'N/A' }}</span>
                 </div>
             </div>
             
             <div style="background: #f8fafc; border-top: 1px solid #f1f5f9; padding: 12px 15px; display: flex; justify-content: center; gap: 15px;">
                 @if($latestLabor)
-                    <a href="{{ route('hop-dong.info', $latestLabor->id) }}" title="Xem chi tiết" style="color: #16a34a; font-size: 18px;">
+                    <a href="{{ route('hop-dong.info', $latestLabor->id) }}" title="{{ __('Xem chi tiết') }}" style="color: #16a34a; font-size: 18px;">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a href="{{ route('hop-dong.download-word', $latestLabor->id) }}" title="Tải file Word" style="color: #2563eb; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-word', $latestLabor->id) }}" title="{{ __('Tải file Word') }}" style="color: #2563eb; font-size: 18px;">
                         <i class="bi bi-file-earmark-word"></i>
                     </a>
-                    <a href="{{ route('hop-dong.download-pdf', $latestLabor->id) }}" title="Tải file PDF" style="color: #dc2626; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-pdf', $latestLabor->id) }}" title="{{ __('Tải file PDF') }}" style="color: #dc2626; font-size: 18px;">
                         <i class="bi bi-file-earmark-pdf"></i>
                     </a>
                 @else
-                    <span style="font-size: 11px; color: #9ca3af; font-style: italic;">Chưa có hợp đồng</span>
+                    <span style="font-size: 11px; color: #9ca3af; font-style: italic;">{{ __('Chưa có hợp đồng') }}</span>
                 @endif
             </div>
         </div>
@@ -100,37 +100,37 @@
                         <i class="bi bi-shield-lock"></i>
                     </div>
                     <div style="overflow: hidden;">
-                        <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Bảo mật (NDA)</div>
+                        <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">{{ __('Bảo mật (NDA)') }}</div>
                         <div style="font-size: 15px; font-weight: 700; color: #111827; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             @if($latestNDA)
-                                Thỏa thuận NDA
+                                {{ __('Thỏa thuận NDA') }}
                                 @if($latestNDA->TrangThai == 1)
-                                    <span style="font-size: 9px; padding: 2px 8px; background: #ffedd5; color: #c2410c; border-radius: 10px; margin-left: 4px; vertical-align: middle;">Active</span>
+                                    <span style="font-size: 9px; padding: 2px 8px; background: #ffedd5; color: #c2410c; border-radius: 10px; margin-left: 4px; vertical-align: middle;">{{ __('Active') }}</span>
                                 @endif
                             @else
-                                <span style="color: #9ca3af;">Chưa có dữ liệu</span>
+                                <span style="color: #9ca3af;">{{ __('Chưa có dữ liệu') }}</span>
                             @endif
                         </div>
                     </div>
                 </div>
                 <div style="font-size: 13px; color: #4b5563;">
-                    Số: <span style="font-weight: 600; color: #111827;">{{ $latestNDA->SoHopDong ?? 'N/A' }}</span>
+                    {{ __('Số') }}: <span style="font-weight: 600; color: #111827;">{{ $latestNDA->SoHopDong ?? 'N/A' }}</span>
                 </div>
             </div>
 
             <div style="background: #f8fafc; border-top: 1px solid #f1f5f9; padding: 12px 15px; display: flex; justify-content: center; gap: 15px;">
                 @if($latestNDA)
-                    <a href="{{ route('hop-dong.print', $latestNDA->id) }}" title="Xem" style="color: #16a34a; font-size: 18px;">
+                    <a href="{{ route('hop-dong.print', $latestNDA->id) }}" title="{{ __('Xem chi tiết') }}" style="color: #16a34a; font-size: 18px;">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a href="{{ route('hop-dong.download-nda-word', $latestNDA->id) }}" title="Tải file Word" style="color: #2563eb; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-nda-word', $latestNDA->id) }}" title="{{ __('Tải file Word') }}" style="color: #2563eb; font-size: 18px;">
                         <i class="bi bi-file-earmark-word"></i>
                     </a>
-                    <a href="{{ route('hop-dong.download-nda-pdf', $latestNDA->id) }}" title="Tải file PDF" style="color: #dc2626; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-nda-pdf', $latestNDA->id) }}" title="{{ __('Tải file PDF') }}" style="color: #dc2626; font-size: 18px;">
                         <i class="bi bi-file-earmark-pdf"></i>
                     </a>
                 @else
-                    <span style="font-size: 11px; color: #9ca3af; font-style: italic;">Sẽ tạo cùng HĐLĐ</span>
+                    <span style="font-size: 11px; color: #9ca3af; font-style: italic;">{{ __('Sẽ tạo cùng HĐLĐ') }}</span>
                 @endif
             </div>
         </div>
@@ -143,39 +143,39 @@
                         <i class="bi bi-file-earmark-plus"></i>
                     </div>
                     <div style="overflow: hidden;">
-                        <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Phụ lục HĐ</div>
+                        <div style="font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">{{ __('Phụ lục HĐ') }}</div>
                         <div style="font-size: 15px; font-weight: 700; color: #0284c7; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             @if($latestPhuLuc)
-                                Phụ lục điều chỉnh
-                                <span style="font-size: 9px; padding: 2px 8px; background: #e0f2fe; color: #0369a1; border-radius: 10px; margin-left: 4px; vertical-align: middle;">Active</span>
+                                {{ __('Phụ lục điều chỉnh') }}
+                                <span style="font-size: 9px; padding: 2px 8px; background: #e0f2fe; color: #0369a1; border-radius: 10px; margin-left: 4px; vertical-align: middle;">{{ __('Active') }}</span>
                             @else
-                                <span style="color: #9ca3af;">Không có dữ liệu</span>
+                                <span style="color: #9ca3af;">{{ __('Chưa có dữ liệu') }}</span>
                             @endif
                         </div>
                     </div>
                 </div>
                 <div style="font-size: 13px; color: #4b5563;">
                     @if($latestPhuLuc)
-                        Ngày ký: <span style="font-weight: 600; color: #111827;">{{ \Carbon\Carbon::parse($latestPhuLuc->ngay_ky)->format('d/m/Y') }}</span>
+                        {{ __('Ngày ký') }}: <span style="font-weight: 600; color: #111827;">{{ \Carbon\Carbon::parse($latestPhuLuc->ngay_ky)->format('d/m/Y') }}</span>
                     @else
-                        <span style="font-style: italic; color: #9ca3af;">Tự động khi có phụ cấp</span>
+                        <span style="font-style: italic; color: #9ca3af;">{{ __('Tự động khi có phụ cấp') }}</span>
                     @endif
                 </div>
             </div>
 
             <div style="background: #f8fafc; border-top: 1px solid #f1f5f9; padding: 12px 15px; display: flex; justify-content: center; gap: 15px;">
                 @if($latestPhuLuc && $latestLabor)
-                    <a href="{{ route('hop-dong.print-phu-luc', $latestLabor->id) }}" title="Xem" style="color: #16a34a; font-size: 18px;">
+                    <a href="{{ route('hop-dong.print-phu-luc', $latestLabor->id) }}" title="{{ __('Xem chi tiết') }}" style="color: #16a34a; font-size: 18px;">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a href="{{ route('hop-dong.download-phu-luc-word', $latestLabor->id) }}" title="Tải file Word" style="color: #2563eb; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-phu-luc-word', $latestLabor->id) }}" title="{{ __('Tải file Word') }}" style="color: #2563eb; font-size: 18px;">
                         <i class="bi bi-file-earmark-word"></i>
                     </a>
-                    <a href="{{ route('hop-dong.download-phu-luc-pdf', $latestLabor->id) }}" title="Tải file PDF" style="color: #dc2626; font-size: 18px;">
+                    <a href="{{ route('hop-dong.download-phu-luc-pdf', $latestLabor->id) }}" title="{{ __('Tải file PDF') }}" style="color: #dc2626; font-size: 18px;">
                         <i class="bi bi-file-earmark-pdf"></i>
                     </a>
                 @else
-                    <span style="font-size: 11px; color: #9ca3af; font-style: italic;">Hệ thống tự tạo</span>
+                    <span style="font-size: 11px; color: #9ca3af; font-style: italic;">{{ __('Hệ thống tự tạo') }}</span>
                 @endif
             </div>
         </div>
@@ -188,13 +188,13 @@
                     <i class="bi bi-clock-history"></i>
                 </div>
                 <h2 style="margin: 0; border-bottom: none; font-size: 1.25rem; font-weight: 700; color: #1f2937;">
-                    Lịch sử hợp đồng lao động
+                    {{ __('Lịch sử hợp đồng lao động') }}
                 </h2>
             </div>
             @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
                 <a href="{{ route('hop-dong.taoView') }}?nhanVienId={{ $employee->id }}" class="btn-premium-add text-decoration-none">
                     <i class="bi bi-plus-lg"></i>
-                    <span>Ký hợp đồng mới</span>
+                    <span>{{ __('Ký hợp đồng mới') }}</span>
                 </a>
             @endcanany
         </div>
@@ -203,14 +203,14 @@
             <table class="table mb-0" id="contractsTable" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="width: 50px;" class="all">STT</th>
-                        <th class="all">Số hợp đồng</th>
-                        <th class="all">Loại hợp đồng</th>
-                        <th class="min-tablet">Chức vụ</th>
-                        <th class="min-tablet">Ngày bắt đầu</th>
-                        <th class="none">Ngày kết thúc</th>
-                        <th style="text-align: center;" class="all">Trạng thái</th>
-                        <th style="width: 120px; text-align: center;" class="all">Thao tác</th>
+                        <th style="width: 50px;" class="all">{{ __('STT') }}</th>
+                        <th class="all">{{ __('Số hợp đồng') }}</th>
+                        <th class="min-tablet">{{ __('Loại hợp đồng') }}</th>
+                        <th class="min-tablet">{{ __('Chức vụ') }}</th>
+                        <th class="min-tablet">{{ __('Ngày bắt đầu') }}</th>
+                        <th class="none">{{ __('Ngày kết thúc') }}</th>
+                        <th style="text-align: center;" class="min-tablet">{{ __('Trạng thái') }}</th>
+                        <th style="width: 120px; text-align: center;">{{ __('Thao tác') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -218,33 +218,33 @@
                         <tr>
                             <td class="text-center font-bold">{{ $index + 1 }}</td>
                             <td style="font-weight: 600;" class="text-primary-hr">{{ $hd->SoHopDong }}</td>
-                            <td>{{ $hd->loaiHopDong->TenLoai ?? 'Hợp đồng lao động' }}</td>
+                            <td>{{ $hd->loaiHopDong->TenLoai ?? __('Hợp đồng lao động') }}</td>
                             <td>{{ $hd->chucVu->Ten ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($hd->NgayBatDau)->format('d/m/Y') }}</td>
-                            <td>{{ $hd->NgayKetThuc ? \Carbon\Carbon::parse($hd->NgayKetThuc)->format('d/m/Y') : 'Không thời hạn' }}</td>
+                            <td>{{ $hd->NgayKetThuc ? \Carbon\Carbon::parse($hd->NgayKetThuc)->format('d/m/Y') : __('Không thời hạn') }}</td>
                             <td style="text-align: center;">
                                 @if($hd->TrangThai == 1)
-                                    <span class="badge badge-success">Đang hiệu lực</span>
+                                    <span class="badge badge-success">{{ __('Đang hiệu lực') }}</span>
                                 @elseif($hd->TrangThai == 0 || $hd->TrangThai === null)
-                                    <span class="badge badge-secondary">Hết hiệu lực</span>
+                                    <span class="badge badge-secondary">{{ __('Hết hiệu lực') }}</span>
                                 @else
-                                    <span class="badge badge-danger">Đã hủy</span>
+                                    <span class="badge badge-danger">{{ __('Đã hủy') }}</span>
                                 @endif
                             </td>
                             <td style="text-align: center;">
                                 <div style="display: flex; justify-content: center; gap: 4px;">
-                                    <a href="{{ route('hop-dong.info', $hd->id) }}" class="action-icon-btn text-info" title="Xem chi tiết">
+                                    <a href="{{ route('hop-dong.info', $hd->id) }}" class="action-icon-btn text-info" title="{{ __('Xem chi tiết') }}">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
-                                        <a href="{{ route('hop-dong.suaView', $hd->id) }}" class="action-icon-btn text-primary" title="Sửa">
+                                        <a href="{{ route('hop-dong.suaView', $hd->id) }}" class="action-icon-btn text-primary" title="{{ __('Sửa') }}">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                     @endcanany
                                     @canany(['Sửa Hợp Đồng', 'Tạo Hợp Đồng'])
                                         {{-- Re-sign button if expired --}}
                                         @if($hd->TrangThai == 0 || ($hd->NgayKetThuc && \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($hd->NgayKetThuc), false) <= 25))
-                                            <a href="{{ route('hop-dong.renew', $hd->id) }}" class="action-icon-btn text-warning" title="Tái ký">
+                                            <a href="{{ route('hop-dong.renew', $hd->id) }}" class="action-icon-btn text-warning" title="{{ __('Tái ký') }}">
                                                 <i class="bi bi-arrow-repeat"></i>
                                             </a>
                                         @endif

@@ -16,6 +16,7 @@ class QuanLyPhepNam extends Model
         'DaNghi',
         'ConLai',
         'KhaDung',
+        'PhepUngToiDa',
     ];
 
     protected $casts = [
@@ -25,6 +26,7 @@ class QuanLyPhepNam extends Model
         'DaNghi' => 'decimal:1',
         'ConLai' => 'decimal:1',
         'KhaDung' => 'decimal:1',
+        'PhepUngToiDa' => 'decimal:1',
     ];
 
     protected $appends = ['PhepKhaDung'];
@@ -51,9 +53,9 @@ class QuanLyPhepNam extends Model
      */
     public function deductLeave($days)
     {
-        $this->DaNghi += $days;
+        $this->DaNghi = (float)($this->DaNghi ?? 0) + (float)$days;
         $this->ConLai = (float) $this->TongPhepDuocNghi - (float) $this->DaNghi;
-        $this->KhaDung -= $days;
+        $this->KhaDung = (float)($this->KhaDung ?? 0) - (float)$days;
         $this->save();
     }
 
@@ -75,17 +77,17 @@ class QuanLyPhepNam extends Model
             return null;
         }
 
-        // Ưu tiên lấy từ hợp đồng đang hiệu lực
-        $activeContract = $nhanVien->hopDongs()->where('TrangThai', 1)->latest()->first();
+        // Ưu tiên lấy từ hợp đồng gốc
+        $rootContract = $nhanVien->hopDongGoc;
         $ngayTuyenDung = $nhanVien->ttCongViec->NgayTuyenDung;
         $joinDate = $ngayTuyenDung ? ($ngayTuyenDung instanceof Carbon ? $ngayTuyenDung : Carbon::parse($ngayTuyenDung)) : null;
         
         $tongPhep = 12.0; // Mặc định
         $fullYearPhep = 12.0;
 
-        if ($activeContract) {
-            $fullYearPhep = (float) ($activeContract->NgayPhepNam ?? 12);
-            $contractStartDate = Carbon::parse($activeContract->NgayBatDau);
+        if ($rootContract) {
+            $fullYearPhep = (float) ($rootContract->NgayPhepNam ?? 12);
+            $contractStartDate = Carbon::parse($rootContract->NgayBatDau);
             
             // Logic mới: Tỉ lệ theo số tháng còn lại nếu kí trong năm nay
             if ($nam == $contractStartDate->year) {
@@ -121,8 +123,8 @@ class QuanLyPhepNam extends Model
         $now = Carbon::now();
         $startMonth = 1;
         
-        if ($activeContract) {
-            $contractStartDate = Carbon::parse($activeContract->NgayBatDau);
+        if ($rootContract) {
+            $contractStartDate = Carbon::parse($rootContract->NgayBatDau);
             if ($contractStartDate->year == $nam) {
                 $startMonth = $contractStartDate->month;
             }
@@ -147,14 +149,19 @@ class QuanLyPhepNam extends Model
 
         // Lấy số ngày đã nghỉ (nếu đã có bản ghi)
         $existing = self::where(['NhanVienId' => $nhanVienId, 'Nam' => $nam])->first();
-        $daNghi = (float) ($existing->DaNghi ?? 0);
+        $daNghi = (float) ($existing?->DaNghi ?? 0);
+
+        // Tính PhepUngToiDa: Mặc định là số ngày phép năm tối đa trừ đi số ngày đã nghỉ thực tế
+        // Hoặc có thể giới hạn bởi một cấu hình khác
+        $phepUngToiDa = round($tongPhep - $accrued, 1);
 
         return self::updateOrCreate(
             ['NhanVienId' => $nhanVienId, 'Nam' => $nam],
             [
                 'TongPhepDuocNghi' => $tongPhep,
                 'KhaDung' => round($accrued - $daNghi, 1),
-                'ConLai' => round($tongPhep - $daNghi, 1)
+                'ConLai' => round($tongPhep - $daNghi, 1),
+                'PhepUngToiDa' => $phepUngToiDa
             ]
         );
     }
