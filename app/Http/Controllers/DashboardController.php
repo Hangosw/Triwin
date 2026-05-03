@@ -35,10 +35,18 @@ class DashboardController extends Controller
         $missingAttendanceCount = NhanVien::whereNotIn('id', $clockedInTodayIds)->count();
 
         // Đơn nghỉ phép chờ duyệt (TrangThai = 2)
-        $pendingLeaveCount = \App\Models\DangKyNghiPhep::where('TrangThai', 2)->count();
+        $pendingLeaves = \App\Models\DangKyNghiPhep::where('TrangThai', 2)
+            ->with(['nhanVien', 'loaiNghiPhep'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $pendingLeaveCount = $pendingLeaves->count();
 
         // Đơn WFH chờ duyệt (TrangThai = 'dang_cho')
-        $pendingWFHCount = \App\Models\WorkFromHome::where('TrangThai', 'dang_cho')->count();
+        $pendingWFHs = \App\Models\WorkFromHome::where('TrangThai', 'dang_cho')
+            ->with('nhanVien')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $pendingWFHCount = $pendingWFHs->count();
 
         // Người phụ thuộc chờ duyệt (TrangThai = 0)
         $pendingRelatives = \App\Models\ThanNhan::where('TrangThai', 0)->with('nhanVien')->get();
@@ -60,7 +68,9 @@ class DashboardController extends Controller
                 'expiringContractsCount',
                 'missingAttendanceCount',
                 'pendingLeaveCount',
+                'pendingLeaves',
                 'pendingWFHCount',
+                'pendingWFHs',
                 'pendingRelatives',
                 'birthdayEmployees'
             ));
@@ -77,7 +87,9 @@ class DashboardController extends Controller
                 'expiringContractsCount',
                 'missingAttendanceCount',
                 'pendingLeaveCount',
+                'pendingLeaves',
                 'pendingWFHCount',
+                'pendingWFHs',
                 'pendingRelatives',
                 'birthdayEmployees'
             ));

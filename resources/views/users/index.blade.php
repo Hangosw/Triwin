@@ -5,7 +5,7 @@
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
-                title: 'Thành công!',
+                title: 'Success!',
                 text: "{{ session('success') }}",
                 confirmButtonColor: '#0BAA4B'
             });
@@ -13,7 +13,7 @@
     </script>
 @endpush
 
-@section('title', 'Quản lý người dùng - ' . \App\Models\SystemConfig::getValue('company_name'))
+@section('title', 'User Management - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @push('styles')
     <style>
@@ -55,8 +55,8 @@
 
 @section('content')
     <div class="page-header">
-        <h1>Quản lý người dùng</h1>
-        <p>Danh sách tất cả người dùng trong hệ thống</p>
+        <h1>User Management</h1>
+        <p>List of all users in the system</p>
     </div>
 
     <!-- Actions Bar -->
@@ -66,12 +66,11 @@
                 {{-- Trạng thái --}}
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label"
-                        style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Trạng
-                        thái</label>
-                    <div class="dropdown custom-filter-dropdown" data-default="Tất cả trạng thái">
+                        style="font-size: 12px; margin-bottom: 4px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Status</label>
+                    <div class="dropdown custom-filter-dropdown" data-default="All Statuses">
                         <input type="hidden" name="trang_thai" id="filterTrangThai" value="">
                         <div class="form-control" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="dropdown-text" style="color: #6c757d;">Tất cả trạng thái</span>
+                            <span class="dropdown-text" style="color: #6c757d;">All Statuses</span>
                             <span class="dropdown-icon">
                                 <i class="bi bi-chevron-down ms-2 text-muted" style="font-size: 14px;"></i>
                             </span>
@@ -79,20 +78,19 @@
                         <div class="dropdown-menu p-2 shadow"
                             style="min-width: 220px; border-radius: 8px; border: 1px solid #e5e7eb;">
                             <div class="mb-2 text-center pb-2" style="border-bottom: 1px solid #e5e7eb;">
-                                <span class="fw-bold" style="font-size: 13px; color: #4b5563;">CHỌN TRẠNG THÁI</span>
+                                <span class="fw-bold" style="font-size: 13px; color: #4b5563;">SELECT STATUS</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 4px;">
                                 <button type="button" class="btn btn-sm btn-primary filter-btn fw-bold shadow-sm"
-                                    data-val="" data-label="Tất cả trạng thái"
+                                    data-val="" data-label="All Statuses"
                                     onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="background-color: #3b82f6; color: #fff; text-align: left;">Tất cả trạng
-                                    thái</button>
+                                    style="background-color: #3b82f6; color: #fff; text-align: left;">All Statuses</button>
                                 <button type="button" class="btn btn-sm btn-light filter-btn" data-val="1"
-                                    data-label="Đang hoạt động" onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="text-align: left;">Đang hoạt động</button>
+                                    data-label="Active" onclick="applyFilterAJAX('filterTrangThai', this)"
+                                    style="text-align: left;">Active</button>
                                 <button type="button" class="btn btn-sm btn-light filter-btn" data-val="0"
-                                    data-label="Ngưng hoạt động" onclick="applyFilterAJAX('filterTrangThai', this)"
-                                    style="text-align: left;">Ngưng hoạt động</button>
+                                    data-label="Inactive" onclick="applyFilterAJAX('filterTrangThai', this)"
+                                    style="text-align: left;">Inactive</button>
                             </div>
                         </div>
                     </div>
@@ -107,13 +105,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Xóa đã chọn (<span id="selectedCount">0</span>)
+                    Delete Selected (<span id="selectedCount">0</span>)
                 </button>
                 <a href="{{ route('nguoi-dung.tao') }}" class="btn btn-primary d-flex align-items-center gap-2">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Thêm người dùng
+                    Add User
                 </a>
             </div>
         </div>
@@ -127,18 +125,18 @@
                     <tr>
                         <th style="width: 60px;">
                             <div style="text-align: center;">
-                                <div><strong>STT</strong></div>
+                                <div><strong>#</strong></div>
                                 <div style="margin-top: 4px;">
                                     <input type="checkbox" id="selectAll" style="cursor: pointer;">
                                 </div>
                             </div>
                         </th>
-                        <th>Họ tên</th>
-                        <th>Tài khoản</th>
+                        <th>Full Name</th>
+                        <th>Username</th>
                         <th>Email</th>
-                        <th>Số điện thoại</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
+                        <th>Phone Number</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,7 +175,7 @@
                     {
                         data: 'Ten',
                         render: function (data, type, row) {
-                            if (!data) return '<span class="text-not-updated">Chưa cập nhật</span>';
+                            if (!data) return '<span class="text-not-updated">Not updated</span>';
                             return `<span class="user-name-link">${data}</span>`;
                         }
                     },
@@ -188,9 +186,9 @@
                         data: 'TrangThai',
                         render: function (data) {
                             if (data == 1) {
-                                return '<span class="badge badge-success">Đang hoạt động</span>';
+                                return '<span class="badge badge-success">Active</span>';
                             }
-                            return '<span class="badge badge-gray">Ngưng hoạt động</span>';
+                            return '<span class="badge badge-gray">Inactive</span>';
                         }
                     },
                     {
@@ -204,7 +202,7 @@
                                 ? `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>`
                                 : `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>`;
 
-                            const statusTitle = row.TrangThai == 1 ? 'Khóa người dùng' : 'Mở khóa người dùng';
+                            const statusTitle = row.TrangThai == 1 ? 'Lock user' : 'Unlock user';
                             const statusClass = row.TrangThai == 1 ? 'text-warning' : 'text-success';
 
                             return `
@@ -213,13 +211,13 @@
                                             ${statusIcon}
                                         </button>
                                         ${!isSelf ? `
-                                        <button type="button" class="btn-icon text-danger btn-delete" data-id="${row.id}" title="Xóa" style="background: none; border: none; cursor: pointer; color: #dc2626;">
+                                        <button type="button" class="btn-icon text-danger btn-delete" data-id="${row.id}" title="Delete" style="background: none; border: none; cursor: pointer; color: #dc2626;">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                             </svg>
                                         </button>
                                         ` : `
-                                        <span class="badge badge-info" style="font-size: 11px;">Chính bạn</span>
+                                        <span class="badge badge-info" style="font-size: 11px;">You</span>
                                         `}
                                     </div>
                                 `;
@@ -231,12 +229,12 @@
                 autoWidth: false,
                 columnDefs: [
                     { orderable: false, targets: [0], responsivePriority: 1 }, // STT + Checkbox
-                    { targets: 1, responsivePriority: 2 }, // Họ tên
-                    { targets: 2, responsivePriority: 4 }, // Tài khoản
+                    { targets: 1, responsivePriority: 2 }, // Full Name
+                    { targets: 2, responsivePriority: 4 }, // Username
                     { targets: 3, responsivePriority: 5 }, // Email
-                    { targets: 4, responsivePriority: 6 }, // SDT
-                    { targets: 5, responsivePriority: 7 }, // Trạng thái
-                    { targets: 6, responsivePriority: 3 }  // Thao tác (Keep visible if possible)
+                    { targets: 4, responsivePriority: 6 }, // Phone Number
+                    { targets: 5, responsivePriority: 7 }, // Status
+                    { targets: 6, responsivePriority: 3 }  // Actions
                 ],
                 order: [], // Respect server order (latest ID)
             });
@@ -372,14 +370,14 @@
             $(document).on('click', '.btn-delete', function () {
                 const id = $(this).data('id');
                 Swal.fire({
-                    title: 'Xác nhận xóa?',
-                    text: "Dữ liệu sẽ không thể khôi phục!",
+                    title: 'Confirm deletion?',
+                    text: "Data cannot be recovered!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Đồng ý',
-                    cancelButtonText: 'Hủy'
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.post(`/nguoi-dung/xoa/${id}`, {
@@ -387,13 +385,13 @@
                         }, function (res) {
                             if (res.success) {
                                 table.ajax.reload();
-                                Swal.fire('Đã xóa!', res.message, 'success');
+                                Swal.fire('Deleted!', res.message, 'success');
                             } else {
-                                Swal.fire('Lỗi!', res.message, 'error');
+                                Swal.fire('Error!', res.message, 'error');
                             }
                         }).fail(function (xhr) {
-                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Có lỗi xảy ra khi xóa người dùng.';
-                            Swal.fire('Thất bại!', msg, 'error');
+                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while deleting user.';
+                            Swal.fire('Failed!', msg, 'error');
                         });
                     }
                 });
@@ -404,14 +402,14 @@
                 if (selectedIds.length === 0) return;
 
                 Swal.fire({
-                    title: 'Xóa các mục đã chọn?',
-                    text: `Bạn đang chọn xóa ${selectedIds.length} người dùng.`,
+                    title: 'Delete selected items?',
+                    text: `You have selected ${selectedIds.length} users for deletion.`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Xóa ngay',
-                    cancelButtonText: 'Hủy'
+                    confirmButtonText: 'Delete now',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.post("{{ route('nguoi-dung.xoa-nhieu') }}", {
@@ -423,13 +421,13 @@
                                 selectedIds = [];
                                 $('#selectAll').prop('checked', false);
                                 updateDeleteButton();
-                                Swal.fire('Thành công!', res.message, 'success');
+                                Swal.fire('Success!', res.message, 'success');
                             } else {
-                                Swal.fire('Lỗi!', res.message, 'error');
+                                Swal.fire('Error!', res.message, 'error');
                             }
                         }).fail(function (xhr) {
-                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Có lỗi xảy ra khi xóa danh sách người dùng.';
-                            Swal.fire('Thất bại!', msg, 'error');
+                            const msg = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while deleting selected users.';
+                            Swal.fire('Failed!', msg, 'error');
                         });
                     }
                 });

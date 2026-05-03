@@ -1,226 +1,464 @@
 @extends('layouts.app')
 
-@section('title', 'Trang chủ - ' . \App\Models\SystemConfig::getValue('company_name'))
+@section('title', 'Dashboard - ' . \App\Models\SystemConfig::getValue('company_name'))
 
 @section('content')
 <div class="page-header">
-    <h1>Trang chủ</h1>
-    <p>Tổng quan hệ thống quản lý nhân sự</p>
+    <h1>Dashboard</h1>
+    <p>HR Management System Overview</p>
 </div>
 
-<!-- Dashboards Selection Grid -->
-<div class="dashboard-grid">
+<!-- Dashboard Wrapper -->
+<div class="dashboard-wrapper">
     <style>
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 24px;
-        }
-        @media (max-width: 600px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
         }
         .action-card {
             text-decoration: none;
             display: flex;
-            flex-direction: column;
-            gap: 16px;
-            padding: 24px;
-            border-radius: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
         .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        .action-card .icon-box {
-            width: 56px;
-            height: 56px;
+        .action-card .title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .action-card .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        body.dark-theme .action-card { background: #1a1d27; border-color: #2e3349; }
+        body.dark-theme .action-card .value { color: #f8fafc; }
+
+        .pending-section {
+            margin-top: 24px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1e293b;
+        }
+        body.dark-theme .section-title { color: #f8fafc; }
+        
+        .table-card {
+            background: white;
             border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        body.dark-theme .table-card { background: #1a1d27; border-color: #2e3349; }
+        
+        .table thead th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        body.dark-theme .table thead th { background: #13161f; border-bottom-color: #2e3349; color: #94a3b8; }
+        
+        .table tbody td {
+            padding: 10px 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13.5px;
+        }
+        body.dark-theme .table tbody td { border-bottom-color: #2e3349; }
+        
+        .emp-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .emp-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f1f5f9;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
         }
-        .action-card .count-badge {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            font-size: 28px;
-            font-weight: 800;
-            opacity: 0.8;
-        }
-        .action-card .title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        .action-card .desc {
-            font-size: 14px;
-            color: #6b7280;
-            line-height: 1.5;
-        }
-        
-        /* Specific Styles */
-        .card-leave { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #bfdbfe; }
-        .card-wfh { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-color: #ddd6fe; }
-        .card-relative { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #bbf7d0; }
-        .card-attendance { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-color: #fed7aa; }
-
-        body.dark-theme .card-leave { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-color: #334155; }
-        body.dark-theme .card-wfh { background: linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%); border-color: #4c1d95; }
-        body.dark-theme .card-relative { background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border-color: #065f46; }
-        body.dark-theme .card-attendance { background: linear-gradient(135deg, #451a03 0%, #2a0e00 100%); border-color: #78350f; }
-
-        body.dark-theme .action-card .title { color: #f8fafc; }
-        body.dark-theme .action-card .desc { color: #94a3b8; }
-        body.dark-theme .action-card .count-badge { color: rgba(255,255,255,0.4); }
-
-        .relative-list {
-            margin-top: 12px;
+        .action-btns {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
-        .relative-mini-item {
-            background: rgba(255,255,255,0.5);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
+        .btn-table-action {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            color: #374151;
+            justify-content: center;
+            border: none;
+            transition: all 0.2s;
+            cursor: pointer;
         }
-        body.dark-theme .relative-mini-item {
-            background: rgba(0,0,0,0.2);
-            color: #cbd5e1;
+        .btn-approve { background: #ecfdf5; color: #059669; }
+        .btn-approve:hover { background: #059669; color: white; }
+        .btn-reject { background: #fef2f2; color: #dc2626; }
+        .btn-reject:hover { background: #dc2626; color: white; }
+
+        .birthday-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
         }
     </style>
 
-    <!-- Đơn nghỉ phép -->
-    <a href="{{ route('nghi-phep.danh-sach', ['trang_thai' => 2]) }}" class="action-card card-leave">
-        <div class="icon-box" style="background: #3b82f6; color: white;">🏖️</div>
-        <div class="count-badge">{{ number_format($pendingLeaveCount) }}</div>
-        <div>
-            <div class="title">Đơn nghỉ phép</div>
-            <div class="desc">Có {{ number_format($pendingLeaveCount) }} đơn nghỉ phép đang chờ phê duyệt.</div>
-        </div>
-        <div style="font-size: 13px; color: #3b82f6; font-weight: 600; margin-top: auto;">Xem chi tiết →</div>
-    </a>
-
-    <!-- Đơn WFH -->
-    <a href="{{ route('wfh.danh-sach', ['trang_thai' => 'dang_cho']) }}" class="action-card card-wfh">
-        <div class="icon-box" style="background: #8b5cf6; color: white;">🏠</div>
-        <div class="count-badge">{{ number_format($pendingWFHCount) }}</div>
-        <div>
-            <div class="title">Đơn WFH</div>
-            <div class="desc">Có {{ number_format($pendingWFHCount) }} đơn làm việc từ xa đang chờ duyệt.</div>
-        </div>
-        <div style="font-size: 13px; color: #8b5cf6; font-weight: 600; margin-top: auto;">Xem chi tiết →</div>
-    </a>
-
-    <!-- Người phụ thuộc -->
-    <div class="action-card card-relative" style="display: block;">
-        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px;">
-            <div class="icon-box" style="background: #0BAA4B; color: white;">👥</div>
-            <div style="text-align: right;">
-                <div style="font-size: 24px; font-weight: 800; color: #059669;">{{ $pendingRelatives->count() }}</div>
-                <div style="font-size: 12px; color: #059669; font-weight: 600;">CHỜ DUYỆT</div>
+    <!-- Thống kê tổng quan -->
+    <div class="dashboard-grid mb-4">
+        <a href="{{ route('nghi-phep.danh-sach', ['trang_thai' => 2]) }}" class="action-card">
+            <div>
+                <div class="title">Leave Requests</div>
+                <div class="value">{{ number_format($pendingLeaveCount) }}</div>
             </div>
+        </a>
+        <a href="{{ route('wfh.danh-sach', ['trang_thai' => 'dang_cho']) }}" class="action-card">
+            <div>
+                <div class="title">WFH Requests</div>
+                <div class="value">{{ number_format($pendingWFHCount) }}</div>
+            </div>
+        </a>
+        <a href="{{ route('nhan-vien.danh-sach') }}" class="action-card">
+            <div>
+                <div class="title">Dependents</div>
+                <div class="value">{{ $pendingRelatives->count() }}</div>
+            </div>
+        </a>
+        <a href="{{ route('cham-cong.danh-sach') }}" class="action-card">
+            <div>
+                <div class="title">Missing Attendance</div>
+                <div class="value">{{ number_format($missingAttendanceCount) }}</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Section: Pending Leave Requests -->
+    <div class="pending-section">
+        <div class="section-title">
+            Pending Leave Requests
         </div>
-        <div>
-            <div class="title">Duyệt người phụ thuộc</div>
-            <div class="desc">Danh sách nhân viên có người thân cần xác nhận.</div>
-        </div>
-        
-        <div class="relative-list">
-            @if($pendingRelatives->count() > 0)
-                @php $firstItem = $pendingRelatives->first(); @endphp
-                <a href="{{ route('nhan-vien.info', $firstItem->NhanVienId) }}#relatives" class="relative-mini-item" style="text-decoration: none;">
-                    <span><strong>{{ $firstItem->HoTen }}</strong> ({{ $firstItem->nhanVien->Ten ?? 'N/A' }})</span>
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-                
-                @if($pendingRelatives->count() > 1)
-                    <a href="{{ route('nhan-vien.danh-sach') }}" style="text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px; margin-top: 8px; font-size: 13px; color: #059669; font-weight: 600;">
-                        Và {{ $pendingRelatives->count() - 1 }} yêu cầu khác cần duyệt →
-                    </a>
-                @endif
-            @else
-                <div style="font-size: 13px; color: #6b7280; font-style: italic; margin-top: 8px;">Không có yêu cầu nào.</div>
-            @endif
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Days</th>
+                            <th>Reason</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pendingLeaves as $leave)
+                            <tr>
+                                <td>
+                                    <div class="emp-info">
+                                        <div class="emp-avatar">{{ substr($leave->nhanVien->Ten ?? 'N', 0, 1) }}</div>
+                                        <div>
+                                            <div class="font-bold">{{ $leave->nhanVien->Ten ?? 'N/A' }}</div>
+                                            <div class="text-muted" style="font-size: 12px;">{{ $leave->nhanVien->MaNhanVien ?? '' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge badge-info">{{ $leave->loaiNghiPhep->Ten ?? 'N/A' }}</span></td>
+                                <td>
+                                    <div>{{ \Carbon\Carbon::parse($leave->TuNgay)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($leave->DenNgay)->format('d/m/Y') }}</div>
+                                    <div class="text-muted" style="font-size: 11px;">
+                                        {{ $leave->TuBuoi == 'ca_ngay' ? 'Full Day' : ($leave->TuBuoi == 'sang' ? 'Morning' : 'Afternoon') }} 
+                                        → {{ $leave->DenBuoi == 'ca_ngay' ? 'Full Day' : ($leave->DenBuoi == 'sang' ? 'Morning' : 'Afternoon') }}
+                                    </div>
+                                </td>
+                                <td><span class="font-bold text-primary">{{ number_format($leave->SoNgayNghi, 1) }}</span> d</td>
+                                <td title="{{ $leave->LyDo }}">{{ \Str::limit($leave->LyDo, 30) }}</td>
+                                <td>
+                                    <div class="action-btns justify-content-end">
+                                        <button onclick="processAction('leave', 'approve', {{ $leave->id }})" class="btn-table-action btn-approve" title="Approve"><i class="bi bi-check-lg"></i></button>
+                                        <button onclick="processAction('leave', 'reject', {{ $leave->id }})" class="btn-table-action btn-reject" title="Reject"><i class="bi bi-x-lg"></i></button>
+                                        <a href="{{ route('nghi-phep.danh-sach', ['trang_thai' => 2]) }}" class="btn-table-action" style="background: #f8fafc; color: #64748b;" title="View Details"><i class="bi bi-eye"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6" class="text-center py-4 text-muted">No pending leave requests.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Nhắc nhở chấm công -->
-    <a href="{{ route('cham-cong.danh-sach') }}" class="action-card card-attendance">
-        <div class="icon-box" style="background: #f97316; color: white;">⏱️</div>
-        <div class="count-badge">{{ number_format($missingAttendanceCount) }}</div>
-        <div>
-            <div class="title">Nhắc nhở chấm công</div>
-            <div class="desc">Có {{ number_format($missingAttendanceCount) }} nhân viên chưa ghi nhận chấm công hôm nay.</div>
+    <!-- Section: Pending WFH Requests -->
+    <div class="pending-section">
+        <div class="section-title">
+            Pending WFH Requests
         </div>
-        <div style="font-size: 13px; color: #f97316; font-weight: 600; margin-top: auto;">Xem danh sách →</div>
-    </a>
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Duration</th>
+                            <th>Days</th>
+                            <th>Reason</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pendingWFHs as $wfh)
+                            <tr>
+                                <td>
+                                    <div class="emp-info">
+                                        <div class="emp-avatar">{{ substr($wfh->nhanVien->Ten ?? 'N', 0, 1) }}</div>
+                                        <div>
+                                            <div class="font-bold">{{ $wfh->nhanVien->Ten ?? 'N/A' }}</div>
+                                            <div class="text-muted" style="font-size: 12px;">{{ $wfh->nhanVien->MaNhanVien ?? '' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($wfh->NgayBatDau)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($wfh->NgayKetThuc)->format('d/m/Y') }}</td>
+                                <td><span class="font-bold text-primary">{{ number_format($wfh->Ngay, 1) }}</span> d</td>
+                                <td title="{{ $wfh->LyDo }}">{{ \Str::limit($wfh->LyDo, 30) }}</td>
+                                <td>
+                                    <div class="action-btns justify-content-end">
+                                        <button onclick="processAction('wfh', 'approve', {{ $wfh->id }})" class="btn-table-action btn-approve" title="Approve"><i class="bi bi-check-lg"></i></button>
+                                        <button onclick="processAction('wfh', 'reject', {{ $wfh->id }})" class="btn-table-action btn-reject" title="Reject"><i class="bi bi-x-lg"></i></button>
+                                        <a href="{{ route('wfh.danh-sach', ['trang_thai' => 'dang_cho']) }}" class="btn-table-action" style="background: #f8fafc; color: #64748b;" title="View Details"><i class="bi bi-eye"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No pending WFH requests.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <!-- Sinh nhật hôm nay -->
-    <div class="card" style="grid-column: 1 / -1;">
-        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-            🎂 Sinh nhật hôm nay
-            @if($birthdayEmployees->count() > 0)
-                <span style="background: linear-gradient(135deg, #f97316, #ef4444); color: white; font-size: 13px; font-weight: 600; border-radius: 12px; padding: 2px 10px;">{{ $birthdayEmployees->count() }}</span>
-            @endif
-        </h2>
+    <!-- Section: Pending Dependent Approvals -->
+    <div class="pending-section">
+        <div class="section-title">
+            Pending Dependent Approvals
+        </div>
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Dependent</th>
+                            <th>Relationship</th>
+                            <th>Tax Dep.</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pendingRelatives as $rel)
+                            <tr>
+                                <td>
+                                    <div class="emp-info">
+                                        <div class="emp-avatar">{{ substr($rel->nhanVien->Ten ?? 'N', 0, 1) }}</div>
+                                        <div>
+                                            <div class="font-bold">{{ $rel->nhanVien->Ten ?? 'N/A' }}</div>
+                                            <div class="text-muted" style="font-size: 12px;">{{ $rel->nhanVien->MaNhanVien ?? '' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="font-bold">{{ $rel->HoTen }}</div>
+                                    <div class="text-muted" style="font-size: 12px;">NS: {{ $rel->NgaySinh ? \Carbon\Carbon::parse($rel->NgaySinh)->format('d/m/Y') : 'N/A' }}</div>
+                                </td>
+                                <td>
+                                    @php
+                                        $quanHeArr = [
+                                            'bo_de' => 'Father', 'me_de' => 'Mother', 'vo_chong' => 'Spouse',
+                                            'con_ruot' => 'Child', 'con_nuoi' => 'Adopted Child', 'khac' => 'Other'
+                                        ];
+                                    @endphp
+                                    {{ $quanHeArr[$rel->QuanHe] ?? $rel->QuanHe }}
+                                </td>
+                                <td>
+                                    @if($rel->LaGiamTruGiaCanh)
+                                        <span class="badge badge-success">Yes</span>
+                                    @else
+                                        <span class="badge badge-gray">No</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="action-btns justify-content-end">
+                                        <button onclick="processAction('relative', 'approve', {{ $rel->id }})" class="btn-table-action btn-approve" title="Approve"><i class="bi bi-check-lg"></i></button>
+                                        <button onclick="processAction('relative', 'reject', {{ $rel->id }})" class="btn-table-action btn-reject" title="Reject"><i class="bi bi-x-lg"></i></button>
+                                        <a href="{{ route('nhan-vien.info', $rel->NhanVienId) }}#relatives" class="btn-table-action" style="background: #f8fafc; color: #64748b;" title="View Details"><i class="bi bi-eye"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No pending dependent requests.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Birthdays -->
+    <div class="pending-section mb-5">
+        <div class="section-title">
+            Today's Birthdays
+        </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
             @if($birthdayEmployees->count() > 0)
-                @php $firstBirthday = $birthdayEmployees->first(); @endphp
-                <div class="birthday-item" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: linear-gradient(135deg, #fff7ed, #fef3c7); border-radius: 16px; border: 1px solid #fde68a;">
-                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f97316, #ef4444); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px;">
-                        🎂
-                    </div>
-                    <div style="flex: 1;">
-                        <div class="emp-name" style="font-weight: 700; color: #1f2937; font-size: 16px;">{{ $firstBirthday->Ten }}</div>
-                        <div class="birthday-text" style="font-size: 13px; color: #78350f;">
-                            Chúc mừng sinh nhật! 🎈
-                            @if($firstBirthday->NgaySinh)
-                                · {{ \Carbon\Carbon::parse($firstBirthday->NgaySinh)->format('d/m/Y') }}
-                            @endif
+                @foreach($birthdayEmployees->take(6) as $emp)
+                    <div class="table-card p-3" style="margin-bottom: 0;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f97316, #ef4444); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white;">
+                                🎂
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="font-bold" style="font-size: 16px;">{{ $emp->Ten }}</div>
+                                <div class="text-muted" style="font-size: 13px;">{{ $emp->ttCongViec->phongBan->Ten ?? 'Nhân viên' }}</div>
+                            </div>
+                            <button
+                                onclick="chuMungSinhNhat({{ $emp->id }}, '{{ addslashes($emp->Ten) }}')"
+                                class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;"
+                            >
+                                🎊 Wish
+                            </button>
                         </div>
                     </div>
-                    <button
-                        onclick="chuMungSinhNhat({{ $firstBirthday->id }}, '{{ addslashes($firstBirthday->Ten) }}')"
-                        style="padding: 10px 18px; background: linear-gradient(135deg, #f97316, #ef4444); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: transform 0.2s;"
-                        onmouseover="this.style.transform='scale(1.05)'"
-                        onmouseout="this.style.transform='scale(1)'"
-                    >
-                        🎊 Chúc mừng
-                    </button>
-                </div>
-                
-                @if($birthdayEmployees->count() > 1)
-                    <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #fffbeb; border-radius: 16px; border: 1px solid #fef3c7;">
-                        <div style="width: 48px; height: 48px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">🎁</div>
-                        <div style="flex:1;">
-                            <div style="font-weight: 700; color: #92400e;">Và {{ $birthdayEmployees->count() - 1 }} nhân viên khác</div>
-                            <div style="font-size: 13px; color: #b45309;">Hôm nay cũng là ngày đặc biệt của họ!</div>
-                        </div>
+                @endforeach
+                @if($birthdayEmployees->count() > 6)
+                    <div class="text-center mt-3" style="grid-column: 1 / -1;">
+                        <span class="text-muted">And {{ $birthdayEmployees->count() - 6 }} others have birthdays today.</span>
                     </div>
                 @endif
             @else
-                <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 32px; background: #f9fafb; border-radius: 16px; border: 1px dashed #e5e7eb; justify-content: center;">
-                    <div style="font-size: 32px;">📅</div>
-                    <div style="color: #6b7280; font-size: 15px; font-weight: 500;">Hôm nay không có nhân viên nào đón tuổi mới.</div>
+                <div style="grid-column: 1 / -1; padding: 40px; background: #f8fafc; border-radius: 16px; border: 1px dashed #cbd5e1; text-align: center; color: #64748b;">
+                    <i class="bi bi-calendar-event" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>
+                    No employee birthdays today.
                 </div>
             @endif
         </div>
     </div>
 </div>
+
+{{-- Script xử lý phê duyệt/từ chối --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function processAction(type, action, id) {
+        let title = '';
+        let text = '';
+        let url = '';
+        let confirmText = 'Confirm';
+        
+        if (type === 'leave') {
+            url = action === 'approve' ? `/nghi-phep/duyet/${id}` : `/nghi-phep/tu-choi/${id}`;
+            title = action === 'approve' ? 'Approve leave request?' : 'Reject leave request?';
+            text = action === 'approve' ? 'This request will be marked as Approved.' : 'Please enter the reason for rejection (optional):';
+        } else if (type === 'wfh') {
+            url = action === 'approve' ? `/wfh/duyet/${id}` : `/wfh/tu-choi/${id}`;
+            title = action === 'approve' ? 'Approve WFH request?' : 'Reject WFH request?';
+        } else if (type === 'relative') {
+            url = action === 'approve' ? `/nguoi-phu-thuoc/duyet/${id}` : `/nguoi-phu-thuoc/tu-choi/${id}`;
+            title = action === 'approve' ? 'Approve dependent request?' : 'Reject dependent request?';
+        }
+
+        const swalConfig = {
+            title: title,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: action === 'approve' ? '#059669' : '#dc2626',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: confirmText,
+            cancelButtonText: 'Cancel',
+        };
+
+        if (action === 'reject') {
+            swalConfig.input = 'textarea';
+            swalConfig.inputPlaceholder = 'Enter reason...';
+            swalConfig.inputAttributes = { 'aria-label': 'Enter reason' };
+            if (type === 'relative') swalConfig.inputValidator = (value) => {
+                if (!value) return 'You must enter a reason!';
+            };
+        }
+
+        Swal.fire(swalConfig).then((result) => {
+            if (result.isConfirmed) {
+                const formData = new FormData();
+                if (action === 'reject' && result.value) {
+                    formData.append('LyDo', result.value); // for leave
+                    formData.append('GhiChu', result.value); // for wfh & relative
+                }
+                
+                // Show loading
+                Swal.fire({
+                    title: 'Processing...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            timer: 1500
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire('Error!', data.message || 'Something went wrong', 'error');
+                    }
+                })
+                .catch(err => {
+                    Swal.fire('Error!', 'Could not connect to the server.', 'error');
+                });
+            }
+        });
+    }
+</script>
+
 
 {{-- Modal Chúc mừng --}}
 <div id="birthdayModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
@@ -228,7 +466,7 @@
         <div style="font-size: 72px; margin-bottom: 16px;">🎉</div>
         <h3 id="birthdayModalTitle" style="font-size:24px; font-weight:800; color:#1f2937; margin-bottom:12px;"></h3>
         <p style="font-size:16px; color:#4b5563; margin-bottom:32px; line-height:1.7;">
-            Hãy gửi tin nhắn chúc mừng kèm theo những lời chúc tốt đẹp nhất dành cho thành viên của chúng ta trong ngày đặc biệt này! 🌟
+            Send a congratulatory message along with your best wishes to our member on this special day! 🌟
         </p>
         <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
             <button
@@ -237,10 +475,10 @@
                 style="padding:12px 28px; background: linear-gradient(135deg, #ec4899, #f97316); color:white; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition: opacity 0.2s; display:flex; align-items:center; gap:10px;"
                 onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'"
             >
-                📧 Gửi email chúc mừng
+                📧 Send Wishes
             </button>
             <button onclick="closeBirthdayModal()" style="padding:12px 28px; background: #f3f4f6; color:#4b5563; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition: background 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
-                Để sau
+                Maybe later
             </button>
         </div>
         <div id="birthdayMailStatus" style="margin-top:20px; font-size:14px; font-weight: 600; display:none;"></div>
@@ -252,12 +490,12 @@
 
     function chuMungSinhNhat(id, ten) {
         currentBirthdayEmployeeId = id;
-        document.getElementById('birthdayModalTitle').textContent = 'Chúc mừng sinh nhật ' + ten + '! 🎂';
+        document.getElementById('birthdayModalTitle').textContent = 'Happy Birthday ' + ten + '! 🎂';
         document.getElementById('birthdayMailStatus').style.display = 'none';
         document.getElementById('birthdayMailStatus').textContent = '';
         var btn = document.getElementById('btnGuiBirthdayMail');
         btn.disabled = false;
-        btn.innerHTML = '📧 Gửi email chúc mừng';
+        btn.innerHTML = '📧 Send Wishes';
         btn.style.opacity = '1';
         btn.style.background = 'linear-gradient(135deg, #ec4899, #f97316)';
         var modal = document.getElementById('birthdayModal');
@@ -273,7 +511,7 @@
         if (!currentBirthdayEmployeeId) return;
         var btn = document.getElementById('btnGuiBirthdayMail');
         btn.disabled = true;
-        btn.innerHTML = '⏳ Đang xử lý...';
+        btn.innerHTML = '⏳ Processing...';
         btn.style.opacity = '0.7';
 
         var statusEl = document.getElementById('birthdayMailStatus');
@@ -293,22 +531,22 @@
             if (data.success) {
                 statusEl.style.color = '#16a34a';
                 statusEl.innerHTML = '✅ ' + data.message;
-                btn.innerHTML = '✅ Đã hoàn tất!';
+                btn.innerHTML = '✅ Done!';
                 btn.style.background = 'linear-gradient(135deg, #0BAA4B, #22c55e)';
             } else {
                 statusEl.style.color = '#dc2626';
                 statusEl.innerHTML = '❌ ' + data.message;
                 btn.disabled = false;
-                btn.innerHTML = '📧 Thử lại';
+                btn.innerHTML = '📧 Retry';
                 btn.style.opacity = '1';
             }
         })
         .catch(err => {
             statusEl.style.display = 'block';
             statusEl.style.color = '#dc2626';
-            statusEl.innerHTML = '❌ Lỗi kết nối máy chủ.';
+            statusEl.innerHTML = '❌ Server connection error.';
             btn.disabled = false;
-            btn.innerHTML = '📧 Thử lại';
+            btn.innerHTML = '📧 Retry';
             btn.style.opacity = '1';
         });
     }
@@ -317,4 +555,5 @@
         if (e.target === this) closeBirthdayModal();
     });
 </script>
+</div>
 @endsection
